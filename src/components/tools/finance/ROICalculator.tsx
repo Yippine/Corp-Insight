@@ -1,0 +1,108 @@
+import { useState } from 'react';
+
+interface ROIResult {
+  roi: number;
+  annualizedRoi: number;
+  netReturn: number;
+}
+
+export default function ROICalculator() {
+  const [investment, setInvestment] = useState('100000');
+  const [returns, setReturns] = useState('120000');
+  const [years, setYears] = useState('1');
+  const [result, setResult] = useState<ROIResult | null>(null);
+
+  const calculateROI = () => {
+    const initialInvestment = parseFloat(investment);
+    const finalValue = parseFloat(returns);
+    const period = parseFloat(years);
+
+    const netReturn = finalValue - initialInvestment;
+    const roi = (netReturn / initialInvestment) * 100;
+    const annualizedRoi = (Math.pow((finalValue / initialInvestment), 1/period) - 1) * 100;
+
+    setResult({
+      roi,
+      annualizedRoi,
+      netReturn
+    });
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="grid grid-cols-1 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            投資金額 (NT$)
+          </label>
+          <input
+            type="number"
+            value={investment}
+            onChange={(e) => setInvestment(e.target.value)}
+            min="0"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            最終價值 (NT$)
+          </label>
+          <input
+            type="number"
+            value={returns}
+            onChange={(e) => setReturns(e.target.value)}
+            min="0"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            投資期間 (年)
+          </label>
+          <input
+            type="number"
+            value={years}
+            onChange={(e) => setYears(e.target.value)}
+            min="0.1"
+            step="0.1"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+
+        <button
+          onClick={calculateROI}
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          計算ROI
+        </button>
+
+        {result && (
+          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-500">總報酬率</p>
+                <p className="text-lg font-medium text-gray-900">
+                  {result.roi.toFixed(2)}%
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">年化報酬率</p>
+                <p className="text-lg font-medium text-gray-900">
+                  {result.annualizedRoi.toFixed(2)}%
+                </p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-sm text-gray-500">淨收益</p>
+                <p className="text-lg font-medium text-gray-900">
+                  NT$ {result.netReturn.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

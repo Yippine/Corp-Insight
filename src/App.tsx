@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Building2, FileSpreadsheet } from 'lucide-react';
+import { Building2, FileSpreadsheet, Wrench } from 'lucide-react';
 import TenderSearch from './components/TenderSearch';
 import CompanySearch from './components/CompanySearch';
+import Tools from './components/Tools';
 
 function App() {
   const [activeTab, setActiveTab] = useState('tender');
@@ -42,12 +43,24 @@ function App() {
                 <Building2 className="mr-2 h-5 w-5" />
                 企業資料
               </button>
+              <button
+                onClick={() => setActiveTab('tools')}
+                className={`${
+                  activeTab === 'tools'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } flex items-center w-1/3 py-4 px-4 border-b-2 font-medium text-sm`}
+              >
+                <Wrench className="mr-2 h-5 w-5" />
+                實用工具
+              </button>
             </nav>
           </div>
 
           <div className="p-6">
             {activeTab === 'tender' && <TenderSearch />}
             {activeTab === 'company' && <CompanySearch />}
+            {activeTab === 'tools' && <Tools />}
           </div>
         </div>
       </main>

@@ -1,0 +1,160 @@
+import { useState } from 'react';
+import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet } from 'lucide-react';
+import ManufacturingCalculator from './tools/manufacturing/ManufacturingCalculator';
+import MetalWeightCalculator from './tools/manufacturing/MetalWeightCalculator';
+import YieldCalculator from './tools/manufacturing/YieldCalculator';
+import PackagingCalculator from './tools/manufacturing/PackagingCalculator';
+import OEECalculator from './tools/manufacturing/OEECalculator';
+import CompoundInterestCalculator from './tools/finance/CompoundInterestCalculator';
+import CurrencyConverter from './tools/finance/CurrencyConverter';
+import LoanCalculator from './tools/finance/LoanCalculator';
+import ROICalculator from './tools/finance/ROICalculator';
+import DepositCalculator from './tools/finance/DepositCalculator';
+
+interface Tool {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+  component: React.ComponentType;
+}
+
+const manufacturingTools: Tool[] = [
+  {
+    id: 'manufacturing-calculator',
+    name: '工具機加工參數計算器',
+    description: '計算銑削/車削速度、進給率，提供最佳加工參數建議',
+    icon: Calculator,
+    component: ManufacturingCalculator
+  },
+  {
+    id: 'metal-weight',
+    name: '金屬材料重量計算器',
+    description: '計算各種金屬材料的重量及預估成本',
+    icon: Scale,
+    component: MetalWeightCalculator
+  },
+  {
+    id: 'yield-calculator',
+    name: '簡易良率計算器',
+    description: '計算生產良率和損失成本分析',
+    icon: BarChart3,
+    component: YieldCalculator
+  },
+  {
+    id: 'packaging-calculator',
+    name: '包裝箱最佳化計算器',
+    description: '計算最佳包裝方式，提升物流效率',
+    icon: Package,
+    component: PackagingCalculator
+  },
+  {
+    id: 'oee-calculator',
+    name: '基礎OEE計算器',
+    description: '計算設備綜合效率指標',
+    icon: Activity,
+    component: OEECalculator
+  }
+];
+
+const financeTools: Tool[] = [
+  {
+    id: 'compound-interest',
+    name: '複利計算器',
+    description: '計算投資收益與複利效果',
+    icon: DollarSign,
+    component: CompoundInterestCalculator
+  },
+  {
+    id: 'currency-converter',
+    name: '外幣快速換算器',
+    description: '主要貨幣即時匯率換算',
+    icon: Coins,
+    component: CurrencyConverter
+  },
+  {
+    id: 'loan-calculator',
+    name: '貸款比較計算器',
+    description: '比較不同貸款方案的還款計畫',
+    icon: Wallet,
+    component: LoanCalculator
+  },
+  {
+    id: 'roi-calculator',
+    name: '投資報酬率計算器',
+    description: '計算投資效益與年化報酬率',
+    icon: LineChart,
+    component: ROICalculator
+  },
+  {
+    id: 'deposit-calculator',
+    name: '定存理財試算器',
+    description: '計算定存收益與到期金額',
+    icon: PieChart,
+    component: DepositCalculator
+  }
+];
+
+export default function Tools() {
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
+
+  if (selectedTool) {
+    const ToolComponent = selectedTool.component;
+    return (
+      <div className="space-y-4">
+        <button
+          onClick={() => setSelectedTool(null)}
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300"
+        >
+          ← 返回工具列表
+        </button>
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">{selectedTool.name}</h2>
+          <ToolComponent />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <section>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">製造業工具</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {manufacturingTools.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => setSelectedTool(tool)}
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
+            >
+              <div className="flex items-center mb-4">
+                <tool.icon className="h-6 w-6 text-blue-600 mr-3" />
+                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
+              </div>
+              <p className="text-gray-600">{tool.description}</p>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">金融業工具</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {financeTools.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => setSelectedTool(tool)}
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
+            >
+              <div className="flex items-center mb-4">
+                <tool.icon className="h-6 w-6 text-green-600 mr-3" />
+                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
+              </div>
+              <p className="text-gray-600">{tool.description}</p>
+            </button>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
