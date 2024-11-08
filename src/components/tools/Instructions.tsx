@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface InstructionsProps {
   what: string;
   why: string;

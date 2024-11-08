@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network } from 'lucide-react';
+import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network, Search, FileText, Type, MessageSquare, Star, Zap } from 'lucide-react';
 import ManufacturingCalculator from './tools/manufacturing/ManufacturingCalculator';
 import MetalWeightCalculator from './tools/manufacturing/MetalWeightCalculator';
 import YieldCalculator from './tools/manufacturing/YieldCalculator';
@@ -15,6 +15,12 @@ import ServerSpecCalculator from './tools/computer/ServerSpecCalculator';
 import AIInfrastructureCostCalculator from './tools/computer/AIInfrastructureCostCalculator';
 import ModelPerformanceCalculator from './tools/computer/ModelPerformanceCalculator';
 import WorkloadScalabilityCalculator from './tools/computer/WorkloadScalabilityCalculator';
+import TitleGenerator from './tools/seo/TitleGenerator';
+import DescriptionGenerator from './tools/seo/DescriptionGenerator';
+import KeywordGenerator from './tools/seo/KeywordGenerator';
+import FaqGenerator from './tools/seo/FaqGenerator';
+import ReviewGenerator from './tools/seo/ReviewGenerator';
+import FeatureGenerator from './tools/seo/FeatureGenerator';
 
 interface Tool {
   id: string;
@@ -23,6 +29,51 @@ interface Tool {
   icon: React.ElementType;
   component: React.ComponentType;
 }
+
+const seoTools: Tool[] = [
+  {
+    id: 'title-generator',
+    name: 'AI 標題生成器',
+    description: '智能生成 SEO 友好的標題，提高點擊率和搜尋排名',
+    icon: Type,
+    component: TitleGenerator
+  },
+  {
+    id: 'description-generator',
+    name: 'AI 描述生成器',
+    description: '生成優化的 META 描述，提升搜尋結果的點擊率',
+    icon: FileText,
+    component: DescriptionGenerator
+  },
+  {
+    id: 'keyword-generator',
+    name: 'AI 關鍵字生成器',
+    description: '發掘高價值長尾關鍵字，降低競爭難度',
+    icon: Search,
+    component: KeywordGenerator
+  },
+  {
+    id: 'faq-generator',
+    name: 'AI FAQ 生成器',
+    description: '智能生成常見問題，豐富網站內容',
+    icon: MessageSquare,
+    component: FaqGenerator
+  },
+  {
+    id: 'review-generator',
+    name: 'AI 評價生成器',
+    description: '生成真實感產品評價，增加社交證明',
+    icon: Star,
+    component: ReviewGenerator
+  },
+  {
+    id: 'feature-generator',
+    name: 'AI 功能生成器',
+    description: '客製化產品功能描述，提高銷售吸引力',
+    icon: Zap,
+    component: FeatureGenerator
+  }
+];
 
 const computerTools: Tool[] = [
   {
@@ -162,16 +213,16 @@ export default function Tools() {
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">電腦業工具</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">免費 SEO 工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {computerTools.map((tool) => (
+          {seoTools.map((tool) => (
             <button
               key={tool.id}
               onClick={() => setSelectedTool(tool)}
               className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
             >
               <div className="flex items-center mb-4">
-                <tool.icon className="h-6 w-6 text-purple-600 mr-3" />
+                <tool.icon className="h-6 w-6 text-indigo-600 mr-3" />
                 <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
               </div>
               <p className="text-gray-600">{tool.description}</p>
@@ -181,7 +232,7 @@ export default function Tools() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">金融業工具</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">免費金融業工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {financeTools.map((tool) => (
             <button
@@ -200,7 +251,26 @@ export default function Tools() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">製造業工具</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">免費電腦業工具</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {computerTools.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => setSelectedTool(tool)}
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
+            >
+              <div className="flex items-center mb-4">
+                <tool.icon className="h-6 w-6 text-purple-600 mr-3" />
+                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
+              </div>
+              <p className="text-gray-600">{tool.description}</p>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">免費製造業工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {manufacturingTools.map((tool) => (
             <button

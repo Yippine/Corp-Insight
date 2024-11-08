@@ -50,10 +50,10 @@ export default function ServerSpecCalculator() {
     const data = parseInt(dataSize);
     const selectedComplexity = complexityLevels.find(c => c.id === complexity)!;
 
-    // CPU: 每50位用戶配置1核心為基準，乘以複雜度係數
+    // CPU: 每50位使用者配置1核心為基準，乘以複雜度係數
     const cpuCores = Math.ceil((concurrentUsers / 50) * selectedComplexity.cpuMultiplier);
 
-    // 內存: 基於用戶數和數據量，乘以複雜度係數
+    // 內存: 基於使用者數量和數據量，乘以複雜度係數
     const memory = Math.ceil((concurrentUsers * 0.3 + data * 1) * selectedComplexity.memoryMultiplier);
 
     // 存儲空間: 基於數據量，含備份空間，乘以複雜度係數
@@ -67,12 +67,12 @@ export default function ServerSpecCalculator() {
       <Instructions
         what="伺服器規格計算器幫助您估算應用所需的伺服器資源。"
         why="準確的伺服器規格評估可以確保應用運行順暢，同時避免資源浪費。"
-        how="輸入預期的並發用戶數、數據量和應用複雜度，計算器會根據經驗值推薦合適的伺服器配置。"
+        how="輸入預期的並發使用者數量量、數據量和應用複雜度，計算器會根據經驗值推薦合適的伺服器配置。"
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            並發用戶數
+            並發使用者數量量
           </label>
           <input
             type="number"

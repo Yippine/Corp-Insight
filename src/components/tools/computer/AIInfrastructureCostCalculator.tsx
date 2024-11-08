@@ -64,8 +64,8 @@ export default function AIInfrastructureCostCalculator() {
     const networkCost = (requests * 0.1 * 30); // 假設每請求0.1元網絡成本
     const operationalCost = (monthlyPowerCost + coolingCost + networkCost) * months;
 
-    // 軟體授權成本（基於用戶數和使用時間）
-    const softwareCost = users * 100 * months; // 假設每用戶每月100元
+    // 軟體授權成本（基於使用者數量和使用時間）
+    const softwareCost = users * 100 * months; // 假設每使用者每月100元
 
     const totalCost = hardwareCost + operationalCost + softwareCost;
 
@@ -83,7 +83,7 @@ export default function AIInfrastructureCostCalculator() {
       <Instructions
         what="AI 基礎設施成本估算器幫助您評估 AI 專案的總體成本。"
         why="準確的成本估算可以幫助做出更好的預算規劃和投資決策。"
-        how="輸入工作負載類型、用戶數、請求量等參數，計算器會估算硬體、運營和軟體成本。"
+        how="輸入工作負載類型、使用者數量、請求量等參數，計算器會估算硬體、運營和軟體成本。"
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
@@ -105,7 +105,7 @@ export default function AIInfrastructureCostCalculator() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            並發用戶數
+            並發使用者數量量
           </label>
           <input
             type="number"
