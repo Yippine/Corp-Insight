@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface LoanResult {
   monthlyPayment: number;
@@ -59,6 +60,11 @@ export default function LoanCalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="貸款比較計算器幫助您了解貸款的還款計畫和總成本。"
+        why="在申請貸款前，了解每月還款金額和總利息支出可以幫助做出更好的財務決策。"
+        how="輸入貸款金額、年利率和期間，計算器會顯示每月還款金額、總還款金額和分期明細。計算公式：每月還款 = 本金×(月利率×(1+月利率)^期數)/((1+月利率)^期數-1)。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

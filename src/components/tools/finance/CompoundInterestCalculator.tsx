@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface CalculationResult {
   finalAmount: number;
@@ -51,6 +52,11 @@ export default function CompoundInterestCalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="複利計算器可以幫助您計算投資隨時間增長的價值。"
+        why="了解複利效應對於長期投資規劃和財務目標設定非常重要。"
+        how="輸入本金、年利率、投資期間和複利頻率，計算器會顯示最終金額和收益明細。計算公式：最終金額 = 本金×(1 + 利率/複利頻率)^(期間×複利頻率)。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

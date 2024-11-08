@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Instructions from '../Instructions';
 
 interface ExchangeRates {
   [key: string]: number;
@@ -61,6 +62,11 @@ export default function CurrencyConverter() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="外幣快速換算器可以幫助您進行不同貨幣之間的換算。"
+        why="在國際貿易、旅遊或投資時，快速了解不同貨幣的等值金額非常重要。"
+        how="選擇原始貨幣和目標貨幣，輸入金額後即可看到換算結果。換算使用即時匯率（目前為模擬數據），計算方式：目標金額 = 原始金額 × 匯率。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

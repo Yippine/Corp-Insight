@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface CalculationResult {
   boxesNeeded: number;
@@ -52,6 +53,11 @@ export default function PackagingCalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="包裝箱最佳化計算器幫助您規劃產品在包裝箱中的最佳擺放方式。"
+        why="合理的包裝配置可以最大化空間利用率，降低運輸成本，提高物流效率。"
+        how="輸入產品和包裝箱的尺寸（長寬高）以及需求數量，計算器會推薦最佳擺放方式。計算過程：分析不同擺放方向的可能性，計算每箱可容納數量和空間利用率。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

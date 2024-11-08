@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface CalculationResult {
   spindleSpeed: number;
@@ -38,6 +39,11 @@ export default function ManufacturingCalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="工具機加工參數計算器是一個幫助您確定最佳切削參數的工具。"
+        why="正確的加工參數可以提高加工效率、延長刀具壽命，並確保加工品質。"
+        how="輸入材料類型、刀具直徑和切削深度，計算器會根據材料特性和加工經驗值，推薦最適合的主軸轉速和進給速度。計算公式：主軸轉速(RPM) = (切削速度×1000)/(π×刀具直徑)，進給速度 = 轉速×每刃進給×刀具刃數。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

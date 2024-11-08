@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface CalculationResult {
   yield: number;
@@ -33,6 +34,11 @@ export default function YieldCalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="良率計算器用於計算生產過程中的良品率和相關成本。"
+        why="良率分析可以幫助識別生產問題，評估品質改善成效，並計算不良品造成的損失。"
+        how="輸入總生產量、不良品數量和單件成本，計算器會顯示良率百分比和損失金額。計算公式：良率 = (總數量-不良品數量)/總數量×100%，損失成本 = 不良品數量×單件成本。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

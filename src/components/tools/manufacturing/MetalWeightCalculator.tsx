@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface Material {
   id: string;
@@ -49,6 +50,11 @@ export default function MetalWeightCalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="金屬材料重量計算器可以幫助您計算不同形狀和材質的金屬工件重量。"
+        why="準確的重量計算對於材料採購、成本估算和物流規劃都非常重要。"
+        how="選擇材料類型和形狀（長方體或圓柱體），輸入尺寸後即可得到重量和成本估算。計算公式：重量 = 體積 × 密度，其中長方體體積 = 長×寬×高，圓柱體體積 = π×半徑²×高。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

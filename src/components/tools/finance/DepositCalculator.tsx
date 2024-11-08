@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface DepositResult {
   finalAmount: number;
@@ -31,6 +32,11 @@ export default function DepositCalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="定存理財試算器幫助您計算定期存款的收益。"
+        why="了解定存收益可以幫助規劃資金運用，比較不同銀行的定存方案。"
+        how="輸入存款金額、年利率和存款期間，計算器會顯示到期金額和利息收入。計算公式：到期金額 = 本金×(1 + 年利率×期間/12)，總利息 = 到期金額 - 本金。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

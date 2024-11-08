@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface ROIResult {
   roi: number;
@@ -30,6 +31,11 @@ export default function ROICalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="投資報酬率(ROI)計算器用於評估投資的效益。"
+        why="ROI可以幫助比較不同投資選項的獲利能力，是投資決策的重要參考指標。"
+        how="輸入投資金額、最終價值和投資期間，計算器會顯示總報酬率和年化報酬率。計算公式：ROI = (淨收益/投資金額)×100%，年化ROI = ((最終價值/投資金額)^(1/年數) - 1)×100%。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

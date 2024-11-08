@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Instructions from '../Instructions';
 
 interface CalculationResult {
   availability: number;
@@ -45,6 +46,11 @@ export default function OEECalculator() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Instructions
+        what="OEE（設備綜合效率）計算器用於評估設備的整體使用效率。"
+        why="OEE是衡量生產效率的重要指標，可以幫助識別需要改善的領域。"
+        how="輸入計劃生產時間、停機時間、理想週期時間和產出數據，計算器會顯示可用性、性能和品質三個指標。計算公式：OEE = 可用性×性能×品質，其中可用性 = 運行時間/計劃時間，性能 = 實際產出/理想產出，品質 = 良品數/總產出。"
+      />
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
