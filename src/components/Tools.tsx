@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet } from 'lucide-react';
+import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network } from 'lucide-react';
 import ManufacturingCalculator from './tools/manufacturing/ManufacturingCalculator';
 import MetalWeightCalculator from './tools/manufacturing/MetalWeightCalculator';
 import YieldCalculator from './tools/manufacturing/YieldCalculator';
@@ -10,6 +10,11 @@ import CurrencyConverter from './tools/finance/CurrencyConverter';
 import LoanCalculator from './tools/finance/LoanCalculator';
 import ROICalculator from './tools/finance/ROICalculator';
 import DepositCalculator from './tools/finance/DepositCalculator';
+import GPUMemoryCalculator from './tools/computer/GPUMemoryCalculator';
+import ServerSpecCalculator from './tools/computer/ServerSpecCalculator';
+import AIInfrastructureCostCalculator from './tools/computer/AIInfrastructureCostCalculator';
+import ModelPerformanceCalculator from './tools/computer/ModelPerformanceCalculator';
+import WorkloadScalabilityCalculator from './tools/computer/WorkloadScalabilityCalculator';
 
 interface Tool {
   id: string;
@@ -18,6 +23,44 @@ interface Tool {
   icon: React.ElementType;
   component: React.ComponentType;
 }
+
+const computerTools: Tool[] = [
+  {
+    id: 'gpu-memory',
+    name: 'GPU 內存計算器',
+    description: '計算 AI 模型運行所需的 GPU 內存',
+    icon: Monitor,
+    component: GPUMemoryCalculator
+  },
+  {
+    id: 'server-spec',
+    name: '伺服器規格計算器',
+    description: '評估應用所需的伺服器資源配置',
+    icon: Server,
+    component: ServerSpecCalculator
+  },
+  {
+    id: 'ai-infrastructure-cost',
+    name: 'AI 基礎設施成本估算器',
+    description: '評估 AI 專案的硬體、運營和軟體成本',
+    icon: Database,
+    component: AIInfrastructureCostCalculator
+  },
+  {
+    id: 'model-performance',
+    name: '模型效能預測工具',
+    description: '預測 AI 模型的資源消耗和性能表現',
+    icon: Cpu,
+    component: ModelPerformanceCalculator
+  },
+  {
+    id: 'workload-scalability',
+    name: 'AI 工作負載規模化評估',
+    description: '評估 AI 系統的可擴展性和資源效率',
+    icon: Network,
+    component: WorkloadScalabilityCalculator
+  }
+];
 
 const manufacturingTools: Tool[] = [
   {
@@ -119,16 +162,16 @@ export default function Tools() {
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">製造業工具</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">電腦業工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {manufacturingTools.map((tool) => (
+          {computerTools.map((tool) => (
             <button
               key={tool.id}
               onClick={() => setSelectedTool(tool)}
               className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
             >
               <div className="flex items-center mb-4">
-                <tool.icon className="h-6 w-6 text-blue-600 mr-3" />
+                <tool.icon className="h-6 w-6 text-purple-600 mr-3" />
                 <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
               </div>
               <p className="text-gray-600">{tool.description}</p>
@@ -148,6 +191,25 @@ export default function Tools() {
             >
               <div className="flex items-center mb-4">
                 <tool.icon className="h-6 w-6 text-green-600 mr-3" />
+                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
+              </div>
+              <p className="text-gray-600">{tool.description}</p>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">製造業工具</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {manufacturingTools.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => setSelectedTool(tool)}
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
+            >
+              <div className="flex items-center mb-4">
+                <tool.icon className="h-6 w-6 text-blue-600 mr-3" />
                 <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
               </div>
               <p className="text-gray-600">{tool.description}</p>
