@@ -135,7 +135,7 @@ export default function CompanyDetail({ companyId, onBack }: CompanyDetailProps)
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt className="text-sm font-medium text-gray-500">實收資本額</dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      NT$ {companyData.capital}
+                      {companyData.capital}
                     </dd>
                   </div>
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -229,7 +229,7 @@ export default function CompanyDetail({ companyId, onBack }: CompanyDetailProps)
                         </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        NT$ {tender.amount}
+                        {tender.amount}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

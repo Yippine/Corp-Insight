@@ -1,49 +1,158 @@
 import { useState } from 'react';
 import { Search, Building2, FileSpreadsheet, Users, MapPin } from 'lucide-react';
 
+interface CompanyData {
+  id: string;
+  name: string;
+  status: string;
+  taxId: string;
+  chairman: string;
+  industry: string;
+  tenders: number;
+  address: string;
+  capital: string;
+  employees: string;
+}
+
+interface ApiCompanyResponse {
+  id?: string;
+  商業名稱?: string;
+  公司名稱?: string;
+  現況?: string;
+  公司狀況?: string;
+  統一編號?: string;
+  負責人姓名?: string;
+  代表人姓名?: string;
+  營業項目?: string;
+  所營事業資料?: string;
+  地址?: string;
+  公司所在地?: string;
+  '資本額(元)'?: number | string;
+  '資本總額(元)'?: number | string;
+}
+
 interface CompanySearchProps {
   onCompanySelect: (companyId: string) => void;
 }
 
 export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
   const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<CompanyData[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
     setIsSearching(true);
-    // TODO: 實際的API呼叫
-    // 模擬API回應
-    setTimeout(() => {
-      setSearchResults([
-        {
-          id: '1',
-          name: '台積電股份有限公司',
-          taxId: '22099131',
-          address: '新竹科學園區力行六路8號',
-          chairman: '劉德音',
-          industry: '半導體製造業',
-          capital: '259,304,805,000',
-          tenders: 156,
-          employees: '70,000+'
-        },
-        {
-          id: '2',
-          name: '台積電半導體股份有限公司',
-          taxId: '84149243',
-          address: '台南市南部科學園區南科三路',
-          chairman: '魏哲家',
-          industry: '半導體製造業',
-          capital: '50,000,000',
-          tenders: 23,
-          employees: '5,000+'
+    setError(null);
+    
+    try {
+      const searchType = determineSearchType(query);
+      if (searchType === 'taxId') {
+        // 如果是統編，直接搜尋
+        const response = await fetchCompanyData('taxId', query);
+        const formattedResults = formatCompanyResults('taxId', response);
+        setSearchResults(formattedResults);
+      } else {
+        // 先嘗試用公司名稱搜尋
+        const response = await fetchCompanyData('name', query);
+        let formattedResults = formatCompanyResults('name', response);
+        if (formattedResults.length === 0) {
+          // 如果公司名稱搜尋失敗，改用負責人名稱搜尋
+          const response = await fetchCompanyData('chairman', query);
+          formattedResults = formatCompanyResults('chairman', response);
         }
-      ]);
+        setSearchResults(formattedResults);
+      }
+    } catch (error) {
+      console.error('搜尋失敗:', error);
+      setError('搜尋過程發生錯誤，請稍後再試');
+    } finally {
       setIsSearching(false);
-    }, 1000);
+    }
+  };
+
+  const determineSearchType = (query: string): 'taxId' | 'name' => {
+    const taxIdPattern = /^\d{8}$/;
+    return taxIdPattern.test(query) ? 'taxId' : 'name';
+  };
+
+  const fetchCompanyData = async (type: 'taxId' | 'name' | 'chairman', query: string) => {
+    const baseUrl = 'http://company.g0v.ronny.tw/api';
+    const endpoints = {
+      taxId: `${baseUrl}/show/${query}`,
+      name: `${baseUrl}/search?q=${encodeURIComponent(query)}&page=1`,
+      chairman: `${baseUrl}/name?q=${encodeURIComponent(query)}&page=1`
+    };
+
+    const response = await fetch(endpoints[type]);
+    if (!response.ok) throw new Error('API 請求失敗');
+    return await response.json() as CompanyData[];
+  };
+
+  const getCompanyStatus = (company: ApiCompanyResponse): string => {
+    const statusConditions = ['歇業', '撤銷', '廢止', '解散'];
+    const fields = ['現況', '公司狀況'];
+    
+    for (const condition of statusConditions) {
+      for (const field of fields) {
+        const fieldValue = company[field as keyof ApiCompanyResponse];
+        if (typeof fieldValue === 'string' && fieldValue.includes(condition)) {
+          return `已${condition}`;
+        }
+      }
+    }
+    return '營業中';
+  };
+
+  const getIndustryInfo = (company: ApiCompanyResponse): string => {
+    if (company.所營事業資料?.[0]?.[1])
+      return company.所營事業資料[0][1];
+    
+    const str = company.營業項目 || '';
+    const matches = str.match(/[\u4e00-\u9fa5]+/g) || [];
+
+    if (matches.length > 1 && matches[0]?.length === 1)
+      return matches[1] || '未分類';
+    
+    return matches[0] || '未分類';
+  };
+
+  const formatCompanyData = (company: ApiCompanyResponse): CompanyData => {
+    return {
+      id: company.id || String(Math.random()),
+      name: (company.商業名稱 || company.公司名稱 || '未知').trim(),
+      status: getCompanyStatus(company),
+      taxId: company.統一編號 || '未知',
+      chairman: company.負責人姓名 || company.代表人姓名 || '無',
+      industry: getIndustryInfo(company),
+      tenders: NaN,
+      address: company.地址 || company.公司所在地 || '未知',
+      capital: formatCapital(company['資本額(元)'] || company['資本總額(元)'] || 0),
+      employees: '未知'
+    };
+  };
+
+  const formatCompanyResults = (type: 'taxId' | 'name' | 'chairman', data: any): CompanyData[] => {
+    const companies = data.data;
+    
+    if (!companies)
+      return [formatCompanyData({})];
+
+    if (type === 'taxId')
+      return [formatCompanyData(companies)];
+
+    return Array.isArray(companies) 
+      ? companies.map((company: ApiCompanyResponse) => formatCompanyData(company))
+      : [formatCompanyData({})];
+  };
+
+  const formatCapital = (capital: number | string): string => {
+    const sanitizedCapital = String(capital).replace(/,/g, '');
+    const amount = Number(sanitizedCapital);
+    return `NT$ ${amount.toLocaleString()}`;
   };
 
   return (
@@ -83,8 +192,8 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
             負責人
           </span>
           <span className="flex items-center">
-            <MapPin className="h-4 w-4 mr-1" />
-            地址
+            <Search className="h-4 w-4 mr-1" />
+            關鍵字
           </span>
         </div>
       </form>
@@ -92,6 +201,10 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
       {isSearching ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : error ? (
+        <div className="flex justify-center py-12">
+          <p className="text-red-500">{error}</p>
         </div>
       ) : searchResults.length > 0 ? (
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
@@ -108,8 +221,8 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
                         <p className="text-lg font-medium text-blue-600 truncate">
                           {company.name}
                         </p>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          營業中
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${company.status === '營業中' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                          {company.status}
                         </span>
                       </div>
                       <div className="text-sm text-gray-500">
@@ -137,7 +250,7 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
                       </div>
                     </div>
                     <div className="mt-2 text-sm text-gray-500">
-                      實收資本額：NT$ {company.capital} | 員工人數：{company.employees}
+                      實收資本額：{company.capital} | 員工人數：{company.employees}
                     </div>
                   </div>
                 </button>
