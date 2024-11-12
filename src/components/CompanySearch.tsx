@@ -153,20 +153,20 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
                     </div>
                     <div className="mt-2 sm:flex sm:justify-between">
                       <div className="sm:flex space-x-6">
-                        <p className="flex items-center text-sm text-gray-500">
+                        <p className="flex item-start text-sm text-gray-500">
                           <Users className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                           負責人：{company.chairman}
                         </p>
-                        <p className="flex items-center text-sm text-gray-500" style={{ whiteSpace: 'pre-line' }}>
+                        <p className="flex item-start text-sm text-gray-500" style={{ whiteSpace: 'pre-line' }}>
                           <Building2 className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                           {company.industry}
                         </p>
-                        <p className="flex items-center text-sm text-gray-500">
+                        <p className="flex item-start text-sm text-gray-500">
                           <FileSpreadsheet className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                           標案數：{company.tenders}
                         </p>
                       </div>
-                      <div className="flex items-center text-sm text-gray-500">
+                      <div className="flex item-start text-sm text-gray-500">
                         <MapPin className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                         {company.address}
                       </div>
