@@ -4,35 +4,56 @@ import { SearchData, SearchResponse, formatSearchData } from '../utils/companyUt
 
 interface CompanySearchProps {
   onCompanySelect: (companyTaxId: string) => void;
+  searchResults: SearchData[];
+  setSearchResults: (results: SearchData[]) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
-export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
-  const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchData[]>([]);
+const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: string) => {
+  const baseUrl = 'http://company.g0v.ronny.tw/api';
+  const endpoints = {
+    taxId: `${baseUrl}/show/${query}`,
+    name: `${baseUrl}/search?q=${encodeURIComponent(query)}&page=1`,
+    chairman: `${baseUrl}/name?q=${encodeURIComponent(query)}&page=1`
+  };
+
+  const response = await fetch(endpoints[type]);
+  if (!response.ok) throw new Error('API 請求失敗');
+  return await response.json() as SearchData[];
+};
+
+export default function CompanySearch({ 
+  onCompanySelect, 
+  searchResults, 
+  setSearchResults,
+  searchQuery,
+  setSearchQuery
+}: CompanySearchProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    if (!searchQuery.trim()) return;
 
     setIsSearching(true);
     setError(null);
     
     try {
-      const searchType = determineSearchType(query);
+      const searchType = determineSearchType(searchQuery);
       if (searchType === 'taxId') {
         // 如果是統編，直接搜尋
-        const response = await fetchSearchData('taxId', query);
+        const response = await fetchSearchData('taxId', searchQuery);
         const formattedResults = formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
       } else {
         // 先嘗試用公司名稱搜尋
-        const response = await fetchSearchData('name', query);
+        const response = await fetchSearchData('name', searchQuery);
         let formattedResults = formatCompanyResults('name', response);
         if (formattedResults.length === 0) {
           // 如果公司名稱搜尋失敗，改用負責人名稱搜尋
-          const response = await fetchSearchData('chairman', query);
+          const response = await fetchSearchData('chairman', searchQuery);
           formattedResults = formatCompanyResults('chairman', response);
         }
         setSearchResults(formattedResults);
@@ -48,19 +69,6 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
   const determineSearchType = (query: string): 'taxId' | 'name' => {
     const taxIdPattern = /^\d{8}$/;
     return taxIdPattern.test(query) ? 'taxId' : 'name';
-  };
-
-  const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: string) => {
-    const baseUrl = 'http://company.g0v.ronny.tw/api';
-    const endpoints = {
-      taxId: `${baseUrl}/show/${query}`,
-      name: `${baseUrl}/search?q=${encodeURIComponent(query)}&page=1`,
-      chairman: `${baseUrl}/name?q=${encodeURIComponent(query)}&page=1`
-    };
-
-    const response = await fetch(endpoints[type]);
-    if (!response.ok) throw new Error('API 請求失敗');
-    return await response.json() as SearchData[];
   };
 
   const formatCompanyResults = (type: 'taxId' | 'name' | 'chairman', data: any): SearchData[] => {
@@ -89,8 +97,8 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
             </div>
             <input
               type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full h-full rounded-l-lg border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 text-lg"
               placeholder="輸入公司名稱、統編、負責人或關鍵字"
             />
@@ -186,3 +194,5 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
     </div>
   );
 }
+
+export { fetchSearchData };

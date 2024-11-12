@@ -3,10 +3,28 @@ import { Search, Building2, FileSpreadsheet, Wrench, ChevronRight, TrendingUp, A
 import CompanySearch from './components/CompanySearch';
 import CompanyDetail from './components/CompanyDetail';
 import Tools from './components/Tools';
+import { useCompanySearch } from './hooks/useCompanySearch';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'search' | 'tools'>('search');
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+
+  const {
+    searchResults,
+    setSearchResults,
+    searchQuery,
+    setSearchQuery
+  } = useCompanySearch();
+
+  // 處理公司選擇
+  const handleCompanySelect = (companyTaxId: string) => {
+    setSelectedCompany(companyTaxId);
+  };
+
+  // 處理返回
+  const handleBack = () => {
+    setSelectedCompany(null);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -62,7 +80,13 @@ function App() {
             </div>
 
             {/* Search Section */}
-            <CompanySearch onCompanySelect={setSelectedCompany} />
+            <CompanySearch 
+              onCompanySelect={handleCompanySelect}
+              searchResults={searchResults}
+              setSearchResults={setSearchResults}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+            />
 
             {/* Feature Section */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 mt-12">
@@ -165,7 +189,7 @@ function App() {
         {activeTab === 'search' && selectedCompany && (
           <CompanyDetail 
             companyTaxId={selectedCompany} 
-            onBack={() => setSelectedCompany(null)}
+            onBack={handleBack}
           />
         )}
 

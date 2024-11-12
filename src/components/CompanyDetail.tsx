@@ -16,7 +16,7 @@ const tabs = [
   { id: 'industry', name: '產業分析', icon: TrendingUp }
 ];
 
-const fetchSearchData = async (taxId: string) => {
+const fetchDetailData = async (taxId: string) => {
   try {
     const response = await fetch(`http://company.g0v.ronny.tw/api/show/${taxId}`);
     const result = await response.json();
@@ -71,7 +71,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
   useEffect(() => {
     const loadSearchData = async () => {
       try {
-        const data = await fetchSearchData(companyTaxId);
+        const data = await fetchDetailData(companyTaxId);
         setSearchData(data);
       } catch (error) {
         console.error('載入公司資料時發生錯誤:', error);
