@@ -106,7 +106,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">公司狀態</dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${SearchData.status === '營業中' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {SearchData.status}
                       </span>
                     </dd>
