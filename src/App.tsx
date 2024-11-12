@@ -164,7 +164,7 @@ function App() {
 
         {activeTab === 'search' && selectedCompany && (
           <CompanyDetail 
-            companyId={selectedCompany} 
+            companyTaxId={selectedCompany} 
             onBack={() => setSelectedCompany(null)}
           />
         )}

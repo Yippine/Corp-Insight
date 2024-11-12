@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Mail, Phone, Globe, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Mail, Phone, Globe, FileSpreadsheet } from 'lucide-react';
+import { getIndustryInfo } from '../utils/companyUtils';
 
 interface CompanyDetailProps {
-  companyId: string;
+  companyTaxId: string;
   onBack: () => void;
 }
 
@@ -15,43 +16,106 @@ const tabs = [
   { id: 'industry', name: '產業分析', icon: TrendingUp }
 ];
 
-export default function CompanyDetail({ companyId, onBack }: CompanyDetailProps) {
-  const [activeTab, setActiveTab] = useState('basic');
+const fetchCompanyData = async (taxId: string) => {
+  try {
+    const response = await fetch(`http://company.g0v.ronny.tw/api/show/${taxId}`);
+    const result = await response.json();
+    const company = result.data;
 
-  // TODO: 實際的API呼叫
-  // 模擬公司資料
-  const companyData = {
-    name: '台積電股份有限公司',
-    taxId: '22099131',
-    address: '新竹科學園區力行六路8號',
-    chairman: '劉德音',
-    industry: '半導體製造業',
-    capital: '259,304,805,000',
-    established: '1987/02/21',
-    status: '營業中',
-    email: 'contact@tsmc.com',
-    phone: '03-5636688',
-    website: 'www.tsmc.com',
-    employees: '70,000+',
-    directors: [
-      { name: '劉德音', title: '董事長', shares: '1,653,709' },
-      { name: '魏哲家', title: '董事', shares: '1,245,786' }
-    ],
-    tenders: [
-      {
-        date: '2024/01/15',
-        title: '晶圓廠擴建工程',
-        amount: '1,500,000,000',
-        status: '已決標'
-      },
-      {
-        date: '2023/12/20',
-        title: '廠區空調系統更新',
-        amount: '50,000,000',
-        status: '履約中'
+    // 格式化日期函數
+    const formatDate = (dateObj: { year: number; month: number; day: number }) => {
+      return `${dateObj.year}/${String(dateObj.month).padStart(2, '0')}/${String(dateObj.day).padStart(2, '0')}`;
+    };
+
+    // 將董監事資料轉換為需要的格式
+    const formattedDirectors = company.董監事名單.map((director: { 姓名: string; 職稱: string; 出資額?: number }) => ({
+      name: director.姓名,
+      title: director.職稱,
+      shares: director.出資額 || '0'
+    }));
+
+    // 模擬公司資料
+    // const companyData = {
+    //   name: '台積電股份有限公司',
+    //   taxId: '22099131',
+    //   address: '新竹科學園區力行六路8號',
+    //   chairman: '劉德音',
+    //   industry: '半導體製造業',
+    //   capital: '259,304,805,000',
+    //   established: '1987/02/21',
+    //   status: '營業中',
+    //   email: 'contact@tsmc.com',
+    //   phone: '03-5636688',
+    //   website: 'www.tsmc.com',
+    //   employees: '70,000+',
+    //   directors: [
+    //     { name: '劉德音', title: '董事長', shares: '1,653,709' },
+    //     { name: '魏哲家', title: '董事', shares: '1,245,786' }
+    //   ],
+    //   tenders: [
+    //     {
+    //       date: '2024/01/15',
+    //       title: '晶圓廠擴建工程',
+    //       amount: '1,500,000,000',
+    //       status: '已決標'
+    //     },
+    //     {
+    //       date: '2023/12/20',
+    //       title: '廠區空調系統更新',
+    //       amount: '50,000,000',
+    //       status: '履約中'
+    //     }
+    //   ]
+    // };
+
+    const companyData = {
+      name: company.公司名稱,
+      taxId: taxId,
+      industry: getIndustryInfo(company),
+
+      status: company.登記現況 === '核准設立' ? '營業中' : company.登記現況,
+      address: company.公司所在地,
+      chairman: company.代表人姓名,
+      capital: company.實收資本額元?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+      established: formatDate(company.核准設立日期),
+      email: '未提供', // API中沒有這個資料
+      phone: '未提供', // API中沒有這個資料
+      website: '未提供', // API中沒有這個資料
+      employees: '未提供', // API中沒有這個資料
+      directors: formattedDirectors,
+      tenders: [] // API中沒有標案資料
+    };
+
+    return companyData;
+  } catch (error) {
+    console.error('Error fetching company data:', error);
+    throw error;
+  }
+};
+
+export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailProps) {
+  const [activeTab, setActiveTab] = useState('basic');
+  const [companyData, setCompanyData] = useState<any>(null);
+
+  console.log(`11111 companyTaxId: ${companyTaxId}`);
+
+  useEffect(() => {
+    const loadCompanyData = async () => {
+      try {
+        const data = await fetchCompanyData(companyTaxId);
+        setCompanyData(data);
+      } catch (error) {
+        console.error('載入公司資料時發生錯誤:', error);
+        alert('無法載入公司資料，請稍後再試。');
       }
-    ]
-  };
+    };
+
+    loadCompanyData();
+  }, [companyTaxId]);
+
+  if (!companyData) {
+    return <div>載入中...</div>;
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -173,7 +237,7 @@ export default function CompanyDetail({ companyId, onBack }: CompanyDetailProps)
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {companyData.directors.map((director, index) => (
+                  {companyData.directors.map((director: { name: string; title: string; shares: string }, index: number) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {director.name}
@@ -218,7 +282,7 @@ export default function CompanyDetail({ companyId, onBack }: CompanyDetailProps)
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {companyData.tenders.map((tender, index) => (
+                  {companyData.tenders.map((tender: { date: string; title: string; amount: string; status: string }, index: number) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {tender.date}
@@ -267,13 +331,18 @@ export default function CompanyDetail({ companyId, onBack }: CompanyDetailProps)
       </div>
 
       <div className="bg-white shadow-sm rounded-lg p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
               {companyData.name}
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              統一編號：{companyData.taxId} | 產業別：{companyData.industry}
+            <p className="flex items-center text-sm text-gray-500">
+              <FileSpreadsheet className="h-4 w-4 mr-1" />
+              統一編號：{companyData.taxId}
+            </p>
+            <p className="flex items-center text-sm text-gray-500" style={{ whiteSpace: 'pre-line' }}>
+              <Building2 className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+              {companyData.industry}
             </p>
           </div>
           <div className="flex space-x-3">
