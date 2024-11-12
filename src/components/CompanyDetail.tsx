@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Mail, Phone, Globe, FileSpreadsheet } from 'lucide-react';
-import { getIndustryInfo } from '../utils/companyUtils';
+import { formatDetailData } from '../utils/companyUtils';
 
 interface CompanyDetailProps {
   companyTaxId: string;
@@ -16,26 +16,14 @@ const tabs = [
   { id: 'industry', name: '產業分析', icon: TrendingUp }
 ];
 
-const fetchCompanyData = async (taxId: string) => {
+const fetchSearchData = async (taxId: string) => {
   try {
     const response = await fetch(`http://company.g0v.ronny.tw/api/show/${taxId}`);
     const result = await response.json();
     const company = result.data;
 
-    // 格式化日期函數
-    const formatDate = (dateObj: { year: number; month: number; day: number }) => {
-      return `${dateObj.year}/${String(dateObj.month).padStart(2, '0')}/${String(dateObj.day).padStart(2, '0')}`;
-    };
-
-    // 將董監事資料轉換為需要的格式
-    const formattedDirectors = company.董監事名單.map((director: { 姓名: string; 職稱: string; 出資額?: number }) => ({
-      name: director.姓名,
-      title: director.職稱,
-      shares: director.出資額 || '0'
-    }));
-
     // 模擬公司資料
-    // const companyData = {
+    // const SearchData = {
     //   name: '台積電股份有限公司',
     //   taxId: '22099131',
     //   address: '新竹科學園區力行六路8號',
@@ -68,25 +56,8 @@ const fetchCompanyData = async (taxId: string) => {
     //   ]
     // };
 
-    const companyData = {
-      name: company.公司名稱,
-      taxId: taxId,
-      industry: getIndustryInfo(company),
-
-      status: company.登記現況 === '核准設立' ? '營業中' : company.登記現況,
-      address: company.公司所在地,
-      chairman: company.代表人姓名,
-      capital: company.實收資本額元?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','),
-      established: formatDate(company.核准設立日期),
-      email: '未提供', // API中沒有這個資料
-      phone: '未提供', // API中沒有這個資料
-      website: '未提供', // API中沒有這個資料
-      employees: '未提供', // API中沒有這個資料
-      directors: formattedDirectors,
-      tenders: [] // API中沒有標案資料
-    };
-
-    return companyData;
+    const SearchData = formatDetailData(taxId, company);
+    return SearchData;
   } catch (error) {
     console.error('Error fetching company data:', error);
     throw error;
@@ -95,25 +66,23 @@ const fetchCompanyData = async (taxId: string) => {
 
 export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailProps) {
   const [activeTab, setActiveTab] = useState('basic');
-  const [companyData, setCompanyData] = useState<any>(null);
-
-  console.log(`11111 companyTaxId: ${companyTaxId}`);
+  const [SearchData, setSearchData] = useState<any>(null);
 
   useEffect(() => {
-    const loadCompanyData = async () => {
+    const loadSearchData = async () => {
       try {
-        const data = await fetchCompanyData(companyTaxId);
-        setCompanyData(data);
+        const data = await fetchSearchData(companyTaxId);
+        setSearchData(data);
       } catch (error) {
         console.error('載入公司資料時發生錯誤:', error);
         alert('無法載入公司資料，請稍後再試。');
       }
     };
 
-    loadCompanyData();
+    loadSearchData();
   }, [companyTaxId]);
 
-  if (!companyData) {
+  if (!SearchData) {
     return <div>載入中...</div>;
   }
 
@@ -132,57 +101,57 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">統一編號</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{companyData.taxId}</dd>
+                    <dd className="mt-1 text-sm text-gray-900">{SearchData.taxId}</dd>
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">公司狀態</dt>
                     <dd className="mt-1 text-sm text-gray-900">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {companyData.status}
+                        {SearchData.status}
                       </span>
                     </dd>
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">負責人</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{companyData.chairman}</dd>
+                    <dd className="mt-1 text-sm text-gray-900">{SearchData.chairman}</dd>
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">設立日期</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{companyData.established}</dd>
+                    <dd className="mt-1 text-sm text-gray-900">{SearchData.established}</dd>
                   </div>
                   <div className="sm:col-span-2">
                     <dt className="text-sm font-medium text-gray-500">公司地址</dt>
                     <dd className="mt-1 text-sm text-gray-900 flex items-center">
                       <MapPin className="h-4 w-4 text-gray-400 mr-1" />
-                      {companyData.address}
+                      {SearchData.address}
                     </dd>
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">聯絡電話</dt>
                     <dd className="mt-1 text-sm text-gray-900 flex items-center">
                       <Phone className="h-4 w-4 text-gray-400 mr-1" />
-                      {companyData.phone}
+                      {SearchData.phone}
                     </dd>
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">電子郵件</dt>
                     <dd className="mt-1 text-sm text-gray-900 flex items-center">
                       <Mail className="h-4 w-4 text-gray-400 mr-1" />
-                      {companyData.email}
+                      {SearchData.email}
                     </dd>
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">公司網站</dt>
                     <dd className="mt-1 text-sm text-blue-600 flex items-center">
                       <Globe className="h-4 w-4 text-gray-400 mr-1" />
-                      <a href={`https://${companyData.website}`} target="_blank" rel="noopener noreferrer">
-                        {companyData.website}
+                      <a href={`https://${SearchData.website}`} target="_blank" rel="noopener noreferrer">
+                        {SearchData.website}
                       </a>
                     </dd>
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-gray-500">員工人數</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{companyData.employees}</dd>
+                    <dd className="mt-1 text-sm text-gray-900">{SearchData.employees}</dd>
                   </div>
                 </dl>
               </div>
@@ -199,13 +168,13 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt className="text-sm font-medium text-gray-500">實收資本額</dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {companyData.capital}
+                      {SearchData.capital}
                     </dd>
                   </div>
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt className="text-sm font-medium text-gray-500">營業額</dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      NT$ 1,234,567,890 (2023年)
+                      {SearchData.revenue}
                     </dd>
                   </div>
                 </dl>
@@ -232,12 +201,12 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                       職稱
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      持股數
+                      出資額
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {companyData.directors.map((director: { name: string; title: string; shares: string }, index: number) => (
+                  {SearchData.directors.map((director: { name: string; title: string; shares: string }, index: number) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {director.name}
@@ -282,7 +251,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {companyData.tenders.map((tender: { date: string; title: string; amount: string; status: string }, index: number) => (
+                  {SearchData.tenders.map((tender: { date: string; title: string; amount: string; status: string }, index: number) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {tender.date}
@@ -334,15 +303,15 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {companyData.name}
+              {SearchData.name}
             </h2>
             <p className="flex items-center text-sm text-gray-500">
               <FileSpreadsheet className="h-4 w-4 mr-1" />
-              統一編號：{companyData.taxId}
+              統一編號：{SearchData.taxId}
             </p>
             <p className="flex items-center text-sm text-gray-500" style={{ whiteSpace: 'pre-line' }}>
               <Building2 className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-              {companyData.industry}
+              {SearchData.industry}
             </p>
           </div>
           <div className="flex space-x-3">

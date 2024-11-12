@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Building2, FileSpreadsheet, Users, MapPin } from 'lucide-react';
-import { CompanyData, ApiCompanyResponse, formatCompanyData } from '../utils/companyUtils';
+import { SearchData, SearchResponse, formatSearchData } from '../utils/companyUtils';
 
 interface CompanySearchProps {
   onCompanySelect: (companyTaxId: string) => void;
@@ -8,7 +8,7 @@ interface CompanySearchProps {
 
 export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
   const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<CompanyData[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchData[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,16 +23,16 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
       const searchType = determineSearchType(query);
       if (searchType === 'taxId') {
         // 如果是統編，直接搜尋
-        const response = await fetchCompanyData('taxId', query);
+        const response = await fetchSearchData('taxId', query);
         const formattedResults = formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
       } else {
         // 先嘗試用公司名稱搜尋
-        const response = await fetchCompanyData('name', query);
+        const response = await fetchSearchData('name', query);
         let formattedResults = formatCompanyResults('name', response);
         if (formattedResults.length === 0) {
           // 如果公司名稱搜尋失敗，改用負責人名稱搜尋
-          const response = await fetchCompanyData('chairman', query);
+          const response = await fetchSearchData('chairman', query);
           formattedResults = formatCompanyResults('chairman', response);
         }
         setSearchResults(formattedResults);
@@ -50,7 +50,7 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
     return taxIdPattern.test(query) ? 'taxId' : 'name';
   };
 
-  const fetchCompanyData = async (type: 'taxId' | 'name' | 'chairman', query: string) => {
+  const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: string) => {
     const baseUrl = 'http://company.g0v.ronny.tw/api';
     const endpoints = {
       taxId: `${baseUrl}/show/${query}`,
@@ -60,21 +60,21 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
 
     const response = await fetch(endpoints[type]);
     if (!response.ok) throw new Error('API 請求失敗');
-    return await response.json() as CompanyData[];
+    return await response.json() as SearchData[];
   };
 
-  const formatCompanyResults = (type: 'taxId' | 'name' | 'chairman', data: any): CompanyData[] => {
+  const formatCompanyResults = (type: 'taxId' | 'name' | 'chairman', data: any): SearchData[] => {
     const companies = data.data;
     
     if (!companies)
-      return [formatCompanyData({})];
+      return [formatSearchData({})];
 
     if (type === 'taxId')
-      return [formatCompanyData(companies)];
+      return [formatSearchData(companies)];
 
     return Array.isArray(companies) 
-      ? companies.map((company: ApiCompanyResponse) => formatCompanyData(company))
-      : [formatCompanyData({})];
+      ? companies.map((company: SearchResponse) => formatSearchData(company))
+      : [formatSearchData({})];
   };
 
   return (
