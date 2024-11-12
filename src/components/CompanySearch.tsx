@@ -73,7 +73,9 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
       return [formatSearchData(companies)];
 
     return Array.isArray(companies) 
-      ? companies.map((company: SearchResponse) => formatSearchData(company))
+      ? companies
+          .map((company: SearchResponse) => formatSearchData(company))
+          .filter(company => company.name !== '未提供')
       : [formatSearchData({})];
   };
 
