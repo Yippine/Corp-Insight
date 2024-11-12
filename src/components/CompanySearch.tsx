@@ -59,7 +59,7 @@ export default function CompanySearch({
         setSearchResults(formattedResults);
       }
     } catch (error) {
-      console.error('搜尋失敗:', error);
+      console.error('搜尋失敗：', error);
       setError('搜尋過程發生錯誤，請稍後再試');
     } finally {
       setIsSearching(false);

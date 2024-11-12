@@ -48,18 +48,27 @@ const getCompanyName = (company: SearchResponse): string => {
 };
 
 const getCompanyStatus = (company: SearchResponse): string => {
-  const statusConditions = ['歇業', '撤銷', '廢止', '解散'];
-  const fields = ['現況', '公司狀況'];
-  
-  for (const condition of statusConditions) {
-    for (const field of fields) {
-      const fieldValue = company[field as keyof SearchResponse];
-      if (typeof fieldValue === 'string' && fieldValue.includes(condition)) {
-        return `已${condition}`;
-      }
+  const statusFields = ['現況', '公司狀況'] as const;
+  const statusConditions = ['歇業', '撤銷', '廢止', '解散'] as const;
+
+  try {
+    for (const field of statusFields) {
+      const status = company[field];
+
+      if (typeof status !== 'string') continue;
+
+      const matchedCondition = statusConditions.find(condition => 
+        status.includes(condition)
+      );
+
+      if (matchedCondition) return `已${matchedCondition}`;
     }
+
+    return '營業中';
+  } catch (error) {
+    console.error('取得公司狀態時發生錯誤：', error);
+    return '未提供';
   }
-  return '營業中';
 };
 
 const getIndustryInfo = (company: SearchResponse): string => {

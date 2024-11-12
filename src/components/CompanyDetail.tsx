@@ -74,7 +74,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
         const data = await fetchDetailData(companyTaxId);
         setSearchData(data);
       } catch (error) {
-        console.error('載入公司資料時發生錯誤:', error);
+        console.error('載入公司資料時發生錯誤：', error);
         alert('無法載入公司資料，請稍後再試。');
       }
     };
