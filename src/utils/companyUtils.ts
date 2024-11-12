@@ -121,7 +121,7 @@ const formattedDirectors = (company: DetailResponse): { name: string; title: str
     : company.董監事名單.map((director: { 姓名: string; 職稱: string; 出資額?: number | string; }) => ({
         name: director.姓名,
         title: director.職稱,
-        shares: `NT$ ${director.出資額?.toString() || '0'}`
+        shares: director.出資額?.toString() || '0'
       }));
 };
 

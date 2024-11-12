@@ -201,7 +201,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                       職稱
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      出資額
+                      持股數
                     </th>
                   </tr>
                 </thead>
