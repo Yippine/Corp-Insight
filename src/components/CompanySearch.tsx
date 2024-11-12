@@ -10,7 +10,7 @@ interface CompanySearchProps {
   setSearchQuery: (query: string) => void;
 }
 
-const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: string) => {
+const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: string): Promise<any> => {
   const baseUrl = 'http://company.g0v.ronny.tw/api';
   const endpoints = {
     taxId: `${baseUrl}/show/${query}`,
@@ -20,7 +20,7 @@ const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: strin
 
   const response = await fetch(endpoints[type]);
   if (!response.ok) throw new Error('API 請求失敗');
-  return await response.json() as SearchData[];
+  return await response.json();
 };
 
 export default function CompanySearch({ 
@@ -45,6 +45,7 @@ export default function CompanySearch({
       if (searchType === 'taxId') {
         // 如果是統編，直接搜尋
         const response = await fetchSearchData('taxId', searchQuery);
+        response.data.統一編號 = searchQuery
         const formattedResults = formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
       } else {
@@ -74,11 +75,9 @@ export default function CompanySearch({
   const formatCompanyResults = (type: 'taxId' | 'name' | 'chairman', data: any): SearchData[] => {
     const companies = data.data;
     
-    if (!companies)
-      return [formatSearchData({})];
+    if (!companies) return [formatSearchData({})];
 
-    if (type === 'taxId')
-      return [formatSearchData(companies)];
+    if (type === 'taxId') return [formatSearchData(companies)];
 
     return Array.isArray(companies) 
       ? companies
