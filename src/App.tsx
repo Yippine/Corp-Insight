@@ -1,14 +1,19 @@
 import { useState } from 'react';
-import { Search, Building2, FileSpreadsheet, Wrench, ChevronRight, TrendingUp, AlertTriangle, Award, Users, FileText } from 'lucide-react';
+import { Search, Wrench, FileText } from 'lucide-react';
 import CompanySearch from './components/CompanySearch';
 import CompanyDetail from './components/CompanyDetail';
-import Tools from './components/Tools';
 import TenderSearch from './components/TenderSearch';
+import TenderDetail from './components/TenderDetail';
+import Tools from './components/Tools';
 import { useCompanySearch } from './hooks/useCompanySearch';
+import { PageState } from './types/index';
+import FeatureSection from './components/FeatureSection';
+import RecentUpdates from './components/RecentUpdates';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'search' | 'tender' | 'tools'>('search');
+  const [pageState, setPageState] = useState<PageState>(PageState.COMPANY_SEARCH);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+  const [selectedTender, setSelectedTender] = useState<string | null>(null);
 
   const {
     searchResults,
@@ -21,13 +26,44 @@ function App() {
     setTotalPages
   } = useCompanySearch();
 
+  const handleNavigation = (state: PageState) => {
+    setPageState(state);
+    setSelectedCompany(null);
+    setSelectedTender(null);
+  };
+
   const handleCompanySelect = (companyTaxId: string) => {
     setSelectedCompany(companyTaxId);
+    setPageState(PageState.COMPANY_DETAIL);
+  };
+
+  const handleTenderSelect = (tenderId: string) => {
+    setSelectedTender(tenderId);
+    setPageState(PageState.TENDER_DETAIL);
   };
 
   const handleBack = () => {
-    setSelectedCompany(null);
+    if (pageState === PageState.COMPANY_DETAIL) {
+      setPageState(PageState.COMPANY_SEARCH);
+      setSelectedCompany(null);
+    } else if (pageState === PageState.TENDER_DETAIL) {
+      setPageState(PageState.TENDER_SEARCH);
+      setSelectedTender(null);
+    }
   };
+
+  const handleFeatureCardClick = (feature: 'company' | 'tender') => {
+    if (feature === 'company') {
+      setPageState(PageState.COMPANY_SEARCH);
+      setSelectedTender(null);
+    } else if (feature === 'tender') {
+      setPageState(PageState.TENDER_SEARCH);
+      setSelectedCompany(null);
+    }
+  };
+
+  const isSearchTab = [PageState.COMPANY_SEARCH, PageState.COMPANY_DETAIL, 
+                      PageState.TENDER_SEARCH, PageState.TENDER_DETAIL].includes(pageState);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -37,12 +73,9 @@ function App() {
             <h1 className="text-3xl font-bold text-gray-900">企業放大鏡</h1>
             <nav className="flex space-x-8">
               <button
-                onClick={() => {
-                  setActiveTab('search');
-                  setSelectedCompany(null);
-                }}
+                onClick={() => handleNavigation(PageState.COMPANY_SEARCH)}
                 className={`${
-                  activeTab === 'search'
+                  isSearchTab
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
                 } pb-4 -mb-4 px-1 font-medium text-sm flex items-center`}
@@ -51,12 +84,9 @@ function App() {
                 企業搜尋
               </button>
               <button
-                onClick={() => {
-                  setActiveTab('tender');
-                  setSelectedCompany(null);
-                }}
+                onClick={() => handleNavigation(PageState.TENDER_SEARCH)}
                 className={`${
-                  activeTab === 'tender'
+                  pageState === PageState.TENDER_SEARCH || pageState === PageState.TENDER_DETAIL
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
                 } pb-4 -mb-4 px-1 font-medium text-sm flex items-center`}
@@ -65,12 +95,9 @@ function App() {
                 標案搜尋
               </button>
               <button
-                onClick={() => {
-                  setActiveTab('tools');
-                  setSelectedCompany(null);
-                }}
+                onClick={() => handleNavigation(PageState.TOOLS)}
                 className={`${
-                  activeTab === 'tools'
+                  pageState === PageState.TOOLS
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
                 } pb-4 -mb-4 px-1 font-medium text-sm flex items-center`}
@@ -84,7 +111,7 @@ function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'search' && !selectedCompany && (
+        {pageState === PageState.COMPANY_SEARCH && (
           <div className="space-y-8">
             {/* Hero Section */}
             <div className="text-center space-y-4 py-12">
@@ -110,115 +137,46 @@ function App() {
             />
 
             {/* Feature Section */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 mt-12">
-              <div className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <Building2 className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">企業資料</h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    完整的公司登記資料、董監事名單、分公司資訊
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <FileSpreadsheet className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">標案資訊</h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    政府標案歷史、得標紀錄、招標公告
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <AlertTriangle className="h-6 w-6 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">風險評估</h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    訴訟紀錄、負面新聞、信用評等
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <TrendingUp className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">產業分析</h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    市場趨勢、競爭對手、產業報告
-                  </p>
-                </div>
-              </div>
-            </div>
+            <FeatureSection onFeatureClick={handleFeatureCardClick} />
 
             {/* Recent Updates */}
-            <div className="mt-12">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">最新動態</h2>
-                <button className="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium">
-                  查看更多 <ChevronRight className="h-4 w-4 ml-1" />
-                </button>
-              </div>
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-center mb-4">
-                    <Award className="h-5 w-5 text-blue-600 mr-2" />
-                    <span className="text-sm text-gray-500">重大標案</span>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    台積電獲得新竹科學園區擴建案
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    總金額達 NT$ 1,500,000,000...
-                  </p>
-                </div>
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-center mb-4">
-                    <Users className="h-5 w-5 text-green-600 mr-2" />
-                    <span className="text-sm text-gray-500">人事異動</span>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    聯發科技董事會改選
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    新任董事長及總經理名單公布...
-                  </p>
-                </div>
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-center mb-4">
-                    <Building2 className="h-5 w-5 text-purple-600 mr-2" />
-                    <span className="text-sm text-gray-500">新設立公司</span>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    本週新設立公司統計
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    本週全台新設立公司共計 1,234 家...
-                  </p>
-                </div>
-              </div>
-            </div>
+            <RecentUpdates />
           </div>
         )}
 
-        {activeTab === 'search' && selectedCompany && (
+        {pageState === PageState.COMPANY_DETAIL && selectedCompany && (
           <CompanyDetail 
             companyTaxId={selectedCompany} 
             onBack={handleBack}
           />
         )}
 
-        {activeTab === 'tender' && (
-          <TenderSearch />
+        {pageState === PageState.TENDER_SEARCH && (
+          <div className="space-y-8">
+            {/* 可以加入標案搜尋的 Hero Section */}
+            <div className="text-center space-y-4 py-12">
+              <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+                快速查詢標案資訊
+              </h2>
+              <p className="max-w-xl mx-auto text-xl text-gray-500">
+                輸入標案名稱、編號或關鍵字，立即獲取完整標案資訊
+              </p>
+            </div>
+
+            <TenderSearch 
+              onTenderSelect={handleTenderSelect}
+            />
+          </div>
         )}
 
-        {activeTab === 'tools' && <Tools />}
+        {pageState === PageState.TENDER_DETAIL && selectedTender && (
+          <TenderDetail
+            tenderId={selectedTender}
+            onBack={handleBack}
+          />
+        )}
+
+        {pageState === PageState.TOOLS && <Tools />}
       </main>
 
       <footer className="bg-white border-t border-gray-200 mt-12">

@@ -3,6 +3,8 @@ import { Search } from 'lucide-react';
 import SearchResults from './SearchResults';
 import UnitResults from './UnitResults';
 import TenderDetail from './TenderDetail';
+import FeatureSection from './FeatureSection';
+import RecentUpdates from './RecentUpdates';
 
 type SearchType = 'keyword' | 'company' | 'taxId';
 
@@ -12,7 +14,11 @@ interface SearchState {
   page: number;
 }
 
-export default function TenderSearch() {
+interface TenderSearchProps {
+  onTenderSelect: (tenderId: string) => void;
+}
+
+export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   const [searchState, setSearchState] = useState<SearchState>({
     type: 'keyword',
     query: '',
@@ -20,10 +26,7 @@ export default function TenderSearch() {
   });
   const [inputValue, setInputValue] = useState('');
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
-  const [selectedTender, setSelectedTender] = useState<{
-    unitId: string;
-    jobNumber: string;
-  } | null>(null);
+  const [selectedTender, setSelectedTender] = useState<string | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +41,9 @@ export default function TenderSearch() {
   };
 
   const handleTenderClick = (unitId: string, jobNumber: string) => {
-    setSelectedTender({ unitId, jobNumber });
+    const tenderId = `${unitId}-${jobNumber}`;
+    setSelectedTender(tenderId);
+    onTenderSelect(tenderId);
   };
 
   return (
@@ -79,8 +84,7 @@ export default function TenderSearch() {
 
       {selectedTender ? (
         <TenderDetail
-          unitId={selectedTender.unitId}
-          jobNumber={selectedTender.jobNumber}
+          tenderId={selectedTender}
           onBack={() => setSelectedTender(null)}
         />
       ) : selectedUnitId ? (
@@ -89,13 +93,18 @@ export default function TenderSearch() {
           onTenderClick={handleTenderClick}
           onBack={() => setSelectedUnitId(null)}
         />
-      ) : searchState.query && (
+      ) : searchState.query ? (
         <SearchResults
           searchState={searchState}
           onPageChange={(page) => setSearchState(prev => ({ ...prev, page }))}
           onUnitClick={handleUnitClick}
           onTenderClick={handleTenderClick}
         />
+      ) : (
+        <>
+          <FeatureSection />
+          <RecentUpdates />
+        </>
       )}
     </div>
   );

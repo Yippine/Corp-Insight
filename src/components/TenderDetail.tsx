@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 interface TenderDetailProps {
-  unitId: string;
-  jobNumber: string;
+  tenderId: string;
   onBack: () => void;
 }
 
-export default function TenderDetail({ unitId, jobNumber, onBack }: TenderDetailProps) {
+export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +16,7 @@ export default function TenderDetail({ unitId, jobNumber, onBack }: TenderDetail
       setLoading(true);
       setError(null);
       try {
+        const [unitId, jobNumber] = tenderId.split('-');
         const response = await fetch(
           `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`
         );
@@ -29,7 +29,7 @@ export default function TenderDetail({ unitId, jobNumber, onBack }: TenderDetail
     };
 
     fetchData();
-  }, [unitId, jobNumber]);
+  }, [tenderId]);
 
   if (loading) {
     return (
@@ -63,7 +63,7 @@ export default function TenderDetail({ unitId, jobNumber, onBack }: TenderDetail
             {data?.unit_name}
           </h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            標案編號：{jobNumber}
+            標案編號：{tenderId.split('-')[1]}
           </p>
         </div>
         <div className="border-t border-gray-200">
