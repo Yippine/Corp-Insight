@@ -13,7 +13,11 @@ function App() {
     searchResults,
     setSearchResults,
     searchQuery,
-    setSearchQuery
+    setSearchQuery,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    setTotalPages
   } = useCompanySearch();
 
   // 處理公司選擇
@@ -86,6 +90,10 @@ function App() {
               setSearchResults={setSearchResults}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
             />
 
             {/* Feature Section */}
