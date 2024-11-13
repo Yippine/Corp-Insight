@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 interface UnitResultsProps {
@@ -75,8 +75,8 @@ export default function UnitResults({ unitId, onTenderClick, onBack }: UnitResul
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data?.records?.map((item: any) => (
-              <tr key={item.job_number} className="hover:bg-gray-50">
+            {data?.records?.map((item: any, index: number) => (
+              <tr key={`${item.job_number}-${index}`} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {item.date}
                 </td>
