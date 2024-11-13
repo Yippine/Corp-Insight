@@ -98,9 +98,6 @@ function App() {
     }
   };
 
-  const isSearchTab = [PageState.COMPANY_SEARCH, PageState.COMPANY_DETAIL, 
-                      PageState.TENDER_SEARCH, PageState.TENDER_DETAIL].includes(pageState);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
@@ -116,7 +113,7 @@ function App() {
               <button
                 onClick={() => handleFeatureCardClick('company')}
                 className={`${
-                  isSearchTab
+                  pageState === PageState.COMPANY_SEARCH
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
                 } pb-4 -mb-4 px-1 font-medium text-sm flex items-center`}
@@ -127,7 +124,7 @@ function App() {
               <button
                 onClick={() => handleFeatureCardClick('tender')}
                 className={`${
-                  pageState === PageState.TENDER_SEARCH || pageState === PageState.TENDER_DETAIL
+                  pageState === PageState.TENDER_SEARCH
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
                 } pb-4 -mb-4 px-1 font-medium text-sm flex items-center`}
