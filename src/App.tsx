@@ -159,7 +159,7 @@ function App() {
               <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
                 快速查詢企業資訊
               </h2>
-              <p className="max-w-xl mx-auto text-xl text-gray-500">
+              <p className="mx-auto text-xl text-gray-500">
                 輸入公司名稱、統編、負責人或關鍵字，立即獲取完整企業資訊
               </p>
             </div>
@@ -199,8 +199,8 @@ function App() {
               <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
                 快速查詢標案資訊
               </h2>
-              <p className="max-w-xl mx-auto text-xl text-gray-500">
-                輸入標案名稱、編號或關鍵字，立即獲取完整標案資訊
+              <p className="mx-auto text-xl text-gray-500">
+                輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊
               </p>
             </div>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Building2, FileSpreadsheet, FileText, Search } from 'lucide-react';
 import SearchResults from './SearchResults';
 import UnitResults from './UnitResults';
 import TenderDetail from './TenderDetail';
@@ -77,6 +77,25 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
           >
             搜尋
           </button>
+        </div>
+        
+        <div className="mt-2 flex justify-center space-x-4 text-sm text-gray-500">
+          <span className="flex items-center">
+            <FileText className="h-4 w-4 mr-1" />
+            標案名稱
+          </span>
+          <span className="flex items-center">
+            <Building2 className="h-4 w-4 mr-1" />
+            公司名稱
+          </span>
+          <span className="flex items-center">
+            <FileSpreadsheet className="h-4 w-4 mr-1" />
+            統一編號
+          </span>
+          <span className="flex items-center">
+            <Search className="h-4 w-4 mr-1" />
+            關鍵字
+          </span>
         </div>
       </form>
 
