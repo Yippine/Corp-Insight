@@ -3,8 +3,6 @@ import { Search } from 'lucide-react';
 import SearchResults from './SearchResults';
 import UnitResults from './UnitResults';
 import TenderDetail from './TenderDetail';
-import FeatureSection from '../FeatureSection';
-import RecentUpdates from '../RecentUpdates';
 
 type SearchType = 'keyword' | 'company' | 'taxId';
 
@@ -100,12 +98,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
           onUnitClick={handleUnitClick}
           onTenderClick={handleTenderClick}
         />
-      ) : (
-        <>
-          <FeatureSection />
-          <RecentUpdates />
-        </>
-      )}
+      ) : null}
     </div>
   );
 }

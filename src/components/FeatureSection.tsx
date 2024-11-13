@@ -5,10 +5,16 @@ interface FeatureSectionProps {
 }
 
 export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) {
+  const handleFeatureClick = (feature: 'company' | 'tender') => {
+    if (onFeatureClick) {
+      onFeatureClick(feature);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 mt-12">
       <div 
-        onClick={() => onFeatureClick?.('company')}
+        onClick={() => handleFeatureClick('company')}
         className={`bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 ${onFeatureClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
       >
         <div className="flex-shrink-0">
@@ -22,7 +28,7 @@ export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) 
         </div>
       </div>
       <div 
-        onClick={() => onFeatureClick?.('tender')}
+        onClick={() => handleFeatureClick('tender')}
         className={`bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 ${onFeatureClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
       >
         <div className="flex-shrink-0">

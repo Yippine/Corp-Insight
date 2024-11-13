@@ -81,12 +81,20 @@ function App() {
   };
 
   const handleFeatureCardClick = (feature: 'company' | 'tender') => {
-    if (feature === 'company') {
+    if (feature === 'company' && pageState !== PageState.COMPANY_SEARCH) {
       setPageState(PageState.COMPANY_SEARCH);
       setSelectedTender(null);
-    } else if (feature === 'tender') {
+      setSearchResults([]);
+      setSearchQuery('');
+      setCurrentPage(1);
+      setTotalPages(1);
+    } else if (feature === 'tender' && pageState !== PageState.TENDER_SEARCH) {
       setPageState(PageState.TENDER_SEARCH);
       setSelectedCompany(null);
+      setSearchResults([]);
+      setSearchQuery('');
+      setCurrentPage(1);
+      setTotalPages(1);
     }
   };
 
@@ -106,7 +114,7 @@ function App() {
             </h1>
             <nav className="flex space-x-8">
               <button
-                onClick={() => handleNavigation(PageState.COMPANY_SEARCH)}
+                onClick={() => handleFeatureCardClick('company')}
                 className={`${
                   isSearchTab
                     ? 'text-blue-600 border-b-2 border-blue-600'
@@ -117,7 +125,7 @@ function App() {
                 企業搜尋
               </button>
               <button
-                onClick={() => handleNavigation(PageState.TENDER_SEARCH)}
+                onClick={() => handleFeatureCardClick('tender')}
                 className={`${
                   pageState === PageState.TENDER_SEARCH || pageState === PageState.TENDER_DETAIL
                     ? 'text-blue-600 border-b-2 border-blue-600'
@@ -186,7 +194,7 @@ function App() {
 
         {pageState === PageState.TENDER_SEARCH && (
           <div className="space-y-8">
-            {/* 可以加入標案搜尋的 Hero Section */}
+            {/* Hero Section */}
             <div className="text-center space-y-4 py-12">
               <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
                 快速查詢標案資訊
@@ -196,9 +204,16 @@ function App() {
               </p>
             </div>
 
+            {/* Search Section */}
             <TenderSearch 
               onTenderSelect={handleTenderSelect}
             />
+
+            {/* Feature Section */}
+            <FeatureSection onFeatureClick={handleFeatureCardClick} />
+
+            {/* Recent Updates */}
+            <RecentUpdates />
           </div>
         )}
 
