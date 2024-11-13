@@ -11,16 +11,30 @@ interface CompanySearchProps {
 }
 
 const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: string): Promise<any> => {
-  const baseUrl = 'http://company.g0v.ronny.tw/api';
+  const baseUrl = 'https://company.g0v.ronny.tw/api';
   const endpoints = {
     taxId: `${baseUrl}/show/${query}`,
     name: `${baseUrl}/search?q=${encodeURIComponent(query)}&page=1`,
     chairman: `${baseUrl}/name?q=${encodeURIComponent(query)}&page=1`
   };
 
-  const response = await fetch(endpoints[type]);
-  if (!response.ok) throw new Error('API 請求失敗');
-  return await response.json();
+  try {
+    const response = await fetch(endpoints[type], {
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw new Error('無法連接到搜尋服務，請稍後再試');
+  }
 };
 
 export default function CompanySearch({ 
@@ -43,9 +57,11 @@ export default function CompanySearch({
     try {
       const searchType = determineSearchType(searchQuery);
       if (searchType === 'taxId') {
-        // 如果是統編，直接搜尋
         const response = await fetchSearchData('taxId', searchQuery);
-        response.data.統一編號 = searchQuery
+        if (!response.data) {
+          throw new Error('找不到符合的公司');
+        }
+        response.data.統一編號 = searchQuery;
         const formattedResults = formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
       } else {
@@ -57,11 +73,14 @@ export default function CompanySearch({
           const response = await fetchSearchData('chairman', searchQuery);
           formattedResults = formatCompanyResults('chairman', response);
         }
+        if (formattedResults.length === 0) {
+          throw new Error('找不到符合的公司');
+        }
         setSearchResults(formattedResults);
       }
     } catch (error) {
       console.error('搜尋失敗：', error);
-      setError('搜尋過程發生錯誤，請稍後再試');
+      setError(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試');
     } finally {
       setIsSearching(false);
     }

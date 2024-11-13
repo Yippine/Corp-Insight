@@ -17,8 +17,20 @@ const tabs = [
 ];
 
 const fetchDetailData = async (taxId: string) => {
+  const baseUrl = 'https://company.g0v.ronny.tw/api';
+  
   try {
-    const response = await fetch(`http://company.g0v.ronny.tw/api/show/${taxId}`);
+    const response = await fetch(`${baseUrl}/show/${taxId}`, {
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const result = await response.json();
     const company = result.data;
 
@@ -59,8 +71,8 @@ const fetchDetailData = async (taxId: string) => {
     const SearchData = formatDetailData(taxId, company);
     return SearchData;
   } catch (error) {
-    console.error('Error fetching company data:', error);
-    throw error;
+    console.error('API request failed:', error);
+    throw new Error('無法連接到搜尋服務，請稍後再試');
   }
 };
 
