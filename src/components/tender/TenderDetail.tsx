@@ -77,6 +77,10 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
           </dl>
         </div>
       </div>
+      
+      <div className="text-xs text-gray-500 text-center mt-4">
+        資料來源：{`https://pcc.g0v.ronny.tw/api`}
+      </div>
     </div>
   );
 }

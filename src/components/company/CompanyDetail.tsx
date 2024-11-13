@@ -192,49 +192,59 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                 </dl>
               </div>
             </div>
+            <div className="text-xs text-gray-500 text-center mt-4">
+              資料來源：{`https://company.g0v.ronny.tw/api`}
+            </div>
           </div>
         );
       case 'directors':
         return (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                董監事名單
-              </h3>
-            </div>
-            <div className="border-t border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      姓名
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      職稱
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      持股數
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {SearchData.directors.map((director: { name: string; title: string; shares: string }, index: number) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {director.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {director.title}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {director.shares}
-                      </td>
+          <>
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  董監事名單
+                </h3>
+              </div>
+              <div className="border-t border-gray-200">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        姓名
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        職稱
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        持股數
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {SearchData.directors.map((director: { name: string; title: string; shares: string }, index: number) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {director.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {director.title}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {director.shares}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+            {SearchData.directors.length > 0 && (
+              <div className="text-xs text-gray-500 text-center mt-4">
+                資料來源：{`https://company.g0v.ronny.tw/api`}
+              </div>
+            )}
+          </>
         );
       case 'tenders':
         if (!SearchData.tenders || SearchData.tenders.length === 0) {
@@ -304,8 +314,8 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                 </tbody>
               </table>
             </div>
-            <div className="text-xs text-gray-500 text-center mt-4 p-4 border-t">
-              資料來源：{`https://pcc.g0v.ronny.tw/api/searchbycompanyid`}
+            <div className="text-xs text-gray-500 text-center mt-4">
+              資料來源：{`https://pcc.g0v.ronny.tw/api`}
             </div>
           </div>
         );

@@ -99,6 +99,10 @@ export default function UnitResults({ unitId, onTenderClick, onBack }: UnitResul
           </tbody>
         </table>
       </div>
+      
+      <div className="text-xs text-gray-500 text-center mt-4">
+        資料來源：{`https://pcc.g0v.ronny.tw/api`}
+      </div>
     </div>
   );
 }
