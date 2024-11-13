@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Wrench, FileText } from 'lucide-react';
 import CompanySearch from './components/CompanySearch';
 import CompanyDetail from './components/CompanyDetail';
@@ -25,6 +25,34 @@ function App() {
     totalPages,
     setTotalPages
   } = useCompanySearch();
+
+  useEffect(() => {
+    const resetAllSearchStates = () => {
+      setSearchResults([]);
+      setSearchQuery('');
+      setCurrentPage(1);
+      setTotalPages(1);
+      setSelectedCompany(null);
+      setSelectedTender(null);
+      setPageState(PageState.COMPANY_SEARCH);
+    };
+
+    window.addEventListener('load', resetAllSearchStates);
+
+    return () => {
+      window.removeEventListener('load', resetAllSearchStates);
+    };
+  }, []);
+
+  const handleTitleClick = () => {
+    setSearchResults([]);
+    setSearchQuery('');
+    setCurrentPage(1);
+    setTotalPages(1);
+    setSelectedCompany(null);
+    setSelectedTender(null);
+    setPageState(PageState.COMPANY_SEARCH);
+  };
 
   const handleNavigation = (state: PageState) => {
     setPageState(state);
@@ -70,7 +98,12 @@ function App() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <h1 className="text-3xl font-bold text-gray-900">企業放大鏡</h1>
+            <h1 
+              className="text-3xl font-bold text-gray-900 cursor-pointer" 
+              onClick={handleTitleClick}
+            >
+              企業放大鏡
+            </h1>
             <nav className="flex space-x-8">
               <button
                 onClick={() => handleNavigation(PageState.COMPANY_SEARCH)}
