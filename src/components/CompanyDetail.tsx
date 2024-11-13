@@ -237,6 +237,14 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
           </div>
         );
       case 'tenders':
+        if (!SearchData.tenders || SearchData.tenders.length === 0) {
+          return (
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+              <p className="text-gray-500 text-center">暫無標案資料</p>
+            </div>
+          );
+        }
+        
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
@@ -255,38 +263,49 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                       標案名稱
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      金額
+                      機關名稱
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      狀態
+                      標案類型
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {SearchData.tenders.map((tender: { date: string; title: string; amount: string; status: string }, index: number) => (
+                  {SearchData.tenders.map((tender: any, index: number) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {tender.date}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                        <button className="hover:underline text-left">
-                          {tender.title}
+                        <button 
+                          onClick={() => window.open(tender.tender_api_url, '_blank')}
+                          className="hover:underline text-left"
+                        >
+                          {tender.brief.title}
                         </button>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {tender.amount}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
+                        <button 
+                          onClick={() => window.open(tender.unit_api_url, '_blank')}
+                          className="hover:underline"
+                        >
+                          {tender.unit_name}
+                        </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          tender.status === '已決標' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          tender.brief.type.includes('決標') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {tender.status}
+                          {tender.brief.type}
                         </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="text-xs text-gray-500 text-center mt-4 p-4 border-t">
+              資料來源：{`https://pcc.g0v.ronny.tw/api/searchbycompanyid`}
             </div>
           </div>
         );

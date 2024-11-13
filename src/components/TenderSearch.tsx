@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search } from 'lucide-react';
 import SearchResults from './SearchResults';
 import UnitResults from './UnitResults';
@@ -50,15 +50,19 @@ export default function TenderSearch() {
             value={searchState.type}
             onChange={(e) => setSearchState(prev => ({ ...prev, type: e.target.value as SearchType }))}
           >
-            <option value="keyword">關鍵字</option>
-            <option value="company">公司名稱</option>
+            <option value="keyword">標案名稱</option>
+            <option value="company">廠商名稱</option>
             <option value="taxId">統一編號</option>
           </select>
           <div className="flex-1 relative">
             <input
               type="text"
               className="block w-full h-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10"
-              placeholder="請輸入搜尋條件..."
+              placeholder={
+                searchState.type === 'keyword' ? '請輸入標案名稱...' :
+                searchState.type === 'company' ? '請輸入廠商名稱...' :
+                '請輸入統一編號...'
+              }
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />

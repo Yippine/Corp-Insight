@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Search, Building2, FileSpreadsheet, Wrench, ChevronRight, TrendingUp, AlertTriangle, Award, Users } from 'lucide-react';
+import { Search, Building2, FileSpreadsheet, Wrench, ChevronRight, TrendingUp, AlertTriangle, Award, Users, FileText } from 'lucide-react';
 import CompanySearch from './components/CompanySearch';
 import CompanyDetail from './components/CompanyDetail';
 import Tools from './components/Tools';
+import TenderSearch from './components/TenderSearch';
 import { useCompanySearch } from './hooks/useCompanySearch';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'search' | 'tools'>('search');
+  const [activeTab, setActiveTab] = useState<'search' | 'tender' | 'tools'>('search');
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
 
   const {
@@ -20,12 +21,10 @@ function App() {
     setTotalPages
   } = useCompanySearch();
 
-  // 處理公司選擇
   const handleCompanySelect = (companyTaxId: string) => {
     setSelectedCompany(companyTaxId);
   };
 
-  // 處理返回
   const handleBack = () => {
     setSelectedCompany(null);
   };
@@ -50,6 +49,20 @@ function App() {
               >
                 <Search className="mr-2 h-5 w-5" />
                 企業搜尋
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('tender');
+                  setSelectedCompany(null);
+                }}
+                className={`${
+                  activeTab === 'tender'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                } pb-4 -mb-4 px-1 font-medium text-sm flex items-center`}
+              >
+                <FileText className="mr-2 h-5 w-5" />
+                標案搜尋
               </button>
               <button
                 onClick={() => {
@@ -199,6 +212,10 @@ function App() {
             companyTaxId={selectedCompany} 
             onBack={handleBack}
           />
+        )}
+
+        {activeTab === 'tender' && (
+          <TenderSearch />
         )}
 
         {activeTab === 'tools' && <Tools />}
