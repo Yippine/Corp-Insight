@@ -342,7 +342,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
 
       <div className="bg-white shadow-sm rounded-lg p-6">
         <div className="flex items-start justify-between">
-          <div>
+          <div className="space-y-2">
             <h2 className="text-2xl font-bold text-gray-900">
               {SearchData.name}
             </h2>
