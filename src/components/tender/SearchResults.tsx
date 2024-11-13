@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Pagination from './Pagination';
+import Pagination from '../Pagination';
 
 interface SearchResultsProps {
   searchState: {

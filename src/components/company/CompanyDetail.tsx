@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Mail, Phone, Globe, FileSpreadsheet } from 'lucide-react';
-import { formatDetailData } from '../utils/companyUtils';
+import { formatDetailData } from '../../utils/companyUtils';
 
 interface CompanyDetailProps {
   companyTaxId: string;

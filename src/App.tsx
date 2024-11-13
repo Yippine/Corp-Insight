@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Search, Wrench, FileText } from 'lucide-react';
-import CompanySearch from './components/CompanySearch';
-import CompanyDetail from './components/CompanyDetail';
-import TenderSearch from './components/TenderSearch';
-import TenderDetail from './components/TenderDetail';
+import CompanySearch from './components/company/CompanySearch';
+import CompanyDetail from './components/company/CompanyDetail';
+import TenderSearch from './components/tender/TenderSearch';
+import TenderDetail from './components/tender/TenderDetail';
 import Tools from './components/Tools';
 import { useCompanySearch } from './hooks/useCompanySearch';
 import { PageState } from './types/index';

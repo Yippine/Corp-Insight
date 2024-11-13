@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Building2, FileSpreadsheet, Users, MapPin } from 'lucide-react';
-import { SearchData, SearchResponse, formatSearchData } from '../utils/companyUtils';
-import Pagination from './Pagination';
+import { SearchData, SearchResponse, formatSearchData } from '../../utils/companyUtils';
+import Pagination from '../Pagination';
 
 interface CompanySearchProps {
   onCompanySelect: (companyTaxId: string) => void;
