@@ -99,8 +99,8 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
               className="block w-full h-full rounded-l-lg border-gray-300 pl-32 focus:border-blue-500 focus:ring-blue-500 text-lg"
               placeholder={
                 searchType === 'tender' 
-                  ? '請輸入標案名稱或關鍵字...'
-                  : '請輸入廠商名稱或統一編號...'
+                  ? '輸入標案名稱或關鍵字'
+                  : '輸入廠商名稱、統編或關鍵字'
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
