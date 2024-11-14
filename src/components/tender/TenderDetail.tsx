@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet } from 'lucide-react';
+import { useTenderSearch } from '../../hooks/useTenderSearch';
 
 interface TenderDetailProps {
   tenderId: string;
@@ -60,6 +61,37 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
   const [data, setData] = useState<TenderData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { setSearchResults, setSearchQuery, setCurrentPage, setTotalPages } = useTenderSearch();
+
+  const handleUnitClick = async (unitId: string, unitName: string) => {
+    try {
+      const response = await fetch(`https://pcc.g0v.ronny.tw/api/listbyunit?unit_id=${unitId}`);
+      const result = await response.json();
+
+      const formattedResults = result.records.map((record: any) => ({
+        tenderId: `${record.unit_id}-${record.job_number}`,
+        date: record.date,
+        type: record.brief.type,
+        title: record.brief.title,
+        unitName: record.unit_name,
+        unitId: record.unit_id,
+        amount: record.brief.amount || '未提供',
+        status: record.brief.type.includes('決標') ? '已決標' : '招標中',
+        companies: Object.entries(record.brief.companies?.name_key || {}).map(([name, status]: [string, any]) => ({
+          name: name.split('(')[0].trim(),
+          status: status[1]?.includes('未得標') ? '未得標' : '得標'
+        }))
+      }));
+
+      setSearchResults(formattedResults);
+      setSearchQuery(unitName);
+      setCurrentPage(1);
+      setTotalPages(Math.ceil(result.found / 10) || 1);
+      onBack();
+    } catch (err) {
+      console.error('載入機關標案資料失敗：', err);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -114,7 +146,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
           ],
           unit: {
             name: result.unit_name,
-            code: result.unit_id,
+            code: result.records[0].unit_id,
             address: result.records[0].detail['機關地址'] || '未提供',
             contact: result.records[0].detail['聯絡人'] || '未提供',
             phone: result.records[0].detail['聯絡電話'] || '未提供',
@@ -353,7 +385,14 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
               <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <dt className="text-sm font-medium text-gray-500">機關名稱</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{data.unit.name}</dd>
+                  <dd className="mt-1 text-sm text-gray-900">
+                    <button
+                      onClick={() => handleUnitClick(data.unit.code, data.unit.name)}
+                      className="text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      {data.unit.name}
+                    </button>
+                  </dd>
                 </div>
                 <div className="sm:col-span-1">
                   <dt className="text-sm font-medium text-gray-500">機關代碼</dt>
