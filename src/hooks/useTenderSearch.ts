@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 
 export interface TenderSearchData {
   tenderId: string;
+  uniqueId: string;
   date: string;
   type: string;
   title: string;

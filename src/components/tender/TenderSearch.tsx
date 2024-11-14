@@ -48,8 +48,9 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       const response = await fetch(url);
       const data = await response.json();
 
-      const formattedResults: TenderSearchData[] = data.records.map((record: any) => ({
+      const formattedResults: TenderSearchData[] = data.records.map((record: any, index: number) => ({
         tenderId: `${record.unit_id}-${record.job_number}`,
+        uniqueId: `${record.unit_id}-${record.job_number}-${index}`,
         date: record.date,
         type: record.brief.type,
         title: record.brief.title,
@@ -177,7 +178,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
               <tbody className="bg-white divide-y divide-gray-200">
                 {searchResults.map((tender) => (
                   <tr 
-                    key={tender.tenderId} 
+                    key={tender.uniqueId}
                     onClick={() => onTenderSelect(tender.tenderId)}
                     className="hover:bg-gray-50 cursor-pointer"
                   >
