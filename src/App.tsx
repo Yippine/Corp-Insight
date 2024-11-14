@@ -4,7 +4,7 @@ import CompanySearch from './components/company/CompanySearch';
 import CompanyDetail from './components/company/CompanyDetail';
 import TenderSearch from './components/tender/TenderSearch';
 import TenderDetail from './components/tender/TenderDetail';
-import Tools from './components/Tools';
+import Tools from './components/tools/Tools';
 import { useCompanySearch } from './hooks/useCompanySearch';
 import { PageState } from './types/index';
 import FeatureSection from './components/FeatureSection';
