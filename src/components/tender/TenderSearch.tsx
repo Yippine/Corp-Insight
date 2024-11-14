@@ -35,16 +35,14 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       let url = '';
       const encodedQuery = encodeURIComponent(searchQuery);
       
-      switch (searchType) {
-        case 'keyword':
-          url = `https://pcc.g0v.ronny.tw/api/searchbytitle?query=${encodedQuery}&page=${page}`;
-          break;
-        case 'company':
-          url = `https://pcc.g0v.ronny.tw/api/searchbycompanyname?query=${encodedQuery}&page=${page}`;
-          break;
-        case 'taxId':
-          url = `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${encodedQuery}&page=${page}`;
-          break;
+      if (searchType === 'tender') {
+        url = `https://pcc.g0v.ronny.tw/api/searchbytitle?query=${encodedQuery}&page=${page}`;
+      } else {
+        // 自動判斷是公司名稱還是統編
+        const isCompanyId = /^\d{8}$/.test(searchQuery.trim());
+        url = isCompanyId
+          ? `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${encodedQuery}&page=${page}`
+          : `https://pcc.g0v.ronny.tw/api/searchbycompanyname?query=${encodedQuery}&page=${page}`;
       }
 
       const response = await fetch(url);
@@ -82,39 +80,38 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={(e) => handleSearch(e)} className="space-y-4">
-        <div className="flex space-x-4">
-          <select
-            className="block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            value={searchType}
-            onChange={(e) => setSearchType(e.target.value as 'keyword' | 'company' | 'taxId')}
-          >
-            <option value="keyword">標案名稱</option>
-            <option value="company">廠商名稱</option>
-            <option value="taxId">統一編號</option>
-          </select>
-          <div className="flex-1 relative">
+      <form onSubmit={(e) => handleSearch(e)} className="relative">
+        <div className="flex shadow-sm rounded-lg">
+          <div className="relative flex-grow focus-within:z-10">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+              <select
+                value={searchType}
+                onChange={(e) => setSearchType(e.target.value as 'tender' | 'company')}
+                className="h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md focus:ring-0 focus:border-transparent"
+              >
+                <option value="tender">標案搜尋</option>
+                <option value="company">廠商搜尋</option>
+              </select>
+            </div>
             <input
               type="text"
-              className="block w-full h-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10"
+              className="block w-full h-full rounded-l-lg border-gray-300 pl-32 focus:border-blue-500 focus:ring-blue-500 text-lg"
               placeholder={
-                searchType === 'keyword' ? '請輸入標案名稱...' :
-                searchType === 'company' ? '請輸入廠商名稱...' :
-                '請輸入統一編號...'
+                searchType === 'tender' 
+                  ? '請輸入標案名稱或關鍵字...'
+                  : '請輸入廠商名稱或統一編號...'
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="relative -ml-px inline-flex items-center px-8 py-3 border border-transparent text-lg font-medium rounded-r-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             搜尋
           </button>
         </div>
-        
         <div className="mt-2 flex justify-center space-x-4 text-sm text-gray-500">
           <span className="flex items-center">
             <FileText className="h-4 w-4 mr-1" />
@@ -122,7 +119,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
           </span>
           <span className="flex items-center">
             <Building2 className="h-4 w-4 mr-1" />
-            公司名稱
+            廠商名稱
           </span>
           <span className="flex items-center">
             <FileSpreadsheet className="h-4 w-4 mr-1" />
@@ -179,20 +176,19 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {searchResults.map((tender) => (
-                  <tr key={tender.tenderId} className="hover:bg-gray-50">
+                  <tr 
+                    key={tender.tenderId} 
+                    onClick={() => onTenderSelect(tender.tenderId)}
+                    className="hover:bg-gray-50 cursor-pointer"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {tender.date}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {tender.type}
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <button
-                        onClick={() => onTenderSelect(tender.tenderId)}
-                        className="text-blue-600 hover:text-blue-800 hover:underline text-left"
-                      >
-                        {tender.title}
-                      </button>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {tender.title}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {tender.unitName}

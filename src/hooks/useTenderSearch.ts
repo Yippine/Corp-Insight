@@ -20,7 +20,7 @@ interface SearchState {
   query: string;
   currentPage: number;
   totalPages: number;
-  searchType: 'keyword' | 'company' | 'taxId';
+  searchType: 'tender' | 'company';
 }
 
 export function useTenderSearch() {
@@ -31,7 +31,7 @@ export function useTenderSearch() {
       query: '',
       currentPage: 1,
       totalPages: 1,
-      searchType: 'keyword' as const
+      searchType: 'tender' as const
     };
   });
 
@@ -53,7 +53,7 @@ export function useTenderSearch() {
     }));
   };
 
-  const setSearchType = (type: 'keyword' | 'company' | 'taxId') => {
+  const setSearchType = (type: 'tender' | 'company') => {
     setSearchState(prev => ({
       ...prev,
       searchType: type
@@ -80,7 +80,7 @@ export function useTenderSearch() {
       query: '',
       currentPage: 1,
       totalPages: 1,
-      searchType: 'keyword'
+      searchType: 'tender'
     });
   };
 
