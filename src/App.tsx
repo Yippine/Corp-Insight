@@ -6,6 +6,7 @@ import TenderSearch from './components/tender/TenderSearch';
 import TenderDetail from './components/tender/TenderDetail';
 import Tools from './components/tools/Tools';
 import { useCompanySearch } from './hooks/useCompanySearch';
+import { useTenderSearch } from './hooks/useTenderSearch';
 import { PageState } from './types/index';
 import FeatureSection from './components/FeatureSection';
 import RecentUpdates from './components/RecentUpdates';
@@ -23,34 +24,27 @@ function App() {
     currentPage,
     setCurrentPage,
     totalPages,
-    setTotalPages
+    setTotalPages,
+    resetCompanySearch
   } = useCompanySearch();
 
-  useEffect(() => {
-    const resetAllSearchStates = () => {
-      setSearchResults([]);
-      setSearchQuery('');
-      setCurrentPage(1);
-      setTotalPages(1);
-      setSelectedCompany(null);
-      setSelectedTender(null);
-      setPageState(PageState.COMPANY_SEARCH);
-    };
+  const {
+    resetTenderSearch
+  } = useTenderSearch();
 
-    window.addEventListener('load', resetAllSearchStates);
+  useEffect(() => {
+    window.addEventListener('load', handleTitleClick);
 
     return () => {
-      window.removeEventListener('load', resetAllSearchStates);
+      window.removeEventListener('load', handleTitleClick);
     };
   }, []);
 
   const handleTitleClick = () => {
-    setSearchResults([]);
-    setSearchQuery('');
-    setCurrentPage(1);
-    setTotalPages(1);
     setSelectedCompany(null);
     setSelectedTender(null);
+    resetCompanySearch();
+    resetTenderSearch();
     setPageState(PageState.COMPANY_SEARCH);
   };
 
@@ -84,17 +78,11 @@ function App() {
     if (feature === 'company' && pageState !== PageState.COMPANY_SEARCH) {
       setPageState(PageState.COMPANY_SEARCH);
       setSelectedTender(null);
-      setSearchResults([]);
-      setSearchQuery('');
-      setCurrentPage(1);
-      setTotalPages(1);
+      resetTenderSearch();
     } else if (feature === 'tender' && pageState !== PageState.TENDER_SEARCH) {
       setPageState(PageState.TENDER_SEARCH);
       setSelectedCompany(null);
-      setSearchResults([]);
-      setSearchQuery('');
-      setCurrentPage(1);
-      setTotalPages(1);
+      resetCompanySearch();
     }
   };
 

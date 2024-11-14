@@ -52,6 +52,13 @@ export function useCompanySearch() {
     }));
   };
 
+  const resetCompanySearch = () => {
+    setSearchResults([]);
+    setSearchQuery('');
+    setCurrentPage(1);
+    setTotalPages(1);
+  };
+
   // 使用 useMemo 快取搜尋結果
   const memoizedResults = useMemo(() => searchState.results, [searchState.results]);
 
@@ -63,6 +70,7 @@ export function useCompanySearch() {
     currentPage: searchState.currentPage,
     setCurrentPage,
     totalPages: searchState.totalPages,
-    setTotalPages
+    setTotalPages,
+    resetCompanySearch
   };
 }

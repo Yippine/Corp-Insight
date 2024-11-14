@@ -75,14 +75,11 @@ export function useTenderSearch() {
     }));
   };
 
-  const resetSearch = () => {
-    setSearchState({
-      results: [],
-      query: '',
-      currentPage: 1,
-      totalPages: 1,
-      searchType: 'tender'
-    });
+  const resetTenderSearch = () => {
+    setSearchResults([]);
+    setSearchQuery('');
+    setCurrentPage(1);
+    setTotalPages(1);
   };
 
   const memoizedResults = useMemo(() => searchState.results, [searchState.results]);
@@ -98,6 +95,6 @@ export function useTenderSearch() {
     setCurrentPage,
     totalPages: searchState.totalPages,
     setTotalPages,
-    resetSearch
+    resetTenderSearch
   };
 }
