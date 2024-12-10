@@ -32,7 +32,7 @@ export default function UnitResults({ unitId, onTenderClick, onBack }: UnitResul
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -48,28 +48,28 @@ export default function UnitResults({ unitId, onTenderClick, onBack }: UnitResul
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
+          className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
         >
-          <ArrowLeft className="h-5 w-5 mr-2" />
+          <ArrowLeft className="h-6 w-6 mr-2" />
           返回搜尋結果
         </button>
-        <h2 className="text-xl font-semibold text-gray-900">{data?.unit_name}</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">{data?.unit_name}</h2>
       </div>
 
       <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                 日期
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                 類型
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                 代碼
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                 標案名稱
               </th>
             </tr>
@@ -77,16 +77,16 @@ export default function UnitResults({ unitId, onTenderClick, onBack }: UnitResul
           <tbody className="bg-white divide-y divide-gray-200">
             {data?.records?.map((item: any, index: number) => (
               <tr key={`${item.job_number}-${index}`} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                   {item.date}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                   {item.brief.type}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                   {item.job_number}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900">
+                <td className="px-6 py-4 text-base text-gray-900">
                   <button
                     onClick={() => onTenderClick(unitId, item.job_number)}
                     className="text-blue-600 hover:text-blue-800 hover:underline text-left"
@@ -100,7 +100,7 @@ export default function UnitResults({ unitId, onTenderClick, onBack }: UnitResul
         </table>
       </div>
       
-      <div className="text-xs text-gray-500 text-center mt-4">
+      <div className="text-sm text-gray-500 text-center mt-4">
         資料來源：{`https://pcc.g0v.ronny.tw/api`}
       </div>
     </div>

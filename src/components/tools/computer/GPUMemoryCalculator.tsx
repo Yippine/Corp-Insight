@@ -31,7 +31,7 @@ export default function GPUMemoryCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             模型參數數量 (以十億為單位)
           </label>
           <input
@@ -45,7 +45,7 @@ export default function GPUMemoryCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             量化位數
           </label>
           <select
@@ -68,10 +68,10 @@ export default function GPUMemoryCalculator() {
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">計算結果</h3>
+            <h3 className="text-xl font-medium text-gray-900 mb-4">計算結果</h3>
             <div>
-              <p className="text-sm text-gray-500">需要的 GPU 內存</p>
-              <p className="text-lg font-medium text-gray-900">
+              <p className="text-base text-gray-500">需要的 GPU 內存</p>
+              <p className="text-xl font-medium text-gray-900">
                 {result.requiredMemory.toFixed(2)} GB
               </p>
             </div>

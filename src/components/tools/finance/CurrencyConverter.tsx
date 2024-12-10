@@ -69,7 +69,7 @@ export default function CurrencyConverter() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             金額
           </label>
           <input
@@ -84,7 +84,7 @@ export default function CurrencyConverter() {
 
         <div className="grid grid-cols-[1fr,auto,1fr] gap-4 items-end">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               從
             </label>
             <select
@@ -108,7 +108,7 @@ export default function CurrencyConverter() {
           </button>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               轉換成
             </label>
             <select
@@ -136,10 +136,10 @@ export default function CurrencyConverter() {
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">
+                <p className="text-base text-gray-500">
                   {amount} {fromCurrency}
                 </p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-xl font-medium text-gray-900">
                   {parseFloat(amount).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
@@ -147,10 +147,10 @@ export default function CurrencyConverter() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">
+                <p className="text-base text-gray-500">
                   轉換結果
                 </p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-xl font-medium text-gray-900">
                   {result.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
@@ -158,7 +158,7 @@ export default function CurrencyConverter() {
                 </p>
               </div>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-base text-gray-500">
               匯率：1 {fromCurrency} = {(rates[toCurrency] / rates[fromCurrency]).toFixed(4)} {toCurrency}
             </div>
           </div>

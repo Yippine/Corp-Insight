@@ -40,9 +40,9 @@ export default function RecentUpdates({ updates = defaultUpdates }: RecentUpdate
   return (
     <div className="mt-12">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">最新動態</h2>
-        <button className="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium">
-          查看更多 <ChevronRight className="h-4 w-4 ml-1" />
+        <h2 className="text-3xl font-bold text-gray-900">最新動態</h2>
+        <button className="text-blue-600 hover:text-blue-800 flex items-center text-base font-medium">
+          查看更多 <ChevronRight className="h-5 w-5 ml-1" />
         </button>
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -51,13 +51,13 @@ export default function RecentUpdates({ updates = defaultUpdates }: RecentUpdate
           return (
             <div key={index} className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <Icon className={`h-5 w-5 ${update.iconColor} mr-2`} />
-                <span className="text-sm text-gray-500">{update.category}</span>
+                <Icon className={`h-6 w-6 ${update.iconColor} mr-2`} />
+                <span className="text-base text-gray-500">{update.category}</span>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-xl font-medium text-gray-900 mb-2">
                 {update.title}
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-base text-gray-600">
                 {update.description}
               </p>
             </div>

@@ -168,7 +168,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -186,32 +186,32 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
           <div className="space-y-6">
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                <h3 className="text-xl leading-6 font-medium text-gray-900">
                   標案基本資料
                 </h3>
               </div>
               <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <dt className="text-sm font-medium text-gray-500">標案名稱</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{data.basic.title}</dd>
+                    <dt className="text-base font-medium text-gray-500">標案名稱</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.title}</dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-sm font-medium text-gray-500">標案類型</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{data.basic.type}</dd>
+                    <dt className="text-base font-medium text-gray-500">標案類型</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.type}</dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-sm font-medium text-gray-500">公告日期</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{data.basic.date}</dd>
+                    <dt className="text-base font-medium text-gray-500">公告日期</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.date}</dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-sm font-medium text-gray-500">預算金額</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{data.basic.amount}</dd>
+                    <dt className="text-base font-medium text-gray-500">預算金額</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.amount}</dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-sm font-medium text-gray-500">標案狀態</dt>
-                    <dd className="mt-1 text-sm">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <dt className="text-base font-medium text-gray-500">標案狀態</dt>
+                    <dd className="mt-1 text-base">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
                         data.basic.status === '已決標' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {data.basic.status}
@@ -219,20 +219,20 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
                     </dd>
                   </div>
                   <div className="sm:col-span-2">
-                    <dt className="text-sm font-medium text-gray-500">採購品項</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{data.basic.description}</dd>
+                    <dt className="text-base font-medium text-gray-500">採購品項</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.description}</dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-sm font-medium text-gray-500">標的分類</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{data.basic.category}</dd>
+                    <dt className="text-base font-medium text-gray-500">標的分類</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.category}</dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-sm font-medium text-gray-500">招標方式</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{data.basic.method}</dd>
+                    <dt className="text-base font-medium text-gray-500">招標方式</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.method}</dd>
                   </div>
                   <div className="sm:col-span-2">
-                    <dt className="text-sm font-medium text-gray-500">履約地點</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{data.basic.location}</dd>
+                    <dt className="text-base font-medium text-gray-500">履約地點</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.location}</dd>
                   </div>
                 </dl>
               </div>
@@ -244,7 +244,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-xl leading-6 font-medium text-gray-900">
                 投標廠商資訊
               </h3>
             </div>
@@ -252,16 +252,16 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       廠商名稱
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       統一編號
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       投標金額
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       狀態
                     </th>
                   </tr>
@@ -269,17 +269,17 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {data.companies.map((company, index) => (
                     <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
                         {company.name}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                         {company.taxId}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                         {company.amount}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
                           company.status === '得標' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
                           {company.status}
@@ -297,31 +297,31 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-xl leading-6 font-medium text-gray-900">
                 履約進度
               </h3>
             </div>
             <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
               <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">預計開工日</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{data.progress.startDate}</dd>
+                  <dt className="text-base font-medium text-gray-500">預計開工日</dt>
+                  <dd className="mt-1 text-base text-gray-900">{data.progress.startDate}</dd>
                 </div>
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">預計竣工日</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{data.progress.endDate}</dd>
+                  <dt className="text-base font-medium text-gray-500">預計竣工日</dt>
+                  <dd className="mt-1 text-base text-gray-900">{data.progress.endDate}</dd>
                 </div>
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">目前階段</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{data.progress.currentPhase}</dd>
+                  <dt className="text-base font-medium text-gray-500">目前階段</dt>
+                  <dd className="mt-1 text-base text-gray-900">{data.progress.currentPhase}</dd>
                 </div>
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">完工進度</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{data.progress.completionRate}</dd>
+                  <dt className="text-base font-medium text-gray-500">完工進度</dt>
+                  <dd className="mt-1 text-base text-gray-900">{data.progress.completionRate}</dd>
                 </div>
                 <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500">付款條件</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{data.progress.paymentTerms}</dd>
+                  <dt className="text-base font-medium text-gray-500">付款條件</dt>
+                  <dd className="mt-1 text-base text-gray-900">{data.progress.paymentTerms}</dd>
                 </div>
               </dl>
             </div>
@@ -332,7 +332,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-xl leading-6 font-medium text-gray-900">
                 相關文件
               </h3>
             </div>
@@ -340,13 +340,13 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       文件名稱
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       類型
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       日期
                     </th>
                   </tr>
@@ -354,15 +354,15 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {data.documents.map((doc, index) => (
                     <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
+                      <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-blue-600 hover:text-blue-800">
                         <a href={doc.url} target="_blank" rel="noopener noreferrer">
                           {doc.title}
                         </a>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                         {doc.type}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                         {doc.date}
                       </td>
                     </tr>
@@ -377,15 +377,15 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-xl leading-6 font-medium text-gray-900">
                 機關資訊
               </h3>
             </div>
             <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
               <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500">機關名稱</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
+                  <dt className="text-base font-medium text-gray-500">機關名稱</dt>
+                  <dd className="mt-1 text-base text-gray-900">
                     <button
                       onClick={() => handleUnitClick(data.unit.code, data.unit.name)}
                       className="text-blue-600 hover:text-blue-800 hover:underline"
@@ -395,31 +395,31 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
                   </dd>
                 </div>
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">機關代碼</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{data.unit.code}</dd>
+                  <dt className="text-base font-medium text-gray-500">機關代碼</dt>
+                  <dd className="mt-1 text-base text-gray-900">{data.unit.code}</dd>
                 </div>
                 <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500">機關地址</dt>
-                  <dd className="mt-1 text-sm text-gray-900 flex items-center">
-                    <MapPin className="h-4 w-4 text-gray-400 mr-1" />
+                  <dt className="text-base font-medium text-gray-500">機關地址</dt>
+                  <dd className="mt-1 text-base text-gray-900 flex items-center">
+                    <MapPin className="h-5 w-5 text-gray-400 mr-1" />
                     {data.unit.address}
                   </dd>
                 </div>
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">聯絡人</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{data.unit.contact}</dd>
+                  <dt className="text-base font-medium text-gray-500">聯絡人</dt>
+                  <dd className="mt-1 text-base text-gray-900">{data.unit.contact}</dd>
                 </div>
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">聯絡電話</dt>
-                  <dd className="mt-1 text-sm text-gray-900 flex items-center">
-                    <Phone className="h-4 w-4 text-gray-400 mr-1" />
+                  <dt className="text-base font-medium text-gray-500">聯絡電話</dt>
+                  <dd className="mt-1 text-base text-gray-900 flex items-center">
+                    <Phone className="h-5 w-5 text-gray-400 mr-1" />
                     {data.unit.phone}
                   </dd>
                 </div>
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">電子郵件</dt>
-                  <dd className="mt-1 text-sm text-gray-900 flex items-center">
-                    <Mail className="h-4 w-4 text-gray-400 mr-1" />
+                  <dt className="text-base font-medium text-gray-500">電子郵件</dt>
+                  <dd className="mt-1 text-base text-gray-900 flex items-center">
+                    <Mail className="h-5 w-5 text-gray-400 mr-1" />
                     {data.unit.email}
                   </dd>
                 </div>
@@ -442,9 +442,9 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
+          className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
         >
-          <ArrowLeft className="h-5 w-5 mr-2" />
+          <ArrowLeft className="h-6 w-6 mr-2" />
           返回搜尋結果
         </button>
       </div>
@@ -452,23 +452,23 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
       <div className="bg-white shadow-sm rounded-lg p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-gray-900">
               {data.basic.title}
             </h2>
-            <p className="flex items-center text-sm text-gray-500">
-              <FileSpreadsheet className="h-4 w-4 mr-1" />
+            <p className="flex items-center text-base text-gray-500">
+              <FileSpreadsheet className="h-5 w-5 mr-1" />
               預算金額：{data.basic.amount}
             </p>
-            <p className="flex items-center text-sm text-gray-500">
-              <Building2 className="h-4 w-4 mr-1" />
+            <p className="flex items-center text-base text-gray-500">
+              <Building2 className="h-5 w-5 mr-1" />
               {data.unit.name}
             </p>
           </div>
           <div className="flex space-x-3">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               加入追蹤
             </button>
-            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               下載報表
             </button>
           </div>
@@ -486,9 +486,9 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
                 activeTab === tab.id
                   ? 'bg-white shadow-sm'
                   : 'hover:bg-white/60'
-              } flex-1 flex items-center justify-center py-2.5 px-3 rounded-md text-sm font-medium transition-all duration-200`}
+              } flex-1 flex items-center justify-center py-2.5 px-3 rounded-md text-base font-medium transition-all duration-200`}
             >
-              <Icon className={`h-5 w-5 ${
+              <Icon className={`h-6 w-6 ${
                 activeTab === tab.id ? 'text-blue-600' : 'text-gray-400'
               } mr-2`} />
               {tab.name}
@@ -499,7 +499,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
 
       {renderTabContent()}
 
-      <div className="text-xs text-gray-500 text-center mt-4">
+      <div className="text-sm text-gray-500 text-center mt-4">
         資料來源：{`https://pcc.g0v.ronny.tw/api`}
       </div>
     </div>

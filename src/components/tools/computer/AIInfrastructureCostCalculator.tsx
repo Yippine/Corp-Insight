@@ -87,7 +87,7 @@ export default function AIInfrastructureCostCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             工作負載類型
           </label>
           <select
@@ -104,7 +104,7 @@ export default function AIInfrastructureCostCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             並發使用者數量量
           </label>
           <input
@@ -117,7 +117,7 @@ export default function AIInfrastructureCostCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             每日請求量
           </label>
           <input
@@ -130,7 +130,7 @@ export default function AIInfrastructureCostCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             GPU 數量
           </label>
           <input
@@ -143,7 +143,7 @@ export default function AIInfrastructureCostCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             使用期間 (月)
           </label>
           <input
@@ -164,33 +164,33 @@ export default function AIInfrastructureCostCalculator() {
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">成本估算結果</h3>
+            <h3 className="text-xl font-medium text-gray-900">成本估算結果</h3>
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <p className="text-sm text-gray-500">硬體成本</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">硬體成本</p>
+                <p className="text-xl font-medium text-gray-900">
                   NT$ {result.hardwareCost.toLocaleString()}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">運營成本</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">運營成本</p>
+                <p className="text-xl font-medium text-gray-900">
                   NT$ {result.operationalCost.toLocaleString()}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">軟體授權成本</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">軟體授權成本</p>
+                <p className="text-xl font-medium text-gray-900">
                   NT$ {result.softwareCost.toLocaleString()}
                 </p>
               </div>
               <div className="border-t pt-4">
-                <p className="text-sm text-gray-500">總成本</p>
-                <p className="text-xl font-bold text-gray-900">
+                <p className="text-base text-gray-500">總成本</p>
+                <p className="text-2xl font-bold text-gray-900">
                   NT$ {result.totalCost.toLocaleString()}
                 </p>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-base text-gray-500">
                 預估每月耗電量：{result.monthlyPowerConsumption.toFixed(1)} kWh
               </div>
             </div>

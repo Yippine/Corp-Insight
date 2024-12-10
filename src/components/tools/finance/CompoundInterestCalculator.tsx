@@ -59,7 +59,7 @@ export default function CompoundInterestCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             本金 (NT$)
           </label>
           <input
@@ -72,7 +72,7 @@ export default function CompoundInterestCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             年利率 (%)
           </label>
           <input
@@ -86,7 +86,7 @@ export default function CompoundInterestCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             投資期間 (年)
           </label>
           <input
@@ -99,7 +99,7 @@ export default function CompoundInterestCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             複利頻率 (次/年)
           </label>
           <select
@@ -126,24 +126,24 @@ export default function CompoundInterestCalculator() {
           <div className="bg-gray-50 rounded-lg p-6 space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">最終金額</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">最終金額</p>
+                <p className="text-xl font-medium text-gray-900">
                   NT$ {result.finalAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">總利息收入</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">總利息收入</p>
+                <p className="text-xl font-medium text-gray-900">
                   NT$ {result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </p>
               </div>
             </div>
 
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">年度明細</h4>
+              <h4 className="text-base font-medium text-gray-700 mb-3">年度明細</h4>
               <div className="space-y-2">
                 {result.yearlyBreakdown.map((year) => (
-                  <div key={year.year} className="grid grid-cols-3 text-sm">
+                  <div key={year.year} className="grid grid-cols-3 text-base">
                     <div>第 {year.year} 年</div>
                     <div className="text-right">
                       NT$ {year.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}

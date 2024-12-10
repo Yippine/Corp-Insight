@@ -71,7 +71,7 @@ export default function ServerSpecCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             並發使用者數量量
           </label>
           <input
@@ -84,7 +84,7 @@ export default function ServerSpecCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             數據量 (GB)
           </label>
           <input
@@ -97,7 +97,7 @@ export default function ServerSpecCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             應用複雜度
           </label>
           <select
@@ -122,28 +122,28 @@ export default function ServerSpecCalculator() {
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">建議規格</h3>
+            <h3 className="text-xl font-medium text-gray-900">建議規格</h3>
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <p className="text-sm text-gray-500">CPU</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">CPU</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.cpuCores} 核心
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">記憶體</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">記憶體</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.memory} GB RAM
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">存儲空間</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">存儲空間</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.storage} GB
                 </p>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-4">
+            <p className="text-base text-gray-500 mt-4">
               注意：這是基本估算，實際需求可能因應用特性而異
             </p>
           </div>

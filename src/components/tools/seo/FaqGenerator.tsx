@@ -95,7 +95,7 @@ A2：[答案]
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               產品／服務名稱 <span className="text-red-500">*</span>
             </label>
             <input
@@ -108,7 +108,7 @@ A2：[答案]
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               使用者痛點 <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -122,7 +122,7 @@ A2：[答案]
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 產品類別
               </label>
               <select
@@ -139,7 +139,7 @@ A2：[答案]
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 目標受眾
               </label>
               <select
@@ -165,7 +165,7 @@ A2：[答案]
           >
             {isGenerating && !result?.isOptimizing ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 生成中...
               </span>
             ) : (
@@ -184,7 +184,7 @@ A2：[答案]
           >
             {result?.isOptimizing ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 優化中...
               </span>
             ) : (
@@ -195,8 +195,8 @@ A2：[答案]
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">生成結果</h3>
-            <div className="space-y-4 whitespace-pre-wrap font-mono text-sm">
+            <h3 className="text-xl font-medium text-gray-900 mb-4">生成結果</h3>
+            <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
               {result.content}
             </div>
           </div>

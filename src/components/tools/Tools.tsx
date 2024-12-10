@@ -198,12 +198,12 @@ export default function Tools() {
       <div className="space-y-4">
         <button
           onClick={() => setSelectedTool(null)}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300"
+          className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300"
         >
           ← 返回工具列表
         </button>
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">{selectedTool.name}</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">{selectedTool.name}</h2>
           <ToolComponent />
         </div>
       </div>
@@ -213,17 +213,17 @@ export default function Tools() {
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">免費 SEO 工具</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">免費 SEO 工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {seoTools.map((tool) => (
             <button
               key={tool.id}
               onClick={() => setSelectedTool(tool)}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-amber-500"
             >
               <div className="flex items-center mb-4">
-                <tool.icon className="h-6 w-6 text-indigo-600 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
+                <tool.icon className="h-7 w-7 text-amber-500 mr-3" />
+                <h3 className="text-xl font-semibold text-gray-900">{tool.name}</h3>
               </div>
               <p className="text-gray-600">{tool.description}</p>
             </button>
@@ -232,17 +232,17 @@ export default function Tools() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">免費金融業工具</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">免費金融業工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {financeTools.map((tool) => (
             <button
               key={tool.id}
               onClick={() => setSelectedTool(tool)}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-green-600"
             >
               <div className="flex items-center mb-4">
-                <tool.icon className="h-6 w-6 text-green-600 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
+                <tool.icon className="h-7 w-7 text-green-600 mr-3" />
+                <h3 className="text-xl font-semibold text-gray-900">{tool.name}</h3>
               </div>
               <p className="text-gray-600">{tool.description}</p>
             </button>
@@ -251,17 +251,17 @@ export default function Tools() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">免費電腦業工具</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">免費電腦業工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {computerTools.map((tool) => (
             <button
               key={tool.id}
               onClick={() => setSelectedTool(tool)}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-600"
             >
               <div className="flex items-center mb-4">
-                <tool.icon className="h-6 w-6 text-purple-600 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
+                <tool.icon className="h-7 w-7 text-blue-600 mr-3" />
+                <h3 className="text-xl font-semibold text-gray-900">{tool.name}</h3>
               </div>
               <p className="text-gray-600">{tool.description}</p>
             </button>
@@ -270,17 +270,17 @@ export default function Tools() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">免費製造業工具</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">免費製造業工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {manufacturingTools.map((tool) => (
             <button
               key={tool.id}
               onClick={() => setSelectedTool(tool)}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-blue-500"
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-purple-600"
             >
               <div className="flex items-center mb-4">
-                <tool.icon className="h-6 w-6 text-blue-600 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
+                <tool.icon className="h-7 w-7 text-purple-600 mr-3" />
+                <h3 className="text-xl font-semibold text-gray-900">{tool.name}</h3>
               </div>
               <p className="text-gray-600">{tool.description}</p>
             </button>

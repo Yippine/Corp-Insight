@@ -101,7 +101,7 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               產品名稱 <span className="text-red-500">*</span>
             </label>
             <input
@@ -114,7 +114,7 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               目標問題 <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -127,7 +127,7 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               獨特賣點 <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -140,7 +140,7 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               技術規格（選填）
             </label>
             <textarea
@@ -154,7 +154,7 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 產品類別
               </label>
               <select
@@ -171,7 +171,7 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 目標受眾
               </label>
               <select
@@ -197,7 +197,7 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
           >
             {isGenerating && !result?.isOptimizing ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 生成中...
               </span>
             ) : (
@@ -216,7 +216,7 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
           >
             {result?.isOptimizing ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 優化中...
               </span>
             ) : (
@@ -227,8 +227,8 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">生成結果</h3>
-            <div className="space-y-4 whitespace-pre-wrap font-mono text-sm">
+            <h3 className="text-xl font-medium text-gray-900 mb-4">生成結果</h3>
+            <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
               {result.content}
             </div>
           </div>

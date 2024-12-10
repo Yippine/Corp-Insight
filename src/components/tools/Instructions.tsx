@@ -8,16 +8,16 @@ export default function Instructions({ what, why, how }: InstructionsProps) {
   return (
     <div className="mb-6 bg-blue-50 rounded-lg p-4 space-y-3">
       <div>
-        <h3 className="text-sm font-medium text-blue-800">這是什麼？</h3>
-        <p className="text-sm text-blue-600">{what}</p>
+        <h3 className="text-base font-medium text-blue-800">這是什麼？</h3>
+        <p className="text-base text-blue-600">{what}</p>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-blue-800">為什麼需要？</h3>
-        <p className="text-sm text-blue-600">{why}</p>
+        <h3 className="text-base font-medium text-blue-800">為什麼需要？</h3>
+        <p className="text-base text-blue-600">{why}</p>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-blue-800">如何使用？</h3>
-        <p className="text-sm text-blue-600">{how}</p>
+        <h3 className="text-base font-medium text-blue-800">如何使用？</h3>
+        <p className="text-base text-blue-600">{how}</p>
       </div>
     </div>
   );

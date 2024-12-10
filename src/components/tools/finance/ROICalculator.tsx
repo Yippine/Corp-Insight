@@ -38,7 +38,7 @@ export default function ROICalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             投資金額 (NT$)
           </label>
           <input
@@ -51,7 +51,7 @@ export default function ROICalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             最終價值 (NT$)
           </label>
           <input
@@ -64,7 +64,7 @@ export default function ROICalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             投資期間 (年)
           </label>
           <input
@@ -88,20 +88,20 @@ export default function ROICalculator() {
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">總報酬率</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">總報酬率</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.roi.toFixed(2)}%
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">年化報酬率</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">年化報酬率</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.annualizedRoi.toFixed(2)}%
                 </p>
               </div>
               <div className="col-span-2">
-                <p className="text-sm text-gray-500">淨收益</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">淨收益</p>
+                <p className="text-xl font-medium text-gray-900">
                   NT$ {result.netReturn.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </p>
               </div>

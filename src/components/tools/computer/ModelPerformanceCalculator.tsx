@@ -87,7 +87,7 @@ export default function ModelPerformanceCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             模型架構
           </label>
           <select
@@ -104,7 +104,7 @@ export default function ModelPerformanceCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             模型大小 (GB)
           </label>
           <input
@@ -118,7 +118,7 @@ export default function ModelPerformanceCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             批次大小
           </label>
           <input
@@ -131,7 +131,7 @@ export default function ModelPerformanceCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             量化位數
           </label>
           <select
@@ -155,35 +155,35 @@ export default function ModelPerformanceCalculator() {
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">效能預測結果</h3>
+            <h3 className="text-xl font-medium text-gray-900">效能預測結果</h3>
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <p className="text-sm text-gray-500">記憶體使用</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">記憶體使用</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.memoryUsage.toFixed(2)} GB
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">計算效率</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">計算效率</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.computeEfficiency.toFixed(2)} TFLOPS
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">估計功耗</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">估計功耗</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.powerConsumption.toFixed(0)} W
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">推理延遲</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">推理延遲</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.inferenceLatency.toFixed(2)} ms
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">吞吐量</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">吞吐量</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.throughput.toFixed(0)} samples/sec
                 </p>
               </div>

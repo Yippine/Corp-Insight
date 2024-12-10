@@ -92,7 +92,7 @@ ${keywords ? `關鍵字：${keywords}` : ''}
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               內容主旨 <span className="text-red-500">*</span>
             </label>
             <input
@@ -105,7 +105,7 @@ ${keywords ? `關鍵字：${keywords}` : ''}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               關鍵字（選填）
             </label>
             <input
@@ -119,7 +119,7 @@ ${keywords ? `關鍵字：${keywords}` : ''}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 目標受眾
               </label>
               <select
@@ -136,7 +136,7 @@ ${keywords ? `關鍵字：${keywords}` : ''}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 價值主張
               </label>
               <select
@@ -162,7 +162,7 @@ ${keywords ? `關鍵字：${keywords}` : ''}
           >
             {isGenerating && !result?.isOptimizing ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 生成中...
               </span>
             ) : (
@@ -181,7 +181,7 @@ ${keywords ? `關鍵字：${keywords}` : ''}
           >
             {result?.isOptimizing ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 優化中...
               </span>
             ) : (
@@ -192,8 +192,8 @@ ${keywords ? `關鍵字：${keywords}` : ''}
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">生成結果</h3>
-            <div className="space-y-4 whitespace-pre-wrap font-mono text-sm">
+            <h3 className="text-xl font-medium text-gray-900 mb-4">生成結果</h3>
+            <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
               {result.content}
             </div>
           </div>

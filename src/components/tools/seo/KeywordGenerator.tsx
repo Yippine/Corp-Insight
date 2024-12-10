@@ -92,7 +92,7 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               主要關鍵字 <span className="text-red-500">*</span>
             </label>
             <input
@@ -105,7 +105,7 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-1">
               產業領域 <span className="text-red-500">*</span>
             </label>
             <input
@@ -119,7 +119,7 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 搜尋意圖
               </label>
               <select
@@ -136,7 +136,7 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 競爭程度
               </label>
               <select
@@ -162,7 +162,7 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
           >
             {isGenerating && !result?.isOptimizing ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 生成中...
               </span>
             ) : (
@@ -181,7 +181,7 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
           >
             {result?.isOptimizing ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 優化中...
               </span>
             ) : (
@@ -192,8 +192,8 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">生成結果</h3>
-            <div className="space-y-4 whitespace-pre-wrap font-mono text-sm">
+            <h3 className="text-xl font-medium text-gray-900 mb-4">生成結果</h3>
+            <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
               {result.content}
             </div>
           </div>

@@ -82,10 +82,10 @@ export default function WorkloadScalabilityCalculator() {
 
   const renderScoreInputs = (factors: ScalabilityFactor[], title: string) => (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+      <h3 className="text-xl font-medium text-gray-900">{title}</h3>
       {factors.map((factor) => (
         <div key={factor.id}>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             {factor.name} (1-10)
           </label>
           <input
@@ -122,39 +122,39 @@ export default function WorkloadScalabilityCalculator() {
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">評估結果</h3>
+            <h3 className="text-xl font-medium text-gray-900">評估結果</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">計算能力得分</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">計算能力得分</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.computeScore.toFixed(1)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">資源彈性得分</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">資源彈性得分</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.resourceScore.toFixed(1)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">成本效率得分</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">成本效率得分</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.costScore.toFixed(1)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">總體評分</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">總體評分</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.totalScore.toFixed(1)}
                 </p>
               </div>
             </div>
             {result.recommendations.length > 0 && (
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">改進建議</h4>
+                <h4 className="text-base font-medium text-gray-900 mb-2">改進建議</h4>
                 <ul className="list-disc pl-5 space-y-1">
                   {result.recommendations.map((rec, index) => (
-                    <li key={index} className="text-sm text-gray-600">
+                    <li key={index} className="text-base text-gray-600">
                       {rec}
                     </li>
                   ))}

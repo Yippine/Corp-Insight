@@ -57,7 +57,7 @@ export default function SearchResults({
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -85,13 +85,13 @@ export default function SearchResults({
         key={`${item.unit_id}-${item.job_number}-${item.date}`}
         className="hover:bg-gray-50"
       >
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
           {item.date}
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
           {item.brief.type}
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-900">
           <button
             onClick={() => onUnitClick(item.unit_id)}
             className="text-blue-600 hover:text-blue-800 hover:underline"
@@ -99,7 +99,7 @@ export default function SearchResults({
             {item.unit_name}
           </button>
         </td>
-        <td className="px-6 py-4 text-sm text-gray-900">
+        <td className="px-6 py-4 text-base text-gray-900">
           <button
             onClick={() => onTenderClick(item.unit_id, item.job_number)}
             className="text-blue-600 hover:text-blue-800 hover:underline text-left"
@@ -108,7 +108,7 @@ export default function SearchResults({
           </button>
         </td>
         {isCompanySearch && (
-          <td className="px-6 py-4 text-sm text-gray-900">
+          <td className="px-6 py-4 text-base text-gray-900">
             <div className="space-y-2">
               {companyInfo?.map((company: any, index: number) => (
                 <div
@@ -120,7 +120,7 @@ export default function SearchResults({
                   }`}
                 >
                   {company.name}
-                  <span className="ml-2 text-xs font-medium">
+                  <span className="ml-2 text-sm font-medium">
                     ({company.status})
                   </span>
                 </div>
@@ -146,20 +146,20 @@ export default function SearchResults({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                 日期
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                 類別
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                 機關
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                 標案名稱
               </th>
               {(searchState.type === 'company' || searchState.type === 'taxId') && (
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                   投標廠商
                 </th>
               )}
@@ -179,7 +179,7 @@ export default function SearchResults({
         />
       )}
 
-      <div className="text-xs text-gray-500 text-center mt-4">
+      <div className="text-sm text-gray-500 text-center mt-4">
         資料來源：{`https://pcc.g0v.ronny.tw/api`}
       </div>
     </div>

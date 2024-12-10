@@ -88,7 +88,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
               <select
                 value={searchType}
                 onChange={(e) => setSearchType(e.target.value as 'tender' | 'company')}
-                className="h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md focus:ring-0 focus:border-transparent"
+                className="h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-base rounded-md focus:ring-0 focus:border-transparent"
               >
                 <option value="tender">標案搜尋</option>
                 <option value="company">廠商搜尋</option>
@@ -96,7 +96,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
             </div>
             <input
               type="text"
-              className="block w-full h-full rounded-l-lg border-gray-300 pl-32 focus:border-blue-500 focus:ring-blue-500 text-lg"
+              className="block w-full h-full rounded-l-lg border-gray-300 pl-[8.75rem] focus:border-blue-500 focus:ring-blue-500 text-xl"
               placeholder={
                 searchType === 'tender' 
                   ? '輸入標案名稱或關鍵字'
@@ -108,26 +108,26 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
           </div>
           <button
             type="submit"
-            className="relative -ml-px inline-flex items-center px-8 py-3 border border-transparent text-lg font-medium rounded-r-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="relative -ml-px inline-flex items-center px-8 py-3 border border-transparent text-xl font-medium rounded-r-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             搜尋
           </button>
         </div>
-        <div className="mt-2 flex justify-center space-x-4 text-sm text-gray-500">
+        <div className="mt-2 flex justify-center space-x-4 text-base text-gray-500">
           <span className="flex items-center">
-            <FileText className="h-4 w-4 mr-1" />
+            <FileText className="h-5 w-5 mr-1" />
             標案名稱
           </span>
           <span className="flex items-center">
-            <Building2 className="h-4 w-4 mr-1" />
+            <Building2 className="h-5 w-5 mr-1" />
             廠商名稱
           </span>
           <span className="flex items-center">
-            <FileSpreadsheet className="h-4 w-4 mr-1" />
+            <FileSpreadsheet className="h-5 w-5 mr-1" />
             統一編號
           </span>
           <span className="flex items-center">
-            <Search className="h-4 w-4 mr-1" />
+            <Search className="h-5 w-5 mr-1" />
             關鍵字
           </span>
         </div>
@@ -135,7 +135,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
       {isSearching ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
         </div>
       ) : error ? (
         <div className="flex justify-center py-12">
@@ -155,22 +155,22 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     日期
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     類型
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     標案名稱
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     機關名稱
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     金額
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     狀態
                   </th>
                 </tr>
@@ -182,23 +182,23 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
                     onClick={() => onTenderSelect(tender.tenderId)}
                     className="hover:bg-gray-50 cursor-pointer"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                       {tender.date}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                       {tender.type}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-6 py-4 text-base text-gray-900">
                       {tender.title}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-900">
                       {tender.unitName}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
                       {tender.amount}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
                         tender.status === '已決標' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {tender.status}
@@ -218,7 +218,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
             />
           )}
 
-          <div className="text-xs text-gray-500 text-center mt-4">
+          <div className="text-sm text-gray-500 text-center mt-4">
             資料來源：{`https://pcc.g0v.ronny.tw/api`}
           </div>
         </div>

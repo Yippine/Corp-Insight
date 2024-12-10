@@ -61,10 +61,10 @@ export default function PackagingCalculator() {
       <div className="grid grid-cols-1 gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">產品尺寸 (mm)</h3>
+            <h3 className="text-xl font-medium text-gray-900 mb-3">產品尺寸 (mm)</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   長度
                 </label>
                 <input
@@ -76,7 +76,7 @@ export default function PackagingCalculator() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   寬度
                 </label>
                 <input
@@ -88,7 +88,7 @@ export default function PackagingCalculator() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   高度
                 </label>
                 <input
@@ -103,10 +103,10 @@ export default function PackagingCalculator() {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">箱子尺寸 (mm)</h3>
+            <h3 className="text-xl font-medium text-gray-900 mb-3">箱子尺寸 (mm)</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   長度
                 </label>
                 <input
@@ -118,7 +118,7 @@ export default function PackagingCalculator() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   寬度
                 </label>
                 <input
@@ -130,7 +130,7 @@ export default function PackagingCalculator() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   高度
                 </label>
                 <input
@@ -146,7 +146,7 @@ export default function PackagingCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-medium text-gray-700 mb-1">
             需求數量 (件)
           </label>
           <input
@@ -167,29 +167,29 @@ export default function PackagingCalculator() {
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">計算結果</h3>
+            <h3 className="text-xl font-medium text-gray-900">計算結果</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">需要箱數</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">需要箱數</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.boxesNeeded} 箱
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">每箱數量</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">每箱數量</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.itemsPerBox} 件
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">空間利用率</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">空間利用率</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.utilization.toFixed(2)}%
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">擺放方式</p>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-base text-gray-500">擺放方式</p>
+                <p className="text-xl font-medium text-gray-900">
                   {result.layout}
                 </p>
               </div>
