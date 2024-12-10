@@ -82,21 +82,45 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   return (
     <div className="space-y-6">
       <form onSubmit={(e) => handleSearch(e)} className="relative">
+        {/* 搜尋類型選擇器 */}
+        <div className="flex justify-center">
+          <div className="inline-flex rounded-lg p-1 bg-gray-100">
+            <button
+              type="button"
+              onClick={() => setSearchType('company')}
+              className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                searchType === 'company'
+                  ? 'bg-white text-green-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Building2 className="h-5 w-5 mr-2" />
+              廠商搜尋
+            </button>
+            <button
+              type="button"
+              onClick={() => setSearchType('tender')}
+              className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+                searchType === 'tender'
+                  ? 'bg-white text-green-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <FileText className="h-5 w-5 mr-2" />
+              標案搜尋
+            </button>
+          </div>
+        </div>
+
+        {/* 搜尋輸入框 */}
         <div className="flex shadow-sm rounded-lg">
           <div className="relative flex-grow focus-within:z-10">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-              <select
-                value={searchType}
-                onChange={(e) => setSearchType(e.target.value as 'tender' | 'company')}
-                className="h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-base rounded-md focus:ring-0 focus:border-transparent"
-              >
-                <option value="tender">標案搜尋</option>
-                <option value="company">廠商搜尋</option>
-              </select>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-6 w-6 text-gray-400" />
             </div>
             <input
               type="text"
-              className="block w-full h-full rounded-l-lg border-gray-300 pl-[8.75rem] focus:border-blue-500 focus:ring-blue-500 text-xl"
+              className="block w-full h-full rounded-l-lg border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 text-xl"
               placeholder={
                 searchType === 'tender' 
                   ? '輸入標案名稱或關鍵字'
@@ -108,28 +132,41 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
           </div>
           <button
             type="submit"
-            className="relative -ml-px inline-flex items-center px-8 py-3 border border-transparent text-xl font-medium rounded-r-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="relative -ml-px inline-flex items-center px-8 py-3 border border-transparent text-xl font-medium rounded-r-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             搜尋
           </button>
         </div>
+
+        {/* 搜尋提示 */}
         <div className="mt-2 flex justify-center space-x-4 text-base text-gray-500">
-          <span className="flex items-center">
-            <FileText className="h-5 w-5 mr-1" />
-            標案名稱
-          </span>
-          <span className="flex items-center">
-            <Building2 className="h-5 w-5 mr-1" />
-            廠商名稱
-          </span>
-          <span className="flex items-center">
-            <FileSpreadsheet className="h-5 w-5 mr-1" />
-            統一編號
-          </span>
-          <span className="flex items-center">
-            <Search className="h-5 w-5 mr-1" />
-            關鍵字
-          </span>
+          {searchType === 'tender' ? (
+            <>
+              <span className="flex items-center">
+                <FileText className="h-5 w-5 mr-1" />
+                標案名稱
+              </span>
+              <span className="flex items-center">
+                <Search className="h-5 w-5 mr-1" />
+                關鍵字
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="flex items-center">
+                <Building2 className="h-5 w-5 mr-1" />
+                廠商名稱
+              </span>
+              <span className="flex items-center">
+                <FileSpreadsheet className="h-5 w-5 mr-1" />
+                統一編號
+              </span>
+              <span className="flex items-center">
+                <Search className="h-5 w-5 mr-1" />
+                關鍵字
+              </span>
+            </>
+          )}
         </div>
       </form>
 

@@ -32,7 +32,7 @@ export function useTenderSearch() {
       query: '',
       currentPage: 1,
       totalPages: 1,
-      searchType: 'tender' as const
+      searchType: 'company' as const
     };
   });
 

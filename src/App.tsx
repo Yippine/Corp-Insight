@@ -102,7 +102,11 @@ function App() {
               onClick={handleTitleClick}
             >
               企業放大鏡™&nbsp;
-              <span className="text-blue-600 text-base">βeta 版本</span>
+              <span className={`text-base ${
+                pageState === PageState.COMPANY_SEARCH ? 'text-blue-600' :
+                pageState === PageState.TENDER_SEARCH ? 'text-green-600' :
+                pageState === PageState.TOOLS ? 'text-amber-500' : 'text-blue-600'
+              }`}>βeta 版本</span>
             </h1>
             <nav className="flex space-x-8">
               <button
