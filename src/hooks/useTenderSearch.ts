@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { DEFAULT_SEARCH_STATE, STORAGE_KEYS } from '../constants/searchDefaults';
 
 export interface TenderSearchData {
   tenderId: string;
@@ -26,18 +27,29 @@ interface SearchState {
 
 export function useTenderSearch() {
   const [searchState, setSearchState] = useState<SearchState>(() => {
-    const cached = localStorage.getItem('lastTenderSearchState');
-    return cached ? JSON.parse(cached) : {
-      results: [],
-      query: '',
-      currentPage: 1,
-      totalPages: 1,
-      searchType: 'company' as const
-    };
+    try {
+      const cached = localStorage.getItem(STORAGE_KEYS.TENDER_SEARCH);
+      if (!cached) {
+        return DEFAULT_SEARCH_STATE;
+      }
+      
+      const parsedCache = JSON.parse(cached);
+      return {
+        ...DEFAULT_SEARCH_STATE,
+        ...parsedCache
+      };
+    } catch (error) {
+      console.error('Error parsing cached search state:', error);
+      return DEFAULT_SEARCH_STATE;
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('lastTenderSearchState', JSON.stringify(searchState));
+    if (searchState === DEFAULT_SEARCH_STATE) {
+      localStorage.removeItem(STORAGE_KEYS.TENDER_SEARCH);
+    } else {
+      localStorage.setItem(STORAGE_KEYS.TENDER_SEARCH, JSON.stringify(searchState));
+    }
   }, [searchState]);
 
   const setSearchResults = (results: TenderSearchData[]) => {
@@ -75,12 +87,10 @@ export function useTenderSearch() {
     }));
   };
 
-  const resetTenderSearch = () => {
-    setSearchResults([]);
-    setSearchQuery('');
-    setCurrentPage(1);
-    setTotalPages(1);
-  };
+  const resetTenderSearch = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEYS.TENDER_SEARCH);
+    setSearchState(DEFAULT_SEARCH_STATE);
+  }, []);
 
   const memoizedResults = useMemo(() => searchState.results, [searchState.results]);
 

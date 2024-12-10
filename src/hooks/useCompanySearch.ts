@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { SearchData } from '../utils/companyUtils';
+import { DEFAULT_SEARCH_STATE, STORAGE_KEYS } from '../constants/searchDefaults';
 
 interface SearchState {
   results: SearchData[];
@@ -10,18 +11,26 @@ interface SearchState {
 
 export function useCompanySearch() {
   const [searchState, setSearchState] = useState<SearchState>(() => {
-    const cached = localStorage.getItem('lastSearchState');
-    return cached ? JSON.parse(cached) : {
-      results: [],
-      query: '',
-      currentPage: 1,
-      totalPages: 1
-    };
+    try {
+      const cached = localStorage.getItem(STORAGE_KEYS.COMPANY_SEARCH);
+      if (!cached) {
+        return DEFAULT_SEARCH_STATE;
+      }
+      
+      const parsedCache = JSON.parse(cached);
+      return {
+        ...DEFAULT_SEARCH_STATE,
+        ...parsedCache
+      };
+    } catch (error) {
+      console.error('Error parsing cached search state:', error);
+      return DEFAULT_SEARCH_STATE;
+    }
   });
 
   // 當搜尋狀態改變時，更新本地儲存
   useEffect(() => {
-    localStorage.setItem('lastSearchState', JSON.stringify(searchState));
+    localStorage.setItem(STORAGE_KEYS.COMPANY_SEARCH, JSON.stringify(searchState));
   }, [searchState]);
 
   const setSearchResults = (results: SearchData[]) => {
@@ -57,6 +66,7 @@ export function useCompanySearch() {
     setSearchQuery('');
     setCurrentPage(1);
     setTotalPages(1);
+    localStorage.removeItem(STORAGE_KEYS.COMPANY_SEARCH);
   };
 
   // 使用 useMemo 快取搜尋結果
