@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet } from 'lucide-react';
+import { ArrowLeft, Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction } from 'lucide-react';
 import { useTenderSearch } from '../../hooks/useTenderSearch';
+import UnderDevelopment from '../common/UnderDevelopment';
 
 interface TenderDetailProps {
   tenderId: string;
@@ -51,8 +52,8 @@ interface TenderData {
 const tabs = [
   { id: 'basic', name: '基本資料', icon: Building2 },
   { id: 'companies', name: '投標廠商', icon: Users },
-  { id: 'progress', name: '履約進度', icon: FileText },
-  { id: 'documents', name: '相關文件', icon: FileSpreadsheet },
+  { id: 'progress', name: '履約進度', icon: Construction },
+  { id: 'documents', name: '相關文件', icon: FileText },
   { id: 'unit', name: '機關資訊', icon: MapPin }
 ];
 
@@ -241,6 +242,10 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         );
 
       case 'companies':
+        if (!data.companies || data.companies.length === 0) {
+          return <UnderDevelopment message="" />;
+        }
+        
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
@@ -294,6 +299,10 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         );
 
       case 'progress':
+        if (!data.progress || data.progress.currentPhase === '未提供') {
+          return <UnderDevelopment message="" />;
+        }
+
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
@@ -429,11 +438,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         );
 
       default:
-        return (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-            <p className="text-gray-500 text-center">功能開發中...</p>
-          </div>
-        );
+        return <UnderDevelopment message="" />;
     }
   };
 
@@ -474,6 +479,8 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
           </div>
         </div>
       </div>
+
+      <UnderDevelopment />
 
       <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
         {tabs.map((tab) => {

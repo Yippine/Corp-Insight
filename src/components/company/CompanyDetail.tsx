@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Mail, Phone, Globe, FileSpreadsheet } from 'lucide-react';
 import { formatDetailData } from '../../utils/companyUtils';
+import UnderDevelopment from '../common/UnderDevelopment';
 
 interface CompanyDetailProps {
   companyTaxId: string;
@@ -248,11 +249,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
         );
       case 'tenders':
         if (!SearchData.tenders || SearchData.tenders.length === 0) {
-          return (
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-              <p className="text-gray-500 text-center">功能開發中...</p>
-            </div>
-          );
+          return <UnderDevelopment />;
         }
         
         return (
@@ -320,11 +317,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
           </div>
         );
       default:
-        return (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-            <p className="text-gray-500 text-center">功能開發中...</p>
-          </div>
-        );
+        return <UnderDevelopment />;
     }
   };
 
