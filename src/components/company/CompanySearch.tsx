@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, Building2, FileSpreadsheet, Users, MapPin } from 'lucide-react';
 import { SearchData, SearchResponse, formatSearchData } from '../../utils/companyUtils';
 import Pagination from '../Pagination';
+import NoSearchResults from '../common/NoSearchResults';
 
 interface CompanySearchProps {
   onCompanySelect: (companyTaxId: string) => void;
@@ -54,21 +55,21 @@ export default function CompanySearch({
   setTotalPages
 }: CompanySearchProps) {
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
     e?.preventDefault();
     if (!searchQuery.trim()) return;
 
     setIsSearching(true);
-    setError(null);
+    setErrorMessage(null);
     
     try {
       const searchType = determineSearchType(searchQuery);
       if (searchType === 'taxId') {
         const response = await fetchSearchData('taxId', searchQuery);
         if (!response.data) {
-          throw new Error('找不到符合的公司');
+          throw new Error('找不到符合的公司！');
         }
         response.data.統一編號 = searchQuery;
         const formattedResults = formatCompanyResults('taxId', response);
@@ -82,7 +83,7 @@ export default function CompanySearch({
           formattedResults = formatCompanyResults('chairman', response);
         }
         if (formattedResults.length === 0) {
-          throw new Error('找不到符合的公司');
+          throw new Error('找不到符合的公司！');
         }
         setSearchResults(formattedResults);
         setTotalPages(Math.ceil(response.found / 10) || 1);
@@ -90,7 +91,7 @@ export default function CompanySearch({
       }
     } catch (error) {
       console.error('搜尋失敗：', error);
-      setError(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試');
+      setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
     } finally {
       setIsSearching(false);
     }
@@ -117,6 +118,10 @@ export default function CompanySearch({
 
   const handlePageChange = (page: number) => {
     handleSearch(null, page);
+  };
+
+  const handleReset = () => {
+    handleSearch(null, 1);
   };
 
   return (
@@ -166,10 +171,12 @@ export default function CompanySearch({
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
         </div>
-      ) : error ? (
-        <div className="flex justify-center py-12">
-          <p className="text-red-500">{error}</p>
-        </div>
+      ) : errorMessage ? (
+        <NoSearchResults 
+          message={errorMessage} 
+          searchTerm={searchQuery}
+          onReset={handleReset}
+        />
       ) : searchResults.length > 0 ? (
         <div className="space-y-4">
           {totalPages > 1 && (

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Building2, FileSpreadsheet, FileText, Search } from 'lucide-react';
 import Pagination from '../Pagination';
 import { useTenderSearch, TenderSearchData } from '../../hooks/useTenderSearch';
+import NoSearchResults from '../common/NoSearchResults';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
@@ -22,14 +23,14 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   } = useTenderSearch();
 
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
     e?.preventDefault();
     if (!searchQuery.trim()) return;
 
     setIsSearching(true);
-    setError(null);
+    setErrorMessage(null);
 
     try {
       let url = '';
@@ -47,6 +48,9 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
       const response = await fetch(url);
       const data = await response.json();
+      if (!data.records || data.records.length === 0) {
+        throw new Error('找不到符合的標案！');
+      }
 
       const formattedResults: TenderSearchData[] = data.records.map((record: any, index: number) => ({
         tenderId: `${record.unit_id}-${record.job_number}`,
@@ -69,7 +73,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       setCurrentPage(page);
     } catch (error) {
       console.error('搜尋失敗：', error);
-      setError('搜尋過程發生錯誤，請稍後再試');
+      setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
     } finally {
       setIsSearching(false);
     }
@@ -77,6 +81,10 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
   const handlePageChange = (page: number) => {
     handleSearch(null, page);
+  };
+
+  const handleReset = () => {
+    handleSearch(null, 1);
   };
 
   return (
@@ -174,10 +182,12 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
         </div>
-      ) : error ? (
-        <div className="flex justify-center py-12">
-          <p className="text-red-500">{error}</p>
-        </div>
+      ) : errorMessage ? (
+        <NoSearchResults 
+          message={errorMessage} 
+          searchTerm={searchQuery}
+          onReset={handleReset}
+        />
       ) : searchResults.length > 0 ? (
         <div className="space-y-4">
           {totalPages > 1 && (
