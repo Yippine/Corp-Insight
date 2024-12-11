@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Building2, FileSpreadsheet, FileText, Search } from 'lucide-react';
 import Pagination from '../Pagination';
 import { useTenderSearch, TenderSearchData } from '../../hooks/useTenderSearch';
 import NoSearchResults from '../common/NoSearchResults';
+import { STORAGE_KEYS } from '../../constants/searchDefaults';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
@@ -24,6 +25,17 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
   const [isSearching, setIsSearching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedState = localStorage.getItem(STORAGE_KEYS.TENDER_SEARCH);
+    if (savedState) {
+      const parsedState = JSON.parse(savedState);
+      setSearchResults(parsedState.results);
+      setSearchQuery(parsedState.query);
+      setCurrentPage(parsedState.currentPage);
+      setTotalPages(parsedState.totalPages);
+    }
+  }, []);
 
   const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
     e?.preventDefault();
@@ -69,7 +81,9 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       }));
 
       setSearchResults(formattedResults);
-      setTotalPages(Math.ceil(data.found / 10) || 1);
+      setTotalPages(data.total_pages);
+      console.log(`11111 totalPages: ${totalPages}`);
+      console.log(`11111 data.total_records: ${data.total_records}`);
       setCurrentPage(page);
     } catch (error) {
       console.error('搜尋失敗：', error);

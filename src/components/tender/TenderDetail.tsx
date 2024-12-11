@@ -62,10 +62,12 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
   const [data, setData] = useState<TenderData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { setSearchResults, setSearchQuery, setCurrentPage, setTotalPages } = useTenderSearch();
+  const { batchUpdateSearchState } = useTenderSearch();
 
   const handleUnitClick = async (unitId: string, unitName: string) => {
     try {
+      console.log(`22222 unitId: ${unitId}`);
+      console.log(`22222 unitName: ${unitName}`);
       const response = await fetch(`https://pcc.g0v.ronny.tw/api/listbyunit?unit_id=${unitId}`);
       const result = await response.json();
 
@@ -84,11 +86,16 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         }))
       }));
 
-      setSearchResults(formattedResults);
-      setSearchQuery(unitName);
-      setCurrentPage(1);
-      setTotalPages(Math.ceil(result.found / 10) || 1);
-      onBack();
+      batchUpdateSearchState(
+        formattedResults,
+        unitName,
+        1,
+        result.total_page
+      );
+
+      setTimeout(() => {
+        onBack();
+      }, 0);
     } catch (err) {
       console.error('載入機關標案資料失敗：', err);
     }

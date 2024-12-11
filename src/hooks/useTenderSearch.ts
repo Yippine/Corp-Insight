@@ -1,5 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { DEFAULT_SEARCH_STATE, STORAGE_KEYS } from '../constants/searchDefaults';
+import { useState, useCallback, useMemo } from 'react';
 
 export interface TenderSearchData {
   tenderId: string;
@@ -11,10 +10,10 @@ export interface TenderSearchData {
   unitId: string;
   amount: string;
   status: string;
-  companies?: {
+  companies: Array<{
     name: string;
     status: string;
-  }[];
+  }>;
 }
 
 interface SearchState {
@@ -22,8 +21,20 @@ interface SearchState {
   query: string;
   currentPage: number;
   totalPages: number;
-  searchType: 'tender' | 'company';
+  searchType: 'company' | 'tender';
 }
+
+const STORAGE_KEYS = {
+  TENDER_SEARCH: 'tender_search_state'
+};
+
+const DEFAULT_SEARCH_STATE: SearchState = {
+  results: [],
+  query: '',
+  currentPage: 1,
+  totalPages: 1,
+  searchType: 'company'
+};
 
 export function useTenderSearch() {
   const [searchState, setSearchState] = useState<SearchState>(() => {
@@ -44,47 +55,46 @@ export function useTenderSearch() {
     }
   });
 
-  useEffect(() => {
-    if (searchState === DEFAULT_SEARCH_STATE) {
-      localStorage.removeItem(STORAGE_KEYS.TENDER_SEARCH);
-    } else {
-      localStorage.setItem(STORAGE_KEYS.TENDER_SEARCH, JSON.stringify(searchState));
-    }
-  }, [searchState]);
+  const updateSearchState = useCallback((updates: Partial<SearchState>) => {
+    setSearchState(prev => {
+      const newState = { ...prev, ...updates };
+      localStorage.setItem(STORAGE_KEYS.TENDER_SEARCH, JSON.stringify(newState));
+      return newState;
+    });
+  }, []);
+
+  const batchUpdateSearchState = useCallback((
+    results: TenderSearchData[],
+    query: string,
+    page: number,
+    totalPages: number
+  ) => {
+    updateSearchState({
+      results,
+      query,
+      currentPage: page,
+      totalPages
+    });
+  }, [updateSearchState]);
 
   const setSearchResults = (results: TenderSearchData[]) => {
-    setSearchState(prev => ({
-      ...prev,
-      results
-    }));
+    updateSearchState({ results });
   };
 
   const setSearchQuery = (query: string) => {
-    setSearchState(prev => ({
-      ...prev,
-      query
-    }));
-  };
-
-  const setSearchType = (type: 'tender' | 'company') => {
-    setSearchState(prev => ({
-      ...prev,
-      searchType: type
-    }));
+    updateSearchState({ query });
   };
 
   const setCurrentPage = (page: number) => {
-    setSearchState(prev => ({
-      ...prev,
-      currentPage: page
-    }));
+    updateSearchState({ currentPage: page });
   };
 
   const setTotalPages = (pages: number) => {
-    setSearchState(prev => ({
-      ...prev,
-      totalPages: pages
-    }));
+    updateSearchState({ totalPages: pages });
+  };
+
+  const setSearchType = (type: 'company' | 'tender') => {
+    updateSearchState({ searchType: type });
   };
 
   const resetTenderSearch = useCallback(() => {
@@ -105,6 +115,7 @@ export function useTenderSearch() {
     setCurrentPage,
     totalPages: searchState.totalPages,
     setTotalPages,
+    batchUpdateSearchState,
     resetTenderSearch
   };
 }
