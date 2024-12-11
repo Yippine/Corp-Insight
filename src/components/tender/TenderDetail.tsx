@@ -90,7 +90,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
         formattedResults,
         unitName,
         1,
-        result.total_page
+        1
       );
 
       setTimeout(() => {
