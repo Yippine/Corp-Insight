@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Mail, Phone, Globe, FileSpreadsheet } from 'lucide-react';
+import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Mail, Phone, Globe } from 'lucide-react';
 import { formatDetailData } from '../../utils/companyUtils';
 import UnderDevelopment from '../common/UnderDevelopment';
 
@@ -34,43 +34,8 @@ const fetchDetailData = async (taxId: string) => {
     
     const result = await response.json();
     const company = result.data;
-
-    // 模擬公司資料
-    // const SearchData = {
-    //   name: '台積電股份有限公司',
-    //   taxId: '22099131',
-    //   address: '新竹科學園區力行六路8號',
-    //   chairman: '劉德音',
-    //   industry: '半導體製造業',
-    //   capital: '259,304,805,000',
-    //   established: '1987/02/21',
-    //   status: '營業中',
-    //   email: 'contact@tsmc.com',
-    //   phone: '03-5636688',
-    //   website: 'www.tsmc.com',
-    //   employees: '70,000+',
-    //   directors: [
-    //     { name: '劉德音', title: '董事長', shares: '1,653,709' },
-    //     { name: '魏哲家', title: '董事', shares: '1,245,786' }
-    //   ],
-    //   tenders: [
-    //     {
-    //       date: '2024/01/15',
-    //       title: '晶圓廠擴建工程',
-    //       amount: '1,500,000,000',
-    //       status: '已決標'
-    //     },
-    //     {
-    //       date: '2023/12/20',
-    //       title: '廠區空調系統更新',
-    //       amount: '50,000,000',
-    //       status: '履約中'
-    //     }
-    //   ]
-    // };
-
     const SearchData = formatDetailData(taxId, company);
-    return SearchData;
+    return { ...SearchData, businessScope: company.所營事業資料 || [] };
   } catch (error) {
     console.error('API request failed:', error);
     throw new Error('無法連接到搜尋服務，請稍後再試');
@@ -98,6 +63,78 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
   if (!SearchData) {
     return <div>載入中...</div>;
   }
+
+  const renderBusinessScope = () => {
+    if (!SearchData.businessScope || SearchData.businessScope.length === 0) {
+      return <p className="text-gray-500">無營業項目資料</p>;
+    }
+
+    // 分離代碼和詳細說明
+    const codes = SearchData.businessScope.filter((item: string[]) => item[0]);
+    const details = SearchData.businessScope.filter((item: string[]) => !item[0]);
+
+    return (
+      <div className="space-y-8 bg-white rounded-lg">
+        {/* 代碼部分 */}
+        {codes.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="text-base font-medium text-gray-900 flex items-center space-x-2">
+              <span className="inline-block w-1 h-4 bg-blue-600 rounded-full"></span>
+              <span>營業項目代碼</span>
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              {codes.map((item: string[], index: number) => (
+                <div 
+                  key={index} 
+                  className="group flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-white p-3 rounded-lg border border-blue-100 hover:shadow-md transition-all duration-200"
+                >
+                  <div className="flex-shrink-0 bg-blue-600 text-white px-2 py-1 rounded text-sm font-medium group-hover:bg-blue-700 transition-colors">
+                    {item[0]}
+                  </div>
+                  <span className="text-base text-gray-700 group-hover:text-gray-900 transition-colors">
+                    {item[1]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 詳細說明部分 */}
+        {details.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="text-base font-medium text-gray-900 flex items-center space-x-2">
+              <span className="inline-block w-1 h-4 bg-blue-600 rounded-full"></span>
+              <span>營業項目說明</span>
+            </h4>
+            <div className="space-y-4 text-base text-gray-700 bg-gradient-to-r from-gray-50 to-white rounded-lg p-4">
+              {details.map((item: string[], index: number) => {
+                const content = item[1].replace(/^[•·]/, '').trim();
+                // 檢查是否為新段落（包含數字編號）
+                const isNewSection = /^[１２３４５６７８９０\d]．/.test(content);
+                
+                return (
+                  <div 
+                    key={index} 
+                    className={`${isNewSection ? 'mt-6 first:mt-0' : 'ml-8'} leading-relaxed hover:bg-white rounded-lg p-2 transition-colors duration-200`}
+                  >
+                    {/* 如果是新段落，使用較大字體和不同顏色 */}
+                    <p className={`${
+                      isNewSection 
+                        ? 'text-blue-800 font-medium' 
+                        : 'text-gray-600'
+                    }`}>
+                      {content}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -139,13 +176,15 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                       {SearchData.address}
                     </dd>
                   </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">聯絡電話</dt>
-                    <dd className="mt-1 text-base text-gray-900 flex items-center">
-                      <Phone className="h-5 w-5 text-gray-400 mr-1" />
-                      {SearchData.phone}
-                    </dd>
-                  </div>
+                  {SearchData.phone !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">聯絡電話</dt>
+                      <dd className="mt-1 text-base text-gray-900 flex items-center">
+                        <Phone className="h-5 w-5 text-gray-400 mr-1" />
+                        {SearchData.phone}
+                      </dd>
+                    </div>
+                  )}
                   <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">電子郵件</dt>
                     <dd className="mt-1 text-base text-gray-900 flex items-center">
@@ -153,15 +192,17 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                       {SearchData.email}
                     </dd>
                   </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">公司網站</dt>
-                    <dd className="mt-1 text-base text-blue-600 flex items-center">
-                      <Globe className="h-5 w-5 text-gray-400 mr-1" />
-                      <a href={`https://${SearchData.website}`} target="_blank" rel="noopener noreferrer">
-                        {SearchData.website}
-                      </a>
-                    </dd>
-                  </div>
+                  {SearchData.website !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">公司網站</dt>
+                      <dd className="mt-1 text-base text-blue-600 flex items-center">
+                        <Globe className="h-5 w-5 text-gray-400 mr-1" />
+                        <a href={`https://${SearchData.website}`} target="_blank" rel="noopener noreferrer">
+                          {SearchData.website}
+                        </a>
+                      </dd>
+                    </div>
+                  )}
                   <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">員工人數</dt>
                     <dd className="mt-1 text-base text-gray-900">{SearchData.employees}</dd>
@@ -173,19 +214,19 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6">
                 <h3 className="text-xl leading-6 font-medium text-gray-900">
-                  財務概況
+                  資本規模
                 </h3>
               </div>
               <div className="border-t border-gray-200">
                 <dl>
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-base font-medium text-gray-500">實收資本額</dt>
+                    <dt className="text-base font-medium text-gray-500">資本總額</dt>
                     <dd className="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">
                       {SearchData.capital}
                     </dd>
                   </div>
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-base font-medium text-gray-500">營業額</dt>
+                    <dt className="text-base font-medium text-gray-500">實收資本額</dt>
                     <dd className="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">
                       {SearchData.revenue}
                     </dd>
@@ -193,6 +234,18 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                 </dl>
               </div>
             </div>
+
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-xl leading-6 font-medium text-gray-900">
+                  主要營業項目
+                </h3>
+              </div>
+              <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+                {renderBusinessScope()}
+              </div>
+            </div>
+
             <div className="text-sm text-gray-500 text-center mt-4">
               資料來源：{`https://company.g0v.ronny.tw/api`}
             </div>
@@ -332,17 +385,16 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
           返回搜尋結果
         </button>
       </div>
-
       <div className="bg-white shadow-sm rounded-lg p-8">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between items-center">
           <div className="space-y-6">
-            <div className="mb-8">
+            {/* <div className="mb-8"> */}
               <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
                 {SearchData.name}
               </h2>
-            </div>
+            {/* </div> */}
 
-            <div className="flex flex-col space-y-2">
+            {/* <div className="flex flex-col space-y-2">
               <span className="text-base font-medium text-gray-600">
                 統一編號
               </span>
@@ -360,7 +412,7 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                 <Building2 className="h-6 w-6 text-gray-400" />
                 <span className="text-base text-gray-700 whitespace-pre-line">{SearchData.industry}</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex space-x-4">
