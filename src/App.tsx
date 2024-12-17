@@ -97,17 +97,17 @@ function App() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <h1 
-              className="text-4xl font-bold text-gray-900 cursor-pointer" 
-              onClick={handleTitleClick}
-            >
-              企業放大鏡™&nbsp;
-              <span className={`text-base ${
-                pageState === PageState.COMPANY_SEARCH ? 'text-blue-600' :
-                pageState === PageState.TENDER_SEARCH ? 'text-green-600' :
-                pageState === PageState.TOOLS ? 'text-amber-500' : 'text-blue-600'
-              }`}>βeta 版本</span>
-            </h1>
+            <div className="flex items-center cursor-pointer" onClick={handleTitleClick}>
+              <img src="/magnifier.ico" alt="企業放大鏡 Logo" className="w-8 h-8 mr-3" />
+              <h1 className="text-4xl font-bold text-gray-900">
+                企業放大鏡™
+                <span className={`text-base ml-2 ${
+                  pageState === PageState.COMPANY_SEARCH ? 'text-blue-600' :
+                  pageState === PageState.TENDER_SEARCH ? 'text-green-600' :
+                  pageState === PageState.TOOLS ? 'text-amber-500' : 'text-blue-600'
+                }`}>βeta 版本</span>
+              </h1>
+            </div>
             <nav className="flex space-x-8">
               <button
                 onClick={() => handleFeatureCardClick('company')}
@@ -245,7 +245,7 @@ function App() {
                 </li>
                 <li>
                   <a href="#" className="text-lg text-gray-500 hover:text-gray-900">
-                    隱私政策
+                    隱���政策
                   </a>
                 </li>
               </ul>

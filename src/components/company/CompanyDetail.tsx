@@ -13,8 +13,8 @@ const tabs = [
   { id: 'directors', name: '董監事', icon: Users },
   { id: 'tenders', name: '標案資料', icon: FileText },
   { id: 'risk', name: '風險評估', icon: AlertTriangle },
-  { id: 'awards', name: '獎項認證', icon: Award },
-  { id: 'industry', name: '產業分析', icon: TrendingUp }
+  { id: 'industry', name: '產業分析', icon: TrendingUp },
+  { id: 'awards', name: '獎項認證', icon: Award }
 ];
 
 const fetchDetailData = async (taxId: string) => {
