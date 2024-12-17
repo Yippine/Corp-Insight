@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Mail, Phone, Globe } from 'lucide-react';
+import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Phone, Globe } from 'lucide-react';
 import { formatDetailData } from '../../utils/companyUtils';
 import UnderDevelopment from '../common/UnderDevelopment';
 
@@ -154,6 +154,10 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                     <dd className="mt-1 text-base text-gray-900">{SearchData.taxId}</dd>
                   </div>
                   <div className="sm:col-span-1">
+                    <dt className="text-base font-medium text-gray-500">負責人</dt>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.chairman}</dd>
+                  </div>
+                  <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">公司狀態</dt>
                     <dd className="mt-1 text-base text-gray-900">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${SearchData.status === '營業中' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -162,12 +166,16 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                     </dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">負責人</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.chairman}</dd>
+                    <dt className="text-base font-medium text-gray-500">公司成立日期</dt>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">設立日期</dt>
+                    <dt className="text-base font-medium text-gray-500">最近變更日期</dt>
                     <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
+                  </div>
+                  <div className="sm:col-span-1">
+                    <dt className="text-base font-medium text-gray-500">股東結構</dt>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.shareholding}</dd>
                   </div>
                   <div className="sm:col-span-2">
                     <dt className="text-base font-medium text-gray-500">公司地址</dt>
@@ -185,13 +193,6 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                       </dd>
                     </div>
                   )}
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">電子郵件</dt>
-                    <dd className="mt-1 text-base text-gray-900 flex items-center">
-                      <Mail className="h-5 w-5 text-gray-400 mr-1" />
-                      {SearchData.email}
-                    </dd>
-                  </div>
                   {SearchData.website !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">公司網站</dt>
@@ -203,10 +204,12 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
                       </dd>
                     </div>
                   )}
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">員工人數</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.employees}</dd>
-                  </div>
+                  {SearchData.employees !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">員工人數</dt>
+                      <dd className="mt-1 text-base text-gray-900">{SearchData.employees}</dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             </div>
@@ -220,15 +223,15 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
               <div className="border-t border-gray-200">
                 <dl>
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-base font-medium text-gray-500">資本總額</dt>
+                    <dt className="text-base font-medium text-gray-500">核准資本額</dt>
                     <dd className="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">
-                      {SearchData.capital}
+                      {SearchData.totalCapital}
                     </dd>
                   </div>
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-base font-medium text-gray-500">實收資本額</dt>
+                    <dt className="text-base font-medium text-gray-500">實際資本額</dt>
                     <dd className="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">
-                      {SearchData.revenue}
+                      {SearchData.paidInCapital}
                     </dd>
                   </div>
                 </dl>

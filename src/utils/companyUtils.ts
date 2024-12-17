@@ -6,7 +6,8 @@ export interface SearchData {
   industry: string;
   tenders: string;
   address: string;
-  capital: string;
+  totalCapital: string;
+  paidInCapital: string;
   employees: string;
 }
 
@@ -16,6 +17,7 @@ export interface DetailData extends Omit<SearchData, 'tenders'> {
   email: string;
   website: string;
   revenue: string;
+  shareholding: string;
   directors: { name: string; title: string; shares: string }[];
   tenders: string[];
 }
@@ -34,12 +36,14 @@ export interface SearchResponse {
   公司所在地?: string;
   '資本額(元)'?: number | string;
   '資本總額(元)'?: number | string;
+  '實收資本額(元)'?: number | string;
 }
 
 export interface DetailResponse extends SearchResponse {
   核准設立日期?: { year: number; month: number; day: number };
   '實收資本額(元)'?: number | string;
   '董監事名單'?: { 姓名: string; 職稱: string; 出資額?: number | string; }[];
+  股權狀況?: string;
 }
 
 const getCompanyName = (company: SearchResponse): string => {
@@ -110,7 +114,8 @@ const formatSearchData = (company: SearchResponse): SearchData => {
     industry: getIndustryInfo(company),
     tenders: '未提供',
     address: company.地址 || company.公司所在地 || '未提供',
-    capital: formatCapital(company['資本額(元)'] ?? company['資本總額(元)']),
+    totalCapital: formatCapital(company['資本額(元)'] ?? company['資本總額(元)']),
+    paidInCapital: formatCapital(company['實收資本額(元)']),
     employees: '未提供'
   };
 };
@@ -138,10 +143,12 @@ const formatDetailData = (taxId: string, company: DetailResponse): DetailData =>
     email: '未提供',
     website: '未提供',
     employees: '未提供',
-    capital: formatCapital(company['實收資本額(元)']),
+    totalCapital: formatCapital(company['資本總額(元)']),
+    paidInCapital: formatCapital(company['實收資本額(元)']),
     revenue: '未提供',
     directors: formattedDirectors(company),
-    tenders: []
+    tenders: [],
+    shareholding: company['股權狀況'] || '未提供'
   };
 };
 
