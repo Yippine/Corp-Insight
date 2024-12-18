@@ -230,7 +230,7 @@ export default function CompanySearch({
                         </div>
                       </div>
                       <div className="mt-2 text-base text-gray-500">
-                        實收資本額：{company.capital} | 員工人數：{company.employees}
+                        實收資本額：{company.paidInCapital} | 員工人數：{company.employees}
                       </div>
                     </div>
                   </button>
