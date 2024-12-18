@@ -19,6 +19,7 @@ export interface DetailData extends Omit<SearchData, 'tenders'> {
   revenue: string;
   shareholding: string;
   directors: { name: string; title: string; shares: string }[];
+  managers: { 序號: string; 姓名: string; 到職日期: { year: number; month: number; day: number } }[];
   tenders: string[];
 }
 
@@ -44,6 +45,7 @@ export interface DetailResponse extends SearchResponse {
   '實收資本額(元)'?: number | string;
   '董監事名單'?: { 姓名: string; 職稱: string; 出資額?: number | string; }[];
   股權狀況?: string;
+  經理人名單?: { 序號: string; 姓名: string; 到職日期: { year: number; month: number; day: number } }[];
 }
 
 const getCompanyName = (company: SearchResponse): string => {
@@ -120,13 +122,14 @@ const formatSearchData = (company: SearchResponse): SearchData => {
   };
 };
 
-const formattedDirectors = (company: DetailResponse): { name: string; title: string; shares: string }[] => {
+const formattedDirectors = (company: DetailResponse): { name: string; title: string; shares: string; representative: string }[] => {
   return !company.董監事名單 
     ? [] 
-    : company.董監事名單.map((director: { 姓名: string; 職稱: string; 出資額?: number | string; }) => ({
+    : company.董監事名單.map((director: { 姓名: string; 職稱: string; 出資額?: string | number; 所代表法人?: string | [number, string] }) => ({
         name: director.姓名,
         title: director.職稱,
-        shares: director.出資額?.toString() || '0'
+        shares: (director.出資額?.toString() || '0'),
+        representative: Array.isArray(director.所代表法人) ? director.所代表法人[1] : (director.所代表法人 || '')
       }));
 };
 
@@ -147,13 +150,14 @@ const formatDetailData = (taxId: string, company: DetailResponse): DetailData =>
     paidInCapital: formatCapital(company['實收資本額(元)']),
     revenue: '未提供',
     directors: formattedDirectors(company),
+    managers: company.經理人名單 || [],
     tenders: [],
     shareholding: company['股權狀況'] || '未提供'
   };
 };
 
 const formatDate = (dateObj: { year: number; month: number; day: number }) => {
-  return `${dateObj.year}/${String(dateObj.month).padStart(2, '0')}/${String(dateObj.day).padStart(2, '0')}`;
+  return `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
 };
 
 export {
@@ -162,6 +166,7 @@ export {
   getIndustryInfo,
   formatCapital,
   formatSearchData,
+  formattedDirectors,
   formatDetailData,
   formatDate
 };

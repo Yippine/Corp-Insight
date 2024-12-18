@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Phone, Globe } from 'lucide-react';
+import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Phone, Globe, Table, BarChart3 } from 'lucide-react';
 import { formatDetailData } from '../../utils/companyUtils';
 import UnderDevelopment from '../common/UnderDevelopment';
 import CompanyMap from '../maps/CompanyMap';
+import DirectorsChart from './directors/DirectorsChart';
+import DirectorsTable from './directors/DirectorsTable';
+import ManagersTimeline from './directors/ManagersTimeline';
+import ManagersTable from './directors/ManagersTable';
 
 interface CompanyDetailProps {
   companyTaxId: string;
@@ -46,6 +50,7 @@ const fetchDetailData = async (taxId: string) => {
 export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailProps) {
   const [activeTab, setActiveTab] = useState('basic');
   const [SearchData, setSearchData] = useState<any>(null);
+  const [view, setView] = useState<'chart' | 'table'>('chart');
 
   useEffect(() => {
     const loadSearchData = async () => {
@@ -268,52 +273,61 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
         );
       case 'directors':
         return (
-          <>
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-5 sm:px-6">
-                <h3 className="text-xl leading-6 font-medium text-gray-900">
-                  董監事名單
-                </h3>
+          <div className="space-y-6">
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">董監事與經理人資訊</h3>
+                  <p className="text-gray-600">深入探索公司治理結構，掌握關鍵決策者動態</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => setView('chart')}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+                      view === 'chart'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <BarChart3 className="h-5 w-5" />
+                    <span className="font-medium">視覺化圖表</span>
+                  </button>
+                  <button
+                    onClick={() => setView('table')}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+                      view === 'table'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Table className="h-5 w-5" />
+                    <span className="font-medium">詳細資料表</span>
+                  </button>
+                </div>
               </div>
-              <div className="border-t border-gray-200">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                        姓名
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                        職稱
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                        持股數
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {SearchData.directors.map((director: { name: string; title: string; shares: string }, index: number) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
-                          {director.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                          {director.title}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                          {director.shares}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+
+              {view === 'chart' ? (
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                  <DirectorsChart directors={SearchData.directors} />
+                  <ManagersTimeline 
+                    managers={SearchData.managers} 
+                    established={SearchData.established} 
+                  />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                  <DirectorsTable 
+                    directors={SearchData.directors}
+                    onViewChange={setView}
+                  />
+                  <ManagersTable 
+                    managers={SearchData.managers}
+                    onViewChange={setView}
+                  />
+                </div>
+              )}
             </div>
-            {SearchData.directors.length > 0 && (
-              <div className="text-sm text-gray-500 text-center mt-4">
-                資料來源：{`https://company.g0v.ronny.tw/api`}
-              </div>
-            )}
-          </>
+          </div>
         );
       case 'tenders':
         if (!SearchData.tenders || SearchData.tenders.length === 0) {
