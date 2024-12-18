@@ -59,27 +59,28 @@ export default function CompanySearch({
 
   const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
     e?.preventDefault();
-    if (!searchQuery.trim()) return;
-
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) return;
+    
     setIsSearching(true);
     setErrorMessage(null);
     
     try {
-      const searchType = determineSearchType(searchQuery);
+      const searchType = determineSearchType(trimmedQuery);
       if (searchType === 'taxId') {
-        const response = await fetchSearchData('taxId', searchQuery);
+        const response = await fetchSearchData('taxId', trimmedQuery);
         if (!response.data) {
           throw new Error('找不到符合的公司！');
         }
-        response.data.統一編號 = searchQuery;
+        response.data.統一編號 = trimmedQuery;
         const formattedResults = formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
         setTotalPages(1);
       } else {
-        let response = await fetchSearchData('name', searchQuery, page);
+        let response = await fetchSearchData('name', trimmedQuery, page);
         let formattedResults = formatCompanyResults('name', response);
         if (formattedResults.length === 0) {
-          response = await fetchSearchData('chairman', searchQuery, page);
+          response = await fetchSearchData('chairman', trimmedQuery, page);
           formattedResults = formatCompanyResults('chairman', response);
         }
         if (formattedResults.length === 0) {

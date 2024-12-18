@@ -39,20 +39,20 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
   const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
     e?.preventDefault();
-    if (!searchQuery.trim()) return;
-
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) return;
+    
     setIsSearching(true);
     setErrorMessage(null);
 
     try {
       let url = '';
-      const encodedQuery = encodeURIComponent(searchQuery);
+      const encodedQuery = encodeURIComponent(trimmedQuery);
       
       if (searchType === 'tender') {
         url = `https://pcc.g0v.ronny.tw/api/searchbytitle?query=${encodedQuery}&page=${page}`;
       } else {
-        // 自動判斷是公司名稱還是統編
-        const isCompanyId = /^\d{8}$/.test(searchQuery.trim());
+        const isCompanyId = /^\d{8}$/.test(trimmedQuery);
         url = isCompanyId
           ? `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${encodedQuery}&page=${page}`
           : `https://pcc.g0v.ronny.tw/api/searchbycompanyname?query=${encodedQuery}&page=${page}`;
