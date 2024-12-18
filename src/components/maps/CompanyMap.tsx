@@ -1,6 +1,6 @@
 import { useState, useCallback, memo } from 'react';
 import { MapPin, Navigation, Map, Info } from 'lucide-react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 
 interface CompanyMapProps {
   address: string;
@@ -11,7 +11,15 @@ const defaultCenter = {
   lng: 121.5654
 };
 
+const { VITE_GOOGLE_MAPS_API_KEY } = import.meta.env;
+
 const CompanyMap = memo(({ address }: CompanyMapProps) => {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: VITE_GOOGLE_MAPS_API_KEY,
+    language: 'zh-TW',
+    region: 'TW'
+  });
+
   const [mapState, setMapState] = useState({
     center: defaultCenter,
     isLoaded: false,
@@ -19,6 +27,8 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
   });
 
   const handleGeocoding = useCallback(async () => {
+    if (!window.google) return;
+    
     try {
       const geocoder = new window.google.maps.Geocoder();
       const results = await geocoder.geocode({ address });
@@ -63,6 +73,14 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
       showInfo: !prev.showInfo
     }));
   };
+
+  if (loadError) {
+    return <div className="text-red-500">地圖載入失敗</div>;
+  }
+
+  if (!isLoaded) {
+    return <div className="animate-pulse bg-gray-200 aspect-[16/9] w-full rounded-lg"></div>;
+  }
 
   return (
     <div className="relative">
@@ -110,49 +128,43 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
       </div>
 
       <div className="aspect-[16/9] w-full rounded-lg overflow-hidden">
-        <LoadScript
-          googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-          language="zh-TW"
-          region="TW"
+        <GoogleMap
+          mapContainerStyle={{
+            width: '100%',
+            height: '100%'
+          }}
+          center={mapState.center}
+          zoom={16}
+          onLoad={handleMapLoad}
+          options={{
+            zoomControl: true,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true
+          }}
         >
-          <GoogleMap
-            mapContainerStyle={{
-              width: '100%',
-              height: '100%'
-            }}
-            center={mapState.center}
-            zoom={16}
-            onLoad={handleMapLoad}
-            options={{
-              zoomControl: true,
-              mapTypeControl: false,
-              streetViewControl: false,
-              fullscreenControl: true
-            }}
-          >
-            {mapState.isLoaded && (
-              <Marker
-                position={mapState.center}
-                onClick={toggleInfo}
-                icon={{
-                  url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                  scaledSize: new window.google.maps.Size(40, 40)
-                }}
-              >
-                {mapState.showInfo && (
-                  <InfoWindow
-                    position={mapState.center}
-                    onCloseClick={toggleInfo}
-                  >
-                    <div className="p-2">
-                      <p className="font-medium text-gray-900">{address}</p>
-                    </div>
-                  </InfoWindow>
-                )}
-              </Marker>
-            )}
-          </GoogleMap>
-        </LoadScript>
+          {mapState.isLoaded && (
+            <Marker
+              position={mapState.center}
+              onClick={toggleInfo}
+              icon={{
+                url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                scaledSize: new window.google.maps.Size(40, 40)
+              }}
+            >
+              {mapState.showInfo && (
+                <InfoWindow
+                  position={mapState.center}
+                  onCloseClick={toggleInfo}
+                >
+                  <div className="p-2">
+                    <p className="font-medium text-gray-900">{address}</p>
+                  </div>
+                </InfoWindow>
+              )}
+            </Marker>
+          )}
+        </GoogleMap>
       </div>
     </div>
   );
