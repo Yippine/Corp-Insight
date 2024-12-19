@@ -55,6 +55,9 @@ ${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.
 優勢：[主要優勢]
 ...
 
+### CRITICAL WARNING ###
+The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
+
 請以下列語言輸出：
 請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。`;
 

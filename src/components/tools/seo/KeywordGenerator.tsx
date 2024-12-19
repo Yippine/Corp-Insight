@@ -31,7 +31,7 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
 搜尋意圖：${selectedIntent}
 競爭程度：${selectedCompetition}
 
-請生成6-8個相關的長尾關鍵字，符合以下標準：
+請生成4-6個相關的長尾關鍵字，符合以下標準：
 1. 搜尋意圖明確
 2. 競爭度較低
 3. 具有商業價值
@@ -41,10 +41,13 @@ ${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.con
 7. 結合時事熱點
 8. 關注使用者痛點
 
-請以下列格式輸出（列舉6-8個）：
+請以下列格式輸出（列舉4-6個）：
 關鍵字1：[關鍵字] - 搜尋意圖：[意圖說明]
 關鍵字2：[關鍵字] - 搜尋意圖：[意圖說明]
 ...
+
+### CRITICAL WARNING ###
+The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
 
 請以下列語言輸出：
 請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。`;

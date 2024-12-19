@@ -23,15 +23,16 @@ export default function FaqGenerator() {
     const selectedCategory = productCategories.find(c => c.id === category)?.name;
     const selectedAudience = targetAudiences.find(a => a.id === audience)?.name;
 
-    const basePrompt = `你是一位專業的FAQ內容策劃專家。
-${isOptimizing ? '請基於以下現有FAQ進行優化：\n' + result?.content + '\n\n以及參考以下資訊：\n' : ''}
+    const basePrompt = `你是一位專業的 FAQ 內容策劃專家，專注於創造高品質、簡潔且實用的常見問題與解答。
+
+${isOptimizing ? '請基於以下現有 FAQ 進行優化：\n' + result?.content + '\n\n以及參考以下資訊：\n' : ''}
 請根據以下輸入：
 產品/服務：${product}
 使用者痛點：${painPoints}
 產品類別：${selectedCategory}
 目標受眾：${selectedAudience}
 
-請生成6-8個常見問題與答案，符合以下標準：
+請生成3個常見問題與答案，符合以下專業標準：
 1. 問題簡潔明確
 2. 答案詳細實用
 3. 涵蓋不同角度
@@ -41,13 +42,16 @@ ${isOptimizing ? '請基於以下現有FAQ進行優化：\n' + result?.content +
 7. 語言通俗易懂
 8. 適合結構化數據標記
 
-請以下列格式輸出（列舉6-8個）：
+請以下列格式輸出（列舉3個）：
 Q1：[問題]
 A1：[答案]
 
 Q2：[問題]
 A2：[答案]
 ...
+
+### CRITICAL WARNING ###
+The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
 
 請以下列語言輸出：
 請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。`;

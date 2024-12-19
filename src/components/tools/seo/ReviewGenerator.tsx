@@ -48,6 +48,9 @@ ${isOptimizing ? '請基於以下現有評價進行優化：\n' + result?.conten
 評價2：[評價內容] - 評分：[1-5星]
 ...
 
+### CRITICAL WARNING ###
+The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
+
 請以下列語言輸出：
 請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。`;
 

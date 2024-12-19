@@ -31,7 +31,7 @@ ${isOptimizing ? '請基於以下現有標題進行優化：\n' + result?.conten
 目標受眾：${selectedAudience}
 文章類型：${selectedType}
 
-生成3-5個符合以下標準的SEO友好標題：
+生成4-6個符合以下標準的SEO友好標題：
 1. 包含主要關鍵字
 2. 吸引目標受眾
 3. 長度控制在55-60字元
@@ -41,10 +41,13 @@ ${isOptimizing ? '請基於以下現有標題進行優化：\n' + result?.conten
 7. 加入情感觸發詞
 8. 保持自然且易讀
 
-請以下列格式輸出（列舉3-5個）：
+請以下列格式輸出（列舉4-6個）：
 標題1：[標題內容]
 標題2：[標題內容]
 ...
+
+### CRITICAL WARNING ###
+The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
 
 請以下列語言輸出：
 請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。`;

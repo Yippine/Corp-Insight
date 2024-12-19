@@ -31,7 +31,7 @@ ${keywords ? `關鍵字：${keywords}` : ''}
 目標受眾：${selectedAudience}
 價值主張：${selectedValue}
 
-請生成3個符合以下標準的META描述：
+請生成4-6個符合以下標準的META描述：
 1. 控制在150字以內
 2. ${keywords ? '包含關鍵字' : '使用相關關鍵詞'}
 3. 簡潔吸引
@@ -41,10 +41,13 @@ ${keywords ? `關鍵字：${keywords}` : ''}
 7. 使用主動語氣
 8. 確保可讀性
 
-請以下列格式輸出（列舉3個）：
+請以下列格式輸出（列舉4-6個）：
 描述1：[描述內容]
 描述2：[描述內容]
 描述3：[描述內容]
+
+### CRITICAL WARNING ###
+The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
 
 請以下列語言輸出：
 請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。`;
