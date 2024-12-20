@@ -2,10 +2,23 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
+async function logTokenUsage(result: any) {
+  const response = await result.response;
+
+  const tokenUsage = {
+    inputTokens: response.usageMetadata?.promptTokenCount || 0,
+    outputTokens: response.usageMetadata?.candidatesTokenCount || 0,
+    totalTokens: response.usageMetadata?.totalTokenCount || 0
+  };
+  
+  console.log(`Gemini API Token Usage: ${JSON.stringify(tokenUsage, null, 2)}`);
+}
+
 export async function streamGenerateContent(
   prompt: string,
   onStream: (text: string) => void,
-  maxTokens: number = 512
+  maxTokens: number = 512,
+  shouldLogTokens: boolean = false
 ) {
   try {
     const model = genAI.getGenerativeModel({ 
@@ -17,27 +30,15 @@ export async function streamGenerateContent(
 
     const result = await model.generateContentStream(prompt);
     
-    let fullText = '';
-    let tokenUsage = {
-      inputTokens: 0,
-      outputTokens: 0,
-      totalTokens: 0
-    };
+    if (shouldLogTokens) await logTokenUsage(result);
 
-    const response = await result.response;
-    tokenUsage = {
-      inputTokens: response.usageMetadata?.promptTokenCount || 0,
-      outputTokens: response.usageMetadata?.candidatesTokenCount || 0,
-      totalTokens: response.usageMetadata?.totalTokenCount || 0
-    };
+    let fullText = '';
 
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
       fullText += chunkText;
       onStream(fullText);
     }
-    
-    console.log(`Gemini API Token Usage: ${JSON.stringify(tokenUsage, null, 2)}`);
     
     return fullText;
   } catch (error) {
