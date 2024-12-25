@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network, Search, FileText, Type, MessageSquare, Star, Zap, FileCode2, Image, Pen, Brain, Briefcase, GraduationCap, Languages, Book, HeartPulse, Lightbulb, Globe, Heart, TrendingUp, Trello, Users } from 'lucide-react';
+import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network, Search, FileText, Type, MessageSquare, Star, Zap } from 'lucide-react';
 import ManufacturingCalculator from './manufacturing/ManufacturingCalculator';
 import MetalWeightCalculator from './manufacturing/MetalWeightCalculator';
 import YieldCalculator from './manufacturing/YieldCalculator';
@@ -75,74 +75,13 @@ const seoTools: Tool[] = [
     icon: Zap,
     component: FeatureGenerator
   },
-  ...promptTools.map((tool: PromptToolConfig) => {
-    const getIcon = (id: string) => {
-      switch (id) {
-        case 'text-to-image':
-          return Image;
-        case 'copywriter':
-          return Pen;
-        case 'machine-learning':
-          return Brain;
-        case 'logistics':
-          return Briefcase;
-        case 'career-advisor':
-          return GraduationCap;
-        case 'english-writer':
-          return Languages;
-        case 'language-detector':
-          return Book;
-        case 'psychologist':
-          return HeartPulse;
-        case 'startup-advisor':
-          return Lightbulb;
-        case 'internet-writer':
-          return Globe;
-          case 'social-media-writer':
-            return MessageSquare;
-          case 'resume-writer':
-            return FileText;
-          case 'tech-writer':
-            return Monitor;
-          case 'spiritual-mentor':
-            return Heart;
-          case 'jailbreak':
-            return Zap;
-          case 'financial-analyst':
-            return TrendingUp;
-          case 'project-manager':
-            return Trello;
-          case 'market-analyst':
-            return BarChart3;
-          case 'crm-expert':
-            return Users;
-          case 'business-intelligence':
-            return Brain;
-          case 'automation-expert':
-            return Cpu;
-          case 'data-analyst':
-            return PieChart;
-          case 'legal-expert':
-            return Scale;
-          case 'teacher-assistant':
-            return GraduationCap;
-          case 'finance-advisor':
-            return DollarSign;
-          case 'medical-assistant':
-            return Activity;
-          default:
-            return FileCode2;
-      }
-    };
-
-    return {
-      id: tool.id,
-      name: tool.name,
-      description: tool.description,
-      icon: getIcon(tool.id),
-      component: () => <PromptToolTemplate config={tool} />
-    };
-  })
+  ...promptTools.map((tool: PromptToolConfig) => ({
+    id: tool.id,
+    name: tool.name,
+    description: tool.description,
+    icon: tool.icon,
+    component: () => <PromptToolTemplate config={tool} />
+  }))
 ];
 
 const computerTools: Tool[] = [
