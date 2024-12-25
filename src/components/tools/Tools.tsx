@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network, Search, FileText, Type, MessageSquare, Star, Zap, FileCode2, Image, Pen, Brain, Briefcase, GraduationCap, Languages, Book, HeartPulse, Lightbulb, Globe, Heart } from 'lucide-react';
+import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network, Search, FileText, Type, MessageSquare, Star, Zap, FileCode2, Image, Pen, Brain, Briefcase, GraduationCap, Languages, Book, HeartPulse, Lightbulb, Globe, Heart, TrendingUp, Trello, Users } from 'lucide-react';
 import ManufacturingCalculator from './manufacturing/ManufacturingCalculator';
 import MetalWeightCalculator from './manufacturing/MetalWeightCalculator';
 import YieldCalculator from './manufacturing/YieldCalculator';
@@ -108,6 +108,28 @@ const seoTools: Tool[] = [
             return Heart;
           case 'jailbreak':
             return Zap;
+          case 'financial-analyst':
+            return TrendingUp;
+          case 'project-manager':
+            return Trello;
+          case 'market-analyst':
+            return BarChart3;
+          case 'crm-expert':
+            return Users;
+          case 'business-intelligence':
+            return Brain;
+          case 'automation-expert':
+            return Cpu;
+          case 'data-analyst':
+            return PieChart;
+          case 'legal-expert':
+            return Scale;
+          case 'teacher-assistant':
+            return GraduationCap;
+          case 'finance-advisor':
+            return DollarSign;
+          case 'medical-assistant':
+            return Activity;
           default:
             return FileCode2;
       }
@@ -261,7 +283,7 @@ export default function Tools() {
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">免費 SEO 工具</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">免費 AI、SEO 工具</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {seoTools.map((tool) => (
             <button
