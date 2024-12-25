@@ -1,80 +1,204 @@
-import { useState, useMemo } from 'react';
-import { Tool, tools, toolTags } from '../../config/tools';
-
-const getTagColor = (tag: string) => (toolTags as Record<string, { color: string }>)[tag]?.color || 'gray';
-
-const isValidTag = (tag: string): tag is keyof typeof toolTags => tag in toolTags;
+import { useState, useMemo, useEffect } from 'react';
+import { Tool, tools } from '../../config/tools';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, X, ListFilter } from 'lucide-react';
+import { categoryThemes } from '../../config/theme';
 
 export default function Tools() {
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [hoveredTool, setHoveredTool] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedTool]);
 
   const filteredTools = useMemo(() => {
-    if (!selectedTag) return tools;
-    return tools.filter(tool => tool.tags.includes(selectedTag));
-  }, [selectedTag]);
+    let filtered = tools;
+    
+    if (selectedTag && selectedTag !== 'all') {
+      filtered = filtered.filter(tool => tool.tags.includes(selectedTag));
+    }
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(tool => 
+        tool.name.toLowerCase().includes(query) || 
+        tool.description.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [selectedTag, searchQuery]);
 
   if (selectedTool) {
     const ToolComponent = selectedTool.component;
     return (
-      <div className="space-y-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="space-y-4"
+      >
         <button
           onClick={() => setSelectedTool(null)}
-          className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md border border-gray-300"
+          className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
         >
-          ← 返回工具列表
+          <X className="w-5 h-5 mr-2" />
+          返回工具列表
         </button>
-        <div className="bg-white rounded-lg shadow p-6">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+        >
           <h2 className="text-3xl font-bold text-gray-900 mb-6">{selectedTool.name}</h2>
           <ToolComponent />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap gap-2">
-        {Object.entries(toolTags).map(([tag, { name, color }]) => (
-          <button
-            key={tag}
-            onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
-              ${selectedTag === tag 
-                ? `bg-${color}-500 text-white` 
-                : `bg-${color}-100 text-${color}-700 hover:bg-${color}-200`
-              }`}
-          >
-            {name}
-          </button>
-        ))}
+      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="flex items-center justify-between mb-6">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="搜尋工具..."
+            />
+          </div>
+          <div className="flex items-center ml-4 px-4 py-2 bg-gray-50 rounded-lg">
+            <ListFilter className="h-5 w-5 text-gray-500 mr-2" />
+            <span className="text-gray-600 font-medium">
+              {filteredTools.length} 個工具
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(categoryThemes).map(([tag, theme]) => {
+            const isSelected = selectedTag === tag || (!selectedTag && tag === 'all');
+            
+            return (
+              <motion.button
+                key={tag}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedTag(tag === 'all' ? null : tag)}
+                className={`
+                  px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
+                  ${isSelected 
+                    ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}` 
+                    : `${theme.secondary} ${theme.text} ${theme.hover}`
+                  }
+                `}
+              >
+                {theme.name}
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTools.map((tool) => (
-          <button
-            key={tool.id}
-            onClick={() => setSelectedTool(tool)}
-            className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-left border border-gray-200 hover:border-${isValidTag(tool.tags[0]) ? toolTags[tool.tags[0]].color : 'gray'}-500`}
-          >
-            <div className="flex items-center mb-4">
-              <tool.icon className={`h-7 w-7 text-${isValidTag(tool.tags[0]) ? toolTags[tool.tags[0]].color : 'gray'}-500 mr-3`} />
-              <h3 className="text-xl font-semibold text-gray-900">{tool.name}</h3>
-            </div>
-            <p className="text-gray-600">{tool.description}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {tool.tags.map(tag => (
-                <span
-                  key={tag}
-                  className={`px-2 py-1 text-xs font-medium rounded-full bg-${getTagColor(tag)}-100 text-${getTagColor(tag)}-700`}
+        <AnimatePresence>
+          {filteredTools.map((tool) => {
+            const toolTheme = categoryThemes[tool.tags[0] || 'all'];
+            
+            return (
+              <motion.div
+                key={tool.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.2 }}
+                onMouseEnter={() => setHoveredTool(tool.id)}
+                onMouseLeave={() => setHoveredTool(null)}
+              >
+                <button
+                  onClick={() => setSelectedTool(tool)}
+                  className={`
+                    relative w-full bg-white p-6 rounded-xl text-left
+                    ${hoveredTool === tool.id 
+                      ? `shadow-lg ${toolTheme.shadow} border-2 ${toolTheme.text}` 
+                      : 'shadow border border-gray-100'
+                    }
+                  `}
                 >
-                  {isValidTag(tag) ? toolTags[tag].name : tag}
-                </span>
-              ))}
-            </div>
-          </button>
-        ))}
+                  <div className="flex items-center mb-4">
+                    <div className={`
+                      p-3 rounded-lg
+                      ${hoveredTool === tool.id ? toolTheme.primary : toolTheme.secondary}
+                    `}>
+                      <tool.icon className={`
+                        h-6 w-6
+                        ${hoveredTool === tool.id ? 'text-white' : toolTheme.icon}
+                      `} />
+                    </div>
+                    <h3 className={`
+                      text-xl font-semibold ml-4
+                      ${hoveredTool === tool.id ? toolTheme.text : 'text-gray-900'}
+                    `}>
+                      {tool.name}
+                    </h3>
+                  </div>
+                  <p className={`
+                    ${hoveredTool === tool.id ? toolTheme.text : 'text-gray-600'}
+                  `}>
+                    {tool.description}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {tool.tags.map(tag => {
+                      const tagTheme = categoryThemes[tag];
+                      return (
+                        <span
+                          key={tag}
+                          className={`
+                            px-2.5 py-1 text-xs font-medium rounded-full transition-all duration-300
+                            ${hoveredTool === tool.id 
+                              ? `${tagTheme.primary} text-white` 
+                              : `${tagTheme.secondary} ${tagTheme.text}`
+                            }
+                          `}
+                        >
+                          {tagTheme.name}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </button>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
+
+      {filteredTools.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-12"
+        >
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+            <Search className="h-8 w-8 text-gray-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            找不到相關工具
+          </h3>
+          <p className="text-gray-600">
+            請嘗試使用不同的搜尋關鍵字或篩選條件
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 }

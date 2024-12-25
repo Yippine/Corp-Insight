@@ -213,11 +213,3 @@ export const tools: Tool[] = [
   },
   ...aiTools
 ];
-
-export const toolTags = {
-  seo: { name: 'SEO', color: 'pink' },
-  ai: { name: '人工智慧', color: 'amber' },
-  computer: { name: '電腦業', color: 'blue' },
-  finance: { name: '金融業', color: 'green' },
-  manufacturing: { name: '製造業', color: 'purple' },
-} as const satisfies Record<string, { name: string; color: string }>;
