@@ -23,16 +23,17 @@ export default function PromptToolTemplate({ config }: PromptToolTemplateProps) 
 
     const basePrompt = `${config.promptTemplate.prefix}
 ${isOptimizing ? '請基於以下現有指令進行優化：\n' + result?.content + '\n\n以及參考以下資訊：\n' : ''}
-請根據以下輸入：
-${prompt}
+使用者的輸入：
+"""${prompt}"""
 
 ${config.promptTemplate.suffix}
 
 ### CRITICAL WARNING ###
 The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
 
-請以下列語言輸出：
-請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。`;
+${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。' : ''}`;
+
+    console.log(`basePrompt: ${basePrompt}`);
 
     return basePrompt;
   };
@@ -102,7 +103,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
                 生成中...
               </span>
             ) : (
-              '生成指令'
+              '生成回覆'
             )}
           </button>
 
