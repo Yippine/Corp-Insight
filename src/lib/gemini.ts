@@ -17,15 +17,15 @@ async function logTokenUsage(result: any) {
 export async function streamGenerateContent(
   prompt: string,
   onStream: (text: string) => void,
-  maxTokens: number = 512,
+  // maxTokens: number = 512,
   shouldLogTokens: boolean = false
 ) {
   try {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
-      generationConfig: {
-        maxOutputTokens: maxTokens
-      }
+      // generationConfig: {
+      //   maxOutputTokens: maxTokens
+      // }
     });
 
     const result = await model.generateContentStream(prompt);

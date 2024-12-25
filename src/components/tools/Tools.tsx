@@ -21,7 +21,8 @@ import KeywordGenerator from './seo/KeywordGenerator';
 import FaqGenerator from './seo/FaqGenerator';
 import ReviewGenerator from './seo/ReviewGenerator';
 import FeatureGenerator from './seo/FeatureGenerator';
-import PromptGenerator from './seo/PromptGenerator';
+import { promptTools, PromptToolConfig } from '../../config/promptTools';
+import PromptToolTemplate from './common/PromptToolTemplate';
 
 interface Tool {
   id: string;
@@ -74,13 +75,13 @@ const seoTools: Tool[] = [
     icon: Zap,
     component: FeatureGenerator
   },
-  {
-    id: 'prompt-generator',
-    name: '系統化指令撰寫大師',
-    description: '引導您使用 SPARK 範本，系統性地撰寫高效精確的 AI 指令',
+  ...promptTools.map((tool: PromptToolConfig) => ({
+    id: tool.id,
+    name: tool.name,
+    description: tool.description,
     icon: FileCode2,
-    component: PromptGenerator
-  }
+    component: () => <PromptToolTemplate config={tool} />
+  }))
 ];
 
 const computerTools: Tool[] = [
