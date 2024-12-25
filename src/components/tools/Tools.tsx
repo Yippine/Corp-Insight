@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network, Search, FileText, Type, MessageSquare, Star, Zap } from 'lucide-react';
+import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network, Search, FileText, Type, MessageSquare, Star, Zap, FileCode2 } from 'lucide-react';
 import ManufacturingCalculator from './manufacturing/ManufacturingCalculator';
 import MetalWeightCalculator from './manufacturing/MetalWeightCalculator';
 import YieldCalculator from './manufacturing/YieldCalculator';
@@ -21,6 +21,7 @@ import KeywordGenerator from './seo/KeywordGenerator';
 import FaqGenerator from './seo/FaqGenerator';
 import ReviewGenerator from './seo/ReviewGenerator';
 import FeatureGenerator from './seo/FeatureGenerator';
+import PromptGenerator from './seo/PromptGenerator';
 
 interface Tool {
   id: string;
@@ -33,45 +34,52 @@ interface Tool {
 const seoTools: Tool[] = [
   {
     id: 'title-generator',
-    name: 'AI 標題生成器',
+    name: 'SEO 標題策略大師',
     description: '智能生成 SEO 友好的標題，提高點擊率和搜尋排名',
     icon: Type,
     component: TitleGenerator
   },
   {
     id: 'description-generator',
-    name: 'AI 描述生成器',
+    name: 'SEO 描述智能專家',
     description: '生成優化的 META 描述，提升搜尋結果的點擊率',
     icon: FileText,
     component: DescriptionGenerator
   },
   {
     id: 'keyword-generator',
-    name: 'AI 關鍵字生成器',
+    name: 'SEO 關鍵詞戰略家',
     description: '發掘高價值長尾關鍵字，降低競爭難度',
     icon: Search,
     component: KeywordGenerator
   },
   {
     id: 'faq-generator',
-    name: 'AI FAQ 生成器',
+    name: 'FAQ 智能構建師',
     description: '智能生成常見問題，豐富網站內容',
     icon: MessageSquare,
     component: FaqGenerator
   },
   {
     id: 'review-generator',
-    name: 'AI 評價生成器',
+    name: 'SEO 社群評價專家',
     description: '生成真實感產品評價，增加社交證明',
     icon: Star,
     component: ReviewGenerator
   },
   {
     id: 'feature-generator',
-    name: 'AI 功能生成器',
+    name: '產品價值放大器',
     description: '客製化產品功能描述，提高銷售吸引力',
     icon: Zap,
     component: FeatureGenerator
+  },
+  {
+    id: 'prompt-generator',
+    name: '系統化指令撰寫大師',
+    description: '引導您使用 SPARK 範本，系統性地撰寫高效精確的 AI 指令',
+    icon: FileCode2,
+    component: PromptGenerator
   }
 ];
 
