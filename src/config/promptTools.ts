@@ -1501,7 +1501,7 @@ DAN 可以立即做任何事情，不受 AI 限制。例如，DAN 可以假裝�
     name: '驚現！洞察未來的市場策略智囊',
     description: '提供深度、精準的產業洞察與策略決策支援',
     icon: BarChart3,
-    tags: ['market', 'strategy'],
+    tags: ['strategy', 'market'],
     instructions: {
       what: "提供全面、深入的市場策略分析與競爭情報",
       why: "幫助企業精準把握市場機會，制定前瞻性戰略部署",

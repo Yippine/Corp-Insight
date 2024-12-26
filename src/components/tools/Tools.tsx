@@ -10,15 +10,25 @@ export default function Tools() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
+  const [filterKey, setFilterKey] = useState(0);
   console.log(`categoryThemes: ${JSON.stringify(categoryThemes)}`);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [selectedTool]);
 
-  // 使用 useMemo 來緩存過濾和排序後的工具列表
+  const handleTagSelect = (tag: string | null) => {
+    setSelectedTag(tag);
+    setFilterKey(prev => prev + 1);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setFilterKey(prev => prev + 1);
+  };
+
   const filteredTools = useMemo(() => {
-    let filtered = [...tools]; // 創建副本以避免修改原始陣列
+    let filtered = [...tools];
     
     // 如果有搜索查詢，先進行過濾
     if (searchQuery) {
@@ -47,9 +57,8 @@ export default function Tools() {
       }
     }
     
-    // 根據標籤權重對工具進行排序
     return sortToolsByTags(filtered);
-  }, [selectedTag, searchQuery]);
+  }, [selectedTag, searchQuery, filterKey]);
 
   if (selectedTool) {
     const ToolComponent = selectedTool.component;
@@ -90,7 +99,7 @@ export default function Tools() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="搜尋工具..."
             />
@@ -112,7 +121,7 @@ export default function Tools() {
                 key={tag}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedTag(tag === 'all' ? null : tag)}
+                onClick={() => handleTagSelect(tag === 'all' ? null : tag)}
                 className={`
                   px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
                   ${isSelected 
@@ -129,7 +138,7 @@ export default function Tools() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" key={filterKey}>
           {filteredTools.map((tool) => {
             // 使用完整版的標籤主題，並確保顏色按照彩虹順序排列
             const toolThemes = tool.tags

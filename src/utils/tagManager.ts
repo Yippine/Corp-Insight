@@ -22,85 +22,72 @@ interface ColorPalette {
 
 const colorPalettes: ColorPalette[] = [
   {
-    primary: 'bg-pink-300 bg-opacity-85',
+    primary: 'bg-pink-500 bg-opacity-85',
     secondary: 'bg-pink-50',
-    accent: 'bg-pink-100',
+    accent: 'bg-rose-100',
     text: 'text-pink-500 bg-opacity-85',
     icon: 'text-pink-500 bg-opacity-85',
     hover: 'hover:bg-pink-50',
-    shadow: 'shadow-pink-300/20',
+    shadow: 'shadow-pink-500/10',
     gradient: {
-      from: 'from-pink-300 bg-opacity-85',
-      to: 'to-pink-400'
+      from: 'from-pink-500 bg-opacity-85',
+      to: 'to-rose-500'
     }
   },
   {
-    primary: 'bg-rose-300 bg-opacity-85',
+    primary: 'bg-rose-400 bg-opacity-85',
     secondary: 'bg-rose-50',
-    accent: 'bg-rose-100',
-    text: 'text-rose-500 bg-opacity-85',
-    icon: 'text-rose-500 bg-opacity-85',
+    accent: 'bg-rose-50',
+    text: 'text-rose-400 bg-opacity-85',
+    icon: 'text-rose-400 bg-opacity-85',
     hover: 'hover:bg-rose-50',
-    shadow: 'shadow-rose-300/20',
+    shadow: 'shadow-rose-400/20',
     gradient: {
-      from: 'from-rose-300 bg-opacity-85',
-      to: 'to-rose-400'
+      from: 'from-rose-400 bg-opacity-85',
+      to: 'to-rose-300'
     }
   },
   {
-    primary: 'bg-orange-200 bg-opacity-85',
-    secondary: 'bg-orange-50',
-    accent: 'bg-orange-100',
-    text: 'text-orange-500 bg-opacity-85',
-    icon: 'text-orange-500 bg-opacity-85',
-    hover: 'hover:bg-orange-50',
-    shadow: 'shadow-orange-200/20',
+    primary: 'bg-amber-500 bg-opacity-75',
+    secondary: 'bg-amber-50',
+    accent: 'bg-yellow-100',
+    text: 'text-amber-500 bg-opacity-85',
+    icon: 'text-amber-500 bg-opacity-85',
+    hover: 'hover:bg-amber-50',
+    shadow: 'shadow-amber-500/10',
     gradient: {
-      from: 'from-orange-200 bg-opacity-85',
-      to: 'to-orange-300'
+      from: 'from-amber-500 bg-opacity-85',
+      to: 'to-yellow-500'
     }
   },
   {
-    primary: 'bg-lime-300 bg-opacity-85',
-    secondary: 'bg-lime-50',
-    accent: 'bg-lime-100',
-    text: 'text-lime-600 bg-opacity-85',
-    icon: 'text-lime-600 bg-opacity-85',
-    hover: 'hover:bg-lime-50',
-    shadow: 'shadow-lime-300/20',
-    gradient: {
-      from: 'from-lime-300 bg-opacity-85',
-      to: 'to-lime-400'
-    }
-  },
-  {
-    primary: 'bg-emerald-300 bg-opacity-85',
+    primary: 'bg-emerald-500 bg-opacity-85',
     secondary: 'bg-emerald-50',
-    accent: 'bg-emerald-100',
-    text: 'text-emerald-600 bg-opacity-85',
-    icon: 'text-emerald-600 bg-opacity-85',
+    accent: 'bg-green-100',
+    text: 'text-emerald-500 bg-opacity-85',
+    icon: 'text-emerald-500 bg-opacity-85',
     hover: 'hover:bg-emerald-50',
-    shadow: 'shadow-emerald-300/20',
+    shadow: 'shadow-emerald-500/10',
     gradient: {
-      from: 'from-emerald-300 bg-opacity-85',
-      to: 'to-emerald-400'
+      from: 'from-emerald-500 bg-opacity-85',
+      to: 'to-green-500'
     }
   },
   {
-    primary: 'bg-sky-300 bg-opacity-85',
+    primary: 'bg-sky-400 bg-opacity-85',
     secondary: 'bg-sky-50',
     accent: 'bg-sky-100',
     text: 'text-sky-600 bg-opacity-85',
     icon: 'text-sky-600 bg-opacity-85',
     hover: 'hover:bg-sky-50',
-    shadow: 'shadow-sky-300/20',
+    shadow: 'shadow-sky-400/20',
     gradient: {
-      from: 'from-sky-300 bg-opacity-85',
-      to: 'to-sky-400'
+      from: 'from-sky-400 bg-opacity-85',
+      to: 'to-sky-500'
     }
   },
   {
-    primary: 'bg-indigo-300 bg-opacity-85',
+    primary: 'bg-indigo-500 bg-opacity-85',
     secondary: 'bg-indigo-50',
     accent: 'bg-indigo-100',
     text: 'text-indigo-600 bg-opacity-85',
@@ -113,29 +100,16 @@ const colorPalettes: ColorPalette[] = [
     }
   },
   {
-    primary: 'bg-purple-300 bg-opacity-85',
+    primary: 'bg-purple-500 bg-opacity-90',
     secondary: 'bg-purple-50',
-    accent: 'bg-purple-100',
-    text: 'text-purple-600 bg-opacity-85',
-    icon: 'text-purple-600 bg-opacity-85',
-    hover: 'hover:bg-purple-50',
-    shadow: 'shadow-purple-300/20',
-    gradient: {
-      from: 'from-purple-300 bg-opacity-85',
-      to: 'to-purple-400'
-    }
-  },
-  {
-    primary: 'bg-fuchsia-300 bg-opacity-85',
-    secondary: 'bg-fuchsia-50',
     accent: 'bg-fuchsia-100',
-    text: 'text-fuchsia-600 bg-opacity-85',
-    icon: 'text-fuchsia-600 bg-opacity-85',
-    hover: 'hover:bg-fuchsia-50',
-    shadow: 'shadow-fuchsia-300/20',
+    text: 'text-purple-500 bg-opacity-90',
+    icon: 'text-purple-500 bg-opacity-90',
+    hover: 'hover:bg-purple-50',
+    shadow: 'shadow-purple-500/10',
     gradient: {
-      from: 'from-fuchsia-300 bg-opacity-85',
-      to: 'to-fuchsia-400'
+      from: 'from-purple-500 bg-opacity-90',
+      to: 'to-fuchsia-500'
     }
   }
 ];
