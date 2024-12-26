@@ -11,6 +11,8 @@ import ManagersTable from './directors/ManagersTable';
 interface CompanyDetailProps {
   companyTaxId: string;
   onBack: () => void;
+  onTenderSelect: (tenderId: string) => void;
+  onSearchTender: (query: string, type: 'company' | 'tender') => void;
 }
 
 const tabs = [
@@ -47,10 +49,13 @@ const fetchDetailData = async (taxId: string) => {
   }
 };
 
-export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailProps) {
+export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, onSearchTender}: CompanyDetailProps) {
   const [activeTab, setActiveTab] = useState('basic');
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
+  const [tenders, setTenders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [tenderError, setTenderError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadSearchData = async () => {
@@ -65,6 +70,41 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
 
     loadSearchData();
   }, [companyTaxId]);
+
+  useEffect(() => {
+    const fetchTenders = async () => {
+      setIsLoading(true);
+      setTenderError(null);
+      try {
+        const response = await fetch(`https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${companyTaxId}`);
+        const data = await response.json();
+        
+        if (!data.records || data.records.length === 0) {
+          setTenders([]);
+          return;
+        }
+
+        const formattedTenders = data.records.map((record: any) => ({
+          tenderId: `${record.unit_id}-${record.job_number}`,
+          date: record.date,
+          title: record.brief.title,
+          unitName: record.unit_name,
+          status: record.brief.companies?.name_key?.[SearchData.name]?.[1]?.includes('未得標') ? '未得標' : '得標'
+        }));
+
+        setTenders(formattedTenders);
+      } catch (error) {
+        console.error('載入標案資料失敗：', error);
+        setTenderError('載入標案資料時發生錯誤，請稍後再試');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (SearchData?.taxId) {
+      fetchTenders();
+    }
+  }, [SearchData?.taxId, SearchData?.name]);
 
   if (!SearchData) {
     return <div>載入中...</div>;
@@ -81,7 +121,6 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
 
     return (
       <div className="space-y-8 bg-white rounded-lg">
-        {/* 代碼部分 */}
         {codes.length > 0 && (
           <div className="space-y-4">
             <h4 className="text-base font-medium text-gray-900 flex items-center space-x-2">
@@ -330,71 +369,93 @@ export default function CompanyDetail({ companyTaxId, onBack }: CompanyDetailPro
           </div>
         );
       case 'tenders':
-        if (!SearchData.tenders || SearchData.tenders.length === 0) {
-          return <UnderDevelopment />;
-        }
-        
         return (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-xl leading-6 font-medium text-gray-900">
-                標案資料
-              </h3>
-            </div>
-            <div className="border-t border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      日期
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      標案名稱
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      機關名稱
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      標案類型
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {SearchData.tenders.map((tender: any, index: number) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                        {tender.date}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-blue-600">
-                        <button 
-                          onClick={() => window.open(tender.tender_api_url, '_blank')}
-                          className="hover:underline text-left"
+          <div className="space-y-6">
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">標案資訊</h3>
+                  <p className="text-gray-600">檢視公司參與的政府採購標案記錄</p>
+                </div>
+              </div>
+
+              {isLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
+                </div>
+              ) : tenderError ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">{tenderError}</p>
+                </div>
+              ) : tenders.length > 0 ? (
+                <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                          日期
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[35%]">
+                          標案名稱
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[20%]">
+                          機關名稱
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                          狀態
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {tenders.map((tender) => (
+                        <tr 
+                          key={tender.tenderId}
+                          className="hover:bg-gray-50 cursor-pointer"
+                          onClick={() => onTenderSelect(tender.tenderId)}
                         >
-                          {tender.brief.title}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-base text-blue-600">
-                        <button 
-                          onClick={() => window.open(tender.unit_api_url, '_blank')}
-                          className="hover:underline"
-                        >
-                          {tender.unit_name}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
-                          tender.brief.type.includes('決標') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {tender.brief.type}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          <td className="px-6 py-4 text-base text-gray-500">
+                            {tender.date}
+                          </td>
+                          <td className="px-6 py-4 text-base text-gray-900">
+                            <div className="line-clamp-2">
+                              {tender.title}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-base text-gray-900">
+                            <div className="line-clamp-2">
+                              {tender.unitName}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
+                              tender.status === '得標' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {tender.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">尚無標案資料</p>
+                </div>
+              )}
+              {tenders.length > 0 && (
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={() => onSearchTender(SearchData.taxId, 'company')}
+                    className="inline-flex items-center px-4 py-2 text-base font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    查看全部標案 →
+                  </button>
+                </div>
+              )}
             <div className="text-sm text-gray-500 text-center mt-4">
               資料來源：{`https://pcc.g0v.ronny.tw/api`}
+            </div>
             </div>
           </div>
         );

@@ -29,7 +29,9 @@ function App() {
   } = useCompanySearch();
 
   const {
-    resetTenderSearch
+    resetTenderSearch,
+    setSearchQuery: setTenderSearchQuery,
+    setSearchType: setTenderSearchType
   } = useTenderSearch();
 
   useEffect(() => {
@@ -90,6 +92,15 @@ function App() {
       resetCompanySearch();
       resetTenderSearch();
     }
+  };
+
+  const handleSearchTender = (query: string, type: 'company' | 'tender') => {
+    setPageState(PageState.TENDER_SEARCH);
+    setSelectedCompany(null);
+    resetCompanySearch();
+    
+    setTenderSearchQuery(query);
+    setTenderSearchType(type);
   };
 
   return (
@@ -186,6 +197,8 @@ function App() {
           <CompanyDetail 
             companyTaxId={selectedCompany} 
             onBack={handleBack}
+            onTenderSelect={handleTenderSelect}
+            onSearchTender={handleSearchTender}
           />
         )}
 
@@ -245,7 +258,7 @@ function App() {
                 </li>
                 <li>
                   <a href="#" className="text-lg text-gray-500 hover:text-gray-900">
-                    隱���政策
+                    隱私政策
                   </a>
                 </li>
               </ul>
@@ -289,7 +302,7 @@ function App() {
                 </li>
                 <li>
                   <a href="#" className="text-lg text-gray-500 hover:text-gray-900">
-                    API文件
+                    API件
                   </a>
                 </li>
               </ul>

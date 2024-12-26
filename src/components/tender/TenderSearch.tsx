@@ -37,6 +37,12 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
     }
   }, []);
 
+  useEffect(() => {
+    if (searchQuery && searchType) {
+      handleSearch(null, 1);
+    }
+  }, [searchQuery, searchType]);
+
   const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
     e?.preventDefault();
     const trimmedQuery = searchQuery.trim();
