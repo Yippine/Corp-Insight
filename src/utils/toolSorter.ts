@@ -1,39 +1,65 @@
 import { Tool } from '../config/tools';
+import { getTagStatistics } from './tagManager';
+import { categoryThemes } from '../config/theme';
 
-// 計算標籤權重的函數
-function calculateTagWeights(tools: Tool[]): Map<string, number> {
-  const tagCounts = new Map<string, number>();
+// 依照 categoryThemes 的順序對 tags 進行排序
+function sortTagsByCategory(tags: string[]): string[] {
+  const categoryOrder = Object.keys(categoryThemes);
   
-  // 計算每個標籤出現的次數
-  tools.forEach(tool => {
-    tool.tags.forEach(tag => {
-      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-    });
+  return [...tags].sort((a, b) => {
+    const aIndex = categoryOrder.indexOf(a);
+    const bIndex = categoryOrder.indexOf(b);
+    
+    // 如果標籤不在 categoryThemes 中，則排在最後
+    if (aIndex === -1 && bIndex === -1) {
+      return a.localeCompare(b);
+    }
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    
+    return aIndex - bIndex;
   });
-  
-  return tagCounts;
 }
 
-// 根據標籤權重對工具進行排序
+// 主排序函式
 export function sortToolsByTags(tools: Tool[]): Tool[] {
-  const tagWeights = calculateTagWeights(tools);
+  const { tagCountMap } = getTagStatistics(tools);
   
-  return [...tools].sort((a, b) => {
-    // 獲取兩個工具的最高權重標籤
-    const aMaxWeight = Math.max(...a.tags.map(tag => tagWeights.get(tag) || 0));
-    const bMaxWeight = Math.max(...b.tags.map(tag => tagWeights.get(tag) || 0));
+  // 先對每個 Tool 的 tags 進行排序
+  const toolsWithSortedTags = tools.map(tool => ({
+    ...tool,
+    tags: sortTagsByCategory(tool.tags)
+  }));
+
+  // 再依照 Tag 權重對 Tools 進行排序
+  return toolsWithSortedTags.sort((a, b) => {
+    // 比較每個標籤的權重
+    const maxLength = Math.max(a.tags.length, b.tags.length);
     
-    // 首先按照最高權重標籤排序
-    if (bMaxWeight !== aMaxWeight) {
-      return bMaxWeight - aMaxWeight;
+    for (let i = 0; i < maxLength; i++) {
+      // 如果其中一個工具沒有這個位置的標籤，將沒有標籤的排後面
+      if (!a.tags[i] && b.tags[i]) return 1;
+      if (a.tags[i] && !b.tags[i]) return -1;
+      if (!a.tags[i] && !b.tags[i]) continue;
+
+      const aTagCount = tagCountMap.get(a.tags[i]) || 0;
+      const bTagCount = tagCountMap.get(b.tags[i]) || 0;
+      
+      // 先比較標籤數量
+      if (aTagCount !== bTagCount) {
+        return bTagCount - aTagCount;
+      }
+      
+      // 如果標籤數量相同，比較標籤在 categoryThemes 中的順序
+      const aIndex = Object.keys(categoryThemes).indexOf(a.tags[i]);
+      const bIndex = Object.keys(categoryThemes).indexOf(b.tags[i]);
+      
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex;
+      }
     }
     
-    // 如果最高權重相同，按照標籤數量排序
-    if (b.tags.length !== a.tags.length) {
-      return b.tags.length - a.tags.length;
-    }
-    
-    // 如果標籤數量也相同，按照名稱字母順序排序
+    // 如果所有標籤都相同，最後才比較工具名稱
     return a.name.localeCompare(b.name);
   });
 }

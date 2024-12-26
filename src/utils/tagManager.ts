@@ -1,6 +1,23 @@
 import { Tool } from '../config/tools';
 import { CategoryTheme } from '../config/theme';
 
+interface TagStatistics {
+  tag: string;
+  count: number;
+}
+
+export interface TagStats {
+  allTags: TagStatistics[];
+  singleTags: TagStatistics[];
+  multipleTags: TagStatistics[];
+  tagCountMap: Map<string, number>;
+}
+
+export interface TagThemes {
+  merged: Record<string, CategoryTheme>;
+  full: Record<string, CategoryTheme>;
+}
+
 interface ColorPalette {
   primary: string;
   secondary: string;
@@ -109,35 +126,44 @@ const colorPalettes: ColorPalette[] = [
   }
 ];
 
-export interface TagThemes {
-  merged: Record<string, CategoryTheme>;
-  full: Record<string, CategoryTheme>;
+export function getTagStatistics(tools: Tool[]): TagStats {
+  const tagCounts = tools.reduce((counts, tool) => {
+    tool.tags.forEach(tag => {
+      counts.set(tag, (counts.get(tag) || 0) + 1);
+    });
+    return counts;
+  }, new Map<string, number>());
+
+  const tagStats = Array.from(tagCounts.entries())
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+
+  const singleTags = tagStats.filter(t => t.count === 1);
+  const multipleTags = tagStats.filter(t => t.count > 1);
+
+  // 特殊處理 AI 標籤的計數
+  const aiTagIndex = tagStats.findIndex(t => t.tag === 'AI');
+  if (aiTagIndex !== -1) {
+    tagStats[aiTagIndex].count += singleTags.length;
+    tagCounts.set('AI', tagStats[aiTagIndex].count);
+  } else if (singleTags.length > 0) {
+    const aiTag = { tag: 'AI', count: singleTags.length };
+    tagStats.push(aiTag);
+    tagCounts.set('AI', singleTags.length);
+  }
+
+  return {
+    allTags: tagStats,
+    singleTags,
+    multipleTags,
+    tagCountMap: tagCounts
+  };
 }
 
 export function generateTagThemes(tools: Tool[]): TagThemes {
-  // 1. 計算標籤出現次數並分類
-  const getTagStatistics = (tools: Tool[]) => {
-    const tagCounts = tools.reduce((counts, tool) => {
-      tool.tags.forEach(tag => {
-        counts.set(tag, (counts.get(tag) || 0) + 1);
-      });
-      return counts;
-    }, new Map<string, number>());
-
-    const tagStats = Array.from(tagCounts.entries())
-      .map(([tag, count]) => ({ tag, count }))
-      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
-
-    return {
-      allTags: tagStats,
-      singleTags: tagStats.filter(t => t.count === 1),
-      multipleTags: tagStats.filter(t => t.count > 1)
-    };
-  };
-
   // 2. 建立主題配置
   const createTheme = (tag: string, paletteIndex: number): CategoryTheme => ({
-    name: getTagDisplayName(tag),
+    name: tag,
     ...colorPalettes[paletteIndex % colorPalettes.length]
   });
 
@@ -147,7 +173,7 @@ export function generateTagThemes(tools: Tool[]): TagThemes {
     
     // 生成完整主題配置(包含所有標籤)
     const fullThemes: Record<string, CategoryTheme> = {
-      all: createTheme('all', 0)
+      全部: createTheme('全部', 0)
     };
     allTags.forEach((tag, index) => {
       fullThemes[tag.tag] = createTheme(tag.tag, index + 1);
@@ -155,15 +181,15 @@ export function generateTagThemes(tools: Tool[]): TagThemes {
 
     // 生成合併主題配置(僅包含多次出現的標籤)
     const mergedThemes: Record<string, CategoryTheme> = {
-      all: createTheme('all', 0)
+      全部: createTheme('全部', 0)
     };
 
     // 特殊處理 AI 標籤: 合併單次出現的標籤到 AI 分類中
-    const existingAiTag = multipleTags.find(tag => tag.tag === 'ai');
+    const existingAiTag = multipleTags.find(tag => tag.tag === 'AI');
     const aiTagCount = (existingAiTag?.count || 0) + singleTags.length;
-    const sortedTags = multipleTags.filter(tag => tag.tag !== 'ai');
+    const sortedTags = multipleTags.filter(tag => tag.tag !== 'AI');
     const aiTagIndex = sortedTags.findIndex(tag => tag.count <= aiTagCount);
-    const aiTag = { tag: 'ai', count: aiTagCount };
+    const aiTag = { tag: 'AI', count: aiTagCount };
     
     if (aiTagCount > 0) {
       if (aiTagIndex === -1) {
@@ -181,51 +207,4 @@ export function generateTagThemes(tools: Tool[]): TagThemes {
   };
 
   return generateThemes(getTagStatistics(tools));
-}
-
-function getTagDisplayName(tag: string): string {
-  const tagDisplayNames: Record<string, string> = {
-    all: '全部',
-    ai: 'AI',
-    business: '商業',
-    enterprise: '企業',
-    market: '市場',
-    strategy: '策略',
-    customer: '客戶',
-    workflow: '工作流',
-    investment: '投資',
-    data: '數據',
-    project: '專案',
-    management: '管理',
-    humanResource: '人力',
-    interview: '面試',
-    job: '求職',
-    seo: 'SEO',
-    finance: '金融',
-    tech: '科技',
-    computer: '電腦',
-    manufacturing: '製造',
-    design: '設計',
-    legal: '法律',
-    education: '教育',
-    writing: '寫作',
-    learning: '學習',
-    social: '社群',
-    psychology: '心理',
-    language: '語言',
-    startup: '創業',
-    promptDesign: '提示詞',
-    analysis: '分析',
-    medical: '醫療',
-    role: '角色',
-    music: '音樂',
-    philosophy: '哲學',
-    movie: '電影',
-    review: '評論',
-    food: '美食',
-    academic: '學術',
-    jailbreak: '越獄'
-  };
-
-  return tagDisplayNames[tag] || tag;
 }

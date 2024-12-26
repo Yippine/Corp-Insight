@@ -39,8 +39,8 @@ export default function Tools() {
     }
     
     // 根據選中的標籤進行過濾
-    if (selectedTag && selectedTag !== 'all') {
-      if (selectedTag === 'ai') {
+    if (selectedTag && selectedTag !== '全部') {
+      if (selectedTag === 'AI') {
         // 對於 "其他" 標籤，顯示只有一個標籤的工具
         const tagCounts = new Map<string, number>();
         tools.forEach(tool => {
@@ -113,14 +113,14 @@ export default function Tools() {
 
         <div className="flex flex-wrap gap-2">
           {Object.entries(categoryThemes).map(([tag, theme]) => {
-            const isSelected = selectedTag === tag || (!selectedTag && tag === 'all');
+            const isSelected = selectedTag === tag || (!selectedTag && tag === '全部');
             
             return (
               <motion.button
                 key={tag}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handleTagSelect(tag === 'all' ? null : tag)}
+                onClick={() => handleTagSelect(tag === '全部' ? null : tag)}
                 className={`
                   px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
                   ${isSelected 

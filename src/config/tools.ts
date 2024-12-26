@@ -49,7 +49,7 @@ export const tools: Tool[] = [
     description: '智能生成 SEO 友好的標題，提高點擊率和搜尋排名',
     icon: Type,
     component: TitleGenerator,
-    tags: ['seo']
+    tags: ['SEO']
   },
   {
     id: 'description-generator',
@@ -57,7 +57,7 @@ export const tools: Tool[] = [
     description: '生成優化的 META 描述，提升搜尋結果的點擊率',
     icon: FileText,
     component: DescriptionGenerator,
-    tags: ['seo']
+    tags: ['SEO']
   },
   {
     id: 'keyword-generator',
@@ -65,7 +65,7 @@ export const tools: Tool[] = [
     description: '發掘高價值長尾關鍵字，降低競爭難度',
     icon: Search,
     component: KeywordGenerator,
-    tags: ['seo']
+    tags: ['SEO']
   },
   {
     id: 'faq-generator',
@@ -73,7 +73,7 @@ export const tools: Tool[] = [
     description: '智能生成常見問題，豐富網站內容',
     icon: MessageSquare,
     component: FaqGenerator,
-    tags: ['seo']
+    tags: ['SEO']
   },
   {
     id: 'review-generator',
@@ -81,7 +81,7 @@ export const tools: Tool[] = [
     description: '生成真實感產品評價，增加社交證明',
     icon: Star,
     component: ReviewGenerator,
-    tags: ['seo']
+    tags: ['SEO']
   },
   {
     id: 'feature-generator',
@@ -89,7 +89,7 @@ export const tools: Tool[] = [
     description: '客製化產品功能描述，提高銷售吸引力',
     icon: Zap,
     component: FeatureGenerator,
-    tags: ['seo']
+    tags: ['SEO']
   },
   {
     id: 'gpu-memory',
@@ -97,7 +97,7 @@ export const tools: Tool[] = [
     description: '計算 AI 模型運行所需的 GPU 內存',
     icon: Monitor,
     component: GPUMemoryCalculator,
-    tags: ['computer']
+    tags: ['電腦']
   },
   {
     id: 'server-spec',
@@ -105,7 +105,7 @@ export const tools: Tool[] = [
     description: '評估應用所需的伺服器資源配置',
     icon: Server,
     component: ServerSpecCalculator,
-    tags: ['computer']
+    tags: ['電腦']
   },
   {
     id: 'ai-infrastructure-cost',
@@ -113,7 +113,7 @@ export const tools: Tool[] = [
     description: '評估 AI 專案的硬體、運營和軟體成本',
     icon: Database,
     component: AIInfrastructureCostCalculator,
-    tags: ['computer']
+    tags: ['電腦']
   },
   {
     id: 'model-performance',
@@ -121,7 +121,7 @@ export const tools: Tool[] = [
     description: '預測 AI 模型的資源消耗和性能表現',
     icon: Cpu,
     component: ModelPerformanceCalculator,
-    tags: ['computer']
+    tags: ['電腦']
   },
   {
     id: 'workload-scalability',
@@ -129,7 +129,7 @@ export const tools: Tool[] = [
     description: '評估 AI 系統的可擴展性和資源效率',
     icon: Network,
     component: WorkloadScalabilityCalculator,
-    tags: ['computer']
+    tags: ['電腦']
   },
   {
     id: 'manufacturing-calculator',
@@ -137,7 +137,7 @@ export const tools: Tool[] = [
     description: '計算銑削/車削速度、進給率，提供最佳加工參數建議',
     icon: Calculator,
     component: ManufacturingCalculator,
-    tags: ['manufacturing']
+    tags: ['製造']
   },
   {
     id: 'metal-weight',
@@ -145,7 +145,7 @@ export const tools: Tool[] = [
     description: '計算各種金屬材料的重量及預估成本',
     icon: Scale,
     component: MetalWeightCalculator,
-    tags: ['manufacturing']
+    tags: ['製造']
   },
   {
     id: 'yield-calculator',
@@ -153,7 +153,7 @@ export const tools: Tool[] = [
     description: '計算生產良率和損失成本分析',
     icon: BarChart3,
     component: YieldCalculator,
-    tags: ['manufacturing']
+    tags: ['製造']
   },
   {
     id: 'packaging-calculator',
@@ -161,7 +161,7 @@ export const tools: Tool[] = [
     description: '計算最佳包裝方式，提升物流效率',
     icon: Package,
     component: PackagingCalculator,
-    tags: ['manufacturing']
+    tags: ['製造']
   },
   {
     id: 'oee-calculator',
@@ -169,7 +169,7 @@ export const tools: Tool[] = [
     description: '計算設備綜合效率指標',
     icon: Activity,
     component: OEECalculator,
-    tags: ['manufacturing']
+    tags: ['製造']
   },
   {
     id: 'compound-interest',
@@ -177,7 +177,7 @@ export const tools: Tool[] = [
     description: '計算投資收益與複利效果',
     icon: DollarSign,
     component: CompoundInterestCalculator,
-    tags: ['finance']
+    tags: ['金融']
   },
   {
     id: 'currency-converter',
@@ -185,7 +185,7 @@ export const tools: Tool[] = [
     description: '主要貨幣即時匯率換算',
     icon: Coins,
     component: CurrencyConverter,
-    tags: ['finance']
+    tags: ['金融']
   },
   {
     id: 'loan-calculator',
@@ -193,7 +193,7 @@ export const tools: Tool[] = [
     description: '比較不同貸款方案的還款計畫',
     icon: Wallet,
     component: LoanCalculator,
-    tags: ['finance']
+    tags: ['金融']
   },
   {
     id: 'roi-calculator',
@@ -201,7 +201,7 @@ export const tools: Tool[] = [
     description: '計算投資效益與年化報酬率',
     icon: LineChart,
     component: ROICalculator,
-    tags: ['finance']
+    tags: ['金融']
   },
   {
     id: 'deposit-calculator',
@@ -209,7 +209,7 @@ export const tools: Tool[] = [
     description: '計算定存收益與到期金額',
     icon: PieChart,
     component: DepositCalculator,
-    tags: ['finance']
+    tags: ['金融']
   },
   ...aiTools
 ];
