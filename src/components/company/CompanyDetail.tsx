@@ -7,6 +7,7 @@ import DirectorsChart from './directors/DirectorsChart';
 import DirectorsTable from './directors/DirectorsTable';
 import ManagersTimeline from './directors/ManagersTimeline';
 import ManagersTable from './directors/ManagersTable';
+import TenderStatsChart from './directors/TenderStatsChart';
 
 interface CompanyDetailProps {
   companyTaxId: string;
@@ -53,6 +54,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
   const [activeTab, setActiveTab] = useState('basic');
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
+  const [tenderView, setTenderView] = useState<'list' | 'chart'>('list');
   const [tenders, setTenders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [tenderError, setTenderError] = useState<string | null>(null);
@@ -377,6 +379,30 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                   <h3 className="text-3xl font-bold text-gray-900 mb-2">標案資訊</h3>
                   <p className="text-gray-600">檢視公司參與的政府採購標案記錄</p>
                 </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => setTenderView('list')}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+                      tenderView === 'list'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Table className="h-5 w-5" />
+                    <span className="font-medium">標案清單</span>
+                  </button>
+                  <button
+                    onClick={() => setTenderView('chart')}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+                      tenderView === 'chart'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <BarChart3 className="h-5 w-5" />
+                    <span className="font-medium">統計圖表</span>
+                  </button>
+                </div>
               </div>
 
               {isLoading ? (
@@ -388,6 +414,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                   <p className="text-gray-500">{tenderError}</p>
                 </div>
               ) : tenders.length > 0 ? (
+                tenderView === 'list' ? (
                 <div className="bg-white shadow overflow-hidden sm:rounded-lg">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -407,9 +434,9 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {tenders.map((tender) => (
-                        <tr 
-                          key={tender.tenderId}
+                      {tenders.map((tender, index) => (
+                        <tr
+                          key={`${tender.tenderId}-${index}`}
                           className="hover:bg-gray-50 cursor-pointer"
                           onClick={() => onTenderSelect(tender.tenderId)}
                         >
@@ -438,6 +465,11 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     </tbody>
                   </table>
                 </div>
+                ) : (
+                  <TenderStatsChart 
+                    tenders={tenders}
+                  />
+                )
               ) : (
                 <div className="text-center py-12">
                   <p className="text-gray-500">尚無標案資料</p>

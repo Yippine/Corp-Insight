@@ -97,7 +97,6 @@ function App() {
   const handleSearchTender = (query: string, type: 'company' | 'tender') => {
     setPageState(PageState.TENDER_SEARCH);
     setSelectedCompany(null);
-    resetCompanySearch();
     
     setTenderSearchQuery(query);
     setTenderSearchType(type);
