@@ -19,4 +19,10 @@ export interface CategoryTheme extends ColorTheme {
   };
 }
 
-export const categoryThemes = generateTagThemes(tools);
+const tagThemes = generateTagThemes(tools);
+
+// 用於標籤分類顯示的主題（合併後的版本）
+export const categoryThemes = tagThemes.merged;
+
+// 用於工具卡片標籤顯示的主題（完整版本）
+export const fullTagThemes = tagThemes.full;

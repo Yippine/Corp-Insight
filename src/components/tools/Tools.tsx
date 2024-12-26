@@ -2,25 +2,25 @@ import { useState, useMemo, useEffect } from 'react';
 import { Tool, tools } from '../../config/tools';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ListFilter } from 'lucide-react';
-import { categoryThemes } from '../../config/theme';
+import { categoryThemes, fullTagThemes } from '../../config/theme';
+import { sortToolsByTags } from '../../utils/toolSorter';
 
 export default function Tools() {
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
+  console.log(`categoryThemes: ${JSON.stringify(categoryThemes)}`);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [selectedTool]);
 
+  // 使用 useMemo 來緩存過濾和排序後的工具列表
   const filteredTools = useMemo(() => {
-    let filtered = tools;
+    let filtered = [...tools]; // 創建副本以避免修改原始陣列
     
-    if (selectedTag && selectedTag !== 'all') {
-      filtered = filtered.filter(tool => tool.tags.includes(selectedTag));
-    }
-    
+    // 如果有搜索查詢，先進行過濾
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(tool => 
@@ -29,7 +29,26 @@ export default function Tools() {
       );
     }
     
-    return filtered;
+    // 根據選中的標籤進行過濾
+    if (selectedTag && selectedTag !== 'all') {
+      if (selectedTag === 'others') {
+        // 對於 "其他" 標籤，顯示只有一個標籤的工具
+        const tagCounts = new Map<string, number>();
+        tools.forEach(tool => {
+          tool.tags.forEach(tag => {
+            tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+          });
+        });
+        filtered = filtered.filter(tool => 
+          tool.tags.some(tag => tagCounts.get(tag) === 1)
+        );
+      } else {
+        filtered = filtered.filter(tool => tool.tags.includes(selectedTag));
+      }
+    }
+    
+    // 根據標籤權重對工具進行排序
+    return sortToolsByTags(filtered);
   }, [selectedTag, searchQuery]);
 
   if (selectedTool) {
@@ -110,9 +129,14 @@ export default function Tools() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {filteredTools.map((tool) => {
-            const toolTheme = categoryThemes[tool.tags[0] || 'all'];
+            // 使用完整版的標籤主題，並確保顏色按照彩虹順序排列
+            const toolThemes = tool.tags
+              .map(tag => fullTagThemes[tag] || fullTagThemes.others)
+              .filter(Boolean);
+            
+            const primaryTheme = toolThemes[0] || fullTagThemes.others;
             
             return (
               <motion.div
@@ -129,7 +153,7 @@ export default function Tools() {
                   className={`
                     relative w-full bg-white p-6 rounded-xl text-left
                     ${hoveredTool === tool.id 
-                      ? `shadow-lg ${toolTheme.shadow} border-2 ${toolTheme.text}` 
+                      ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}` 
                       : 'shadow border border-gray-100'
                     }
                   `}
@@ -137,28 +161,28 @@ export default function Tools() {
                   <div className="flex items-center mb-4">
                     <div className={`
                       p-3 rounded-lg
-                      ${hoveredTool === tool.id ? toolTheme.primary : toolTheme.secondary}
+                      ${hoveredTool === tool.id ? primaryTheme.primary : primaryTheme.secondary}
                     `}>
                       <tool.icon className={`
                         h-6 w-6
-                        ${hoveredTool === tool.id ? 'text-white' : toolTheme.icon}
+                        ${hoveredTool === tool.id ? 'text-white' : primaryTheme.icon}
                       `} />
                     </div>
                     <h3 className={`
                       text-xl font-semibold ml-4
-                      ${hoveredTool === tool.id ? toolTheme.text : 'text-gray-900'}
+                      ${hoveredTool === tool.id ? primaryTheme.text : 'text-gray-900'}
                     `}>
                       {tool.name}
                     </h3>
                   </div>
                   <p className={`
-                    ${hoveredTool === tool.id ? toolTheme.text : 'text-gray-600'}
+                    ${hoveredTool === tool.id ? primaryTheme.text : 'text-gray-600'}
                   `}>
                     {tool.description}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {tool.tags.map(tag => {
-                      const tagTheme = categoryThemes[tag];
+                    {tool.tags.map((tag, index) => {
+                      const tagTheme = toolThemes[index] || fullTagThemes.others;
                       return (
                         <span
                           key={tag}

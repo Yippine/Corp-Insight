@@ -22,99 +22,130 @@ interface ColorPalette {
 
 const colorPalettes: ColorPalette[] = [
   {
-    primary: 'bg-blue-500 bg-opacity-85',
-    secondary: 'bg-blue-50',
-    accent: 'bg-indigo-100',
-    text: 'text-blue-500 bg-opacity-85',
-    icon: 'text-blue-500 bg-opacity-85',
-    hover: 'hover:bg-blue-50',
-    shadow: 'shadow-blue-500/10',
-    gradient: {
-      from: 'from-blue-500 bg-opacity-85',
-      to: 'to-indigo-500'
-    }
-  },
-  {
-    primary: 'bg-pink-500 bg-opacity-85',
+    primary: 'bg-pink-300 bg-opacity-85',
     secondary: 'bg-pink-50',
-    accent: 'bg-rose-100',
+    accent: 'bg-pink-100',
     text: 'text-pink-500 bg-opacity-85',
     icon: 'text-pink-500 bg-opacity-85',
     hover: 'hover:bg-pink-50',
-    shadow: 'shadow-pink-500/10',
+    shadow: 'shadow-pink-300/20',
     gradient: {
-      from: 'from-pink-500 bg-opacity-85',
-      to: 'to-rose-500'
+      from: 'from-pink-300 bg-opacity-85',
+      to: 'to-pink-400'
     }
   },
   {
-    primary: 'bg-amber-500 bg-opacity-85',
-    secondary: 'bg-amber-50',
-    accent: 'bg-yellow-100',
-    text: 'text-amber-500 bg-opacity-85',
-    icon: 'text-amber-500 bg-opacity-85',
-    hover: 'hover:bg-amber-50',
-    shadow: 'shadow-amber-500/10',
+    primary: 'bg-rose-300 bg-opacity-85',
+    secondary: 'bg-rose-50',
+    accent: 'bg-rose-100',
+    text: 'text-rose-500 bg-opacity-85',
+    icon: 'text-rose-500 bg-opacity-85',
+    hover: 'hover:bg-rose-50',
+    shadow: 'shadow-rose-300/20',
     gradient: {
-      from: 'from-amber-500 bg-opacity-85',
-      to: 'to-yellow-500'
+      from: 'from-rose-300 bg-opacity-85',
+      to: 'to-rose-400'
     }
   },
   {
-    primary: 'bg-emerald-500 bg-opacity-85',
+    primary: 'bg-orange-200 bg-opacity-85',
+    secondary: 'bg-orange-50',
+    accent: 'bg-orange-100',
+    text: 'text-orange-500 bg-opacity-85',
+    icon: 'text-orange-500 bg-opacity-85',
+    hover: 'hover:bg-orange-50',
+    shadow: 'shadow-orange-200/20',
+    gradient: {
+      from: 'from-orange-200 bg-opacity-85',
+      to: 'to-orange-300'
+    }
+  },
+  {
+    primary: 'bg-lime-300 bg-opacity-85',
+    secondary: 'bg-lime-50',
+    accent: 'bg-lime-100',
+    text: 'text-lime-600 bg-opacity-85',
+    icon: 'text-lime-600 bg-opacity-85',
+    hover: 'hover:bg-lime-50',
+    shadow: 'shadow-lime-300/20',
+    gradient: {
+      from: 'from-lime-300 bg-opacity-85',
+      to: 'to-lime-400'
+    }
+  },
+  {
+    primary: 'bg-emerald-300 bg-opacity-85',
     secondary: 'bg-emerald-50',
-    accent: 'bg-green-100',
-    text: 'text-emerald-500 bg-opacity-85',
-    icon: 'text-emerald-500 bg-opacity-85',
+    accent: 'bg-emerald-100',
+    text: 'text-emerald-600 bg-opacity-85',
+    icon: 'text-emerald-600 bg-opacity-85',
     hover: 'hover:bg-emerald-50',
-    shadow: 'shadow-emerald-500/10',
+    shadow: 'shadow-emerald-300/20',
     gradient: {
-      from: 'from-emerald-500 bg-opacity-85',
-      to: 'to-green-500'
+      from: 'from-emerald-300 bg-opacity-85',
+      to: 'to-emerald-400'
     }
   },
   {
-    primary: 'bg-cyan-500 bg-opacity-85',
-    secondary: 'bg-cyan-50',
-    accent: 'bg-sky-100',
-    text: 'text-cyan-500 bg-opacity-85',
-    icon: 'text-cyan-500 bg-opacity-85',
-    hover: 'hover:bg-cyan-50',
-    shadow: 'shadow-cyan-500/10',
-    gradient: {
-      from: 'from-cyan-500 bg-opacity-85',
-      to: 'to-sky-500'
-    }
-  },
-  {
-    primary: 'bg-sky-500 bg-opacity-85',
+    primary: 'bg-sky-300 bg-opacity-85',
     secondary: 'bg-sky-50',
-    accent: 'bg-blue-100',
-    text: 'text-sky-500 bg-opacity-85',
-    icon: 'text-sky-500 bg-opacity-85',
+    accent: 'bg-sky-100',
+    text: 'text-sky-600 bg-opacity-85',
+    icon: 'text-sky-600 bg-opacity-85',
     hover: 'hover:bg-sky-50',
-    shadow: 'shadow-sky-500/10',
+    shadow: 'shadow-sky-300/20',
     gradient: {
-      from: 'from-sky-500 bg-opacity-85',
-      to: 'to-blue-500'
+      from: 'from-sky-300 bg-opacity-85',
+      to: 'to-sky-400'
     }
   },
   {
-    primary: 'bg-purple-500 bg-opacity-85',
-    secondary: 'bg-purple-50',
-    accent: 'bg-violet-100',
-    text: 'text-purple-500 bg-opacity-85',
-    icon: 'text-purple-500 bg-opacity-85',
-    hover: 'hover:bg-purple-50',
-    shadow: 'shadow-purple-500/10',
+    primary: 'bg-indigo-300 bg-opacity-85',
+    secondary: 'bg-indigo-50',
+    accent: 'bg-indigo-100',
+    text: 'text-indigo-600 bg-opacity-85',
+    icon: 'text-indigo-600 bg-opacity-85',
+    hover: 'hover:bg-indigo-50',
+    shadow: 'shadow-indigo-300/20',
     gradient: {
-      from: 'from-purple-500 bg-opacity-85',
-      to: 'to-violet-500'
+      from: 'from-indigo-300 bg-opacity-85',
+      to: 'to-indigo-400'
+    }
+  },
+  {
+    primary: 'bg-purple-300 bg-opacity-85',
+    secondary: 'bg-purple-50',
+    accent: 'bg-purple-100',
+    text: 'text-purple-600 bg-opacity-85',
+    icon: 'text-purple-600 bg-opacity-85',
+    hover: 'hover:bg-purple-50',
+    shadow: 'shadow-purple-300/20',
+    gradient: {
+      from: 'from-purple-300 bg-opacity-85',
+      to: 'to-purple-400'
+    }
+  },
+  {
+    primary: 'bg-fuchsia-300 bg-opacity-85',
+    secondary: 'bg-fuchsia-50',
+    accent: 'bg-fuchsia-100',
+    text: 'text-fuchsia-600 bg-opacity-85',
+    icon: 'text-fuchsia-600 bg-opacity-85',
+    hover: 'hover:bg-fuchsia-50',
+    shadow: 'shadow-fuchsia-300/20',
+    gradient: {
+      from: 'from-fuchsia-300 bg-opacity-85',
+      to: 'to-fuchsia-400'
     }
   }
 ];
 
-export function generateTagThemes(tools: Tool[]): Record<string, CategoryTheme> {
+export interface TagThemes {
+  merged: Record<string, CategoryTheme>;
+  full: Record<string, CategoryTheme>;
+}
+
+export function generateTagThemes(tools: Tool[]): TagThemes {
   // 1. 收集所有 tags 並計算出現次數
   const tagCounts = new Map<string, number>();
   tools.forEach(tool => {
@@ -123,7 +154,7 @@ export function generateTagThemes(tools: Tool[]): Record<string, CategoryTheme> 
     });
   });
 
-  // 2. 將 tags 轉換為數組並排序
+  // 2. 將 tags 轉換為陣列並排序
   const sortedTags: TagCount[] = Array.from(tagCounts.entries())
     .map(([tag, count]) => ({ tag, count }))
     .sort((a, b) => {
@@ -135,35 +166,55 @@ export function generateTagThemes(tools: Tool[]): Record<string, CategoryTheme> 
       return a.tag.localeCompare(b.tag);
     });
 
-  // 3. 將單個 tag 的工具歸類到 "other" 分類
-  const singleTags = sortedTags.filter(t => t.count === 1);
-  const multipleTags = sortedTags.filter(t => t.count > 1);
-
-  if (singleTags.length > 0) {
-    multipleTags.push({
-      tag: 'other',
-      count: singleTags.length
-    });
-  }
-
-  // 4. 生成主題配置
-  const themes: Record<string, CategoryTheme> = {
+  // 3. 生成完整的主題配置（不合併單個標籤）
+  const fullThemes: Record<string, CategoryTheme> = {
     all: {
       name: '全部',
       ...colorPalettes[0],
     }
   };
 
-  // 為每個 tag 分配顏色
-  multipleTags.forEach((tagCount, index) => {
-    const palette = colorPalettes[index % colorPalettes.length];
-    themes[tagCount.tag] = {
+  // 為每個 tag 分配顏色（完整版）
+  sortedTags.forEach((tagCount, index) => {
+    const palette = colorPalettes[(index + 1) % colorPalettes.length];
+    fullThemes[tagCount.tag] = {
       name: getTagDisplayName(tagCount.tag),
       ...palette
     };
   });
 
-  return themes;
+  // 4. 生成合併後的主題配置
+  const singleTags = sortedTags.filter(t => t.count === 1);
+  const multipleTags = sortedTags.filter(t => t.count > 1);
+  
+  const mergedThemes: Record<string, CategoryTheme> = {
+    all: {
+      name: '全部',
+      ...colorPalettes[0],
+    }
+  };
+
+  // 為多個標籤分配顏色
+  multipleTags.forEach((tagCount, index) => {
+    const palette = colorPalettes[(index + 1) % colorPalettes.length];
+    mergedThemes[tagCount.tag] = {
+      name: getTagDisplayName(tagCount.tag),
+      ...palette
+    };
+  });
+
+  // 如果有單個標籤，添加 "others" 分類
+  if (singleTags.length > 0) {
+    mergedThemes.others = {
+      name: '其他',
+      ...colorPalettes[(multipleTags.length + 1) % colorPalettes.length]
+    };
+  }
+
+  return {
+    merged: mergedThemes,
+    full: fullThemes
+  };
 }
 
 function getTagDisplayName(tag: string): string {
@@ -209,7 +260,7 @@ function getTagDisplayName(tag: string): string {
     food: '美食',
     academic: '學術',
     jailbreak: '越獄',
-    other: '其他'
+    others: '其他'
   };
 
   return tagDisplayNames[tag] || tag;
