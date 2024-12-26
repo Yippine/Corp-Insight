@@ -39,7 +39,7 @@ const aiTools = promptTools.map((tool: PromptToolConfig) => ({
   description: tool.description,
   icon: tool.icon,
   component: () => React.createElement(PromptToolTemplate, { config: tool }),
-  tags: ['ai']
+  tags: tool.tags
 }));
 
 export const tools: Tool[] = [
@@ -165,7 +165,7 @@ export const tools: Tool[] = [
   },
   {
     id: 'oee-calculator',
-    name: '基礎OEE計算器',
+    name: '基礎 OEE 計算器',
     description: '計算設備綜合效率指標',
     icon: Activity,
     component: OEECalculator,
