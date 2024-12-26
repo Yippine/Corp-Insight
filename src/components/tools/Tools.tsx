@@ -138,7 +138,7 @@ export default function Tools() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence mode="wait" key={filterKey}>
-          {filteredTools.map((tool) => {
+          {filteredTools.map((tool, index) => {
             // 使用完整版的標籤主題，並確保顏色按照彩虹順序排列
             const toolThemes = tool.tags
               .map(tag => fullTagThemes[tag] || fullTagThemes.ai)
@@ -148,7 +148,7 @@ export default function Tools() {
             
             return (
               <motion.div
-                key={tool.id}
+                key={`${tool.id}-${index}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
