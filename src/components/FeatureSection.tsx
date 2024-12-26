@@ -23,7 +23,7 @@ export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) 
         <div>
           <h3 className="text-xl font-medium text-gray-900">企業資料</h3>
           <p className="mt-2 text-base text-gray-500">
-            完整的公司登記資料、董監事名單、分公司資訊
+            完整的公司基本資料、董監事名單、分公司資訊、工廠登記、商標、判決書、政府標案、稅籍資料等企業完整資訊
           </p>
         </div>
       </div>
@@ -37,7 +37,7 @@ export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) 
         <div>
           <h3 className="text-xl font-medium text-gray-900">標案資訊</h3>
           <p className="mt-2 text-base text-gray-500">
-            政府標案歷史、得標紀錄、招標公告
+            完整政府標案資訊，包含標案名稱、金額、得標廠商、機關單位等詳細內容，並可依標案、廠商、機關等多維度查詢分析
           </p>
         </div>
       </div>
@@ -71,9 +71,9 @@ export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) 
           <Calculator className="h-7 w-7 text-amber-500" />
         </div>
         <div>
-          <h3 className="text-xl font-medium text-gray-900">實用工具</h3>
+          <h3 className="text-xl font-medium text-gray-900">試用您的 AI 助理</h3>
           <p className="mt-2 text-base text-gray-500">
-            SEO 優化、金融計算、製造業參數、電腦效能評估
+            立即體驗多款免費的生成式 AI 助理！從寫作、SEO、職涯規劃到提示詞優化，為您打造高效且專業的智能助理
           </p>
         </div>
       </div>

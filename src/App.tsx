@@ -150,7 +150,7 @@ function App() {
                 } pb-4 -mb-4 px-1 font-medium text-base flex items-center`}
               >
                 <Wrench className="mr-2 h-6 w-6" />
-                實用工具
+                試用您的 AI 助理
               </button>
             </nav>
           </div>
@@ -279,7 +279,7 @@ function App() {
                 </li>
                 <li>
                   <a href="#" className="text-lg text-gray-500 hover:text-gray-900">
-                    實用工具
+                    試用您的 AI 助理
                   </a>
                 </li>
               </ul>
