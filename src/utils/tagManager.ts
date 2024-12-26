@@ -1,11 +1,6 @@
 import { Tool } from '../config/tools';
 import { CategoryTheme } from '../config/theme';
 
-interface TagCount {
-  tag: string;
-  count: number;
-}
-
 interface ColorPalette {
   primary: string;
   secondary: string;
@@ -120,81 +115,78 @@ export interface TagThemes {
 }
 
 export function generateTagThemes(tools: Tool[]): TagThemes {
-  // 1. 收集所有 tags 並計算出現次數
-  const tagCounts = new Map<string, number>();
-  tools.forEach(tool => {
-    tool.tags.forEach(tag => {
-      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-    });
+  // 1. 計算標籤出現次數並分類
+  const getTagStatistics = (tools: Tool[]) => {
+    const tagCounts = tools.reduce((counts, tool) => {
+      tool.tags.forEach(tag => {
+        counts.set(tag, (counts.get(tag) || 0) + 1);
+      });
+      return counts;
+    }, new Map<string, number>());
+
+    const tagStats = Array.from(tagCounts.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+
+    return {
+      allTags: tagStats,
+      singleTags: tagStats.filter(t => t.count === 1),
+      multipleTags: tagStats.filter(t => t.count > 1)
+    };
+  };
+
+  // 2. 建立主題配置
+  const createTheme = (tag: string, paletteIndex: number): CategoryTheme => ({
+    name: getTagDisplayName(tag),
+    ...colorPalettes[paletteIndex % colorPalettes.length]
   });
 
-  // 2. 將 tags 轉換為陣列並排序
-  const sortedTags: TagCount[] = Array.from(tagCounts.entries())
-    .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => {
-      // 首先按照數量降序排序
-      if (b.count !== a.count) {
-        return b.count - a.count;
+  // 3. 生成主題配置
+  const generateThemes = (tagStats: ReturnType<typeof getTagStatistics>) => {
+    const { allTags, singleTags, multipleTags } = tagStats;
+    
+    // 生成完整主題配置(包含所有標籤)
+    const fullThemes: Record<string, CategoryTheme> = {
+      all: createTheme('all', 0)
+    };
+    allTags.forEach((tag, index) => {
+      fullThemes[tag.tag] = createTheme(tag.tag, index + 1);
+    });
+
+    // 生成合併主題配置(僅包含多次出現的標籤)
+    const mergedThemes: Record<string, CategoryTheme> = {
+      all: createTheme('all', 0)
+    };
+
+    // 特殊處理 AI 標籤: 合併單次出現的標籤到 AI 分類中
+    const existingAiTag = multipleTags.find(tag => tag.tag === 'ai');
+    const aiTagCount = (existingAiTag?.count || 0) + singleTags.length;
+    const sortedTags = multipleTags.filter(tag => tag.tag !== 'ai');
+    const aiTagIndex = sortedTags.findIndex(tag => tag.count <= aiTagCount);
+    const aiTag = { tag: 'ai', count: aiTagCount };
+    
+    if (aiTagCount > 0) {
+      if (aiTagIndex === -1) {
+        sortedTags.push(aiTag);
+      } else {
+        sortedTags.splice(aiTagIndex, 0, aiTag);
       }
-      // 如果數量相同，按照 tag 名稱字母順序排序
-      return a.tag.localeCompare(b.tag);
+    }
+
+    sortedTags.forEach((tagCount, index) => {
+      mergedThemes[tagCount.tag] = createTheme(tagCount.tag, index + 1);
     });
 
-  // 3. 生成完整的主題配置（不合併單個標籤）
-  const fullThemes: Record<string, CategoryTheme> = {
-    all: {
-      name: '全部',
-      ...colorPalettes[0],
-    }
+    return { merged: mergedThemes, full: fullThemes };
   };
 
-  // 為每個 tag 分配顏色（完整版）
-  sortedTags.forEach((tagCount, index) => {
-    const palette = colorPalettes[(index + 1) % colorPalettes.length];
-    fullThemes[tagCount.tag] = {
-      name: getTagDisplayName(tagCount.tag),
-      ...palette
-    };
-  });
-
-  // 4. 生成合併後的主題配置
-  const singleTags = sortedTags.filter(t => t.count === 1);
-  const multipleTags = sortedTags.filter(t => t.count > 1);
-  
-  const mergedThemes: Record<string, CategoryTheme> = {
-    all: {
-      name: '全部',
-      ...colorPalettes[0],
-    }
-  };
-
-  // 為多個標籤分配顏色
-  multipleTags.forEach((tagCount, index) => {
-    const palette = colorPalettes[(index + 1) % colorPalettes.length];
-    mergedThemes[tagCount.tag] = {
-      name: getTagDisplayName(tagCount.tag),
-      ...palette
-    };
-  });
-
-  // 如果有單個標籤，添加 "others" 分類
-  if (singleTags.length > 0) {
-    mergedThemes.others = {
-      name: '其他',
-      ...colorPalettes[(multipleTags.length + 1) % colorPalettes.length]
-    };
-  }
-
-  return {
-    merged: mergedThemes,
-    full: fullThemes
-  };
+  return generateThemes(getTagStatistics(tools));
 }
 
 function getTagDisplayName(tag: string): string {
-  // 定義 tag 顯示名稱的映射
   const tagDisplayNames: Record<string, string> = {
     all: '全部',
+    ai: 'AI',
     business: '商業',
     enterprise: '企業',
     market: '市場',
@@ -209,7 +201,6 @@ function getTagDisplayName(tag: string): string {
     interview: '面試',
     job: '求職',
     seo: 'SEO',
-    ai: 'AI',
     finance: '金融',
     tech: '科技',
     computer: '電腦',
@@ -233,8 +224,7 @@ function getTagDisplayName(tag: string): string {
     review: '評論',
     food: '美食',
     academic: '學術',
-    jailbreak: '越獄',
-    others: '其他'
+    jailbreak: '越獄'
   };
 
   return tagDisplayNames[tag] || tag;

@@ -11,7 +11,6 @@ export default function Tools() {
   const [searchQuery, setSearchQuery] = useState('');
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
   const [filterKey, setFilterKey] = useState(0);
-  console.log(`categoryThemes: ${JSON.stringify(categoryThemes)}`);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -41,7 +40,7 @@ export default function Tools() {
     
     // 根據選中的標籤進行過濾
     if (selectedTag && selectedTag !== 'all') {
-      if (selectedTag === 'others') {
+      if (selectedTag === 'ai') {
         // 對於 "其他" 標籤，顯示只有一個標籤的工具
         const tagCounts = new Map<string, number>();
         tools.forEach(tool => {
@@ -142,10 +141,10 @@ export default function Tools() {
           {filteredTools.map((tool) => {
             // 使用完整版的標籤主題，並確保顏色按照彩虹順序排列
             const toolThemes = tool.tags
-              .map(tag => fullTagThemes[tag] || fullTagThemes.others)
+              .map(tag => fullTagThemes[tag] || fullTagThemes.ai)
               .filter(Boolean);
             
-            const primaryTheme = toolThemes[0] || fullTagThemes.others;
+            const primaryTheme = toolThemes[0] || fullTagThemes.ai;
             
             return (
               <motion.div
@@ -191,7 +190,7 @@ export default function Tools() {
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {tool.tags.map((tag, index) => {
-                      const tagTheme = toolThemes[index] || fullTagThemes.others;
+                      const tagTheme = toolThemes[index] || fullTagThemes.ai;
                       return (
                         <span
                           key={tag}

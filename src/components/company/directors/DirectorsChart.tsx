@@ -135,7 +135,7 @@ export default function DirectorsChart({ directors }: DirectorsChartProps) {
         cornerRadius: 8,
         titleFont: {
           size: 14,
-          weight: 'bold',
+          weight: 'bold' as const,
           family: "'Noto Sans TC', sans-serif"
         },
         bodyFont: {
