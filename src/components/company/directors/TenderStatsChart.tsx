@@ -92,8 +92,8 @@ export default function TenderStatsChart({ tenders }: TenderStatsChartProps) {
     datasets: [
       {
         data: stats.counts,
-        backgroundColor: 'rgba(34, 197, 94, 0.8)',
-        borderColor: 'rgba(34, 197, 94, 1)',
+        backgroundColor: 'rgba(72, 187, 120, 0.9)',
+        borderColor: 'rgba(72, 187, 120, 1)',
         borderWidth: 1,
         borderRadius: 4,
       }
@@ -105,7 +105,7 @@ export default function TenderStatsChart({ tenders }: TenderStatsChartProps) {
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl leading-6 font-medium text-gray-900 flex items-center">
           <span className="inline-block w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
-          近期得標案件統計 ({timeUnit === 'year' ? '年度' : '月份'})
+          近期得標案件統計（{timeUnit === 'year' ? '年度' : '月份'}）
         </h3>
         <div className="inline-flex rounded-lg shadow-sm">
           <button
