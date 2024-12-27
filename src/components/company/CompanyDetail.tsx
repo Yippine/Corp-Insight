@@ -200,10 +200,12 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     <dt className="text-base font-medium text-gray-500">統一編號</dt>
                     <dd className="mt-1 text-base text-gray-900">{SearchData.taxId}</dd>
                   </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">負責人</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.chairman}</dd>
-                  </div>
+                  {SearchData.chairman !== '無' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">負責人</dt>
+                      <dd className="mt-1 text-base text-gray-900">{SearchData.chairman}</dd>
+                    </div>
+                  )}
                   <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">公司狀態</dt>
                     <dd className="mt-1 text-base text-gray-900">
@@ -220,10 +222,12 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     <dt className="text-base font-medium text-gray-500">最近變更日期</dt>
                     <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
                   </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">股東結構</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.shareholding}</dd>
-                  </div>
+                  {SearchData.shareholding !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">股東結構</dt>
+                      <dd className="mt-1 text-base text-gray-900">{SearchData.shareholding}</dd>
+                    </div>
+                  )}
                   {SearchData.phone !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">聯絡電話</dt>
@@ -368,6 +372,10 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                 </div>
               )}
             </div>
+
+            <div className="text-sm text-gray-500 text-center mt-4">
+              資料來源：{`https://company.g0v.ronny.tw/api`}
+            </div>
           </div>
         );
       case 'tenders':
@@ -485,9 +493,9 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                   </button>
                 </div>
               )}
+            </div>
             <div className="text-sm text-gray-500 text-center mt-4">
               資料來源：{`https://pcc.g0v.ronny.tw/api`}
-            </div>
             </div>
           </div>
         );
