@@ -476,6 +476,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     progress={progress}
                     totalPages={totalPages}
                     currentPage={currentPage}
+                    isFullyLoaded={!isLoadingMore && currentPage === totalPages}
                   />
                 )
               ) : (

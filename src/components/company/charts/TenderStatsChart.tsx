@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -9,8 +9,9 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, RefreshCw } from 'lucide-react';
+import { useTenderChartData } from '../../../hooks/useTenderChartData';
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +34,7 @@ interface TenderStatsChartProps {
   progress: number;
   totalPages: number;
   currentPage: number;
+  isFullyLoaded: boolean;
 }
 
 export default function TenderStatsChart({ 
@@ -40,102 +42,32 @@ export default function TenderStatsChart({
   isLoadingMore,
   progress,
   totalPages,
-  currentPage
+  currentPage,
+  isFullyLoaded
 }: TenderStatsChartProps) {
   const [timeUnit, setTimeUnit] = useState<'year' | 'month'>('month');
   const chartRef = useRef<ChartJS<'bar', number[], string>>(null);
   const [animatedData, setAnimatedData] = useState<number[]>([]);
-  const [processedData, setProcessedData] = useState<{
-    labels: string[];
-    counts: number[];
-  }>({ labels: [], counts: [] });
+  const [shouldRefresh, setShouldRefresh] = useState(false);
 
-  const generateDateRange = useCallback((dates: string[], unit: 'year' | 'month') => {
-    if (dates.length === 0) return [];
+  const {
+    processedData,
+    isProcessing,
+    dataVersion,
+    refreshData
+  } = useTenderChartData(tenders, timeUnit, isFullyLoaded);
 
-    const minDate = Math.min(...dates.map(d => parseInt(d.substring(0, 6))));
-    const maxDate = Math.max(...dates.map(d => parseInt(d.substring(0, 6))));
+  // 處理時間單位切換
+  const handleTimeUnitChange = (unit: 'year' | 'month') => {
+    setTimeUnit(unit);
+    setShouldRefresh(true);
+    setTimeout(() => {
+      refreshData();
+      setShouldRefresh(false);
+    }, 300);
+  };
 
-    const range: string[] = [];
-    if (unit === 'year') {
-      const startYear = Math.floor(minDate / 100);
-      const endYear = Math.floor(maxDate / 100);
-      for (let year = startYear; year <= endYear; year++) {
-        range.push(year.toString());
-      }
-    } else {
-      let current = minDate;
-      while (current <= maxDate) {
-        range.push(current.toString().padStart(6, '0'));
-        let year = Math.floor(current / 100);
-        let month = current % 100;
-        if (month === 12) {
-          year++;
-          month = 1;
-        } else {
-          month++;
-        }
-        current = year * 100 + month;
-      }
-    }
-    return range;
-  }, []);
-
-  useEffect(() => {
-    if (!isLoadingMore && tenders.length > 0) {
-      console.log('圖表資料更新觸發', {
-        總筆數: tenders.length,
-        時間單位: timeUnit,
-        目前頁數: currentPage,
-        總頁數: totalPages
-      });
-      
-      const processedTenders = new Set<string>();
-      const statsMap: { [key: string]: number } = {};
-      
-      const validDates = tenders
-        .filter(t => t.date && t.status === '得標')
-        .map(t => t.date.toString());
-
-      console.log('有效的標案日期數量：', validDates.length);
-      
-      const dateRange = generateDateRange(validDates, timeUnit);
-      console.log(`${timeUnit === 'month' ? '月份' : '年度'}範圍：`, dateRange);
-
-      tenders.forEach(tender => {
-        if (!tender.date || tender.status !== '得標' || processedTenders.has(tender.tenderId)) {
-          return;
-        }
-
-        processedTenders.add(tender.tenderId);
-        const date = tender.date.toString();
-        const key = timeUnit === 'month' 
-          ? date.substring(0, 6)
-          : date.substring(0, 4);
-
-        statsMap[key] = (statsMap[key] || 0) + 1;
-      });
-
-      const sortedData = dateRange.map(key => ({
-        key,
-        label: timeUnit === 'month' 
-          ? `${key.substring(0, 4)}年${parseInt(key.substring(4, 6))}月`
-          : `${key}年`,
-        count: statsMap[key] || 0
-      }));
-
-      console.log('處理後的統計資料：', {
-        標籤數量: sortedData.length,
-        統計值: sortedData.map(d => d.count).reduce((a, b) => a + b, 0)
-      });
-
-      setProcessedData({
-        labels: sortedData.map(d => d.label),
-        counts: sortedData.map(d => d.count)
-      });
-    }
-  }, [tenders, timeUnit, isLoadingMore]);
-
+  // 圖表動畫效果
   useEffect(() => {
     if (!processedData.counts.length) return;
 
@@ -150,7 +82,7 @@ export default function TenderStatsChart({
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeOutCubic(progress);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
 
       const newData = targetData.map((target, i) => {
         const start = startData[i];
@@ -165,11 +97,7 @@ export default function TenderStatsChart({
     };
 
     requestAnimationFrame(animate);
-  }, [processedData.counts]);
-
-  const easeOutCubic = (x: number): number => {
-    return 1 - Math.pow(1 - x, 3);
-  };
+  }, [processedData.counts, dataVersion]);
 
   const options = {
     responsive: true,
@@ -208,7 +136,7 @@ export default function TenderStatsChart({
       }
     },
     animation: {
-      duration: 0 // 禁用內建動畫，使用自定義動畫
+      duration: 0
     }
   };
 
@@ -234,13 +162,18 @@ export default function TenderStatsChart({
             近期得標案件統計（{timeUnit === 'year' ? '年度' : '月份'}）
           </h3>
           {isLoadingMore && (
-            <div className="flex items-center text-sm text-gray-500">
+            <motion.div 
+              className="flex items-center text-sm text-gray-500"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
               <Loader2 className="animate-spin h-4 w-4 mr-2" />
               <span>
                 正在載入更多資料... ({currentPage}/{totalPages} 頁)
               </span>
               <motion.div 
-                className="ml-2 h-1 w-20 bg-gray-200 rounded-full overflow-hidden"
+                className="ml-2 h-1.5 w-24 bg-gray-200 rounded-full overflow-hidden"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
@@ -251,12 +184,12 @@ export default function TenderStatsChart({
                   transition={{ duration: 0.5 }}
                 />
               </motion.div>
-            </div>
+            </motion.div>
           )}
         </div>
         <div className="inline-flex rounded-lg shadow-sm">
           <button
-            onClick={() => setTimeUnit('month')}
+            onClick={() => handleTimeUnitChange('month')}
             className={`px-4 py-2 text-sm font-medium rounded-l-lg ${
               timeUnit === 'month'
                 ? 'bg-blue-600 text-white'
@@ -266,7 +199,7 @@ export default function TenderStatsChart({
             月份
           </button>
           <button
-            onClick={() => setTimeUnit('year')}
+            onClick={() => handleTimeUnitChange('year')}
             className={`px-4 py-2 text-sm font-medium rounded-r-lg ${
               timeUnit === 'year'
                 ? 'bg-blue-600 text-white'
@@ -277,7 +210,24 @@ export default function TenderStatsChart({
           </button>
         </div>
       </div>
-      <div className="h-[300px]">
+      <div className="relative h-[300px]">
+        <AnimatePresence>
+          {(shouldRefresh || isProcessing) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-gray-50/80 backdrop-blur-[1px] flex items-center justify-center z-10"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                <RefreshCw className="w-8 h-8 text-blue-500" />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Bar ref={chartRef} options={options} data={data} />
       </div>
     </div>

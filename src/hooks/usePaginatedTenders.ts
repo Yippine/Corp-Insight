@@ -6,6 +6,7 @@ export function usePaginatedTenders(companyTaxId: string) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  const [isFullyLoaded, setIsFullyLoaded] = useState(false);
 
   const fetchTenderPage = async (page: number) => {
     try {
@@ -63,6 +64,7 @@ export function usePaginatedTenders(companyTaxId: string) {
     if (isLoadingMore) return;
     
     setIsLoadingMore(true);
+    setIsFullyLoaded(false);
     const allTenders = new Map();
     
     try {
@@ -108,6 +110,7 @@ export function usePaginatedTenders(companyTaxId: string) {
       // 全部載入完成後，再次確認資料完整性
       console.log('所有標案資料載入完成，總筆數：', allTenders.size);
       setTenders(Array.from(allTenders.values()));
+      setIsFullyLoaded(true);
     } catch (error) {
       console.error('載入標案資料時發生錯誤：', error);
       setError(error instanceof Error ? error.message : '載入標案資料時發生錯誤');
@@ -139,6 +142,7 @@ export function usePaginatedTenders(companyTaxId: string) {
     progress: (currentPage / totalPages) * 100,
     totalPages,
     currentPage,
+    isFullyLoaded,
     fetchTenders
   };
-} 
+}
