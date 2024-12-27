@@ -7,10 +7,9 @@ interface TagStatistics {
 }
 
 export interface TagStats {
-  allTags: TagStatistics[];
-  singleTags: TagStatistics[];
-  multipleTags: TagStatistics[];
   tagCountMap: Map<string, number>;
+  allTags: TagStatistics[];
+  mergedTags: TagStatistics[];
 }
 
 export interface TagThemes {
@@ -33,6 +32,32 @@ interface ColorPalette {
 }
 
 const colorPalettes: ColorPalette[] = [
+  {
+    primary: 'bg-indigo-500 bg-opacity-85',
+    secondary: 'bg-indigo-50',
+    accent: 'bg-indigo-100',
+    text: 'text-indigo-600 bg-opacity-85',
+    icon: 'text-indigo-600 bg-opacity-85',
+    hover: 'hover:bg-indigo-50',
+    shadow: 'shadow-indigo-300/20',
+    gradient: {
+      from: 'from-indigo-300 bg-opacity-85',
+      to: 'to-indigo-400'
+    }
+  },
+  {
+    primary: 'bg-purple-500 bg-opacity-90',
+    secondary: 'bg-purple-50',
+    accent: 'bg-fuchsia-100',
+    text: 'text-purple-500 bg-opacity-90',
+    icon: 'text-purple-500 bg-opacity-90',
+    hover: 'hover:bg-purple-50',
+    shadow: 'shadow-purple-500/10',
+    gradient: {
+      from: 'from-purple-500 bg-opacity-90',
+      to: 'to-fuchsia-500'
+    }
+  },
   {
     primary: 'bg-pink-500 bg-opacity-85',
     secondary: 'bg-pink-50',
@@ -97,36 +122,12 @@ const colorPalettes: ColorPalette[] = [
       from: 'from-sky-400 bg-opacity-85',
       to: 'to-sky-500'
     }
-  },
-  {
-    primary: 'bg-indigo-500 bg-opacity-85',
-    secondary: 'bg-indigo-50',
-    accent: 'bg-indigo-100',
-    text: 'text-indigo-600 bg-opacity-85',
-    icon: 'text-indigo-600 bg-opacity-85',
-    hover: 'hover:bg-indigo-50',
-    shadow: 'shadow-indigo-300/20',
-    gradient: {
-      from: 'from-indigo-300 bg-opacity-85',
-      to: 'to-indigo-400'
-    }
-  },
-  {
-    primary: 'bg-purple-500 bg-opacity-90',
-    secondary: 'bg-purple-50',
-    accent: 'bg-fuchsia-100',
-    text: 'text-purple-500 bg-opacity-90',
-    icon: 'text-purple-500 bg-opacity-90',
-    hover: 'hover:bg-purple-50',
-    shadow: 'shadow-purple-500/10',
-    gradient: {
-      from: 'from-purple-500 bg-opacity-90',
-      to: 'to-fuchsia-500'
-    }
   }
 ];
 
+// 統計工具標籤的分佈情況
 export function getTagStatistics(tools: Tool[]): TagStats {
+  // 步驟 1：計算每個標籤的出現次數
   const tagCounts = tools.reduce((counts, tool) => {
     tool.tags.forEach(tag => {
       counts.set(tag, (counts.get(tag) || 0) + 1);
@@ -134,77 +135,80 @@ export function getTagStatistics(tools: Tool[]): TagStats {
     return counts;
   }, new Map<string, number>());
 
+  // 步驟 2：將標籤計數轉換為排序後的統計陣列
   const tagStats = Array.from(tagCounts.entries())
     .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+    .sort((a, b) => {
+      // 如果是 'AI' 標籤，強制放在第二個位置
+      if (a.tag === 'AI') return -1;
+      if (b.tag === 'AI') return 1;
+      
+      // 原有的排序邏輯：先按數量降序，再按字母順序
+      return b.count - a.count || a.tag.localeCompare(b.tag);
+    });
 
+  // 步驟 3：特殊處理 AI 標籤的邏輯
   const singleTags = tagStats.filter(t => t.count === 1);
   const multipleTags = tagStats.filter(t => t.count > 1);
 
-  // 特殊處理 AI 標籤的計數
-  const aiTagIndex = tagStats.findIndex(t => t.tag === 'AI');
-  if (aiTagIndex !== -1) {
-    tagStats[aiTagIndex].count += singleTags.length;
-    tagCounts.set('AI', tagStats[aiTagIndex].count);
-  } else if (singleTags.length > 0) {
-    const aiTag = { tag: 'AI', count: singleTags.length };
-    tagStats.push(aiTag);
-    tagCounts.set('AI', singleTags.length);
+  // 計算 AI 標籤的總數，包括已存在的和單一出現的標籤
+  const existingAiTag = multipleTags.find(tag => tag.tag === 'AI');
+  const aiTagCount = (existingAiTag?.count || 0) + singleTags.length;
+
+  // 準備處理 AI 標籤的插入
+  const tagWithAICounts = multipleTags.filter(tag => tag.tag !== 'AI');
+  const aiTagIndex = tagWithAICounts.findIndex(tag => tag.count <= aiTagCount);
+  const aiTag = { tag: 'AI', count: aiTagCount };
+  
+  // 根據計算的 AI 標籤數量進行插入
+  if (aiTagCount > 0) {
+    if (aiTagIndex === -1) {
+      tagWithAICounts.push(aiTag);
+    } else {
+      tagWithAICounts.splice(aiTagIndex, 0, aiTag);
+    }
   }
 
+  // 步驟 4：對標籤進行最終排序
+  tagWithAICounts.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+
   return {
-    allTags: tagStats,
-    singleTags,
-    multipleTags,
-    tagCountMap: tagCounts
+    tagCountMap: tagCounts,    // 原始標籤計數映射
+    allTags: tagStats,          // 所有標籤的統計資訊
+    mergedTags: tagWithAICounts // 合併後的標籤統計資訊
   };
 }
 
+// 根據標籤統計生成主題配置
 export function generateTagThemes(tools: Tool[]): TagThemes {
-  // 2. 建立主題配置
-  const createTheme = (tag: string, paletteIndex: number): CategoryTheme => ({
-    name: tag,
-    ...colorPalettes[paletteIndex % colorPalettes.length]
-  });
-
-  // 3. 生成主題配置
-  const generateThemes = (tagStats: ReturnType<typeof getTagStatistics>) => {
-    const { allTags, singleTags, multipleTags } = tagStats;
-    
-    // 生成完整主題配置(包含所有標籤)
-    const fullThemes: Record<string, CategoryTheme> = {
-      全部: createTheme('全部', 0)
-    };
-    allTags.forEach((tag, index) => {
-      fullThemes[tag.tag] = createTheme(tag.tag, index + 1);
-    });
-
-    // 生成合併主題配置(僅包含多次出現的標籤)
-    const mergedThemes: Record<string, CategoryTheme> = {
+  // 步驟 1：生成主題配置的核心邏輯
+  const generateThemeConfig = (
+    tags: TagStatistics[], 
+    createTheme: (tag: string, index: number) => CategoryTheme
+  ): Record<string, CategoryTheme> => {
+    const themes: Record<string, CategoryTheme> = {
       全部: createTheme('全部', 0)
     };
 
-    // 特殊處理 AI 標籤: 合併單次出現的標籤到 AI 分類中
-    const existingAiTag = multipleTags.find(tag => tag.tag === 'AI');
-    const aiTagCount = (existingAiTag?.count || 0) + singleTags.length;
-    const sortedTags = multipleTags.filter(tag => tag.tag !== 'AI');
-    const aiTagIndex = sortedTags.findIndex(tag => tag.count <= aiTagCount);
-    const aiTag = { tag: 'AI', count: aiTagCount };
-    
-    if (aiTagCount > 0) {
-      if (aiTagIndex === -1) {
-        sortedTags.push(aiTag);
-      } else {
-        sortedTags.splice(aiTagIndex, 0, aiTag);
-      }
-    }
-
-    sortedTags.forEach((tagCount, index) => {
-      mergedThemes[tagCount.tag] = createTheme(tagCount.tag, index + 1);
+    tags.forEach((tag, index) => {
+      themes[tag.tag] = createTheme(tag.tag, index + 1);
     });
 
-    return { merged: mergedThemes, full: fullThemes };
+    return themes;
   };
 
-  return generateThemes(getTagStatistics(tools));
+  // 步驟 2：主題生成的輔助函數
+  const createTheme = (tag: string, index: number): CategoryTheme => ({
+    name: tag,
+    ...colorPalettes[index % colorPalettes.length]
+  });
+
+  // 步驟 3：執行主題生成
+  const tagStats = getTagStatistics(tools);
+  const { allTags, mergedTags } = tagStats;
+
+  return {
+    merged: generateThemeConfig(mergedTags, createTheme),
+    full: generateThemeConfig(allTags, createTheme)
+  };
 }
