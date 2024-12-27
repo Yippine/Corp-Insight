@@ -9,6 +9,7 @@ import ManagersTimeline from './charts/ManagersTimeline';
 import ManagersTable from './charts/ManagersTable';
 import TenderStatsChart from './charts/TenderStatsChart';
 import NoDataFound from '../common/NoDataFound';
+import { usePaginatedTenders } from '../../hooks/usePaginatedTenders';
 
 interface CompanyDetailProps {
   companyTaxId: string;
@@ -56,9 +57,15 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [tenderView, setTenderView] = useState<'list' | 'chart'>('list');
-  const [tenders, setTenders] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [tenderError, setTenderError] = useState<string | null>(null);
+  const {
+    tenders,
+    isLoadingMore,
+    error: tenderError,
+    progress,
+    totalPages,
+    currentPage,
+    fetchTenders
+  } = usePaginatedTenders(companyTaxId);
 
   useEffect(() => {
     const loadSearchData = async () => {
@@ -79,60 +86,6 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
   }, [SearchData?.taxId, SearchData?.name]);
 
   if (!SearchData) return <div>載入中...</div>;
-
-  const fetchTenders = async () => {
-    setIsLoading(true);
-    setTenderError(null);
-    try {
-      const response = await fetch(`https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${companyTaxId}`);
-      const data = await response.json();
-      
-      if (!data.records || data.records.length === 0) {
-        setTenders([]);
-        return;
-      }
-
-      const formattedTenders = data.records.map((record: any) => {
-        const companies = record.brief.companies;
-        let status = '未得標';
-
-        if (companies) {
-          // 找到目標 taxId 在 id_key 中的索引鍵值
-          const idKeyEntry = Object.entries(companies.id_key || {}).find(([id]) => id === companyTaxId);
-          if (idKeyEntry) {
-            // 取得該 taxId 在 ids 陣列中的索引
-            const companyIndex = companies.ids.indexOf(idKeyEntry[0]);
-            if (companyIndex !== -1) {
-              // 取得對應的公司名稱
-              const companyName = companies.names[companyIndex];
-              if (companyName) {
-                // 檢查該公司名稱在 name_key 中的標案狀態
-                const nameKeyStatus = companies.name_key?.[companyName];
-                if (Array.isArray(nameKeyStatus) && !nameKeyStatus.some(s => s.includes('未得標'))) {
-                  status = '得標';
-                }
-              }
-            }
-          }
-        }
-
-        return {
-          tenderId: `${record.unit_id}-${record.job_number}`,
-          date: record.date,
-          title: record.brief.title,
-          unitName: record.unit_name,
-          status
-        };
-      });
-
-      setTenders(formattedTenders);
-    } catch (error) {
-      console.error('載入標案資料失敗：', error);
-      setTenderError('載入標案資料時發生錯誤，請稍後再試');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const renderBusinessScope = () => {
     if (!SearchData.businessScope || SearchData.businessScope.length === 0) {
@@ -456,7 +409,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                 </div>
               </div>
 
-              {isLoading ? (
+              {isLoadingMore ? (
                 <div className="flex justify-center py-12">
                   <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
                 </div>
@@ -519,6 +472,10 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                 ) : (
                   <TenderStatsChart 
                     tenders={tenders}
+                    isLoadingMore={isLoadingMore}
+                    progress={progress}
+                    totalPages={totalPages}
+                    currentPage={currentPage}
                   />
                 )
               ) : (
