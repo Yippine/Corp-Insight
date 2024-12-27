@@ -9,6 +9,7 @@ export interface SearchData {
   totalCapital: string;
   paidInCapital: string;
   employees: string;
+  tenderCount?: number;
 }
 
 export interface DetailData extends Omit<SearchData, 'tenders'> {

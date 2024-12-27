@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Building2, FileSpreadsheet, Users, MapPin } from 'lucide-react';
+import { Search, Building2, FileSpreadsheet, Users, MapPin, Briefcase } from 'lucide-react';
 import { SearchData, SearchResponse, formatSearchData } from '../../utils/companyUtils';
 import Pagination from '../Pagination';
 import NoSearchResults from '../common/NoSearchResults';
@@ -43,6 +43,20 @@ const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: strin
   }
 };
 
+const fetchTenderInfo = async (taxId: string): Promise<{ count: number; }> => {
+  try {
+    const response = await fetch(`https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}`);
+    if (!response.ok) {
+      throw new Error(`標案查詢失敗：狀態碼 ${response.status}`);
+    }
+    const data = await response.json();
+    return { count: data.total_records || 0 };
+  } catch (error) {
+    console.error('載入標案資料失敗：', error);
+    return { count: 0 };
+  }
+};
+
 export default function CompanySearch({ 
   onCompanySelect, 
   searchResults, 
@@ -73,15 +87,15 @@ export default function CompanySearch({
           throw new Error('找不到符合的公司！');
         }
         response.data.統一編號 = trimmedQuery;
-        const formattedResults = formatCompanyResults('taxId', response);
+        const formattedResults = await formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
         setTotalPages(1);
       } else {
         let response = await fetchSearchData('name', trimmedQuery, page);
-        let formattedResults = formatCompanyResults('name', response);
+        let formattedResults = await formatCompanyResults('name', response);
         if (formattedResults.length === 0) {
           response = await fetchSearchData('chairman', trimmedQuery, page);
-          formattedResults = formatCompanyResults('chairman', response);
+          formattedResults = await formatCompanyResults('chairman', response);
         }
         if (formattedResults.length === 0) {
           throw new Error('找不到符合的公司！');
@@ -103,18 +117,36 @@ export default function CompanySearch({
     return taxIdPattern.test(query) ? 'taxId' : 'name';
   };
 
-  const formatCompanyResults = (type: 'taxId' | 'name' | 'chairman', data: any): SearchData[] => {
+  const formatCompanyResults = async (type: 'taxId' | 'name' | 'chairman', data: any): Promise<SearchData[]> => {
     const companies = data.data;
     
     if (!companies) return [formatSearchData({})];
 
-    if (type === 'taxId') return [formatSearchData(companies)];
+    if (type === 'taxId') {
+      const company = formatSearchData(companies);
+      const tenderInfo = await fetchTenderInfo(company.taxId);
+      return [{
+        ...company,
+        tenderCount: tenderInfo.count,
+      }];
+    }
 
-    return Array.isArray(companies) 
-      ? companies
-          .map((company: SearchResponse) => formatSearchData(company))
-          .filter(company => company.name !== '未提供')
-      : [formatSearchData({})];
+    const formattedResults = await Promise.all(
+      Array.isArray(companies) 
+        ? companies
+            .map((company: SearchResponse) => formatSearchData(company))
+            .filter(company => company.name !== '未提供')
+            .map(async (company) => {
+              const tenderInfo = await fetchTenderInfo(company.taxId);
+              return {
+                ...company,
+                tenderCount: tenderInfo.count,
+              };
+            })
+        : [formatSearchData({})]
+    );
+
+    return formattedResults;
   };
 
   const handlePageChange = (page: number) => {
@@ -188,50 +220,72 @@ export default function CompanySearch({
             />
           )}
 
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
+          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <ul className="divide-y divide-gray-200">
               {searchResults.map((company) => (
                 <li key={company.taxId}>
                   <button
                     onClick={() => onCompanySelect(company.taxId)}
-                    className="block hover:bg-gray-50 w-full text-left"
+                    className="block hover:bg-gray-50 w-full text-left p-6 transition-colors duration-200"
                   >
-                    <div className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <p className="text-xl font-medium text-blue-600 truncate">
-                            {company.name}
-                          </p>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${company.status === '營業中' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {company.status}
-                          </span>
-                        </div>
-                        <div className="text-base text-gray-500">
-                          統編：{company.taxId}
-                        </div>
+                    {/* 第一行 - 主要識別資訊 */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <h3 className="text-xl font-medium text-blue-600 truncate">
+                          {company.name}
+                        </h3>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
+                          company.status === '營業中' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {company.status}
+                        </span>
                       </div>
-                      <div className="mt-2 sm:flex sm:justify-between">
-                        <div className="sm:flex space-x-6">
-                          <p className="flex item-start text-base text-gray-500">
-                            <Users className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                            負責人：{company.chairman}
-                          </p>
-                          <p className="flex item-start text-base text-gray-500" style={{ whiteSpace: 'pre-line' }}>
-                            <Building2 className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                            {company.industry}
-                          </p>
-                          <p className="flex item-start text-base text-gray-500">
-                            <FileSpreadsheet className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                            標案數：{company.tenders}
-                          </p>
-                        </div>
-                        <div className="flex item-start text-base text-gray-500">
-                          <MapPin className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                          {company.address}
-                        </div>
+                      <div className="text-base text-gray-500">
+                        統編：{company.taxId}
                       </div>
-                      <div className="mt-2 text-base text-gray-500">
-                        實收資本額：{company.paidInCapital} | 員工人數：{company.employees}
+                    </div>
+
+                    {/* 第二行 - 重要營運資訊 */}
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      {company.chairman !== '無' &&
+                        <div className="flex items-center text-base text-gray-600">
+                          <Users className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                          <span className="truncate">負責人：{company.chairman}</span>
+                        </div>
+                      }
+                      {company.industry !== '未分類' &&
+                        <div className="flex items-center text-base text-gray-600">
+                          <Briefcase className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                          <span className="truncate">{company.industry}</span>
+                        </div>
+                      }
+                      {company.tenderCount !== 0 &&
+                        <div className="flex items-center text-base text-gray-600">
+                          <FileSpreadsheet className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                          <span>參與標案：{company.tenderCount} 件</span>
+                        </div>
+                      }
+                    </div>
+
+                    {/* 第三行 - 規模指標 */}
+                    <div className="grid grid-cols-3 gap-4">
+                      {company.paidInCapital !== '未提供' &&
+                        <div className="flex items-center text-base text-gray-600">
+                          <Building2 className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                          <span>實收資本額：{company.paidInCapital}</span>
+                        </div>
+                      }
+                      {company.employees !== '未提供' &&
+                        <div className="flex items-center text-base text-gray-600">
+                          <Users className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                          <span>員工人數：{company.employees}</span>
+                        </div>
+                      }
+                      <div className="flex items-center text-base text-gray-600">
+                        <MapPin className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                        <span className="truncate">{company.address}</span>
                       </div>
                     </div>
                   </button>
