@@ -56,7 +56,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
   const [activeTab, setActiveTab] = useState('basic');
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
-  const [tenderView, setTenderView] = useState<'list' | 'chart'>('list');
+  const [tenderView, setTenderView] = useState<'chart' | 'list'>('chart');
   const {
     tenders,
     isLoadingMore,
@@ -321,7 +321,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     }`}
                   >
                     <Table className="h-5 w-5" />
-                    <span className="font-medium">詳細資料</span>
+                    <span className="font-medium">詳細資訊</span>
                   </button>
                 </div>
               </div>
@@ -385,17 +385,6 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
-                    onClick={() => setTenderView('list')}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
-                      tenderView === 'list'
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Table className="h-5 w-5" />
-                    <span className="font-medium">詳細資料</span>
-                  </button>
-                  <button
                     onClick={() => setTenderView('chart')}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
                       tenderView === 'chart'
@@ -405,6 +394,17 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                   >
                     <BarChart3 className="h-5 w-5" />
                     <span className="font-medium">視覺圖表</span>
+                  </button>
+                  <button
+                    onClick={() => setTenderView('list')}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+                      tenderView === 'list'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Table className="h-5 w-5" />
+                    <span className="font-medium">詳細資訊</span>
                   </button>
                 </div>
               </div>

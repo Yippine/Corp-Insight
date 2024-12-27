@@ -11,6 +11,12 @@ interface ProcessedTender {
   status: string;
 }
 
+interface Statistics {
+  totalWins: number;
+  peakPeriod: string;
+  lastWinDate: string;
+}
+
 export function useTenderChartData(
   tenders: ProcessedTender[],
   timeUnit: 'year' | 'month',
@@ -19,6 +25,11 @@ export function useTenderChartData(
   const [processedData, setProcessedData] = useState<ChartData>({ labels: [], counts: [] });
   const [isProcessing, setIsProcessing] = useState(false);
   const [dataVersion, setDataVersion] = useState(0);
+  const [statistics, setStatistics] = useState<Statistics>({
+    totalWins: 0,
+    peakPeriod: '-',
+    lastWinDate: '-'
+  });
 
   const generateDateRange = useCallback((dates: string[], unit: 'year' | 'month') => {
     if (dates.length === 0) return [];
@@ -51,8 +62,65 @@ export function useTenderChartData(
     return range;
   }, []);
 
+  const calculateStatistics = useCallback((
+    winningTenders: ProcessedTender[],
+    statsMap: Record<string, number>,
+    timeUnit: 'year' | 'month'
+  ): Statistics => {
+    // 計算總得標數
+    const totalWins = winningTenders.length;
+
+    // 找出最高得標期間（月份或年度）
+    let maxCount = 0;
+    let peakPeriod = '-';
+    Object.entries(statsMap).forEach(([period, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        if (timeUnit === 'month') {
+          const year = period.substring(0, 4);
+          const monthNum = parseInt(period.substring(4, 6));
+          peakPeriod = `${year} 年 ${monthNum} 月`;
+        } else {
+          peakPeriod = `${period} 年`;
+        }
+      }
+    });
+
+    // 找出最近得標日期
+    let lastWinDate = '-';
+    if (winningTenders.length > 0) {
+      // 使用數值比較而不是字串比較
+      const sortedDates = winningTenders
+        .map(t => String(t.date))
+        .filter(date => date && date.length >= 8)
+        .sort((a, b) => parseInt(b) - parseInt(a));
+      
+      if (sortedDates.length > 0) {
+        const latestDate = sortedDates[0];
+        const year = latestDate.substring(0, 4);
+        const month = parseInt(latestDate.substring(4, 6));
+        const day = parseInt(latestDate.substring(6, 8));
+        lastWinDate = `${year}／${month}／${day}`;
+      }
+    }
+
+    return {
+      totalWins,
+      peakPeriod,
+      lastWinDate
+    };
+  }, []);
+
   const processChartData = useCallback(() => {
-    if (tenders.length === 0) return;
+    if (tenders.length === 0) {
+      setProcessedData({ labels: [], counts: [] });
+      setStatistics({
+        totalWins: 0,
+        peakPeriod: '-',
+        lastWinDate: '-'
+      });
+      return;
+    }
     
     setIsProcessing(true);
     
@@ -60,17 +128,16 @@ export function useTenderChartData(
       const processedTenders = new Set<string>();
       const statsMap: { [key: string]: number } = {};
       
-      const validDates = tenders
-        .filter(t => t.date && t.status === '得標')
-        .map(t => t.date.toString());
+      const winningTenders = tenders.filter(t => 
+        t.status === '得標' && 
+        !processedTenders.has(t.tenderId) &&
+        t.date // 確保日期存在
+      );
       
+      const validDates = winningTenders.map(t => t.date.toString());
       const dateRange = generateDateRange(validDates, timeUnit);
 
-      tenders.forEach(tender => {
-        if (!tender.date || tender.status !== '得標' || processedTenders.has(tender.tenderId)) {
-          return;
-        }
-
+      winningTenders.forEach(tender => {
         processedTenders.add(tender.tenderId);
         const date = tender.date.toString();
         const key = timeUnit === 'month' 
@@ -83,8 +150,8 @@ export function useTenderChartData(
       const sortedData = dateRange.map(key => ({
         key,
         label: timeUnit === 'month' 
-          ? `${key.substring(0, 4)}年${parseInt(key.substring(4, 6))}月`
-          : `${key}年`,
+          ? `${key.substring(0, 4)} 年 ${parseInt(key.substring(4, 6))} 月`
+          : `${key} 年`,
         count: statsMap[key] || 0
       }));
 
@@ -92,13 +159,16 @@ export function useTenderChartData(
         labels: sortedData.map(d => d.label),
         counts: sortedData.map(d => d.count)
       });
+
+      // 計算並更新統計資訊
+      const stats = calculateStatistics(winningTenders, statsMap, timeUnit);
+      setStatistics(stats);
       
-      // 增加數據版本以觸發重新渲染
       setDataVersion(prev => prev + 1);
     } finally {
       setIsProcessing(false);
     }
-  }, [tenders, timeUnit, generateDateRange]);
+  }, [tenders, timeUnit, generateDateRange, calculateStatistics]);
 
   // 監聽數據變化
   useEffect(() => {
@@ -122,6 +192,7 @@ export function useTenderChartData(
     processedData,
     isProcessing,
     dataVersion,
+    statistics,
     refreshData: processChartData
   };
 }
