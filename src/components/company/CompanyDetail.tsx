@@ -3,11 +3,12 @@ import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp
 import { formatDetailData } from '../../utils/companyUtils';
 import UnderDevelopment from '../common/UnderDevelopment';
 import CompanyMap from '../maps/CompanyMap';
-import DirectorsChart from './directors/DirectorsChart';
-import DirectorsTable from './directors/DirectorsTable';
-import ManagersTimeline from './directors/ManagersTimeline';
-import ManagersTable from './directors/ManagersTable';
-import TenderStatsChart from './directors/TenderStatsChart';
+import DirectorsChart from './charts/DirectorsChart';
+import DirectorsTable from './charts/DirectorsTable';
+import ManagersTimeline from './charts/ManagersTimeline';
+import ManagersTable from './charts/ManagersTable';
+import TenderStatsChart from './charts/TenderStatsChart';
+import NoDataFound from '../common/NoDataFound';
 
 interface CompanyDetailProps {
   companyTaxId: string;
@@ -372,25 +373,46 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                 </div>
               </div>
 
-              {view === 'chart' ? (
-                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-                  <DirectorsChart directors={SearchData.directors} />
-                  <ManagersTimeline 
-                    managers={SearchData.managers} 
-                    established={SearchData.established} 
-                  />
-                </div>
+              {(!SearchData.directors || SearchData.directors.length === 0) && 
+               (!SearchData.managers || SearchData.managers.length === 0) ? (
+                <NoDataFound message="查無董事會、經理人資料" />
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-                  <DirectorsTable 
-                    directors={SearchData.directors}
-                    onViewChange={setView}
-                  />
-                  <ManagersTable 
-                    managers={SearchData.managers}
-                    onViewChange={setView}
-                  />
-                </div>
+                view === 'chart' ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                    {SearchData.directors && SearchData.directors.length > 0 ? (
+                      <DirectorsChart directors={SearchData.directors} />
+                    ) : (
+                      <NoDataFound message="查無董事會資料" />
+                    )}
+                    {SearchData.managers && SearchData.managers.length > 0 ? (
+                      <ManagersTimeline 
+                        managers={SearchData.managers} 
+                        established={SearchData.established} 
+                      />
+                    ) : (
+                      <NoDataFound message="查無經理人資料" />
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                    {SearchData.directors && SearchData.directors.length > 0 ? (
+                      <DirectorsTable 
+                        directors={SearchData.directors}
+                        onViewChange={setView}
+                      />
+                    ) : (
+                      <NoDataFound message="查無董事會資料" />
+                    )}
+                    {SearchData.managers && SearchData.managers.length > 0 ? (
+                      <ManagersTable 
+                        managers={SearchData.managers}
+                        onViewChange={setView}
+                      />
+                    ) : (
+                      <NoDataFound message="查無經理人資料" />
+                    )}
+                  </div>
+                )
               )}
             </div>
 
@@ -500,9 +522,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                   />
                 )
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">尚無標案資料</p>
-                </div>
+                <NoDataFound message="查無標案資料" />
               )}
               {tenders.length > 0 && (
                 <div className="flex justify-end mt-6">
