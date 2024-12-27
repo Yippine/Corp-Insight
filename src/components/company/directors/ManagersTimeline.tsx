@@ -3,21 +3,19 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
   TimeScale
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import 'chartjs-adapter-date-fns';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -40,7 +38,7 @@ interface ManagersTimelineProps {
 }
 
 export default function ManagersTimeline({ managers, established }: ManagersTimelineProps) {
-  const chartRef = useRef<ChartJS<'line', { x: Date; y: number; }[], unknown>>(null);
+  const chartRef = useRef<ChartJS<'bar', { x: Date; y: number; }[], unknown>>(null);
 
   useEffect(() => {
     const chart = chartRef.current;
@@ -50,41 +48,63 @@ export default function ManagersTimeline({ managers, established }: ManagersTime
   }, [managers]);
 
   const processData = () => {
-    const sortedManagers = [...managers].sort((a, b) => {
-      const dateA = new Date(a.到職日期.year, a.到職日期.month - 1, a.到職日期.day);
-      const dateB = new Date(b.到職日期.year, b.到職日期.month - 1, b.到職日期.day);
-      return dateA.getTime() - dateB.getTime();
-    });
-
-    const data = sortedManagers.map((manager, index) => ({
-      x: new Date(manager.到職日期.year, manager.到職日期.month - 1, manager.到職日期.day),
-      y: index
-    }));
+    const sortedManagers = [...managers]
+      .sort((a, b) => {
+        const dateA = new Date(a.到職日期.year, a.到職日期.month - 1, a.到職日期.day);
+        const dateB = new Date(b.到職日期.year, b.到職日期.month - 1, b.到職日期.day);
+        return dateA.getTime() - dateB.getTime();
+      });
 
     return {
       labels: sortedManagers.map(m => m.姓名),
       datasets: [
         {
-          label: '經理人到職時間軸',
-          data,
-          borderColor: 'rgba(66, 153, 225, 0.8)',
-          backgroundColor: 'rgba(190, 227, 248, 0.5)',
-          pointRadius: 8,
-          pointHoverRadius: 12,
-          pointBackgroundColor: 'rgba(66, 153, 225, 0.9)',
-          pointBorderColor: 'white',
-          pointBorderWidth: 2,
-          pointHoverBackgroundColor: 'rgba(66, 153, 225, 1)',
-          pointHoverBorderColor: 'white',
-          pointHoverBorderWidth: 3,
-          tension: 0.3,
-          fill: true
+          label: '經理人任期',
+          data: sortedManagers.map((manager, index) => {
+            const startDate = new Date(
+              manager.到職日期.year,
+              manager.到職日期.month - 1,
+              manager.到職日期.day
+            );
+            
+            let endDate;
+            let nextIndex = index + 1;
+            while (nextIndex < sortedManagers.length) {
+              const nextManager = sortedManagers[nextIndex];
+              const nextDate = new Date(
+                nextManager.到職日期.year,
+                nextManager.到職日期.month - 1,
+                nextManager.到職日期.day
+              );
+              
+              if (nextDate.getTime() !== startDate.getTime()) {
+                endDate = nextDate;
+                break;
+              }
+              nextIndex++;
+            }
+            
+            if (!endDate) {
+              endDate = new Date();
+            }
+
+            return {
+              x: [startDate, endDate],
+              y: manager.姓名
+            };
+          }),
+          backgroundColor: 'rgba(66, 153, 225, 0.8)',
+          borderColor: 'rgba(66, 153, 225, 1)',
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 0.3
         }
       ]
     };
   };
 
   const options = {
+    indexAxis: 'y' as const,
     responsive: true,
     maintainAspectRatio: false,
     scales: {
@@ -96,79 +116,32 @@ export default function ManagersTimeline({ managers, established }: ManagersTime
             year: 'yyyy'
           }
         },
-        title: {
-          display: true,
-          text: '到職時間',
-          font: {
-            size: 14,
-            family: "'Noto Sans TC', sans-serif"
-          }
-        },
-        min: established ? new Date(established.split('/').join('-')).getTime() : undefined,
+        min: managers.length > 0 ? Math.min(
+          ...managers.map(m => new Date(m.到職日期.year, m.到職日期.month - 1, m.到職日期.day).getTime())
+        ) : undefined,
+        max: new Date().getTime(),
         grid: {
           color: 'rgba(226, 232, 240, 0.5)'
         }
       },
       y: {
-        title: {
-          display: true,
-          text: '經理人',
-          font: {
-            size: 14,
-            family: "'Noto Sans TC', sans-serif"
-          }
-        },
-        ticks: {
-          callback: function(this: any, tickValue: number | string) {
-            return managers[Number(tickValue)]?.姓名 || '';
-          },
-          font: {
-            size: 12,
-            family: "'Noto Sans TC', sans-serif"
-          }
-        },
         grid: {
-          color: 'rgba(226, 232, 240, 0.5)'
+          display: false
         }
       }
     },
     plugins: {
       tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        titleColor: '#1a202c',
-        bodyColor: '#4a5568',
-        borderColor: '#e2e8f0',
-        borderWidth: 1,
-        padding: 12,
-        cornerRadius: 8,
-        titleFont: {
-          size: 14,
-          weight: 'bold',
-          family: "'Noto Sans TC', sans-serif"
-        },
-        bodyFont: {
-          size: 13,
-          family: "'Noto Sans TC', sans-serif"
-        },
         callbacks: {
           label: (context: any) => {
-            const manager = managers[context.dataIndex];
-            const date = `${manager.到職日期.year}/${manager.到職日期.month}/${manager.到職日期.day}`;
-            return `${manager.姓名}: ${date}`;
+            const dates = context.raw.x;
+            return `任期: ${dates[0].getFullYear()}/${dates[0].getMonth() + 1} - ${dates[1].getFullYear()}/${dates[1].getMonth() + 1}`;
           }
         }
       },
       legend: {
         display: false
       }
-    },
-    interaction: {
-      intersect: false,
-      mode: 'nearest' as const
-    },
-    animation: {
-      duration: 1000,
-      easing: 'easeInOutQuart' as const
     }
   };
 
@@ -178,8 +151,8 @@ export default function ManagersTimeline({ managers, established }: ManagersTime
         <span className="inline-block w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
         經理人到職時間軸
       </h3>
-      <div className="h-[400px]">
-        <Line ref={chartRef} data={processData()} options={options} />
+      <div className="h-[500px]">
+        <Bar ref={chartRef} data={processData()} options={options} />
       </div>
     </div>
   );
