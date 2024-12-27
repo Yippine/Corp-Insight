@@ -74,43 +74,64 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
   }, [companyTaxId]);
 
   useEffect(() => {
-    const fetchTenders = async () => {
-      setIsLoading(true);
-      setTenderError(null);
-      try {
-        const response = await fetch(`https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${companyTaxId}`);
-        const data = await response.json();
-        
-        if (!data.records || data.records.length === 0) {
-          setTenders([]);
-          return;
+    if (SearchData?.taxId) fetchTenders();
+  }, [SearchData?.taxId, SearchData?.name]);
+
+  if (!SearchData) return <div>載入中...</div>;
+
+  const fetchTenders = async () => {
+    setIsLoading(true);
+    setTenderError(null);
+    try {
+      const response = await fetch(`https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${companyTaxId}`);
+      const data = await response.json();
+      
+      if (!data.records || data.records.length === 0) {
+        setTenders([]);
+        return;
+      }
+
+      const formattedTenders = data.records.map((record: any) => {
+        const companies = record.brief.companies;
+        let status = '未得標';
+
+        if (companies) {
+          // 找到目標 taxId 在 id_key 中的索引鍵值
+          const idKeyEntry = Object.entries(companies.id_key || {}).find(([id]) => id === companyTaxId);
+          if (idKeyEntry) {
+            // 取得該 taxId 在 ids 陣列中的索引
+            const companyIndex = companies.ids.indexOf(idKeyEntry[0]);
+            if (companyIndex !== -1) {
+              // 取得對應的公司名稱
+              const companyName = companies.names[companyIndex];
+              if (companyName) {
+                // 檢查該公司名稱在 name_key 中的標案狀態
+                const nameKeyStatus = companies.name_key?.[companyName];
+                if (Array.isArray(nameKeyStatus) && !nameKeyStatus.some(s => s.includes('未得標'))) {
+                  status = '得標';
+                }
+              }
+            }
+          }
         }
 
-        const formattedTenders = data.records.map((record: any) => ({
+        return {
           tenderId: `${record.unit_id}-${record.job_number}`,
           date: record.date,
           title: record.brief.title,
           unitName: record.unit_name,
-          status: record.brief.companies?.name_key?.[SearchData.name]?.[1]?.includes('未得標') ? '未得標' : '得標'
-        }));
+          status
+        };
+      });
 
-        setTenders(formattedTenders);
-      } catch (error) {
-        console.error('載入標案資料失敗：', error);
-        setTenderError('載入標案資料時發生錯誤，請稍後再試');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (SearchData?.taxId) {
-      fetchTenders();
+      setTenders(formattedTenders);
+    } catch (error) {
+      console.error('載入標案資料失敗：', error);
+      setTenderError('載入標案資料時發生錯誤，請稍後再試');
+    } finally {
+      setIsLoading(false);
     }
-  }, [SearchData?.taxId, SearchData?.name]);
-
-  if (!SearchData) {
-    return <div>載入中...</div>;
-  }
+  };
 
   const renderBusinessScope = () => {
     if (!SearchData.businessScope || SearchData.businessScope.length === 0) {
@@ -335,7 +356,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     }`}
                   >
                     <BarChart3 className="h-5 w-5" />
-                    <span className="font-medium">視覺化圖表</span>
+                    <span className="font-medium">視覺圖表</span>
                   </button>
                   <button
                     onClick={() => setView('table')}
@@ -346,7 +367,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     }`}
                   >
                     <Table className="h-5 w-5" />
-                    <span className="font-medium">詳細資料表</span>
+                    <span className="font-medium">詳細資料</span>
                   </button>
                 </div>
               </div>
@@ -397,7 +418,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     }`}
                   >
                     <Table className="h-5 w-5" />
-                    <span className="font-medium">標案清單</span>
+                    <span className="font-medium">詳細資料</span>
                   </button>
                   <button
                     onClick={() => setTenderView('chart')}
@@ -408,7 +429,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     }`}
                   >
                     <BarChart3 className="h-5 w-5" />
-                    <span className="font-medium">統計圖表</span>
+                    <span className="font-medium">視覺圖表</span>
                   </button>
                 </div>
               </div>
@@ -428,16 +449,16 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     <thead className="bg-gray-50">
                       <tr>
                         <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
-                          日期
+                          得標日期
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[35%]">
-                          標案名稱
+                          採購專案名稱
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[20%]">
-                          機關名稱
+                          招標機關
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
-                          狀態
+                          得標狀態
                         </th>
                       </tr>
                     </thead>
