@@ -103,7 +103,7 @@ ${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地
                 生成中...
               </span>
             ) : (
-              '生成回覆'
+              '開始新對話'
             )}
           </button>
 
@@ -122,14 +122,14 @@ ${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地
                 優化中...
               </span>
             ) : (
-              '優化結果'
+              '延續對話並優化'
             )}
           </button>
         </div>
 
         {result && (
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-xl font-medium text-gray-900 mb-4">生成結果</h3>
+            <h3 className="text-xl font-medium text-gray-900 mb-4">對話結果</h3>
             <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
               {result.content}
             </div>
