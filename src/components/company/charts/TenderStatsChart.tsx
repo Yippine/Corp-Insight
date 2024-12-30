@@ -53,7 +53,7 @@ export default function TenderStatsChart({
   const {
     processedData,
     isProcessing,
-    dataVersion,
+    // dataVersion,
     refreshData,
     statistics
   } = useTenderChartData(tenders, timeUnit, isFullyLoaded);
@@ -61,44 +61,18 @@ export default function TenderStatsChart({
   // 處理時間單位切換
   const handleTimeUnitChange = (unit: 'year' | 'month') => {
     setTimeUnit(unit);
-    setShouldRefresh(true);
-    setTimeout(() => {
-      refreshData();
-      setShouldRefresh(false);
-    }, 300);
+    setAnimatedData([]);
+    refreshData();
   };
 
   // 圖表動畫效果
   useEffect(() => {
-    if (!processedData.counts.length) return;
-
-    const chart = chartRef.current;
-    if (!chart) return;
-
-    const targetData = processedData.counts;
-    const startData = animatedData.length ? animatedData : new Array(targetData.length).fill(0);
-    const duration = 1000;
-    const startTime = performance.now();
-
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-
-      const newData = targetData.map((target, i) => {
-        const start = startData[i];
-        return start + (target - start) * easedProgress;
-      });
-
-      setAnimatedData(newData);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  }, [processedData.counts, dataVersion]);
+    if (!processedData.counts.length) {
+      setAnimatedData([]);
+      return;
+    }
+    setAnimatedData(processedData.counts);
+  }, [processedData.counts]);
 
   const handleRefresh = () => {
     setShouldRefresh(true);
@@ -144,8 +118,13 @@ export default function TenderStatsChart({
         }
       }
     },
-    animation: {
-      duration: 0
+    animation: false,
+    transitions: {
+      active: {
+        animation: {
+          duration: 0
+        }
+      }
     }
   };
 
@@ -168,7 +147,7 @@ export default function TenderStatsChart({
         <div className="space-y-1">
           <h3 className="text-xl leading-6 font-medium text-gray-900 flex items-center">
             <span className="inline-block w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
-            近期得標案件統計（{timeUnit === 'year' ? '年度' : '月份'}）
+            {timeUnit === 'year' ? '歷年' : '近三年'}得標案件{timeUnit === 'year' ? '年統計' : '月統計'}
           </h3>
           {isLoadingMore && (
             <motion.div 

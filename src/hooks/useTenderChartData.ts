@@ -62,7 +62,7 @@ export function useTenderChartData(
     return range;
   }, []);
 
-  const calculateStatistics = useCallback((
+  const calculateStatistics = useCallback(( //統計資料計算修改處
     winningTenders: ProcessedTender[],
     statsMap: Record<string, number>,
     timeUnit: 'year' | 'month'
@@ -111,7 +111,7 @@ export function useTenderChartData(
     };
   }, []);
 
-  const processChartData = useCallback(() => {
+  const processChartData = useCallback(() => { //資料處理修改處
     if (tenders.length === 0) {
       setProcessedData({ labels: [], counts: [] });
       setStatistics({
@@ -128,16 +128,27 @@ export function useTenderChartData(
       const processedTenders = new Set<string>();
       const statsMap: { [key: string]: number } = {};
       
+      // 先過濾得標案件
       const winningTenders = tenders.filter(t => 
         t.status === '得標' && 
         !processedTenders.has(t.tenderId) &&
-        t.date // 確保日期存在
+        t.date
       );
+
+      // 根據時間單位過濾資料
+      const filteredWinningTenders = timeUnit === 'month'
+        ? winningTenders.filter(t => {
+            const year = parseInt(t.date.toString().substring(0, 4));
+            const currentYear = new Date().getFullYear();
+            return year >= currentYear - 2;
+          })
+        : winningTenders;
       
-      const validDates = winningTenders.map(t => t.date.toString());
+      const validDates = filteredWinningTenders.map(t => t.date.toString());
       const dateRange = generateDateRange(validDates, timeUnit);
 
-      winningTenders.forEach(tender => {
+      // 使用已過濾的資料進行統計
+      filteredWinningTenders.forEach(tender => {
         processedTenders.add(tender.tenderId);
         const date = tender.date.toString();
         const key = timeUnit === 'month' 
@@ -160,8 +171,8 @@ export function useTenderChartData(
         counts: sortedData.map(d => d.count)
       });
 
-      // 計算並更新統計資訊
-      const stats = calculateStatistics(winningTenders, statsMap, timeUnit);
+      // 使用已過濾的資料計算統計資訊
+      const stats = calculateStatistics(filteredWinningTenders, statsMap, timeUnit);
       setStatistics(stats);
       
       setDataVersion(prev => prev + 1);

@@ -482,7 +482,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
               ) : (
                 <NoDataFound message="查無標案資料" />
               )}
-              {tenders.length > 0 && (
+              {/* {tenders.length > 0 && (
                 <div className="flex justify-end mt-6">
                   <button
                     onClick={() => onSearchTender(SearchData.taxId, 'company')}
@@ -491,7 +491,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
                     查看全部標案 →
                   </button>
                 </div>
-              )}
+              )} */}
             </div>
             <div className="text-sm text-gray-500 text-center mt-4">
               資料來源：{`https://pcc.g0v.ronny.tw/api`}
