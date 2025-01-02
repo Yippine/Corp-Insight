@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, RefreshCw, AlertTriangle, TrendingUp, Award, Clock } from 'lucide-react';
+import { Loader2, RefreshCw, TrendingUp, Award, Clock } from 'lucide-react';
 import { useTenderChartData } from '../../../hooks/useTenderChartData';
 import NoDataFound from '../../common/NoDataFound';
 
@@ -50,7 +50,7 @@ export default function TenderStatsChart({
   const [timeUnit, setTimeUnit] = useState<'year' | 'month'>('month');
   const chartRef = useRef<ChartJS<'bar', number[], string>>(null);
   const [animatedData, setAnimatedData] = useState<number[]>([]);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  // const [shouldRefresh, setShouldRefresh] = useState(false);
 
   const {
     processedData,
@@ -76,13 +76,13 @@ export default function TenderStatsChart({
     setAnimatedData(processedData.counts);
   }, [processedData.counts]);
 
-  const handleRefresh = () => {
-    setShouldRefresh(true);
-    setTimeout(() => {
-      refreshData();
-      setShouldRefresh(false);
-    }, 300);
-  };
+  // const handleRefresh = () => {
+  //   setShouldRefresh(true);
+  //   setTimeout(() => {
+  //     refreshData();
+  //     setShouldRefresh(false);
+  //   }, 300);
+  // };
 
   const options = {
     responsive: true,
@@ -120,14 +120,17 @@ export default function TenderStatsChart({
         }
       }
     },
-    animation: false,
-    transitions: {
-      active: {
-        animation: {
-          duration: 0
-        }
-      }
-    }
+    // animation: false,
+    // transitions: {
+    //   active: {
+    //     animation: {
+    //       duration: 0
+    //     }
+    //   }
+    // },
+    animation: {
+      duration: 0,
+    },
   };
 
   const data = {
@@ -205,13 +208,13 @@ export default function TenderStatsChart({
                   年度
                 </button>
               </div>
-              <button
+              {/* <button
                 onClick={handleRefresh}
                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 title="重新整理資料"
               >
                 <RefreshCw className={`h-4 w-4 ${shouldRefresh ? 'animate-spin' : ''}`} />
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -288,7 +291,8 @@ export default function TenderStatsChart({
 
           <div className="relative h-[300px]">
             <AnimatePresence>
-              {(shouldRefresh || isProcessing) && (
+              {/* {(shouldRefresh || isProcessing) && ( */}
+              {isProcessing && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

@@ -380,8 +380,8 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, on
             <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">政府標案全景</h3>
-                  <p className="text-gray-600">深入解析企業的政府採購生態圖，追蹤每一筆關鍵商機</p>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">標案全景</h3>
+                  <p className="text-gray-600">深入解析企業的採購生態圖，追蹤每一筆關鍵商機</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
