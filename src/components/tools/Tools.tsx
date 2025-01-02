@@ -37,25 +37,12 @@ export default function Tools() {
         tool.description.toLowerCase().includes(query)
       );
     }
-    
+
     // 根據選中的標籤進行過濾
     if (selectedTag && selectedTag !== '全部') {
-      if (selectedTag === 'AI') {
-        // 對於 "其他" 標籤，顯示只有一個標籤的工具
-        const tagCounts = new Map<string, number>();
-        tools.forEach(tool => {
-          tool.tags.forEach(tag => {
-            tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-          });
-        });
-        filtered = filtered.filter(tool => 
-          tool.tags.some(tag => tagCounts.get(tag) === 1)
-        );
-      } else {
-        filtered = filtered.filter(tool => tool.tags.includes(selectedTag));
-      }
+      filtered = filtered.filter(tool => tool.tags.includes(selectedTag));
     }
-    
+
     return sortToolsByTags(filtered);
   }, [selectedTag, searchQuery, filterKey]);
 

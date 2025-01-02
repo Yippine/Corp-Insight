@@ -7,7 +7,6 @@ interface TagStatistics {
 }
 
 export interface TagStats {
-  tagCountMap: Map<string, number>;
   allTags: TagStatistics[];
   mergedTags: TagStatistics[];
 }
@@ -127,55 +126,56 @@ const colorPalettes: ColorPalette[] = [
 
 // 統計工具標籤的分佈情況
 export function getTagStatistics(tools: Tool[]): TagStats {
-  // 步驟 1：計算每個標籤的出現次數
-  const tagCounts = tools.reduce((counts, tool) => {
+  // 建立標籤計數映射
+  const tagCountMap = new Map<string, number>();
+
+  // 統計每個標籤出現次數
+  tools.forEach(tool => {
     tool.tags.forEach(tag => {
-      counts.set(tag, (counts.get(tag) || 0) + 1);
+      tagCountMap.set(tag, (tagCountMap.get(tag) || 0) + 1);
     });
-    return counts;
-  }, new Map<string, number>());
+  });
 
-  // 步驟 2：將標籤計數轉換為排序後的統計陣列
-  const tagStats = Array.from(tagCounts.entries())
-    .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => {
-      // 如果是 'AI' 標籤，強制放在第二個位置
-      if (a.tag === 'AI') return -1;
-      if (b.tag === 'AI') return 1;
-      
-      // 原有的排序邏輯：先按數量降序，再按字母順序
-      return b.count - a.count || a.tag.localeCompare(b.tag);
-    });
+  // 計算單一標籤工具數量，並確保程式碼的健壯性和可維護性
+  const singleTagTools = tools.reduce((count, tool) => {
+    // 如果工具已經有 AI 標籤，直接返回當前計數
+    if (tool.tags.includes('AI')) return count;
 
-  // 步驟 3：特殊處理 AI 標籤的邏輯
-  const singleTags = tagStats.filter(t => t.count === 1);
-  const multipleTags = tagStats.filter(t => t.count > 1);
+    // 過濾出非 AI 的標籤
+    const nonAiTags = tool.tags.filter(tag => tag !== 'AI');
 
-  // 計算 AI 標籤的總數，包括已存在的和單一出現的標籤
-  const existingAiTag = multipleTags.find(tag => tag.tag === 'AI');
-  const aiTagCount = (existingAiTag?.count || 0) + singleTags.length;
-
-  // 準備處理 AI 標籤的插入
-  const tagWithAICounts = multipleTags.filter(tag => tag.tag !== 'AI');
-  const aiTagIndex = tagWithAICounts.findIndex(tag => tag.count <= aiTagCount);
-  const aiTag = { tag: 'AI', count: aiTagCount };
-  
-  // 根據計算的 AI 標籤數量進行插入
-  if (aiTagCount > 0) {
-    if (aiTagIndex === -1) {
-      tagWithAICounts.push(aiTag);
-    } else {
-      tagWithAICounts.splice(aiTagIndex, 0, aiTag);
+    // 檢查是否為唯一標籤的工具
+    const isSingleTagTool = nonAiTags.every(tag => (tagCountMap.get(tag) || 0) === 1);
+    
+    // 如果是唯一標籤工具，添加 AI 標籤並增加計數
+    if (isSingleTagTool) {
+      tool.tags.push('AI');
+      return count + 1;
     }
+    
+    return count;
+  }, 0);
+
+  // 更新 AI 標籤計數
+  const aiCount = (tagCountMap.get('AI') || 0) + singleTagTools;
+  if (aiCount > 0) {
+    tagCountMap.set('AI', aiCount);
   }
 
-  // 步驟 4：對標籤進行最終排序
-  tagWithAICounts.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+  // 依照計數和標籤名稱排序
+  const sortedTags = Array.from(tagCountMap.entries())
+    .sort((a, b) => {
+      const [tagA, countA] = a;
+      const [tagB, countB] = b;
+      return countB - countA || tagA.localeCompare(tagB);
+    });
+
+  // 過濾計數為 1 的標籤
+  const mergedTags = sortedTags.filter(([_, count]) => count > 1);
 
   return {
-    tagCountMap: tagCounts,    // 原始標籤計數映射
-    allTags: tagStats,          // 所有標籤的統計資訊
-    mergedTags: tagWithAICounts // 合併後的標籤統計資訊
+    allTags: sortedTags.map(([tag, count]) => ({ tag, count })),
+    mergedTags: mergedTags.map(([tag, count]) => ({ tag, count }))
   };
 }
 
