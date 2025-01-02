@@ -14,7 +14,6 @@ import { Loader2, RefreshCw, TrendingUp, Award, Clock } from 'lucide-react';
 import { useTenderChartData } from '../../../hooks/useTenderChartData';
 import NoDataFound from '../../common/NoDataFound';
 
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -50,12 +49,10 @@ export default function TenderStatsChart({
   const [timeUnit, setTimeUnit] = useState<'year' | 'month'>('month');
   const chartRef = useRef<ChartJS<'bar', number[], string>>(null);
   const [animatedData, setAnimatedData] = useState<number[]>([]);
-  // const [shouldRefresh, setShouldRefresh] = useState(false);
 
   const {
     processedData,
     isProcessing,
-    // dataVersion,
     refreshData,
     statistics
   } = useTenderChartData(tenders, timeUnit, isFullyLoaded);
@@ -76,14 +73,6 @@ export default function TenderStatsChart({
     setAnimatedData(processedData.counts);
   }, [processedData.counts]);
 
-  // const handleRefresh = () => {
-  //   setShouldRefresh(true);
-  //   setTimeout(() => {
-  //     refreshData();
-  //     setShouldRefresh(false);
-  //   }, 300);
-  // };
-
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -92,6 +81,25 @@ export default function TenderStatsChart({
         display: false
       },
       tooltip: {
+        enabled: true,
+        mode: 'index' as const,
+        intersect: false,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#1a202c',
+        bodyColor: '#4a5568',
+        borderColor: '#e2e8f0',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 8,
+        titleFont: {
+          size: 14,
+          weight: 'bold' as const,
+          family: "'Noto Sans TC', sans-serif"
+        },
+        bodyFont: {
+          size: 13,
+          family: "'Noto Sans TC', sans-serif"
+        },
         callbacks: {
           label: (context: any) => {
             return `得標案件數: ${Math.round(context.raw)} 件`;
@@ -106,31 +114,43 @@ export default function TenderStatsChart({
         },
         ticks: {
           font: {
-            size: 14
-          }
+            size: 14,
+            family: "'Noto Sans TC', sans-serif"
+          },
+          color: '#4a5568'
         }
       },
       y: {
         beginAtZero: true,
+        grid: {
+          color: 'rgba(226, 232, 240, 0.5)',
+          drawBorder: false
+        },
         ticks: {
           stepSize: 1,
           font: {
-            size: 14
-          }
+            size: 14,
+            family: "'Noto Sans TC', sans-serif"
+          },
+          color: '#4a5568'
         }
       }
     },
-    // animation: false,
-    // transitions: {
-    //   active: {
-    //     animation: {
-    //       duration: 0
-    //     }
-    //   }
-    // },
     animation: {
-      duration: 0,
+      duration: 750,
+      easing: 'easeOutQuart' as const
     },
+    transitions: {
+      active: {
+        animation: {
+          duration: 300
+        }
+      }
+    },
+    interaction: {
+      intersect: false,
+      mode: 'index' as const
+    }
   };
 
   const data = {
@@ -141,7 +161,10 @@ export default function TenderStatsChart({
         backgroundColor: 'rgba(72, 187, 120, 0.9)',
         borderColor: 'rgba(72, 187, 120, 1)',
         borderWidth: 1,
-        borderRadius: 4,
+        borderRadius: 6,
+        hoverBackgroundColor: 'rgba(72, 187, 120, 1)',
+        barThickness: 24,
+        maxBarThickness: 32
       }
     ]
   };
@@ -189,9 +212,9 @@ export default function TenderStatsChart({
               <div className="inline-flex rounded-lg shadow-sm">
                 <button
                   onClick={() => handleTimeUnitChange('month')}
-                  className={`px-4 py-2 text-sm font-medium rounded-l-lg ${
+                  className={`px-4 py-2 text-sm font-medium rounded-l-lg transition-all duration-200 ${
                     timeUnit === 'month'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-blue-600 text-white shadow-inner'
                       : 'bg-white text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -199,22 +222,15 @@ export default function TenderStatsChart({
                 </button>
                 <button
                   onClick={() => handleTimeUnitChange('year')}
-                  className={`px-4 py-2 text-sm font-medium rounded-r-lg ${
+                  className={`px-4 py-2 text-sm font-medium rounded-r-lg transition-all duration-200 ${
                     timeUnit === 'year'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-blue-600 text-white shadow-inner'
                       : 'bg-white text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   年度
                 </button>
               </div>
-              {/* <button
-                onClick={handleRefresh}
-                className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                title="重新整理資料"
-              >
-                <RefreshCw className={`h-4 w-4 ${shouldRefresh ? 'animate-spin' : ''}`} />
-              </button> */}
             </div>
           </div>
 
@@ -291,7 +307,6 @@ export default function TenderStatsChart({
 
           <div className="relative h-[300px]">
             <AnimatePresence>
-              {/* {(shouldRefresh || isProcessing) && ( */}
               {isProcessing && (
                 <motion.div
                   initial={{ opacity: 0 }}

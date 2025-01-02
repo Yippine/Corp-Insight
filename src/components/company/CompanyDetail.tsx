@@ -52,7 +52,7 @@ const fetchDetailData = async (taxId: string) => {
   }
 };
 
-export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect, onSearchTender}: CompanyDetailProps) {
+export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: CompanyDetailProps) {
   const [activeTab, setActiveTab] = useState('basic');
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
