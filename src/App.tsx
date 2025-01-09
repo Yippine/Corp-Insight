@@ -120,6 +120,17 @@ function App() {
             </div>
             <nav className="flex space-x-8">
               <button
+                onClick={() => handleNavigation(PageState.TOOLS)}
+                className={`${
+                  pageState === PageState.TOOLS
+                    ? 'text-amber-500 border-b-2 border-amber-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                } pb-4 -mb-4 px-1 font-medium text-base flex items-center`}
+              >
+                <Wrench className="mr-2 h-6 w-6" />
+                試用您的 AI 助理
+              </button>
+              <button
                 onClick={() => handleFeatureCardClick('company')}
                 className={`${
                   pageState === PageState.COMPANY_SEARCH || pageState === PageState.COMPANY_DETAIL
@@ -140,17 +151,6 @@ function App() {
               >
                 <FileText className="mr-2 h-6 w-6" />
                 標案搜尋
-              </button>
-              <button
-                onClick={() => handleNavigation(PageState.TOOLS)}
-                className={`${
-                  pageState === PageState.TOOLS
-                    ? 'text-amber-500 border-b-2 border-amber-500'
-                    : 'text-gray-500 hover:text-gray-700'
-                } pb-4 -mb-4 px-1 font-medium text-base flex items-center`}
-              >
-                <Wrench className="mr-2 h-6 w-6" />
-                試用您的 AI 助理
               </button>
             </nav>
           </div>
