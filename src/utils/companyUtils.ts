@@ -22,6 +22,9 @@ export interface DetailData extends Omit<SearchData, 'tenders'> {
   directors: { name: string; title: string; shares: string }[];
   managers: { 序號: string; 姓名: string; 到職日期: { year: number; month: number; day: number } }[];
   tenders: string[];
+  englishName: string;
+  companyType: string;
+  registrationAuthority: string;
 }
 
 export interface SearchResponse {
@@ -47,6 +50,12 @@ export interface DetailResponse extends SearchResponse {
   '董監事名單'?: { 姓名: string; 職稱: string; 出資額?: number | string; }[];
   股權狀況?: string;
   經理人名單?: { 序號: string; 姓名: string; 到職日期: { year: number; month: number; day: number } }[];
+  章程所訂外文公司名稱?: string;
+  組織別名稱?: string;
+  登記機關?: string;
+  財政部?: {
+    組織別名稱?: string;
+  };
 }
 
 const getCompanyName = (company: SearchResponse): string => {
@@ -153,7 +162,10 @@ const formatDetailData = (taxId: string, company: DetailResponse): DetailData =>
     directors: formattedDirectors(company),
     managers: company.經理人名單 || [],
     tenders: [],
-    shareholding: company['股權狀況'] || '未提供'
+    shareholding: company['股權狀況'] || '未提供',
+    englishName: company.章程所訂外文公司名稱 || '未提供',
+    companyType: company.財政部?.組織別名稱 || '未提供',
+    registrationAuthority: company.登記機關 || '未提供'
   };
 };
 

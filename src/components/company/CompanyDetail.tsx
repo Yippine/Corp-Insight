@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, FileText, Users, AlertTriangle, Award, TrendingUp, MapPin, Phone, Globe, Table, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Building2, FileText, Users, /* AlertTriangle, Award, TrendingUp, */ MapPin, Phone, Globe, Table, BarChart3 } from 'lucide-react';
 import { formatDetailData } from '../../utils/companyUtils';
 import UnderDevelopment from '../common/UnderDevelopment';
 import CompanyMap from '../maps/CompanyMap';
@@ -22,9 +22,9 @@ const tabs = [
   { id: 'basic', name: '基本資料', icon: Building2 },
   { id: 'directors', name: '董監事', icon: Users },
   { id: 'tenders', name: '標案資料', icon: FileText },
-  { id: 'risk', name: '風險評估', icon: AlertTriangle },
-  { id: 'industry', name: '產業分析', icon: TrendingUp },
-  { id: 'awards', name: '獎項認證', icon: Award }
+  // { id: 'risk', name: '風險評估', icon: AlertTriangle },
+  // { id: 'industry', name: '產業分析', icon: TrendingUp },
+  // { id: 'awards', name: '獎項認證', icon: Award }
 ];
 
 const fetchDetailData = async (taxId: string) => {
@@ -171,16 +171,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
               </div>
               <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">統一編號</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.taxId}</dd>
-                  </div>
-                  {SearchData.chairman !== '無' && (
-                    <div className="sm:col-span-1">
-                      <dt className="text-base font-medium text-gray-500">負責人</dt>
-                      <dd className="mt-1 text-base text-gray-900">{SearchData.chairman}</dd>
-                    </div>
-                  )}
+                  {/* 1. 公司狀態 - 最關鍵的營運資訊 */}
                   <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">公司狀態</dt>
                     <dd className="mt-1 text-base text-gray-900">
@@ -189,20 +180,28 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                       </span>
                     </dd>
                   </div>
+
+                  {/* 2. 統一編號 - 識別公司的重要編號 */}
+                  <div className="sm:col-span-1">
+                    <dt className="text-base font-medium text-gray-500">統一編號</dt>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.taxId}</dd>
+                  </div>
+
+                  {/* 3. 負責人 - 了解公司決策核心 */}
+                  {SearchData.chairman !== '無' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">負責人</dt>
+                      <dd className="mt-1 text-base text-gray-900">{SearchData.chairman}</dd>
+                    </div>
+                  )}
+
+                  {/* 4. 公司成立日期 - 了解公司歷史 */}
                   <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">公司成立日期</dt>
                     <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
                   </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">最近變更日期</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
-                  </div>
-                  {SearchData.shareholding !== '未提供' && (
-                    <div className="sm:col-span-1">
-                      <dt className="text-base font-medium text-gray-500">股東結構</dt>
-                      <dd className="mt-1 text-base text-gray-900">{SearchData.shareholding}</dd>
-                    </div>
-                  )}
+
+                  {/* 5. 聯絡電話 - 重要聯絡方式 */}
                   {SearchData.phone !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">聯絡電話</dt>
@@ -212,6 +211,8 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                       </dd>
                     </div>
                   )}
+
+                  {/* 6. 公司網站 - 了解公司對外形象 */}
                   {SearchData.website !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">公司網站</dt>
@@ -223,12 +224,52 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                       </dd>
                     </div>
                   )}
+
+                  {/* 7. 員工人數 - 了解公司規模 */}
                   {SearchData.employees !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">員工人數</dt>
                       <dd className="mt-1 text-base text-gray-900">{SearchData.employees}</dd>
                     </div>
                   )}
+
+                  {/* 8. 股東結構 - 了解公司股權分佈 */}
+                  {SearchData.shareholding !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">股東結構</dt>
+                      <dd className="mt-1 text-base text-gray-900">{SearchData.shareholding}</dd>
+                    </div>
+                  )}
+
+                  {/* 9. 英文名稱 - 了解公司國際化程度 */}
+                  {SearchData.englishName && SearchData.englishName !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">英文名稱</dt>
+                      <dd className="mt-1 text-base text-gray-900">{SearchData.englishName}</dd>
+                    </div>
+                  )}
+
+                  {/* 10. 組織型態 - 了解公司法律結構 */}
+                  {SearchData.companyType && SearchData.companyType !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">組織型態</dt>
+                      <dd className="mt-1 text-base text-gray-900">{SearchData.companyType}</dd>
+                    </div>
+                  )}
+
+                  {/* 11. 登記機關 - 了解公司註冊資訊 */}
+                  {SearchData.registrationAuthority && SearchData.registrationAuthority !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">登記機關</dt>
+                      <dd className="mt-1 text-base text-gray-900">{SearchData.registrationAuthority}</dd>
+                    </div>
+                  )}
+
+                  {/* 12. 最近變更日期 - 了解公司最新動態 */}
+                  <div className="sm:col-span-1">
+                    <dt className="text-base font-medium text-gray-500">最近變更日期</dt>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
+                  </div>
                 </dl>
               </div>
             </div>
