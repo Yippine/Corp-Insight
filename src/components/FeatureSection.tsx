@@ -37,7 +37,7 @@ export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) 
         <div>
           <h3 className="text-xl font-medium text-gray-900">標案資訊</h3>
           <p className="mt-2 text-base text-gray-500">
-            全面政府標案情報：一鍵解析標案名稱、金額、得標廠商，多維度智能查詢，助您掌握關鍵商機！
+            全面政府標案情報：一鍵解析標案名稱、金額、得標廠商，多元智能查詢，讓您精準抓住關鍵商機！
           </p>
         </div>
       </div>
