@@ -88,8 +88,6 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
       setSearchResults(formattedResults);
       setTotalPages(data.total_pages);
-      console.log(`11111 totalPages: ${totalPages}`);
-      console.log(`11111 data.total_records: ${data.total_records}`);
       setCurrentPage(page);
     } catch (error) {
       console.error('搜尋失敗：', error);

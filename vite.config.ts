@@ -9,6 +9,17 @@ export default defineConfig({
   server: {
     hmr: {
       timeout: 30000
+    },
+    proxy: {
+      '/api/proxy/twincn': {
+        target: 'https://p.twincn.com/item.aspx',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/proxy\/twincn/, ''),
+        headers: {
+          'Origin': 'https://p.twincn.com/item.aspx',
+          'Referer': 'https://p.twincn.com/item.aspx/'
+        }
+      }
     }
   }
 });

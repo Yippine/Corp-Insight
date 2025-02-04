@@ -19,12 +19,40 @@ export interface DetailData extends Omit<SearchData, 'tenders'> {
   website: string;
   revenue: string;
   shareholding: string;
-  directors: { name: string; title: string; shares: string }[];
+  directors: { name: string; title: string; shares: string; representative: string | [number, string] }[];
   managers: { 序號: string; 姓名: string; 到職日期: { year: number; month: number; day: number } }[];
   tenders: string[];
   englishName: string;
   companyType: string;
   registrationAuthority: string;
+  financialReportInfo: {
+    marketType: string;
+    code: string;
+    abbreviation: string;
+    englishAbbreviation: string;
+    englishAddress: string;
+    phone: string;
+    fax: string;
+    email: string;
+    website: string;
+    chairman: string;
+    generalManager: string;
+    spokesperson: string;
+    spokespersonTitle: string;
+    deputySpokesperson: string;
+    establishmentDate: string;
+    listingDate: string;
+    parValuePerShare: string;
+    paidInCapital: string;
+    privatePlacementShares: string;
+    preferredShares: string;
+    stockTransferAgency: string;
+    transferPhone: string;
+    transferAddress: string;
+    certifiedPublicAccountantFirm: string;
+    certifiedPublicAccountant1: string;
+    certifiedPublicAccountant2: string;
+  }
 }
 
 export interface SearchResponse {
@@ -53,8 +81,33 @@ export interface DetailResponse extends SearchResponse {
   章程所訂外文公司名稱?: string;
   組織別名稱?: string;
   登記機關?: string;
-  財政部?: {
-    組織別名稱?: string;
+  財報資訊?: {
+    市場別: string;
+    代號: string;
+    簡稱: string;
+    英文簡稱: string;
+    英文地址: string;
+    電話: string;
+    傳真: string;
+    EMail: string;
+    網址: string;
+    董事長: string;
+    總經理: string;
+    發言人: string;
+    發言人職稱: string;
+    代理發言人: string;
+    成立日期: string;
+    上市日期: string;
+    普通股每股面額: string;
+    實收資本額: string;
+    私募股數: string;
+    特別股: string;
+    股票過戶機構: string;
+    過戶電話: string;
+    過戶地址: string;
+    簽證會計師事務所: string;
+    簽證會計師1: string;
+    簽證會計師2: string;
   };
 }
 
@@ -164,8 +217,36 @@ const formatDetailData = (taxId: string, company: DetailResponse): DetailData =>
     tenders: [],
     shareholding: company['股權狀況'] || '未提供',
     englishName: company.章程所訂外文公司名稱 || '未提供',
-    companyType: company.財政部?.組織別名稱 || '未提供',
-    registrationAuthority: company.登記機關 || '未提供'
+    companyType: company.組織別名稱 || '未提供',
+    registrationAuthority: company.登記機關 || '未提供',
+    financialReportInfo: {
+      marketType: company.財報資訊?.市場別 || '未提供',
+      code: company.財報資訊?.代號 || '未提供',
+      abbreviation: company.財報資訊?.簡稱 || '未提供',
+      englishAbbreviation: company.財報資訊?.英文簡稱 || '未提供',
+      englishAddress: company.財報資訊?.英文地址 || '未提供',
+      phone: company.財報資訊?.電話 || '未提供',
+      fax: company.財報資訊?.傳真 || '未提供',
+      email: company.財報資訊?.EMail || '未提供',
+      website: company.財報資訊?.網址 || '未提供',
+      chairman: company.財報資訊?.董事長 || '未提供',
+      generalManager: company.財報資訊?.總經理 || '未提供',
+      spokesperson: company.財報資訊?.發言人 || '未提供',
+      spokespersonTitle: company.財報資訊?.發言人職稱 || '未提供',
+      deputySpokesperson: company.財報資訊?.代理發言人 || '未提供',
+      establishmentDate: company.財報資訊?.成立日期 || '未提供',
+      listingDate: company.財報資訊?.上市日期 || '未提供',
+      parValuePerShare: company.財報資訊?.普通股每股面額 || '未提供',
+      paidInCapital: company.財報資訊?.實收資本額 || '未提供',
+      privatePlacementShares: company.財報資訊?.私募股數 || '未提供',
+      preferredShares: company.財報資訊?.特別股 || '未提供',
+      stockTransferAgency: company.財報資訊?.股票過戶機構 || '未提供',
+      transferPhone: company.財報資訊?.過戶電話 || '未提供',
+      transferAddress: company.財報資訊?.過戶地址 || '未提供',
+      certifiedPublicAccountantFirm: company.財報資訊?.簽證會計師事務所 || '未提供',
+      certifiedPublicAccountant1: company.財報資訊?.簽證會計師1 || '未提供',
+      certifiedPublicAccountant2: company.財報資訊?.簽證會計師2 || '未提供'
+    }
   };
 };
 

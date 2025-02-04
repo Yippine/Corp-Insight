@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, FileText, Users, /* AlertTriangle, Award, TrendingUp, */ MapPin, Phone, Globe, Table, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Building2, FileText, Users, MapPin, Phone, Globe, Table, BarChart3 } from 'lucide-react';
 import { formatDetailData } from '../../utils/companyUtils';
 import UnderDevelopment from '../common/UnderDevelopment';
 import CompanyMap from '../maps/CompanyMap';
@@ -10,6 +10,7 @@ import ManagersTable from './charts/ManagersTable';
 import TenderStatsChart from './charts/TenderStatsChart';
 import NoDataFound from '../common/NoDataFound';
 import { usePaginatedTenders } from '../../hooks/usePaginatedTenders';
+import { fetchListedCompany } from '../../api/routes';
 
 interface CompanyDetailProps {
   companyTaxId: string;
@@ -20,7 +21,8 @@ interface CompanyDetailProps {
 
 const tabs = [
   { id: 'basic', name: '基本資料', icon: Building2 },
-  { id: 'directors', name: '董監事', icon: Users },
+  { id: 'financial', name: '財務概況', icon: BarChart3 },
+  { id: 'directors', name: '核心成員', icon: Users },
   { id: 'tenders', name: '標案資料', icon: FileText },
   // { id: 'risk', name: '風險評估', icon: AlertTriangle },
   // { id: 'industry', name: '產業分析', icon: TrendingUp },
@@ -31,19 +33,24 @@ const fetchDetailData = async (taxId: string) => {
   const baseUrl = 'https://company.g0v.ronny.tw/api';
   
   try {
-    const response = await fetch(`${baseUrl}/show/${taxId}`, {
-      mode: 'cors',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const result = await response.json();
-    const company = result.data;
+    const [basicRes, listedRes] = await Promise.allSettled([
+      fetch(`${baseUrl}/show/${taxId}`),
+      fetchListedCompany(taxId)
+    ]);
+
+    const basicData = basicRes.status === 'fulfilled' 
+      ? await basicRes.value.json()
+      : { data: {} };
+      
+    const listedData = listedRes.status === 'fulfilled' 
+      ? listedRes.value
+      : { data: {} };
+
+      const company = {
+      ...basicData.data,
+      ...listedData
+    };
+
     const SearchData = formatDetailData(taxId, company);
     return { ...SearchData, businessScope: company.所營事業資料 || [] };
   } catch (error) {
@@ -166,12 +173,11 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6">
                 <h3 className="text-xl leading-6 font-medium text-gray-900">
-                  公司基本資料
+                  基本資料
                 </h3>
               </div>
               <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                  {/* 1. 公司狀態 - 最關鍵的營運資訊 */}
                   <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">公司狀態</dt>
                     <dd className="mt-1 text-base text-gray-900">
@@ -181,13 +187,6 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                     </dd>
                   </div>
 
-                  {/* 2. 統一編號 - 識別公司的重要編號 */}
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">統一編號</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.taxId}</dd>
-                  </div>
-
-                  {/* 3. 負責人 - 了解公司決策核心 */}
                   {SearchData.chairman !== '無' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">負責人</dt>
@@ -195,13 +194,41 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                     </div>
                   )}
 
-                  {/* 4. 公司成立日期 - 了解公司歷史 */}
                   <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">公司成立日期</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
+                    <dt className="text-base font-medium text-gray-500">統一編號</dt>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.taxId}</dd>
                   </div>
 
-                  {/* 5. 聯絡電話 - 重要聯絡方式 */}
+                  {SearchData.financialReportInfo.website && SearchData.financialReportInfo.website !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">網址</dt>
+                      <dd className="mt-1 text-base text-blue-600 flex items-center">
+                        <Globe className="h-5 w-5 text-gray-400 mr-1" />
+                        <a href={SearchData.financialReportInfo.website} target="_blank" rel="noopener noreferrer">
+                          {SearchData.financialReportInfo.website}
+                        </a>
+                      </dd>
+                    </div>
+                  )}
+
+                  <div className="sm:col-span-1">
+                    <dt className="text-base font-medium text-gray-500">中文名稱</dt>
+                    <dd className="mt-1 text-base text-gray-900">
+                      {SearchData.name}
+                      {SearchData.financialReportInfo.abbreviation && `（${SearchData.financialReportInfo.abbreviation}）`}
+                    </dd>
+                  </div>
+
+                  {SearchData.englishName !== '未提供' && (
+                    <div className="sm:col-span-1">
+                      <dt className="text-base font-medium text-gray-500">英文名稱</dt>
+                      <dd className="mt-1 text-base text-gray-900">
+                        {SearchData.englishName}
+                        {SearchData.financialReportInfo.englishAbbreviation && ` (${SearchData.financialReportInfo.englishAbbreviation})`}
+                      </dd>
+                    </div>
+                  )}
+
                   {SearchData.phone !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">聯絡電話</dt>
@@ -212,7 +239,6 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                     </div>
                   )}
 
-                  {/* 6. 公司網站 - 了解公司對外形象 */}
                   {SearchData.website !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">公司網站</dt>
@@ -225,7 +251,6 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                     </div>
                   )}
 
-                  {/* 7. 員工人數 - 了解公司規模 */}
                   {SearchData.employees !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">員工人數</dt>
@@ -233,44 +258,96 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                     </div>
                   )}
 
-                  {/* 8. 股東結構 - 了解公司股權分佈 */}
-                  {SearchData.shareholding !== '未提供' && (
+                  {SearchData.financialReportInfo.phone && SearchData.financialReportInfo.phone !== '未提供' && (
                     <div className="sm:col-span-1">
-                      <dt className="text-base font-medium text-gray-500">股東結構</dt>
-                      <dd className="mt-1 text-base text-gray-900">{SearchData.shareholding}</dd>
+                      <dt className="text-base font-medium text-gray-500">電話</dt>
+                      <dd className="mt-1 text-base text-gray-900 flex items-center">
+                        <Phone className="h-5 w-5 text-gray-400 mr-1" />
+                        {SearchData.financialReportInfo.phone}
+                      </dd>
                     </div>
                   )}
 
-                  {/* 9. 英文名稱 - 了解公司國際化程度 */}
-                  {SearchData.englishName && SearchData.englishName !== '未提供' && (
+                  {SearchData.financialReportInfo.fax && SearchData.financialReportInfo.fax !== '未提供' && SearchData.financialReportInfo.fax !== '無' && (
                     <div className="sm:col-span-1">
-                      <dt className="text-base font-medium text-gray-500">英文名稱</dt>
-                      <dd className="mt-1 text-base text-gray-900">{SearchData.englishName}</dd>
+                      <dt className="text-base font-medium text-gray-500">傳真</dt>
+                      <dd className="mt-1 text-base text-gray-900 flex items-center">
+                        <Phone className="h-5 w-5 text-gray-400 mr-1" />
+                        {SearchData.financialReportInfo.fax}
+                      </dd>
                     </div>
                   )}
 
-                  {/* 10. 組織型態 - 了解公司法律結構 */}
                   {SearchData.companyType && SearchData.companyType !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">組織型態</dt>
                       <dd className="mt-1 text-base text-gray-900">{SearchData.companyType}</dd>
                     </div>
                   )}
+                </dl>
+              </div>
+            </div>
 
-                  {/* 11. 登記機關 - 了解公司註冊資訊 */}
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-xl leading-6 font-medium text-gray-900">
+                  資本規模
+                </h3>
+              </div>
+              <div className="border-t border-gray-200">
+                <dl>
+                  <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-2 sm:gap-4 sm:px-6">
+                    <dt className="text-base font-medium text-gray-500">核准資本額</dt>
+                    <dd className="mt-1 text-base text-gray-900 sm:mt-0">
+                      {SearchData.totalCapital}
+                    </dd>
+                  </div>
+                  <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-2 sm:gap-4 sm:px-6">
+                    <dt className="text-base font-medium text-gray-500">實際資本額</dt>
+                    <dd className="mt-1 text-base text-gray-900 sm:mt-0">
+                      {SearchData.paidInCapital}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-xl leading-6 font-medium text-gray-900">
+                  登記資料
+                </h3>
+              </div>
+              <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+                <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                  <div className="sm:col-span-1">
+                    <dt className="text-base font-medium text-gray-500">公司成立日期</dt>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
+                  </div>
+
+                  <div className="sm:col-span-1">
+                    <dt className="text-base font-medium text-gray-500">最近變更日期</dt>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
+                  </div>
+
                   {SearchData.registrationAuthority && SearchData.registrationAuthority !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">登記機關</dt>
                       <dd className="mt-1 text-base text-gray-900">{SearchData.registrationAuthority}</dd>
                     </div>
                   )}
-
-                  {/* 12. 最近變更日期 - 了解公司最新動態 */}
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">最近變更日期</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
-                  </div>
                 </dl>
+              </div>
+            </div>
+
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-xl leading-6 font-medium text-gray-900">
+                  營業項目
+                </h3>
+              </div>
+              <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+                {renderBusinessScope()}
               </div>
             </div>
 
@@ -287,43 +364,15 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
                     <MapPin className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
                     <span>{SearchData.address}</span>
                   </div>
+                  {SearchData.financialReportInfo.englishAddress !== '未提供' && (
+                    <div className="flex items-center text-base text-gray-900 mb-4">
+                      <MapPin className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
+                      <span>{SearchData.financialReportInfo.englishAddress}</span>
+                    </div>
+                  )}
+
                   <CompanyMap address={SearchData.address} />
                 </div>
-              </div>
-            </div>
-
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-5 sm:px-6">
-                <h3 className="text-xl leading-6 font-medium text-gray-900">
-                  資本規模
-                </h3>
-              </div>
-              <div className="border-t border-gray-200">
-                <dl>
-                  <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-base font-medium text-gray-500">核准資本額</dt>
-                    <dd className="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">
-                      {SearchData.totalCapital}
-                    </dd>
-                  </div>
-                  <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-base font-medium text-gray-500">實際資本額</dt>
-                    <dd className="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">
-                      {SearchData.paidInCapital}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-5 sm:px-6">
-                <h3 className="text-xl leading-6 font-medium text-gray-900">
-                  主要營業項目
-                </h3>
-              </div>
-              <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                {renderBusinessScope()}
               </div>
             </div>
 
@@ -331,6 +380,197 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
               資料來源：{`https://company.g0v.ronny.tw/api`}
             </div>
           </div>
+        );
+      case 'financial':
+        return (
+          <>
+            <div className="bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl">
+              <div className="px-8 py-8 border-b border-gray-100">
+                <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                  企業財務與資本資訊
+                </h3>
+                <p className="text-gray-600">深入解析公司財務結構與資本運作</p>
+              </div>
+
+              <div className="p-8">
+                <div className="space-y-8">
+                  {/* 基本資訊 */}
+                  <div>
+                    <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
+                      <span className="inline-block w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
+                      基本資訊
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {SearchData.financialReportInfo.marketType !== '未提供' && (
+                        <div className="bg-gradient-to-br from-blue-50 to-sky-50 rounded-lg p-4 border border-blue-100">
+                          <p className="text-sm font-medium text-gray-500">市場類別</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.financialReportInfo.marketType}</p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo.code !== '未提供' && (
+                        <div className="bg-gradient-to-br from-blue-50 to-sky-50 rounded-lg p-4 border border-blue-100">
+                          <p className="text-sm font-medium text-gray-500">股票代號</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.financialReportInfo.code}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 領導團隊 */}
+                  <div>
+                    <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
+                      <span className="inline-block w-1 h-6 bg-green-600 rounded-full mr-3"></span>
+                      領導團隊
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {SearchData.financialReportInfo.chairman !== '未提供' && (
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
+                          <p className="text-sm font-medium text-gray-500">董事長</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.financialReportInfo.chairman}</p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo.generalManager !== '未提供' && (
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
+                          <p className="text-sm font-medium text-gray-500">總經理</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.financialReportInfo.generalManager}</p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo.spokesperson !== '未提供' && (
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
+                          <p className="text-sm font-medium text-gray-500">發言人</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">
+                            {SearchData.financialReportInfo.spokesperson}
+                            <span className="text-sm text-gray-500 ml-1">
+                              ({SearchData.financialReportInfo.spokespersonTitle})
+                            </span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 里程碑 */}
+                  <div>
+                    <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
+                      <span className="inline-block w-1 h-6 bg-amber-500 rounded-full mr-3"></span>
+                      里程碑
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {SearchData.financialReportInfo.establishmentDate !== '未提供' && (
+                        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg p-4 border border-amber-100">
+                          <p className="text-sm font-medium text-gray-500">公司創立日期</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.financialReportInfo.establishmentDate}</p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo.listingDate !== '未提供' && (
+                        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg p-4 border border-amber-100">
+                          <p className="text-sm font-medium text-gray-500">股票上市日期</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.financialReportInfo.listingDate}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 股權結構 */}
+                  <div>
+                    <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
+                      <span className="inline-block w-1 h-6 bg-purple-600 rounded-full mr-3"></span>
+                      股權結構
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {SearchData.shareholding !== '未提供' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">主要股東</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.shareholding}</p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo.parValuePerShare !== '未提供' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">普通股面額</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.financialReportInfo.parValuePerShare}</p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo.paidInCapital !== '0' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">實收資本總額</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">
+                            NT$ {parseInt(SearchData.financialReportInfo.paidInCapital).toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo.privatePlacementShares !== '0' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">私募股份總數</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">
+                            {parseInt(SearchData.financialReportInfo.privatePlacementShares).toLocaleString()} 股
+                          </p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo.preferredShares !== '0' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">特別股總數</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">
+                            {parseInt(SearchData.financialReportInfo.preferredShares).toLocaleString()} 股
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 投資人服務 */}
+                  <div>
+                    <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
+                      <span className="inline-block w-1 h-6 bg-rose-600 rounded-full mr-3"></span>
+                      投資人服務
+                    </h4>
+                    <div className="grid grid-cols-1 gap-6">
+                      <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-lg p-6 border border-rose-100">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {SearchData.financialReportInfo.stockTransferAgency !== '未提供' && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-500">股務代理機構</p>
+                              <p className="mt-1 text-base text-gray-900">{SearchData.financialReportInfo.stockTransferAgency}</p>
+                            </div>
+                          )}
+                          {SearchData.financialReportInfo.transferPhone !== '未提供' && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-500">股務聯絡電話</p>
+                              <p className="mt-1 text-base text-gray-900">{SearchData.financialReportInfo.transferPhone}</p>
+                            </div>
+                          )}
+                          {SearchData.financialReportInfo.transferAddress !== '未提供' && (
+                            <div className="md:col-span-2">
+                              <p className="text-sm font-medium text-gray-500">股務聯絡地址</p>
+                              <p className="mt-1 text-base text-gray-900">{SearchData.financialReportInfo.transferAddress}</p>
+                            </div>
+                          )}
+                          {SearchData.financialReportInfo.certifiedPublicAccountantFirm !== '未提供' && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-500">財務簽證會計師事務所</p>
+                              <p className="mt-1 text-base text-gray-900">{SearchData.financialReportInfo.certifiedPublicAccountantFirm}</p>
+                            </div>
+                          )}
+                          {(SearchData.financialReportInfo.certifiedPublicAccountant1 !== '未提供') && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-500">簽證會計師</p>
+                              <p className="mt-1 text-base text-gray-900">
+                                {SearchData.financialReportInfo.certifiedPublicAccountant1}
+                                {SearchData.financialReportInfo.certifiedPublicAccountant2 !== '未提供' && `、${SearchData.financialReportInfo.certifiedPublicAccountant2}`}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-sm text-gray-500 text-center mt-4">
+              資料來源：{`https://p.twincn.com/item.aspx`}
+            </div>
+          </>
         );
       case 'directors':
         return (

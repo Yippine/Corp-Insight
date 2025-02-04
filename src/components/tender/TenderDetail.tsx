@@ -66,8 +66,6 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
 
   const handleUnitClick = async (unitId: string, unitName: string) => {
     try {
-      console.log(`22222 unitId: ${unitId}`);
-      console.log(`22222 unitName: ${unitName}`);
       const response = await fetch(`https://pcc.g0v.ronny.tw/api/listbyunit?unit_id=${unitId}`);
       const result = await response.json();
 
