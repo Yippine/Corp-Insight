@@ -451,7 +451,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <button
-          onClick={onBack}
+          onClick={() => window.history.back()}
           className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
         >
           <ArrowLeft className="h-6 w-6 mr-2" />

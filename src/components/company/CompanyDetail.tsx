@@ -59,7 +59,7 @@ const fetchDetailData = async (taxId: string) => {
   }
 };
 
-export default function CompanyDetail({ onBack, onTenderSelect }: CompanyDetailProps) {
+export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   const { taxId } = useParams<{ taxId: string }>();
   const [activeTab, setActiveTab] = useState('basic');
   const [SearchData, setSearchData] = useState<any>(null);
@@ -789,7 +789,7 @@ export default function CompanyDetail({ onBack, onTenderSelect }: CompanyDetailP
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <button
-          onClick={onBack}
+          onClick={() => window.history.back()}
           className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
         >
           <ArrowLeft className="h-6 w-6 mr-2" />

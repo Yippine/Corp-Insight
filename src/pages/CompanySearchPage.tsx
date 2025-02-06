@@ -13,7 +13,7 @@ export default function CompanySearchPage() {
       company_id: taxId,
       from_page: 'search'
     });
-    navigate(`/company/detail/${encodeURIComponent(taxId)}`);
+    navigate(`/company/detail/${encodeURIComponent(taxId)}`, { state: { from: '/company/search' } });
   };
 
   const handleFeatureClick = (feature: 'company' | 'tender' | 'tools') => {

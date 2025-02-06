@@ -13,7 +13,7 @@ export default function TenderSearchPage() {
       tender_id: tenderId,
       from_page: 'search'
     });
-    navigate(`/tender/detail/${tenderId}`);
+    navigate(`/tender/detail/${tenderId}`, { state: { from: '/tender/search' } });
   };
 
   const handleFeatureClick = (feature: 'company' | 'tender' | 'tools') => {
