@@ -1,19 +1,12 @@
-import { useState } from 'react';
-import { Search, Building2, FileSpreadsheet, Users, MapPin, Briefcase } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Building2, FileSpreadsheet, Users, MapPin } from 'lucide-react';
 import { SearchData, SearchResponse, formatSearchData } from '../../utils/companyUtils';
 import Pagination from '../Pagination';
 import NoSearchResults from '../common/NoSearchResults';
+import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 
 interface CompanySearchProps {
-  onCompanySelect: (companyTaxId: string) => void;
-  searchResults: SearchData[];
-  setSearchResults: (results: SearchData[]) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
-  totalPages: number;
-  setTotalPages: (pages: number) => void;
+  onCompanySelect?: (companyTaxId: string) => void;
 }
 
 const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: string, page: number = 1): Promise<any> => {
@@ -57,19 +50,14 @@ const fetchTenderInfo = async (taxId: string): Promise<{ count: number; }> => {
   }
 };
 
-export default function CompanySearch({ 
-  onCompanySelect, 
-  searchResults, 
-  setSearchResults,
-  searchQuery,
-  setSearchQuery,
-  currentPage,
-  setCurrentPage,
-  totalPages,
-  setTotalPages
-}: CompanySearchProps) {
+export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
+  const [searchResults, setSearchResults] = useState<SearchData[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const { trackEvent } = useGoogleAnalytics();
 
   const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
     e?.preventDefault();
@@ -90,6 +78,11 @@ export default function CompanySearch({
         const formattedResults = await formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
         setTotalPages(1);
+
+        trackEvent('company_search', {
+          search_type: 'taxId',
+          query_length: trimmedQuery.length
+        });
       } else {
         let response = await fetchSearchData('name', trimmedQuery, page);
         let formattedResults = await formatCompanyResults('name', response);
@@ -103,10 +96,20 @@ export default function CompanySearch({
         setSearchResults(formattedResults);
         setTotalPages(Math.ceil(response.found / 10) || 1);
         setCurrentPage(page);
+
+        trackEvent('company_search', {
+          search_type: 'name',
+          query_length: trimmedQuery.length,
+          results_count: formattedResults.length
+        });
       }
     } catch (error) {
       console.error('搜尋失敗：', error);
       setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
+      
+      trackEvent('company_search_error', {
+        error_message: error instanceof Error ? error.message : '未知錯誤'
+      });
     } finally {
       setIsSearching(false);
     }
@@ -151,10 +154,22 @@ export default function CompanySearch({
 
   const handlePageChange = (page: number) => {
     handleSearch(null, page);
+    trackEvent('company_search_pagination', {
+      page_number: page
+    });
   };
 
   const handleReset = () => {
     handleSearch(null, 1);
+  };
+
+  const handleCompanySelect = (taxId: string) => {
+    if (onCompanySelect) {
+      onCompanySelect(taxId);
+      trackEvent('company_select', {
+        company_id: taxId
+      });
+    }
   };
 
   return (
@@ -225,10 +240,9 @@ export default function CompanySearch({
               {searchResults.map((company) => (
                 <li key={company.taxId}>
                   <button
-                    onClick={() => onCompanySelect(company.taxId)}
+                    onClick={() => handleCompanySelect(company.taxId)}
                     className="block hover:bg-gray-50 w-full text-left p-6 transition-colors duration-200"
                   >
-                    {/* 第一行 - 主要識別資訊 */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
                         <h3 className="text-xl font-medium text-blue-600 truncate">
@@ -247,7 +261,6 @@ export default function CompanySearch({
                       </div>
                     </div>
 
-                    {/* 第二行 - 重要營運資訊 */}
                     <div className="grid grid-cols-3 gap-4 mb-4">
                       {company.chairman !== '無' &&
                         <div className="flex items-center text-base text-gray-600">
@@ -257,11 +270,11 @@ export default function CompanySearch({
                       }
                       {company.industry !== '未分類' &&
                         <div className="flex items-center text-base text-gray-600">
-                          <Briefcase className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                          <Building2 className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                           <span className="truncate">{company.industry}</span>
                         </div>
                       }
-                      {company.tenderCount !== 0 &&
+                      {company.tenderCount !== undefined && company.tenderCount > 0 &&
                         <div className="flex items-center text-base text-gray-600">
                           <FileSpreadsheet className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                           <span>參與標案：{company.tenderCount} 件</span>
@@ -269,7 +282,6 @@ export default function CompanySearch({
                       }
                     </div>
 
-                    {/* 第三行 - 規模指標 */}
                     <div className="grid grid-cols-3 gap-4">
                       {company.paidInCapital !== '未提供' &&
                         <div className="flex items-center text-base text-gray-600">
