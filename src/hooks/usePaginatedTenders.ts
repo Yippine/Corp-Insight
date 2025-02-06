@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export function usePaginatedTenders(companyTaxId: string) {
+export function usePaginatedTenders(taxId: string) {
   const [tenders, setTenders] = useState<any[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -12,7 +12,7 @@ export function usePaginatedTenders(companyTaxId: string) {
     try {
       console.log(`正在發查第 ${page} 頁的標案資料...`);
       const response = await fetch(
-        `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${companyTaxId}&page=${page}`
+        `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}&page=${page}`
       );
       const data = await response.json();
       
@@ -28,7 +28,7 @@ export function usePaginatedTenders(companyTaxId: string) {
 
           if (companies) {
             const idKeyEntry = Object.entries(companies.id_key || {}).find(([id]) => id === 
-            companyTaxId);
+            taxId);
             if (idKeyEntry) {
               const companyIndex = companies.ids.indexOf(idKeyEntry[0]);
               if (companyIndex !== -1) {
@@ -133,7 +133,7 @@ export function usePaginatedTenders(companyTaxId: string) {
 
   useEffect(() => {
     fetchTenders();
-  }, [companyTaxId]);
+  }, [taxId]);
 
   return {
     tenders,

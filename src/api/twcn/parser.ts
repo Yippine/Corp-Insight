@@ -49,9 +49,6 @@ export const parseTwcnHtml = (html: string): ListedCompanyData => {
     if (!row.length) return '未提供';
 
     const value = row.find('td').eq(1).text().trim();
-
-    console.log(`11111 row: ${row}`);
-    console.log(`11111 value: ${value}`);
     return value || '未提供';
   };
 

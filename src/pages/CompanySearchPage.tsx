@@ -8,12 +8,12 @@ export default function CompanySearchPage() {
   const navigate = useNavigate();
   const { trackEvent } = useGoogleAnalytics();
 
-  const handleCompanySelect = (companyTaxId: string) => {
+  const handleCompanySelect = (taxId: string) => {
     trackEvent('company_select', {
-      company_id: companyTaxId,
+      company_id: taxId,
       from_page: 'search'
     });
-    navigate(`/company/detail/${companyTaxId}`);
+    navigate(`/company/detail/${encodeURIComponent(taxId)}`);
   };
 
   const handleFeatureClick = (feature: 'company' | 'tender' | 'tools') => {

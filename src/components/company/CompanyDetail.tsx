@@ -11,9 +11,9 @@ import TenderStatsChart from './charts/TenderStatsChart';
 import NoDataFound from '../common/NoDataFound';
 import { usePaginatedTenders } from '../../hooks/usePaginatedTenders';
 import { fetchListedCompany } from '../../api/routes';
+import { useParams } from 'react-router-dom';
 
 interface CompanyDetailProps {
-  companyTaxId: string;
   onBack: () => void;
   onTenderSelect: (tenderId: string) => void;
   onSearchTender: (query: string, type: 'company' | 'tender') => void;
@@ -59,7 +59,8 @@ const fetchDetailData = async (taxId: string) => {
   }
 };
 
-export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: CompanyDetailProps) {
+export default function CompanyDetail({ onBack, onTenderSelect }: CompanyDetailProps) {
+  const { taxId } = useParams<{ taxId: string }>();
   const [activeTab, setActiveTab] = useState('basic');
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
@@ -72,12 +73,12 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
     totalPages,
     currentPage,
     fetchTenders
-  } = usePaginatedTenders(companyTaxId);
+  } = usePaginatedTenders(taxId || '');
 
   useEffect(() => {
     const loadSearchData = async () => {
       try {
-        const data = await fetchDetailData(companyTaxId);
+        const data = await fetchDetailData(taxId || '');
         setSearchData(data);
       } catch (error) {
         console.error('載入公司資料時發生錯誤：', error);
@@ -86,7 +87,7 @@ export default function CompanyDetail({ companyTaxId, onBack, onTenderSelect }: 
     };
 
     loadSearchData();
-  }, [companyTaxId]);
+  }, [taxId]);
 
   useEffect(() => {
     if (SearchData?.taxId) fetchTenders();
