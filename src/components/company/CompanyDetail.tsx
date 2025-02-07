@@ -93,7 +93,11 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
     if (SearchData?.taxId) fetchTenders();
   }, [SearchData?.taxId, SearchData?.name]);
 
-  if (!SearchData) return <div>載入中...</div>;
+  if (!SearchData) return (
+    <div className="flex justify-center py-8">
+      <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
+    </div>
+  );
 
   const renderBusinessScope = () => {
     if (!SearchData.businessScope || SearchData.businessScope.length === 0) {
