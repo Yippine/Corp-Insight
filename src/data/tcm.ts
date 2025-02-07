@@ -15,9 +15,9 @@ export interface Question {
   export const constitutions: Constitution[] = [
     {
       id: 'balanced',
-      name: '平和質',
+      name: '平和',
       description: '平和體質是最理想的體質類型，具有陰陽氣血調和的特點。',
-      threshold: 60,
+      threshold: 48,
       recommendations: [
         '保持規律的作息時間',
         '均衡飲食，注意營養',
@@ -27,9 +27,9 @@ export interface Question {
     },
     {
       id: 'qi-deficiency',
-      name: '氣虛質',
+      name: '氣虛',
       description: '氣虛體質表現為容易疲勞，氣短乏力等特徵。',
-      threshold: 60,
+      threshold: 20,
       recommendations: [
         '注意休息，避免過度勞累',
         '飲食宜溫熱，多食補氣食物',
@@ -39,9 +39,9 @@ export interface Question {
     },
     {
       id: 'yang-deficiency',
-      name: '陽虛質',
+      name: '陽虛',
       description: '陽虛體質表現為怕冷，手腳發涼等特徵。',
-      threshold: 60,
+      threshold: 18,
       recommendations: [
         '注意保暖，特別是腹部和四肢',
         '飲食宜溫熱，避免生冷',
@@ -51,9 +51,9 @@ export interface Question {
     },
     {
       id: 'yin-deficiency',
-      name: '陰虛質',
+      name: '陰虛',
       description: '陰虛體質表現為口乾、手腳心熱等特徵。',
-      threshold: 60,
+      threshold: 18,
       recommendations: [
         '保持充足睡眠',
         '飲食宜清淡，多食滋陰食物',
@@ -63,9 +63,9 @@ export interface Question {
     },
     {
       id: 'phlegm-dampness',
-      name: '痰濕質',
+      name: '痰濕',
       description: '痰濕體質表現為容易疲勞，體型偏胖等特徵。',
-      threshold: 60,
+      threshold: 16,
       recommendations: [
         '保持規律作息，早睡早起',
         '飲食清淡，少食多餐',
@@ -75,9 +75,9 @@ export interface Question {
     },
     {
       id: 'damp-heat',
-      name: '濕熱質',
+      name: '濕熱',
       description: '濕熱體質表現為容易口渴，大便乾結等特徵。',
-      threshold: 60,
+      threshold: 16,
       recommendations: [
         '保持作息規律',
         '飲食宜清淡，避免辛辣',
@@ -87,9 +87,9 @@ export interface Question {
     },
     {
       id: 'blood-stasis',
-      name: '血瘀質',
+      name: '血瘀',
       description: '血瘀體質表現為面色晦暗，容易瘀斑等特徵。',
-      threshold: 60,
+      threshold: 15,
       recommendations: [
         '保持良好作息',
         '飲食宜溫和，避免過冷過熱',
@@ -99,9 +99,9 @@ export interface Question {
     },
     {
       id: 'qi-stagnation',
-      name: '氣鬱質',
+      name: '氣鬱',
       description: '氣鬱體質表現為容易情緒波動，胸悶等特徵。',
-      threshold: 60,
+      threshold: 15,
       recommendations: [
         '保持規律作息',
         '飲食有節制，不暴飲暴食',
@@ -111,9 +111,9 @@ export interface Question {
     },
     {
       id: 'special',
-      name: '特稟質',
+      name: '特稟',
       description: '特稟體質表現為容易過敏，免疫力較弱等特徵。',
-      threshold: 60,
+      threshold: 12,
       recommendations: [
         '注意起居有常',
         '飲食要特別注意',
@@ -121,7 +121,7 @@ export interface Question {
         '保持心情愉快'
       ]
     }
-  ];
+  ] as const;
   
   export const questions: Question[] = [
     // 平和質相關問題

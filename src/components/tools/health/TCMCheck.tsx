@@ -3,6 +3,8 @@ import Instructions from '../Instructions';
 import { Loader2 } from 'lucide-react';
 import { questions, constitutions } from '../../../data/tcm';
 import { streamGenerateContent } from '../../../lib/gemini';
+import { formatConstitutionTitle } from '../../../utils/tcmFormatter';
+import type { ConstitutionScore } from 'tcm-types';
 
 interface GenerationResult {
   content: string;
@@ -34,37 +36,75 @@ export default function TCMCheck() {
       const question = questions.find(q => q.id === questionId);
       if (question) {
         Object.entries(question.constitutions).forEach(([constitutionId, weight]) => {
-          const normalizedValue = (value / 4) * 100;
-          scores[constitutionId] += normalizedValue * (weight / 3);
+          // 引入非線性加權公式
+          const adjustedValue = Math.pow(value, 1.5) * (weight / 2);
+          scores[constitutionId] += constitutionId === 'balanced' 
+            ? adjustedValue * 0.8  // 降低平和質權重
+            : adjustedValue * 1.2; // 提高其他體質權重
         });
       }
     });
 
-    // 判定體質類型
-    const matchedConstitutions = [];
-    if (scores['balanced'] >= 60) {
-      matchedConstitutions.push('balanced');
-    } else {
-      for (const constitution of constitutions) {
-        if (constitution.id !== 'balanced' && scores[constitution.id] >= 60) {
-          matchedConstitutions.push(constitution.id);
-        }
-      }
+    // 計算所有體質原始分數
+    const allScores = constitutions.map(c => ({
+      id: c.id,
+      score: scores[c.id],
+      threshold: c.threshold
+    }));
+
+    // 排除平和質後排序
+    const sortedConstitutions = allScores
+      .filter(c => c.id !== 'balanced')
+      .sort((a, b) => b.score - a.score);
+
+    // 主要體質判定條件
+    const primaryConstitutions = sortedConstitutions
+      .filter(c => {
+        const threshold = c.id === 'balanced' 
+          ? c.threshold * 1.2  // 提高平和質門檻
+          : c.threshold * 0.9; // 降低其他體質門檻
+        return c.score >= threshold;
+      })
+      .slice(0, 3) // 最多三種體質
+      .filter((c, _, arr) => {
+        // 確保主要體質分數不低於最高分60%
+        return c.score >= (arr[0]?.score || 0) * 0.6;
+      });
+
+    // 平和質特殊條件
+    const balancedScore = allScores.find(c => c.id === 'balanced')!;
+    if (
+      balancedScore.score >= balancedScore.threshold &&
+      balancedScore.score > (sortedConstitutions[0]?.score || 0)
+    ) {
+      primaryConstitutions.unshift(balancedScore);
     }
 
-    if (matchedConstitutions.length === 0) {
-      matchedConstitutions.push('balanced');
+    // 最終判定結果
+    const matchedConstitutions: ConstitutionScore[] = primaryConstitutions.length > 0 
+      ? primaryConstitutions 
+      : [balancedScore]; // 預設平和質
+
+    let titleType = '';
+    if (matchedConstitutions.length === 1) {
+      titleType = '主要體質';
+    } else if (matchedConstitutions.length === 2) {
+      titleType = '複合型體質';
+    } else {
+      titleType = '特殊體質組合';
     }
+
+    const title = formatConstitutionTitle(
+      matchedConstitutions.map(c => c.id)
+    );
 
     const basePrompt = `您是一位專業的中醫師，請根據以下體質評估結果，提供結構化的養生指南：
 
-# ${matchedConstitutions.map(id => 
-  constitutions.find(c => c.id === id)?.name + '質'
-).join('+')}養生指南
+# ${title}
 
 ## 基礎體質分析
-${matchedConstitutions.map(id => {
-  const constitution = constitutions.find(c => c.id === id)!;
+${matchedConstitutions.map(c => {
+  const constitution = constitutions.find(ct => ct.id === c.id)!;
   return `### ${constitution.name}特徵\n` +
   `• 體質描述：${constitution.description}\n` +
   `• 基礎調理建議：\n${constitution.recommendations.map(r => `  - ${r}`).join('\n')}`;
@@ -125,9 +165,12 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
     setIsGenerating(true);
     if (result) {
-      setResult({
-        ...result,
-        isOptimizing: true
+      setResult(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          isOptimizing: true
+        };
       });
     }
 
@@ -227,7 +270,10 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
             <h3 className="text-xl font-medium text-gray-900 mb-4">體質分析結果</h3>
             <div className="prose prose-blue max-w-none">
               <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
-                {result.content}
+                {typeof result.content === 'string' ? 
+                 result.content.split('\n').map((line, i) => (
+                   <p key={i}>{line}</p>
+                 )) : null}
               </div>
             </div>
           </div>
