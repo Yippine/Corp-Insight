@@ -1,7 +1,7 @@
+import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import CompanySearch from '../components/company/CompanySearch';
 import FeatureSection from '../components/FeatureSection';
-import { useNavigate } from 'react-router-dom';
 import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function CompanySearchPage() {
@@ -13,7 +13,7 @@ export default function CompanySearchPage() {
       company_id: taxId,
       from_page: 'search'
     });
-    navigate(`/company/detail/${encodeURIComponent(taxId)}`, { state: { from: '/company/search' } });
+    navigate(`/company/detail/${encodeURIComponent(taxId)}`);
   };
 
   const handleFeatureClick = (feature: 'company' | 'tender' | 'tools') => {

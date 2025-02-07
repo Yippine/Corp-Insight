@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction } from 'lucide-react';
 import { useTenderSearch } from '../../hooks/useTenderSearch';
 import UnderDevelopment from '../common/UnderDevelopment';
+import { useParams } from 'react-router-dom';
 
 interface TenderDetailProps {
-  tenderId: string;
-  onBack: () => void;
+  tenderId?: string;
+  onBack?: () => void;
 }
 
 interface TenderData {
@@ -57,7 +58,8 @@ const tabs = [
   { id: 'unit', name: '機關資訊', icon: MapPin }
 ];
 
-export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
+export default function TenderDetail({ onBack }: TenderDetailProps) {
+  const { tenderId } = useParams<{ tenderId: string }>();
   const [activeTab, setActiveTab] = useState('basic');
   const [data, setData] = useState<TenderData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,7 +94,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
       );
 
       setTimeout(() => {
-        onBack();
+        onBack?.();
       }, 0);
     } catch (err) {
       console.error('載入機關標案資料失敗：', err);
@@ -104,7 +106,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
       setLoading(true);
       setError(null);
       try {
-        const [unitId, jobNumber] = tenderId.split('-');
+        const [unitId, jobNumber] = tenderId!.split('-');
         const response = await fetch(
           `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`
         );
@@ -184,6 +186,10 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
       <div className="text-red-600 text-center py-4">{error || '無法載入資料'}</div>
     );
   }
+
+  const handleBack = () => {
+    window.history.back();
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -451,7 +457,7 @@ export default function TenderDetail({ tenderId, onBack }: TenderDetailProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <button
-          onClick={() => window.history.back()}
+          onClick={handleBack}
           className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
         >
           <ArrowLeft className="h-6 w-6 mr-2" />

@@ -1,7 +1,7 @@
+import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import TenderSearch from '../components/tender/TenderSearch';
 import FeatureSection from '../components/FeatureSection';
-import { useNavigate } from 'react-router-dom';
 import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function TenderSearchPage() {
@@ -13,7 +13,7 @@ export default function TenderSearchPage() {
       tender_id: tenderId,
       from_page: 'search'
     });
-    navigate(`/tender/detail/${tenderId}`, { state: { from: '/tender/search' } });
+    navigate(`/tender/detail/${tenderId}`);
   };
 
   const handleFeatureClick = (feature: 'company' | 'tender' | 'tools') => {

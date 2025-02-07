@@ -14,9 +14,8 @@ import { fetchListedCompany } from '../../api/routes';
 import { useParams } from 'react-router-dom';
 
 interface CompanyDetailProps {
-  onBack: () => void;
-  onTenderSelect: (tenderId: string) => void;
-  onSearchTender: (query: string, type: 'company' | 'tender') => void;
+  onBack?: () => void;
+  onTenderSelect?: (tenderId: string) => void;
 }
 
 const tabs = [
@@ -93,6 +92,10 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
     if (SearchData?.taxId) fetchTenders();
   }, [SearchData?.taxId, SearchData?.name]);
 
+  // const handleBack = () => {
+  //   window.history.back();
+  // };
+
   if (!SearchData) return (
     <div className="flex justify-center py-8">
       <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
@@ -134,7 +137,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
           </div>
         )}
 
-        {/* 詳細說明部分 */}
         {details.length > 0 && (
           <div className="space-y-4">
             <h4 className="text-base font-medium text-gray-900 flex items-center space-x-2">
@@ -144,7 +146,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
             <div className="space-y-4 text-base text-gray-700 bg-gradient-to-r from-gray-50 to-white rounded-lg p-4">
               {details.map((item: string[], index: number) => {
                 const content = item[1].replace(/^[•·]/, '').trim();
-                // 檢查是否為新段落（包含數字編號）
                 const isNewSection = /^[１２３４５６７８９０\d]．/.test(content);
                 
                 return (
@@ -152,7 +153,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                     key={index} 
                     className={`${isNewSection ? 'mt-6 first:mt-0' : 'ml-8'} leading-relaxed hover:bg-white rounded-lg p-2 transition-colors duration-200`}
                   >
-                    {/* 如果是新段落，使用較大字體和不同顏色 */}
                     <p className={`${
                       isNewSection 
                         ? 'text-blue-800 font-medium' 
@@ -356,7 +356,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               </div>
             </div>
 
-            {/* 公司地址區塊 */}
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6">
                 <h3 className="text-xl leading-6 font-medium text-gray-900">
@@ -399,7 +398,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
 
               <div className="p-8">
                 <div className="space-y-8">
-                  {/* 基本資訊 */}
                   <div>
                     <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
                       <span className="inline-block w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
@@ -421,7 +419,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                     </div>
                   </div>
 
-                  {/* 領導團隊 */}
                   <div>
                     <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
                       <span className="inline-block w-1 h-6 bg-green-600 rounded-full mr-3"></span>
@@ -454,7 +451,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                     </div>
                   </div>
 
-                  {/* 里程碑 */}
                   <div>
                     <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
                       <span className="inline-block w-1 h-6 bg-amber-500 rounded-full mr-3"></span>
@@ -476,7 +472,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                     </div>
                   </div>
 
-                  {/* 股權結構 */}
                   <div>
                     <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
                       <span className="inline-block w-1 h-6 bg-purple-600 rounded-full mr-3"></span>
@@ -522,7 +517,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                     </div>
                   </div>
 
-                  {/* 投資人服務 */}
                   <div>
                     <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
                       <span className="inline-block w-1 h-6 bg-rose-600 rounded-full mr-3"></span>
@@ -728,7 +722,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                         <tr
                           key={`${tender.tenderId}-${index}`}
                           className="hover:bg-gray-50 cursor-pointer"
-                          onClick={() => onTenderSelect(tender.tenderId)}
+                          onClick={() => onTenderSelect?.(tender.tenderId)}
                         >
                           <td className="px-6 py-4 text-base text-gray-500">
                             {tender.date}
@@ -768,16 +762,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               ) : (
                 <NoDataFound message="查無標案資料" />
               )}
-              {/* {tenders.length > 0 && (
-                <div className="flex justify-end mt-6">
-                  <button
-                    onClick={() => onSearchTender(SearchData.taxId, 'company')}
-                    className="inline-flex items-center px-4 py-2 text-base font-medium text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    查看全部標案 →
-                  </button>
-                </div>
-              )} */}
             </div>
             <div className="text-sm text-gray-500 text-center mt-4">
               資料來源：{`https://pcc.g0v.ronny.tw/api`}
