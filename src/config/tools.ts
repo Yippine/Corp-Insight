@@ -23,6 +23,8 @@ import React from 'react';
 // import FeatureGenerator from '../components/tools/seo/FeatureGenerator';
 import { promptTools, PromptToolConfig } from './promptTools';
 import PromptToolTemplate from '../components/tools/common/PromptToolTemplate';
+import { Stethoscope } from 'lucide-react';
+import TCMCheck from '../components/tools/health/TCMCheck';
 
 export interface Tool {
   id: string;
@@ -211,5 +213,13 @@ export const tools: Tool[] = [
   //   component: DepositCalculator,
   //   tags: ['工具', '金融']
   // },
+  {
+    id: 'tcm-check',
+    name: 'AI 中醫體質分析：提供個人化養生方案',
+    description: '運用 AI 技術精準評估九大體質，提供個人化中醫養生方案與調理建議，助您掌握健康密碼',
+    icon: Stethoscope,
+    component: TCMCheck,
+    tags: ['AI', '健康']
+  },
   ...aiTools
 ];

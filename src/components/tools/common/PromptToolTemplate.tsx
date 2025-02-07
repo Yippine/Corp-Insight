@@ -51,10 +51,8 @@ ${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地
 
     try {
       const promptText = generatePrompt(isOptimizing);
-      let generatedContent = '';
       
       await streamGenerateContent(promptText, (text) => {
-        generatedContent = text;
         setResult({
           content: text,
           isOptimizing: false

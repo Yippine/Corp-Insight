@@ -77,10 +77,8 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
     try {
       const prompt = generatePrompt(isOptimizing);
-      let generatedContent = '';
       
       await streamGenerateContent(prompt, (text) => {
-        generatedContent = text;
         setResult({
           content: text,
           isOptimizing: false
