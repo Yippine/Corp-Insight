@@ -127,7 +127,7 @@ export interface Question {
     // 平和質相關問題
     {
       id: 'q1',
-      text: '您的精力是否充沛，很少感到疲勞？（0分代表總是疲勞，4分代表精力充沛）',
+      text: '您的精力是否充沛，很少感到疲勞？（0 分代表總是疲勞，4 分代表精力充沛）',
       constitutions: {
         'balanced': 3,
         'qi-deficiency': -1
@@ -135,7 +135,7 @@ export interface Question {
     },
     {
       id: 'q2',
-      text: '您的食慾和消化功能是否正常？（0分代表消化很差，4分代表消化良好）',
+      text: '您的食慾和消化功能是否正常？（0 分代表消化很差，4 分代表消化良好）',
       constitutions: {
         'balanced': 3,
         'qi-deficiency': -1,
@@ -145,7 +145,7 @@ export interface Question {
     // 氣虛質相關問題
     {
       id: 'q3',
-      text: '您是否容易疲勞，即使不劇烈運動也會感到體力不支？（0分代表從不疲勞，4分代表經常疲勞）',
+      text: '您是否容易疲勞，即使不劇烈運動也會感到體力不支？（0 分代表從不疲勞，4 分代表經常疲勞）',
       constitutions: {
         'qi-deficiency': 3,
         'balanced': -1
@@ -153,7 +153,7 @@ export interface Question {
     },
     {
       id: 'q4',
-      text: '您是否容易氣喘，說話聲音低弱無力？（0分代表聲音洪亮，4分代表經常氣喘無力）',
+      text: '您是否容易氣喘，說話聲音低弱無力？（0 分代表聲音洪亮，4 分代表經常氣喘無力）',
       constitutions: {
         'qi-deficiency': 3
       }
@@ -161,7 +161,7 @@ export interface Question {
     // 陽虛質相關問題
     {
       id: 'q5',
-      text: '您是否特別怕冷，手腳經常發涼？（0分代表從不怕冷，4分代表經常怕冷）',
+      text: '您是否特別怕冷，手腳經常發涼？（0 分代表從不怕冷，4 分代表經常怕冷）',
       constitutions: {
         'yang-deficiency': 3,
         'balanced': -1
@@ -169,7 +169,7 @@ export interface Question {
     },
     {
       id: 'q6',
-      text: '您是否經常腹瀉，特別是在天冷或吃涼的食物後？（0分代表從不腹瀉，4分代表經常腹瀉）',
+      text: '您是否經常腹瀉，特別是在天冷或吃涼的食物後？（0 分代表從不腹瀉，4 分代表經常腹瀉）',
       constitutions: {
         'yang-deficiency': 3
       }
@@ -177,14 +177,14 @@ export interface Question {
     // 陰虛質相關問題
     {
       id: 'q7',
-      text: '您是否經常感到口乾，特別是在晚上？（0分代表從不口乾，4分代表經常口乾）',
+      text: '您是否經常感到口乾，特別是在晚上？（0 分代表從不口乾，4 分代表經常口乾）',
       constitutions: {
         'yin-deficiency': 3
       }
     },
     {
       id: 'q8',
-      text: '您是否容易失眠，睡眠質量差？（0分代表睡眠良好，4分代表經常失眠）',
+      text: '您是否容易失眠，睡眠質量差？（0 分代表睡眠良好，4 分代表經常失眠）',
       constitutions: {
         'yin-deficiency': 3,
         'balanced': -1
@@ -193,7 +193,7 @@ export interface Question {
     // 痰濕質相關問題
     {
       id: 'q9',
-      text: '您的體型是否偏胖，特別是腹部容易積累脂肪？（0分代表體型正常，4分代表明顯肥胖）',
+      text: '您的體型是否偏胖，特別是腹部容易積累脂肪？（0 分代表體型正常，4 分代表明顯肥胖）',
       constitutions: {
         'phlegm-dampness': 3,
         'balanced': -1
@@ -201,7 +201,7 @@ export interface Question {
     },
     {
       id: 'q10',
-      text: '您是否經常感覺口粘膩，痰多？（0分代表從不口粘，4分代表經常口粘痰多）',
+      text: '您是否經常感覺口粘膩，痰多？（0 分代表從不口粘，4 分代表經常口粘痰多）',
       constitutions: {
         'phlegm-dampness': 3
       }
@@ -209,14 +209,14 @@ export interface Question {
     // 濕熱質相關問題
     {
       id: 'q11',
-      text: '您是否容易口苦、口臭，或經常覺得口中有異味？（0分代表從不口苦，4分代表經常口苦）',
+      text: '您是否容易口苦、口臭，或經常覺得口中有異味？（0 分代表從不口苦，4 分代表經常口苦）',
       constitutions: {
         'damp-heat': 3
       }
     },
     {
       id: 'q12',
-      text: '您是否容易長痘痘，皮膚容易發炎？（0分代表皮膚良好，4分代表經常長痘）',
+      text: '您是否容易長痘痘，皮膚容易發炎？（0 分代表皮膚良好，4 分代表經常長痘）',
       constitutions: {
         'damp-heat': 3,
         'balanced': -1
@@ -225,7 +225,7 @@ export interface Question {
     // 血瘀質相關問題
     {
       id: 'q13',
-      text: '您的面色是否晦暗，或容易有瘀斑？（0分代表面色紅潤，4分代表面色晦暗）',
+      text: '您的面色是否晦暗，或容易有瘀斑？（0 分代表面色紅潤，4 分代表面色晦暗）',
       constitutions: {
         'blood-stasis': 3,
         'balanced': -1
@@ -233,7 +233,7 @@ export interface Question {
     },
     {
       id: 'q14',
-      text: '您是否經常感覺身體某處刺痛或固定部位疼痛？（0分代表從不疼痛，4分代表經常疼痛）',
+      text: '您是否經常感覺身體某處刺痛或固定部位疼痛？（0 分代表從不疼痛，4 分代表經常疼痛）',
       constitutions: {
         'blood-stasis': 3
       }
@@ -241,7 +241,7 @@ export interface Question {
     // 氣鬱質相關問題
     {
       id: 'q15',
-      text: '您是否容易感到胸悶、嘆氣，或情緒低落？（0分代表從不胸悶，4分代表經常胸悶）',
+      text: '您是否容易感到胸悶、嘆氣，或情緒低落？（0 分代表從不胸悶，4 分代表經常胸悶）',
       constitutions: {
         'qi-stagnation': 3,
         'balanced': -1
@@ -249,7 +249,7 @@ export interface Question {
     },
     {
       id: 'q16',
-      text: '您是否容易焦慮、憂慮，或對事物過度擔心？（0分代表從不焦慮，4分代表經常焦慮）',
+      text: '您是否容易焦慮、憂慮，或對事物過度擔心？（0 分代表從不焦慮，4 分代表經常焦慮）',
       constitutions: {
         'qi-stagnation': 3
       }
@@ -257,7 +257,7 @@ export interface Question {
     // 特稟質相關問題
     {
       id: 'q17',
-      text: '您是否容易過敏（如花粉、食物、藥物等）？（0分代表從不過敏，4分代表經常過敏）',
+      text: '您是否容易過敏（如花粉、食物、藥物等）？（0 分代表從不過敏，4 分代表經常過敏）',
       constitutions: {
         'special': 3,
         'balanced': -1
@@ -265,7 +265,7 @@ export interface Question {
     },
     {
       id: 'q18',
-      text: '您是否特別容易感冒，或免疫力較弱？（0分代表很少感冒，4分代表經常感冒）',
+      text: '您是否特別容易感冒，或免疫力較弱？（0 分代表很少感冒，4 分代表經常感冒）',
       constitutions: {
         'special': 3,
         'balanced': -1
@@ -274,7 +274,7 @@ export interface Question {
     // 綜合性問題
     {
       id: 'q19',
-      text: '您的大便是否正常，不會太乾也不會太稀？（0分代表大便異常，4分代表大便正常）',
+      text: '您的大便是否正常，不會太乾也不會太稀？（0 分代表大便異常，4 分代表大便正常）',
       constitutions: {
         'balanced': 3,
         'yin-deficiency': -1,
@@ -283,7 +283,7 @@ export interface Question {
     },
     {
       id: 'q20',
-      text: '您的情緒是否穩定，很少有劇烈波動？（0分代表情緒不穩，4分代表情緒穩定）',
+      text: '您的情緒是否穩定，很少有劇烈波動？（0 分代表情緒不穩，4 分代表情緒穩定）',
       constitutions: {
         'balanced': 3,
         'qi-stagnation': -1,

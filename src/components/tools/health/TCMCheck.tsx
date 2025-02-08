@@ -85,15 +85,6 @@ export default function TCMCheck() {
       ? primaryConstitutions 
       : [balancedScore]; // 預設平和質
 
-    let titleType = '';
-    if (matchedConstitutions.length === 1) {
-      titleType = '主要體質';
-    } else if (matchedConstitutions.length === 2) {
-      titleType = '複合型體質';
-    } else {
-      titleType = '特殊體質組合';
-    }
-
     const title = formatConstitutionTitle(
       matchedConstitutions.map(c => c.id)
     );
