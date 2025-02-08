@@ -4,6 +4,7 @@ import Pagination from '../Pagination';
 import { useTenderSearch, TenderSearchData } from '../../hooks/useTenderSearch';
 import NoSearchResults from '../common/NoSearchResults';
 import { STORAGE_KEYS } from '../../constants/searchDefaults';
+import { InlineLoading } from '../common/loading';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
@@ -197,8 +198,8 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       </form>
 
       {isSearching ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
+        <div className="py-8">
+          <InlineLoading />
         </div>
       ) : errorMessage ? (
         <NoSearchResults 

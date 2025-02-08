@@ -3,6 +3,7 @@ import { ArrowLeft, Building2, FileText, Users, MapPin, Mail, Phone, FileSpreads
 import { useTenderSearch } from '../../hooks/useTenderSearch';
 import UnderDevelopment from '../common/UnderDevelopment';
 import { useParams } from 'react-router-dom';
+import { InlineLoading } from '../common/loading';
 
 interface TenderDetailProps {
   tenderId?: string;
@@ -175,8 +176,8 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
+      <div className="py-8">
+        <InlineLoading />
       </div>
     );
   }

@@ -12,6 +12,7 @@ import NoDataFound from '../common/NoDataFound';
 import { usePaginatedTenders } from '../../hooks/usePaginatedTenders';
 import { fetchListedCompany } from '../../api/routes';
 import { useParams } from 'react-router-dom';
+import { InlineLoading } from '../common/loading';
 
 interface CompanyDetailProps {
   onBack?: () => void;
@@ -97,8 +98,8 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   // };
 
   if (!SearchData) return (
-    <div className="flex justify-center py-8">
-      <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
+    <div className="py-8">
+      <InlineLoading />
     </div>
   );
 
@@ -690,8 +691,8 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               </div>
 
               {isLoadingMore ? (
-                <div className="flex justify-center py-12">
-                  <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
+                <div className="py-8">
+                  <InlineLoading />
                 </div>
               ) : tenderError ? (
                 <div className="text-center py-12">

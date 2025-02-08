@@ -4,6 +4,7 @@ import { SearchData, SearchResponse, formatSearchData } from '../../utils/compan
 import Pagination from '../Pagination';
 import NoSearchResults from '../common/NoSearchResults';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
+import { InlineLoading } from '../common/loading';
 
 interface CompanySearchProps {
   onCompanySelect?: (taxId: string) => void;
@@ -216,8 +217,8 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
       </form>
 
       {isSearching ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
+        <div className="py-8">
+          <InlineLoading />
         </div>
       ) : errorMessage ? (
         <NoSearchResults 

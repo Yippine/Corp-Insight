@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Instructions from '../Instructions';
-import { Loader2 } from 'lucide-react';
 import { productCategories, reviewTypes } from '../../../config/gemini';
 import { streamGenerateContent } from '../../../lib/gemini';
+import { ButtonLoading } from '../../common/loading';
 
 interface GenerationResult {
   content: string;
@@ -177,10 +177,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
             className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isGenerating && !result?.isOptimizing ? (
-              <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
-                生成中...
-              </span>
+              <ButtonLoading text="生成中..." />
             ) : (
               '開始新對話'
             )}
@@ -196,10 +193,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
             }`}
           >
             {result?.isOptimizing ? (
-              <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
-                優化中...
-              </span>
+              <ButtonLoading text="優化中..." />
             ) : (
               '延續對話並優化'
             )}

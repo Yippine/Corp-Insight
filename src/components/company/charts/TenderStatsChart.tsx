@@ -10,9 +10,10 @@ import {
   Legend,
 } from 'chart.js';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, RefreshCw, TrendingUp, Award, Clock } from 'lucide-react';
+import { Loader2, TrendingUp, Award, Clock } from 'lucide-react';
 import { useTenderChartData } from '../../../hooks/useTenderChartData';
 import NoDataFound from '../../common/NoDataFound';
+import { BlockLoading } from '../../common/loading';
 
 ChartJS.register(
   CategoryScale,
@@ -290,38 +291,9 @@ export default function TenderStatsChart({
             </motion.div>
           </div>
 
-          {/* 警告提示
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="flex items-center py-3 px-4 mb-4 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 shadow-sm backdrop-blur-[2px]"
-          >
-            <div className="flex items-center justify-center p-1.5 bg-amber-100 rounded-md mr-3">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-            </div>
-            <span className="text-sm font-medium text-amber-700 leading-5">
-              資料載入可能尚未完整，建議點選右上角「詳細資訊」按鈕，再返回「視覺圖表」區域，即可確保資料更新完整。
-            </span>
-          </motion.div> */}
-
           <div className="relative h-[300px]">
             <AnimatePresence>
-              {isProcessing && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 bg-gray-50/80 backdrop-blur-[1px] flex items-center justify-center z-10"
-                >
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
-                    <RefreshCw className="w-8 h-8 text-blue-500" />
-                  </motion.div>
-                </motion.div>
-              )}
+              {isProcessing && <BlockLoading overlay />}
             </AnimatePresence>
             <Bar ref={chartRef} options={options} data={data} />
           </div>
