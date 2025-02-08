@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction } from 'lucide-react';
 import { useTenderSearch } from '../../hooks/useTenderSearch';
 import UnderDevelopment from '../common/UnderDevelopment';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 
 interface TenderDetailProps {
@@ -61,7 +61,8 @@ const tabs = [
 
 export default function TenderDetail({ onBack }: TenderDetailProps) {
   const { tenderId } = useParams<{ tenderId: string }>();
-  const [activeTab, setActiveTab] = useState('basic');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basic');
   const [data, setData] = useState<TenderData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -190,6 +191,11 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
 
   const handleBack = () => {
     window.history.back();
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
   };
 
   const renderTabContent = () => {
@@ -500,7 +506,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`${
                 activeTab === tab.id
                   ? 'bg-white shadow-sm'

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Building2, FileSpreadsheet, Users, MapPin } from 'lucide-react';
 import { SearchData, SearchResponse, formatSearchData } from '../../utils/companyUtils';
 import Pagination from '../Pagination';
 import NoSearchResults from '../common/NoSearchResults';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import { InlineLoading } from '../common/loading';
+import { useSearchParams } from 'react-router-dom';
 
 interface CompanySearchProps {
   onCompanySelect?: (taxId: string) => void;
@@ -52,11 +53,12 @@ const fetchTenderInfo = async (taxId: string): Promise<{ count: number; }> => {
 };
 
 export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchResults, setSearchResults] = useState<SearchData[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [isSearching, setIsSearching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1') || 1);
   const [totalPages, setTotalPages] = useState(1);
   const { trackEvent } = useGoogleAnalytics();
 
@@ -104,6 +106,12 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
           results_count: formattedResults.length
         });
       }
+
+      setSearchParams({ 
+        q: trimmedQuery,
+        page: page.toString(),
+        type: searchType
+      });
     } catch (error) {
       console.error('搜尋失敗：', error);
       setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
@@ -115,6 +123,12 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
       setIsSearching(false);
     }
   };
+
+  useEffect(() => {
+    if (searchParams.get('q')) {
+      handleSearch(null, parseInt(searchParams.get('page') || '1'));
+    }
+  }, []);
 
   const determineSearchType = (query: string): 'taxId' | 'name' => {
     const taxIdPattern = /^\d{8}$/;

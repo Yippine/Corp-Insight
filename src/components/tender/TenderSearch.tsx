@@ -5,6 +5,7 @@ import { useTenderSearch, TenderSearchData } from '../../hooks/useTenderSearch';
 import NoSearchResults from '../common/NoSearchResults';
 import { STORAGE_KEYS } from '../../constants/searchDefaults';
 import { InlineLoading } from '../common/loading';
+import { useSearchParams } from 'react-router-dom';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
@@ -26,15 +27,17 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
   const [isSearching, setIsSearching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     const savedState = localStorage.getItem(STORAGE_KEYS.TENDER_SEARCH);
-    if (savedState) {
-      const parsedState = JSON.parse(savedState);
-      setSearchResults(parsedState.results);
-      setSearchQuery(parsedState.query);
-      setCurrentPage(parsedState.currentPage);
-      setTotalPages(parsedState.totalPages);
+    const urlQuery = searchParams.get('q');
+    
+    if (urlQuery) {
+      setSearchQuery(urlQuery);
+      handleSearch(null, parseInt(searchParams.get('page') || '1'));
+    } else if (savedState) {
+      localStorage.removeItem(STORAGE_KEYS.TENDER_SEARCH);
     }
   }, []);
 
@@ -90,6 +93,12 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       setSearchResults(formattedResults);
       setTotalPages(data.total_pages);
       setCurrentPage(page);
+
+      setSearchParams({
+        q: trimmedQuery,
+        page: page.toString(),
+        type: searchType
+      });
     } catch (error) {
       console.error('搜尋失敗：', error);
       setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');

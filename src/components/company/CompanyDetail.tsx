@@ -11,7 +11,7 @@ import TenderStatsChart from './charts/TenderStatsChart';
 import NoDataFound from '../common/NoDataFound';
 import { usePaginatedTenders } from '../../hooks/usePaginatedTenders';
 import { fetchListedCompany } from '../../api/routes';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 
 interface CompanyDetailProps {
@@ -61,7 +61,8 @@ const fetchDetailData = async (taxId: string) => {
 
 export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   const { taxId } = useParams<{ taxId: string }>();
-  const [activeTab, setActiveTab] = useState('basic');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basic');
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [tenderView, setTenderView] = useState<'chart' | 'list'>('chart');
@@ -774,6 +775,11 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
     }
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -810,7 +816,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`${
                 activeTab === tab.id
                   ? 'bg-white shadow-sm'
