@@ -3,10 +3,13 @@ import HeroSection from '../components/HeroSection';
 import TenderSearch from '../components/tender/TenderSearch';
 import FeatureSection from '../components/FeatureSection';
 import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
+import { useSearchState } from '../hooks/useSearchState';
+import { useEffect } from 'react';
 
 export default function TenderSearchPage() {
   const navigate = useNavigate();
   const { trackEvent } = useGoogleAnalytics();
+  const { isInitialLoad } = useSearchState('tender');
 
   const handleTenderSelect = (tenderId: string) => {
     trackEvent('tender_select', {
@@ -30,6 +33,12 @@ export default function TenderSearchPage() {
 
     navigate(paths[feature]);
   };
+
+  useEffect(() => {
+    if (isInitialLoad) {
+      // 清空本地儲存與狀態
+    }
+  }, [isInitialLoad]);
 
   return (
     <div className="space-y-8">

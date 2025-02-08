@@ -108,9 +108,9 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
       }
 
       setSearchParams({ 
-        q: trimmedQuery,
-        page: page.toString(),
-        type: searchType
+        q: encodeURIComponent(trimmedQuery),
+        type: searchType,
+        page: page.toString()
       });
     } catch (error) {
       console.error('搜尋失敗：', error);
@@ -125,10 +125,15 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
   };
 
   useEffect(() => {
-    if (searchParams.get('q')) {
-      handleSearch(null, parseInt(searchParams.get('page') || '1'));
+    const urlQuery = searchParams.get('q')
+    if (!urlQuery) {
+      setSearchResults([])
+      setSearchQuery('')
+      return
     }
-  }, []);
+    setSearchQuery(decodeURIComponent(urlQuery))
+    handleSearch(null, parseInt(searchParams.get('page') || '1'))
+  }, [])
 
   const determineSearchType = (query: string): 'taxId' | 'name' => {
     const taxIdPattern = /^\d{8}$/;

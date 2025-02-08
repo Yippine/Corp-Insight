@@ -95,9 +95,9 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       setCurrentPage(page);
 
       setSearchParams({
-        q: trimmedQuery,
-        page: page.toString(),
-        type: searchType
+        q: encodeURIComponent(trimmedQuery),
+        type: searchType,
+        page: page.toString()
       });
     } catch (error) {
       console.error('搜尋失敗：', error);

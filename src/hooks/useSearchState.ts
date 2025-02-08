@@ -34,5 +34,10 @@ export function useSearchState(searchType: SearchType) {
     navigate(path, { state: { fromSearch: true } });
   };
 
-  return { isInitialLoad, navigateToDetail };
+  const handleBackNavigation = () => {
+    sessionStorage.setItem(`search_${searchType}_navigation`, 'from_detail');
+    navigate(-1);
+  };
+
+  return { isInitialLoad, navigateToDetail, handleBackNavigation };
 }
