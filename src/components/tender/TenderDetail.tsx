@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction } from 'lucide-react';
+import { Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction } from 'lucide-react';
 import { useTenderSearch } from '../../hooks/useTenderSearch';
 import UnderDevelopment from '../common/UnderDevelopment';
-import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
+import BackButton from '../common/BackButton';
 
 interface TenderDetailProps {
   tenderId?: string;
@@ -68,7 +69,6 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const { batchUpdateSearchState } = useTenderSearch();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleUnitClick = async (unitId: string, unitName: string) => {
     try {
@@ -103,11 +103,6 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
     } catch (err) {
       console.error('載入機關標案資料失敗：', err);
     }
-  };
-
-  const handleBack = () => {
-    const previousSearch = location.state?.previousSearch || '';
-    navigate(`/tender/search${previousSearch}`);
   };
 
   useEffect(() => {
@@ -474,13 +469,10 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <button
-          onClick={handleBack}
-          className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
-        >
-          <ArrowLeft className="h-6 w-6 mr-2" />
-          返回搜尋結果
-        </button>
+        <BackButton 
+          basePath="/tender/search"
+          stateKey="previousSearch"
+        />
       </div>
 
       <div className="bg-white shadow-sm rounded-lg p-6">

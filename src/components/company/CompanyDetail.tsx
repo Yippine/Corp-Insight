@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, FileText, Users, MapPin, Phone, Globe, Table, BarChart3, ArrowLeft } from 'lucide-react';
+import { Building2, FileText, Users, MapPin, Phone, Globe, Table, BarChart3 } from 'lucide-react';
 import { formatDetailData } from '../../utils/companyUtils';
 import UnderDevelopment from '../common/UnderDevelopment';
 import CompanyMap from '../maps/CompanyMap';
@@ -789,13 +789,10 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <button
-          onClick={() => navigate(`/company/search${window.location.search}`, { state: { fromDetail: true } })}
-          className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-md"
-        >
-          <ArrowLeft className="h-6 w-6 mr-2" />
-          返回搜尋結果
-        </button>
+        <BackButton 
+          basePath="/company/search"
+          stateKey="previousSearch"
+        />
       </div>
       <div className="bg-white shadow-sm rounded-lg p-8">
         <div className="flex items-start justify-between items-center">

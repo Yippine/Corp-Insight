@@ -1,13 +1,23 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-export default function BackButton() {
+interface BackButtonProps {
+  basePath: string;
+  stateKey?: string;
+}
+
+export default function BackButton({ 
+  basePath = '/company/search',
+  stateKey = 'previousSearch'
+}: BackButtonProps) {
   const navigate = useNavigate()
   const location = useLocation()
 
   const handleBack = () => {
-    const previousSearch = location.state?.previousSearch || ''
-    navigate(`/company/search${previousSearch}`)
+    const searchParams = (location.state?.[stateKey] as string) || '';
+    navigate(`${basePath}${searchParams}`, {
+      state: { fromDetail: true }
+    });
   }
 
   return (
@@ -19,4 +29,4 @@ export default function BackButton() {
       返回搜尋結果
     </button>
   )
-} 
+}
