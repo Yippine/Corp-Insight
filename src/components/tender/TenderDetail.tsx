@@ -107,11 +107,12 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
 
   useEffect(() => {
     const currentSearch = window.location.search;
-    navigate(`/tender/detail/${tenderId}`, {
+    const tabParam = searchParams.get('tab') || 'basic';
+    navigate(`/tender/detail/${tenderId}?tab=${tabParam}`, {
       state: { previousSearch: currentSearch },
       replace: true
     });
-  }, [tenderId, navigate]);
+  }, [tenderId, searchParams, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {

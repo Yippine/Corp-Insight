@@ -98,11 +98,12 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
 
   useEffect(() => {
     const currentSearch = window.location.search;
-    navigate(`/company/detail/${taxId}`, {
+    const tabParam = searchParams.get('tab') || 'basic';
+    navigate(`/company/detail/${taxId}?tab=${tabParam}`, {
       state: { previousSearch: currentSearch },
       replace: true
     });
-  }, [taxId, navigate]);
+  }, [taxId, searchParams, navigate]);
 
   if (!SearchData) return (
     <div className="py-8">
