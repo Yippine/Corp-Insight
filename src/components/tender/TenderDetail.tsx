@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction } from 'lucide-react';
 import { useTenderSearch } from '../../hooks/useTenderSearch';
 import UnderDevelopment from '../common/UnderDevelopment';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 
 interface TenderDetailProps {
@@ -67,6 +67,8 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { batchUpdateSearchState } = useTenderSearch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleUnitClick = async (unitId: string, unitName: string) => {
     try {
@@ -102,6 +104,19 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
       console.error('載入機關標案資料失敗：', err);
     }
   };
+
+  const handleBack = () => {
+    const previousSearch = location.state?.previousSearch || '';
+    navigate(`/tender/search${previousSearch}`);
+  };
+
+  useEffect(() => {
+    const currentSearch = window.location.search;
+    navigate(`/tender/detail/${tenderId}`, {
+      state: { previousSearch: currentSearch },
+      replace: true
+    });
+  }, [tenderId, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -188,10 +203,6 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
       <div className="text-red-600 text-center py-4">{error || '無法載入資料'}</div>
     );
   }
-
-  const handleBack = () => {
-    window.history.back();
-  };
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);

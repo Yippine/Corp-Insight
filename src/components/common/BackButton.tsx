@@ -1,19 +1,13 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-interface BackButtonProps {
-  onCustomClick?: () => void;
-}
-
-export default function BackButton({ onCustomClick }: BackButtonProps) {
+export default function BackButton() {
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleBack = () => {
-    if (onCustomClick) {
-      onCustomClick();
-    } else {
-      navigate(-1)
-    }
+    const previousSearch = location.state?.previousSearch || ''
+    navigate(`/company/search${previousSearch}`)
   }
 
   return (
