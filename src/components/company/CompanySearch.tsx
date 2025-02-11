@@ -211,7 +211,7 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
         company_id: taxId
       })
 
-      sessionStorage.setItem('previousSearchState', JSON.stringify(stateToSave))
+      sessionStorage.setItem('previousCompanySearchState', JSON.stringify(stateToSave))
     }
   };
 

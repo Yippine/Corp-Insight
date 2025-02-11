@@ -8,7 +8,7 @@ interface BackButtonProps {
 
 export default function BackButton({ 
   basePath = '/company/search',
-  stateKey = 'previousSearchState'
+  stateKey = 'previousCompanySearchState'
 }: BackButtonProps) {
   const navigate = useNavigate()
 

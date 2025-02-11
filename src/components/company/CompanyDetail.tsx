@@ -792,7 +792,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
       <div className="flex items-center justify-between">
         <BackButton 
           basePath="/company/search"
-          stateKey="previousSearch"
+          stateKey="previousCompanySearchState"
         />
       </div>
       <div className="bg-white shadow-sm rounded-lg p-8">
