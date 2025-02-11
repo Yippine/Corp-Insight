@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import HeroSection from '../components/HeroSection';
 import CompanySearch from '../components/company/CompanySearch';
 import FeatureSection from '../components/FeatureSection';
@@ -7,6 +8,18 @@ import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 export default function CompanySearchPage() {
   const navigate = useNavigate();
   const { trackEvent } = useGoogleAnalytics();
+  const location = useLocation();
+  const [isSearchLoaded, setIsSearchLoaded] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.fromDetail && 
+        location.state?.scrollPosition && 
+        isSearchLoaded) {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, location.state.scrollPosition);
+      });
+    }
+  }, [location.state, isSearchLoaded]);
 
   const handleCompanySelect = (taxId: string) => {
     trackEvent('company_select', {
@@ -40,7 +53,10 @@ export default function CompanySearchPage() {
         highlightColor="text-blue-600"
       />
 
-      <CompanySearch onCompanySelect={handleCompanySelect} />
+      <CompanySearch 
+        onCompanySelect={handleCompanySelect}
+        onSearchComplete={() => setIsSearchLoaded(true)}
+      />
       
       <FeatureSection onFeatureClick={handleFeatureClick} />
     </div>

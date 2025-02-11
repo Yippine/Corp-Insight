@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
 interface BackButtonProps {
@@ -8,16 +8,18 @@ interface BackButtonProps {
 
 export default function BackButton({ 
   basePath = '/company/search',
-  stateKey = 'previousSearch'
 }: BackButtonProps) {
   const navigate = useNavigate()
-  const location = useLocation()
 
   const handleBack = () => {
-    const searchParams = (location.state?.[stateKey] as string) || '';
-    navigate(`${basePath}${searchParams}`, {
-      state: { fromDetail: true }
-    });
+    const savedState = JSON.parse(sessionStorage.getItem('previousSearchState') || '{}')
+    
+    navigate(`${basePath}?${savedState.searchParams || ''}`, {
+      state: { 
+        fromDetail: true,
+        scrollPosition: savedState.scrollPosition || 0
+      }
+    })
   }
 
   return (

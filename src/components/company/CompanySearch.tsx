@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 
 interface CompanySearchProps {
   onCompanySelect?: (taxId: string) => void;
+  onSearchComplete?: () => void;
 }
 
 const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: string, page: number = 1): Promise<any> => {
@@ -52,7 +53,7 @@ const fetchTenderInfo = async (taxId: string): Promise<{ count: number; }> => {
   }
 };
 
-export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
+export default function CompanySearch({ onCompanySelect, onSearchComplete }: CompanySearchProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchResults, setSearchResults] = useState<SearchData[]>([]);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
@@ -62,9 +63,13 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
   const [totalPages, setTotalPages] = useState(1);
   const { trackEvent } = useGoogleAnalytics();
 
-  const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
+  const handleSearch = async (
+    e: React.FormEvent | null, 
+    page: number = 1,
+    customQuery?: string  
+  ) => {
     e?.preventDefault();
-    const trimmedQuery = searchQuery.trim();
+    const trimmedQuery = customQuery || searchQuery.trim();
     if (!trimmedQuery) return;
     
     setIsSearching(true);
@@ -112,6 +117,8 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
         type: searchType,
         page: page.toString()
       });
+
+      onSearchComplete?.();
     } catch (error) {
       console.error('搜尋失敗：', error);
       setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
@@ -129,10 +136,17 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
     if (!urlQuery) {
       setSearchResults([])
       setSearchQuery('')
+      onSearchComplete?.()
       return
     }
-    setSearchQuery(decodeURIComponent(urlQuery))
-    handleSearch(null, parseInt(searchParams.get('page') || '1'))
+    
+    const decodedQuery = decodeURIComponent(urlQuery)
+    setSearchQuery(decodedQuery)
+    
+    const executeSearch = async () => {
+      await handleSearch(null, parseInt(searchParams.get('page') || '1'), decodedQuery)
+    }
+    executeSearch()
   }, [])
 
   const determineSearchType = (query: string): 'taxId' | 'name' => {
@@ -184,11 +198,20 @@ export default function CompanySearch({ onCompanySelect }: CompanySearchProps) {
   };
 
   const handleCompanySelect = (taxId: string) => {
+    const currentParams = new URLSearchParams(window.location.search)
+    const scrollPosition = window.scrollY
+    const stateToSave = {
+      searchParams: currentParams.toString(),
+      scrollPosition
+    }
+
     if (onCompanySelect) {
-      onCompanySelect(taxId);
+      onCompanySelect(taxId)
       trackEvent('company_select', {
         company_id: taxId
-      });
+      })
+
+      sessionStorage.setItem('previousSearchState', JSON.stringify(stateToSave))
     }
   };
 
