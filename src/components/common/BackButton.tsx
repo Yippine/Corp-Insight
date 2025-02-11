@@ -2,17 +2,18 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
 interface BackButtonProps {
-  basePath: string;
+  basePath?: string;
   stateKey?: string;
 }
 
 export default function BackButton({ 
   basePath = '/company/search',
+  stateKey = 'previousSearchState'
 }: BackButtonProps) {
   const navigate = useNavigate()
 
   const handleBack = () => {
-    const savedState = JSON.parse(sessionStorage.getItem('previousSearchState') || '{}')
+    const savedState = JSON.parse(sessionStorage.getItem(stateKey) || '{}')
     
     navigate(`${basePath}?${savedState.searchParams || ''}`, {
       state: { 

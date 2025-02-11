@@ -1,15 +1,27 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import TenderSearch from '../components/tender/TenderSearch';
 import FeatureSection from '../components/FeatureSection';
 import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 import { useSearchState } from '../hooks/useSearchState';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function TenderSearchPage() {
   const navigate = useNavigate();
   const { trackEvent } = useGoogleAnalytics();
+  const location = useLocation();
+  const [isSearchLoaded, setIsSearchLoaded] = useState(false);
   const { isInitialLoad } = useSearchState('tender');
+
+  useEffect(() => {
+    if (location.state?.fromDetail && 
+        location.state?.scrollPosition && 
+        isSearchLoaded) {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, location.state.scrollPosition);
+      });
+    }
+  }, [location.state, isSearchLoaded]);
 
   const handleTenderSelect = (tenderId: string) => {
     trackEvent('tender_select', {
@@ -49,7 +61,10 @@ export default function TenderSearchPage() {
         highlightColor="text-green-600"
       />
 
-      <TenderSearch onTenderSelect={handleTenderSelect} />
+      <TenderSearch 
+        onTenderSelect={handleTenderSelect}
+        onSearchComplete={() => setIsSearchLoaded(true)}
+      />
       
       <FeatureSection onFeatureClick={handleFeatureClick} />
     </div>

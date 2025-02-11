@@ -9,9 +9,10 @@ import { useSearchParams } from 'react-router-dom';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
+  onSearchComplete?: () => void;
 }
 
-export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
+export default function TenderSearch({ onTenderSelect, onSearchComplete }: TenderSearchProps) {
   const {
     searchResults,
     setSearchResults,
@@ -30,22 +31,52 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    const savedState = localStorage.getItem(STORAGE_KEYS.TENDER_SEARCH);
     const urlQuery = searchParams.get('q');
-    
-    if (urlQuery) {
-      setSearchQuery(urlQuery);
-      handleSearch(null, parseInt(searchParams.get('page') || '1'));
-    } else if (savedState) {
+
+    const savedState = localStorage.getItem(STORAGE_KEYS.TENDER_SEARCH);
+    if (!urlQuery && savedState) {
       localStorage.removeItem(STORAGE_KEYS.TENDER_SEARCH);
+      setSearchResults([]);
+      setSearchQuery('');
+      setCurrentPage(1);
+      setTotalPages(1);
+      return;
+    }
+
+    if (urlQuery) {
+      const decodedQuery = decodeURIComponent(urlQuery);
+      setSearchQuery(decodedQuery);
+      handleSearch(null, parseInt(searchParams.get('page') || '1'));
     }
   }, []);
 
-  useEffect(() => {
-    if (searchQuery && searchType) {
-      handleSearch(null, 1);
+  const fetchSearchData = async (type: 'company' | 'tender', query: string, page: number = 1): Promise<any> => {
+    const baseUrl = 'https://pcc.g0v.ronny.tw/api';
+    const endpoints = {
+      tender: `${baseUrl}/searchbytitle?query=${encodeURIComponent(query)}&page=${page}`,
+      company: /^\d{8}$/.test(query) 
+        ? `${baseUrl}/searchbycompanyid?query=${encodeURIComponent(query)}&page=${page}`
+        : `${baseUrl}/searchbycompanyname?query=${encodeURIComponent(query)}&page=${page}`
+    };
+
+    try {
+      const response = await fetch(endpoints[type], {
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API 請求失敗：', error);
+      throw new Error('無法連線到標案搜尋服務，請稍後再試');
     }
-  }, [searchQuery, searchType]);
+  };
 
   const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
     e?.preventDefault();
@@ -56,20 +87,8 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
     setErrorMessage(null);
 
     try {
-      let url = '';
-      const encodedQuery = encodeURIComponent(trimmedQuery);
+      const data = await fetchSearchData(searchType, trimmedQuery, page);
       
-      if (searchType === 'tender') {
-        url = `https://pcc.g0v.ronny.tw/api/searchbytitle?query=${encodedQuery}&page=${page}`;
-      } else {
-        const isCompanyId = /^\d{8}$/.test(trimmedQuery);
-        url = isCompanyId
-          ? `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${encodedQuery}&page=${page}`
-          : `https://pcc.g0v.ronny.tw/api/searchbycompanyname?query=${encodedQuery}&page=${page}`;
-      }
-
-      const response = await fetch(url);
-      const data = await response.json();
       if (!data.records || data.records.length === 0) {
         throw new Error('找不到符合的標案！');
       }
@@ -99,6 +118,8 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
         type: searchType,
         page: page.toString()
       });
+
+      onSearchComplete?.();
     } catch (error) {
       console.error('搜尋失敗：', error);
       setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
@@ -254,7 +275,16 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
                 {searchResults.map((tender) => (
                   <tr 
                     key={tender.uniqueId}
-                    onClick={() => onTenderSelect(tender.tenderId)}
+                    onClick={() => {
+                      const currentParams = new URLSearchParams(window.location.search);
+                      const scrollPosition = window.scrollY;
+                      const stateToSave = {
+                        searchParams: currentParams.toString(),
+                        scrollPosition
+                      };
+                      sessionStorage.setItem('previousTenderSearchState', JSON.stringify(stateToSave));
+                      onTenderSelect(tender.tenderId);
+                    }}
                     className="hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-6 py-4 text-base text-gray-500">

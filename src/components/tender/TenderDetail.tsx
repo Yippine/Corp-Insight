@@ -472,7 +472,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
       <div className="flex items-center justify-between">
         <BackButton 
           basePath="/tender/search"
-          stateKey="previousSearch"
+          stateKey="previousTenderSearchState"
         />
       </div>
 

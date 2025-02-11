@@ -40,10 +40,12 @@ export function useTenderSearch() {
   const [searchState, setSearchState] = useState<SearchState>(() => {
     try {
       const cached = localStorage.getItem(STORAGE_KEYS.TENDER_SEARCH);
-      if (!cached) {
+      const hasUrlParams = window.location.search.includes('q=');
+
+      if (!cached || !hasUrlParams) {
         return DEFAULT_SEARCH_STATE;
       }
-      
+
       const parsedCache = JSON.parse(cached);
       return {
         ...DEFAULT_SEARCH_STATE,
