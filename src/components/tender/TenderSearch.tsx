@@ -3,7 +3,6 @@ import { Building2, FileSpreadsheet, FileText, Search } from 'lucide-react';
 import Pagination from '../Pagination';
 import { useTenderSearch, TenderSearchData } from '../../hooks/useTenderSearch';
 import NoSearchResults from '../common/NoSearchResults';
-import { STORAGE_KEYS } from '../../constants/searchDefaults';
 import { InlineLoading } from '../common/loading';
 import { useSearchParams } from 'react-router-dom';
 
@@ -33,9 +32,7 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
   useEffect(() => {
     const urlQuery = searchParams.get('q');
 
-    const savedState = localStorage.getItem(STORAGE_KEYS.TENDER_SEARCH);
-    if (!urlQuery && savedState) {
-      localStorage.removeItem(STORAGE_KEYS.TENDER_SEARCH);
+    if (!urlQuery) {
       setSearchResults([]);
       setSearchQuery('');
       setCurrentPage(1);

@@ -3,7 +3,6 @@ import HeroSection from '../components/HeroSection';
 import TenderSearch from '../components/tender/TenderSearch';
 import FeatureSection from '../components/FeatureSection';
 import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
-import { useSearchState } from '../hooks/useSearchState';
 import { useEffect, useState } from 'react';
 
 export default function TenderSearchPage() {
@@ -11,7 +10,6 @@ export default function TenderSearchPage() {
   const { trackEvent } = useGoogleAnalytics();
   const location = useLocation();
   const [isSearchLoaded, setIsSearchLoaded] = useState(false);
-  const { isInitialLoad } = useSearchState('tender');
 
   useEffect(() => {
     if (location.state?.fromDetail && 
@@ -45,12 +43,6 @@ export default function TenderSearchPage() {
 
     navigate(paths[feature]);
   };
-
-  useEffect(() => {
-    if (isInitialLoad) {
-      // 清空本地儲存與狀態
-    }
-  }, [isInitialLoad]);
 
   return (
     <div className="space-y-8">
