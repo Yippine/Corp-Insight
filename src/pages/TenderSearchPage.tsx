@@ -29,21 +29,6 @@ export default function TenderSearchPage() {
     navigate(`/tender/detail/${tenderId}`);
   };
 
-  const handleFeatureClick = (feature: 'company' | 'tender' | 'tools') => {
-    const paths = {
-      company: '/company/search',
-      tender: '/tender/search',
-      tools: '/ai-assistant'
-    };
-
-    trackEvent('feature_click', {
-      feature_name: feature,
-      from_page: 'tender_search'
-    });
-
-    navigate(paths[feature]);
-  };
-
   return (
     <div className="space-y-8">
       <HeroSection 
@@ -58,7 +43,7 @@ export default function TenderSearchPage() {
         onSearchComplete={() => setIsSearchLoaded(true)}
       />
       
-      <FeatureSection onFeatureClick={handleFeatureClick} />
+      <FeatureSection />
     </div>
   );
 }

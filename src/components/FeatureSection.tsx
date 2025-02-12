@@ -1,21 +1,31 @@
 import { Building2, FileSpreadsheet, /* AlertTriangle, TrendingUp, */ Calculator } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
-interface FeatureSectionProps {
-  onFeatureClick?: (feature: 'company' | 'tender' | 'tools') => void;
-}
+export default function FeatureSection() {
+  const navigate = useNavigate();
+  const { trackEvent } = useGoogleAnalytics();
 
-export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) {
   const handleFeatureClick = (feature: 'company' | 'tender' | 'tools') => {
-    if (onFeatureClick) {
-      onFeatureClick(feature);
-    }
+    const paths = {
+      company: '/company/search',
+      tender: '/tender/search',
+      tools: '/ai-assistant'
+    };
+
+    trackEvent('feature_click', {
+      feature_name: feature,
+      from_page: window.location.pathname.split('/')[1] // 自動獲取當前頁面
+    });
+
+    navigate(paths[feature]);
   };
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mt-12">
       <div 
         onClick={() => handleFeatureClick('tools')}
-        className={`bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 ${onFeatureClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+        className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 cursor-pointer hover:bg-gray-50 transition-colors"
       >
         <div className="flex-shrink-0">
           <Calculator className="h-7 w-7 text-amber-500" />
@@ -29,7 +39,7 @@ export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) 
       </div>
       <div
         onClick={() => handleFeatureClick('company')}
-        className={`bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 ${onFeatureClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+        className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 cursor-pointer hover:bg-gray-50 transition-colors"
       >
         <div className="flex-shrink-0">
           <Building2 className="h-7 w-7 text-blue-600" />
@@ -43,7 +53,7 @@ export default function FeatureSection({ onFeatureClick }: FeatureSectionProps) 
       </div>
       <div 
         onClick={() => handleFeatureClick('tender')}
-        className={`bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 ${onFeatureClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+        className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 cursor-pointer hover:bg-gray-50 transition-colors"
       >
         <div className="flex-shrink-0">
           <FileSpreadsheet className="h-7 w-7 text-green-600" />
