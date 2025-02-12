@@ -44,7 +44,7 @@ const aiTools = promptTools.map((tool: PromptToolConfig) => ({
   tags: tool.tags
 }));
 
-export const tools: Tool[] = [
+export const tools = [
   // {
   //   id: 'title-generator',
   //   name: 'SEO 標題策略大師',
@@ -222,4 +222,9 @@ export const tools: Tool[] = [
     tags: ['AI', '健康']
   },
   ...aiTools
-];
+].reduce((acc, tool) => {
+  if (!acc.find(t => t.id === tool.id)) {
+    acc.push(tool);
+  }
+  return acc;
+}, [] as Tool[]);

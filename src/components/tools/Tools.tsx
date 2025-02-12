@@ -4,24 +4,56 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ListFilter } from 'lucide-react';
 import { categoryThemes, fullTagThemes } from '../../config/theme';
 import { sortToolsByTags } from '../../utils/toolSorter';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 
 export default function Tools() {
+  const { toolId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState<string | null>(searchParams.get('tag'));
+  const [searchQuery, setSearchQuery] = useState(decodeURIComponent(searchParams.get('q') || ''));
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
   const [filterKey, setFilterKey] = useState(0);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [selectedTool]);
+    const tool = tools.find(t => t.id === toolId) || null;
+    if (tool) {
+      setSelectedTool(tool);
+      window.scrollTo(0, 0);
+    } else if (toolId) {
+      navigate('/ai-assistant', { replace: true });
+    }
+  }, [toolId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', encodeURIComponent(searchQuery));
+    if (selectedTag) params.set('tag', encodeURIComponent(selectedTag));
+    setSearchParams(params, { replace: true });
+  }, [searchQuery, selectedTag]);
+
+  useEffect(() => {
+    const initialTag = searchParams.get('tag');
+    const initialQuery = decodeURIComponent(searchParams.get('q') || '');
+    setSelectedTag(initialTag);
+    setSearchQuery(initialQuery);
+  }, []);
 
   const handleTagSelect = (tag: string | null) => {
+    const newParams = new URLSearchParams();
+    if (searchQuery) newParams.set('q', encodeURIComponent(searchQuery));
+    if (tag) newParams.set('tag', encodeURIComponent(tag));
+    setSearchParams(newParams);
     setSelectedTag(tag);
     setFilterKey(prev => prev + 1);
   };
 
   const handleSearchChange = (query: string) => {
+    const newParams = new URLSearchParams();
+    if (query) newParams.set('q', encodeURIComponent(query));
+    if (selectedTag) newParams.set('tag', selectedTag);
+    setSearchParams(newParams);
     setSearchQuery(query);
     setFilterKey(prev => prev + 1);
   };
@@ -56,7 +88,13 @@ export default function Tools() {
         className="space-y-4"
       >
         <button
-          onClick={() => setSelectedTool(null)}
+          onClick={() => {
+            const state = sessionStorage.getItem('previousToolSearchState');
+            const { searchParams, scrollPosition } = state ? JSON.parse(state) : {};
+            navigate(`/ai-assistant${searchParams ? `?${searchParams}` : ''}`, {
+              state: { scrollPosition }
+            });
+          }}
           className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
         >
           <X className="w-5 h-5 mr-2" />
@@ -144,7 +182,15 @@ export default function Tools() {
                 onMouseLeave={() => setHoveredTool(null)}
               >
                 <button
-                  onClick={() => setSelectedTool(tool)}
+                  onClick={() => {
+                    const currentParams = new URLSearchParams(window.location.search);
+                    const scrollPosition = window.scrollY;
+                    sessionStorage.setItem('previousToolSearchState', JSON.stringify({
+                      searchParams: currentParams.toString(),
+                      scrollPosition
+                    }));
+                    navigate(`/ai-assistant/${tool.id}`);
+                  }}
                   className={`
                     relative w-full bg-white p-6 rounded-xl text-left
                     ${hoveredTool === tool.id 
