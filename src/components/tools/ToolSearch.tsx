@@ -7,10 +7,12 @@ import { ListFilter, Search } from 'lucide-react'
 import { categoryThemes, fullTagThemes } from '../../config/theme'
 import { useToolNavigation } from '../../hooks/useToolNavigation'
 import FeatureSection from '../FeatureSection'
+import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 
 export default function ToolSearch() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { trackEvent } = useGoogleAnalytics()
   const [searchQuery, setSearchQuery] = useState(decodeURIComponent(searchParams.get('q') || ''))
   const [selectedTag, setSelectedTag] = useState(decodeURIComponent(searchParams.get('tag') || ''))
   const [hoveredTool, setHoveredTool] = useState<string | null>(null)
@@ -58,6 +60,11 @@ export default function ToolSearch() {
   const handleToolClick = (toolId: string) => {
     sessionStorage.setItem('toolListScroll', window.scrollY.toString())
     sessionStorage.setItem('toolListSearch', searchParams.toString())
+
+    trackEvent('tool_detail_click', {
+      tool_id: toolId
+    })
+
     navigate(`/aitool/detail/${toolId}`)
   }
 

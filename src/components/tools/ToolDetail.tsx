@@ -4,23 +4,27 @@ import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { fullTagThemes } from '../../config/theme'
 import { tools } from '../../config/tools'
+import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 
 export default function ToolDetail() {
   const { toolId } = useParams()
   const navigate = useNavigate()
+  const { trackBackButtonClick, trackUrlError } = useGoogleAnalytics();
   const tool = tools.find(t => t.id === toolId)
 
   useEffect(() => {
-    window.scrollTo(0, 0)
-
     if (!tool) {
       const savedSearch = sessionStorage.getItem('toolListSearch')
+      trackUrlError(location.pathname)
       navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ''}`)
     }
+
+    window.scrollTo(0, 0)
   }, [tool, navigate])
 
   const handleBack = () => {
     const savedSearch = sessionStorage.getItem('toolListSearch')
+    trackBackButtonClick(location.pathname)
     navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ''}`, {
       replace: true,
       state: { fromDetail: true }

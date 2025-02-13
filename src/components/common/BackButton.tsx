@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
+import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 
 interface BackButtonProps {
   basePath?: string;
@@ -10,11 +11,12 @@ export default function BackButton({
   basePath = '/company/search',
   stateKey = 'previousCompanySearchState'
 }: BackButtonProps) {
+  const { trackBackButtonClick } = useGoogleAnalytics();
   const navigate = useNavigate()
 
   const handleBack = () => {
     const savedState = JSON.parse(sessionStorage.getItem(stateKey) || '{}')
-    
+    trackBackButtonClick(location.pathname)
     navigate(`${basePath}?${savedState.searchParams || ''}`, {
       state: { 
         fromDetail: true,

@@ -1,13 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function Footer() {
-  const { trackEvent } = useGoogleAnalytics();
-
-  const handleFooterLinkClick = (linkName: string) => {
-    trackEvent('footer_link_click', { link_name: linkName });
-  };
-
   return (
     <footer className="bg-white border-t border-gray-200 mt-12">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -21,7 +14,6 @@ export default function Footer() {
                 <Link
                   to="/about"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('公司介紹')}
                 >
                   公司介紹
                 </Link>
@@ -30,7 +22,6 @@ export default function Footer() {
                 <Link
                   to="/terms"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('使用條款')}
                 >
                   使用條款
                 </Link>
@@ -39,7 +30,6 @@ export default function Footer() {
                 <Link
                   to="/privacy"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('隱私政策')}
                 >
                   隱私政策
                 </Link>
@@ -56,7 +46,6 @@ export default function Footer() {
                 <Link
                   to="/company/search"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('企業搜尋')}
                 >
                   企業搜尋
                 </Link>
@@ -65,7 +54,6 @@ export default function Footer() {
                 <Link
                   to="/tender/search"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('標案查詢')}
                 >
                   標案查詢
                 </Link>
@@ -74,7 +62,6 @@ export default function Footer() {
                 <Link
                   to="/aitool/search"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('AI助理')}
                 >
                   試用您的 AI 助理
                 </Link>
@@ -91,7 +78,6 @@ export default function Footer() {
                 <Link
                   to="/tutorial"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('使用教學')}
                 >
                   使用教學
                 </Link>
@@ -100,7 +86,6 @@ export default function Footer() {
                 <Link
                   to="/faq"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('常見問題')}
                 >
                   常見問題
                 </Link>
@@ -109,7 +94,6 @@ export default function Footer() {
                 <Link
                   to="/api"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('API文件')}
                 >
                   API 文件
                 </Link>
@@ -126,7 +110,6 @@ export default function Footer() {
                 <Link
                   to="/contact"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('客服中心')}
                 >
                   客服中心
                 </Link>
@@ -135,7 +118,6 @@ export default function Footer() {
                 <Link
                   to="/partnership"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('合作提案')}
                 >
                   合作提案
                 </Link>
@@ -144,7 +126,6 @@ export default function Footer() {
                 <Link
                   to="/feedback"
                   className="text-lg text-gray-500 hover:text-gray-900"
-                  onClick={() => handleFooterLinkClick('意見回饋')}
                 >
                   意見回饋
                 </Link>

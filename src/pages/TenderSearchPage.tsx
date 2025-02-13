@@ -2,13 +2,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import TenderSearch from '../components/tender/TenderSearch';
 import FeatureSection from '../components/FeatureSection';
-import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 import { useEffect, useState } from 'react';
+import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function TenderSearchPage() {
   const navigate = useNavigate();
-  const { trackEvent } = useGoogleAnalytics();
   const location = useLocation();
+  const { trackEvent } = useGoogleAnalytics();
   const [isSearchLoaded, setIsSearchLoaded] = useState(false);
 
   useEffect(() => {
@@ -22,10 +22,10 @@ export default function TenderSearchPage() {
   }, [location.state, isSearchLoaded]);
 
   const handleTenderSelect = (tenderId: string) => {
-    trackEvent('tender_select', {
-      tender_id: tenderId,
-      from_page: 'search'
-    });
+    trackEvent('tender_detail_click', {
+      tender_id: tenderId
+    })
+
     navigate(`/tender/detail/${tenderId}`);
   };
 

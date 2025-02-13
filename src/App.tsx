@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Layout from './components/Layout';
@@ -13,11 +13,15 @@ import { siteConfig } from './config/site';
 
 function App() {
   const location = useLocation();
-  const { trackPageView } = useGoogleAnalytics();
+  const { trackPageView, trackUrlError } = useGoogleAnalytics();
+  const prevPathRef = useRef(location.pathname);
 
   useEffect(() => {
-    trackPageView(location.pathname + location.search);
-  }, [location, trackPageView]);
+    if (location.pathname !== prevPathRef.current) {
+      trackPageView(location.pathname);
+      prevPathRef.current = location.pathname;
+    }
+  }, [location.pathname, trackPageView]);
 
   const getPageTitle = () => {
     const matchedPath = Object.entries(siteConfig.titles).find(([path]) => 
@@ -25,6 +29,14 @@ function App() {
     );
     return `${siteConfig.title} - ${matchedPath?.[1] || siteConfig.defaultTitle}`;
   };
+
+  const Redirect = () => {
+    useEffect(() => {
+      trackUrlError(location.pathname);
+    }, [location.pathname]);
+  
+    return <Navigate to="/company/search" replace />;
+  }
 
   return (
     <>
@@ -59,7 +71,7 @@ function App() {
           </Route>
 
           {/* 404 路由 */}
-          <Route path="*" element={<Navigate to="/company/search" replace />} />
+          <Route path="*" element={<Redirect />} />
         </Route>
       </Routes>
     </>

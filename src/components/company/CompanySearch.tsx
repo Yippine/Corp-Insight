@@ -3,7 +3,6 @@ import { Search, Building2, FileSpreadsheet, Users, MapPin } from 'lucide-react'
 import { SearchData, SearchResponse, formatSearchData } from '../../utils/companyUtils';
 import Pagination from '../Pagination';
 import NoSearchResults from '../common/NoSearchResults';
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import { InlineLoading } from '../common/loading';
 import { useSearchParams } from 'react-router-dom';
 
@@ -61,7 +60,6 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1') || 1);
   const [totalPages, setTotalPages] = useState(1);
-  const { trackEvent } = useGoogleAnalytics();
 
   const handleSearch = async (
     e: React.FormEvent | null, 
@@ -86,11 +84,6 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
         const formattedResults = await formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
         setTotalPages(1);
-
-        trackEvent('company_search', {
-          search_type: 'taxId',
-          query_length: trimmedQuery.length
-        });
       } else {
         let response = await fetchSearchData('name', trimmedQuery, page);
         let formattedResults = await formatCompanyResults('name', response);
@@ -104,12 +97,6 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
         setSearchResults(formattedResults);
         setTotalPages(Math.ceil(response.found / 10) || 1);
         setCurrentPage(page);
-
-        trackEvent('company_search', {
-          search_type: 'name',
-          query_length: trimmedQuery.length,
-          results_count: formattedResults.length
-        });
       }
 
       setSearchParams({ 
@@ -122,10 +109,6 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
     } catch (error) {
       console.error('搜尋失敗：', error);
       setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
-      
-      trackEvent('company_search_error', {
-        error_message: error instanceof Error ? error.message : '未知錯誤'
-      });
     } finally {
       setIsSearching(false);
     }
@@ -188,9 +171,6 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
 
   const handlePageChange = (page: number) => {
     handleSearch(null, page);
-    trackEvent('company_search_pagination', {
-      page_number: page
-    });
   };
 
   const handleReset = () => {
@@ -207,9 +187,6 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
 
     if (onCompanySelect) {
       onCompanySelect(taxId)
-      trackEvent('company_select', {
-        company_id: taxId
-      })
 
       sessionStorage.setItem('previousCompanySearchState', JSON.stringify(stateToSave))
     }

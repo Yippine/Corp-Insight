@@ -5,6 +5,7 @@ import UnderDevelopment from '../common/UnderDevelopment';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 import BackButton from '../common/BackButton';
+import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 
 interface TenderDetailProps {
   tenderId?: string;
@@ -69,6 +70,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const { batchUpdateSearchState } = useTenderSearch();
   const navigate = useNavigate();
+  const { trackEvent } = useGoogleAnalytics();
 
   const handleUnitClick = async (unitId: string, unitName: string) => {
     try {
@@ -108,6 +110,11 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
   useEffect(() => {
     const currentSearch = window.location.search;
     const tabParam = searchParams.get('tab') || 'basic';
+
+    trackEvent('tender_detail_tab_change', {
+      tab: tabParam
+    });
+
     navigate(`/tender/detail/${tenderId}?tab=${tabParam}`, {
       state: { previousSearch: currentSearch },
       replace: true

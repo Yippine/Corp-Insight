@@ -7,8 +7,8 @@ import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function CompanySearchPage() {
   const navigate = useNavigate();
-  const { trackEvent } = useGoogleAnalytics();
   const location = useLocation();
+  const { trackEvent } = useGoogleAnalytics();
   const [isSearchLoaded, setIsSearchLoaded] = useState(false);
 
   useEffect(() => {
@@ -22,10 +22,10 @@ export default function CompanySearchPage() {
   }, [location.state, isSearchLoaded]);
 
   const handleCompanySelect = (taxId: string) => {
-    trackEvent('company_select', {
-      company_id: taxId,
-      from_page: 'search'
-    });
+    trackEvent('company_detail_click', {
+      tax_id: taxId
+    })
+
     navigate(`/company/detail/${encodeURIComponent(taxId)}`);
   };
 

@@ -4,7 +4,7 @@ import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function FeatureSection() {
   const navigate = useNavigate();
-  const { trackEvent } = useGoogleAnalytics();
+  const { trackFeatureNavigation } = useGoogleAnalytics();
 
   const handleFeatureClick = (feature: 'company' | 'tender' | 'tools') => {
     const paths = {
@@ -13,11 +13,7 @@ export default function FeatureSection() {
       tools: '/aitool/search'
     };
 
-    trackEvent('feature_click', {
-      feature_name: feature,
-      from_page: window.location.pathname.split('/')[1] // 自動獲取當前頁面
-    });
-
+    trackFeatureNavigation('section');
     navigate(paths[feature]);
   };
 

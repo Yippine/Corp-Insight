@@ -1,17 +1,14 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Search, Wrench, FileText } from 'lucide-react';
 import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { trackEvent } = useGoogleAnalytics();
+  const { trackFeatureNavigation } = useGoogleAnalytics();
 
-  const handleNavigation = (path: string, name: string) => {
-    trackEvent('navigation_click', { 
-      link_name: name,
-      from_path: location.pathname 
-    });
+  const handleNavigation = (path: string) => {
+    trackFeatureNavigation('header');
     navigate(path);
   };
 
@@ -19,21 +16,20 @@ export default function Header() {
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-6">
-          <Link 
-            to="/"
+          <button 
+            onClick={() => handleNavigation('/')}
             className="flex items-center"
-            onClick={() => trackEvent('logo_click')}
           >
             <img src="/magnifier.ico" alt="企業放大鏡 Logo" className="w-8 h-8 mr-3" />
             <h1 className="text-4xl font-bold text-gray-900">
               企業放大鏡™
               <span className="text-base ml-2 text-blue-600">βeta 版本</span>
             </h1>
-          </Link>
+          </button>
 
           <nav className="flex space-x-8">
             <button
-              onClick={() => handleNavigation('/aitool/search', 'AI助理')}
+              onClick={() => handleNavigation('/aitool/search')}
               className={`${
                 location.pathname.startsWith('/aitool')
                   ? 'text-amber-500 border-b-2 border-amber-500'
@@ -45,7 +41,7 @@ export default function Header() {
             </button>
 
             <button
-              onClick={() => handleNavigation('/company/search', '企業搜尋')}
+              onClick={() => handleNavigation('/company/search')}
               className={`${
                 location.pathname.startsWith('/company')
                   ? 'text-blue-600 border-b-2 border-blue-600'
@@ -57,7 +53,7 @@ export default function Header() {
             </button>
 
             <button
-              onClick={() => handleNavigation('/tender/search', '標案搜尋')}
+              onClick={() => handleNavigation('/tender/search')}
               className={`${
                 location.pathname.startsWith('/tender')
                   ? 'text-green-600 border-b-2 border-green-600'

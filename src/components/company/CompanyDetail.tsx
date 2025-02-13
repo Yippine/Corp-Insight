@@ -14,6 +14,7 @@ import { fetchListedCompany } from '../../api/routes';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 import BackButton from '../common/BackButton';
+import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 
 interface CompanyDetailProps {
   onBack?: () => void;
@@ -67,6 +68,8 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [tenderView, setTenderView] = useState<'chart' | 'list'>('chart');
+  const { trackEvent } = useGoogleAnalytics();
+
   const {
     tenders,
     isLoadingMore,
@@ -99,6 +102,11 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   useEffect(() => {
     const currentSearch = window.location.search;
     const tabParam = searchParams.get('tab') || 'basic';
+
+    trackEvent('company_detail_tab_change', {
+      tab: tabParam
+    });
+
     navigate(`/company/detail/${taxId}?tab=${tabParam}`, {
       state: { previousSearch: currentSearch },
       replace: true
