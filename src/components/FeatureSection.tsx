@@ -10,7 +10,7 @@ export default function FeatureSection() {
     const paths = {
       company: '/company/search',
       tender: '/tender/search',
-      tools: '/ai-assistant'
+      tools: '/aitool/search'
     };
 
     trackEvent('feature_click', {

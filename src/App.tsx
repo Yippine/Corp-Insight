@@ -6,7 +6,7 @@ import CompanySearchPage from './pages/CompanySearchPage';
 import CompanyDetail from './components/company/CompanyDetail';
 import TenderSearchPage from './pages/TenderSearchPage';
 import TenderDetail from './components/tender/TenderDetail';
-import ToolsList from './components/tools/ToolsList';
+import ToolSearch from './components/tools/ToolSearch';
 import ToolDetail from './components/tools/ToolDetail';
 import { useGoogleAnalytics } from './hooks/useGoogleAnalytics';
 import { siteConfig } from './config/site';
@@ -53,9 +53,9 @@ function App() {
           </Route>
 
           {/* AI 助理路由 */}
-          <Route path="ai-assistant">
-            <Route index element={<ToolsList />} />
-            <Route path=":toolId" element={<ToolDetail />} />
+          <Route path="aitool">
+            <Route path="search" element={<ToolSearch />} />
+            <Route path="detail/:toolId" element={<ToolDetail />} />
           </Route>
 
           {/* 404 路由 */}

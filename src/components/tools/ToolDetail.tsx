@@ -15,13 +15,13 @@ export default function ToolDetail() {
 
     if (!tool) {
       const savedSearch = sessionStorage.getItem('toolListSearch')
-      navigate(`/ai-assistant${savedSearch ? `?${savedSearch}` : ''}`)
+      navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ''}`)
     }
   }, [tool, navigate])
 
   const handleBack = () => {
     const savedSearch = sessionStorage.getItem('toolListSearch')
-    navigate(`/ai-assistant${savedSearch ? `?${savedSearch}` : ''}`, {
+    navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ''}`, {
       replace: true,
       state: { fromDetail: true }
     })

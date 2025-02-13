@@ -72,7 +72,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/ai-assistant"
+                  to="/aitool/search"
                   className="text-lg text-gray-500 hover:text-gray-900"
                   onClick={() => handleFooterLinkClick('AI助理')}
                 >

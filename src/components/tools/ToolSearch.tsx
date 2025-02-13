@@ -8,7 +8,7 @@ import { categoryThemes, fullTagThemes } from '../../config/theme'
 import { useToolNavigation } from '../../hooks/useToolNavigation'
 import FeatureSection from '../FeatureSection'
 
-export default function ToolsList() {
+export default function ToolSearch() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState(decodeURIComponent(searchParams.get('q') || ''))
@@ -58,7 +58,7 @@ export default function ToolsList() {
   const handleToolClick = (toolId: string) => {
     sessionStorage.setItem('toolListScroll', window.scrollY.toString())
     sessionStorage.setItem('toolListSearch', searchParams.toString())
-    navigate(`/ai-assistant/${toolId}`)
+    navigate(`/aitool/detail/${toolId}`)
   }
 
   return (
