@@ -9,6 +9,7 @@ import TenderDetail from './components/tender/TenderDetail';
 import ToolsList from './components/tools/ToolsList';
 import ToolDetail from './components/tools/ToolDetail';
 import { useGoogleAnalytics } from './hooks/useGoogleAnalytics';
+import { siteConfig } from './config/site';
 
 function App() {
   const location = useLocation();
@@ -18,11 +19,18 @@ function App() {
     trackPageView(location.pathname + location.search);
   }, [location, trackPageView]);
 
+  const getPageTitle = () => {
+    const matchedPath = Object.entries(siteConfig.titles).find(([path]) => 
+      location.pathname.startsWith(path)
+    );
+    return `${siteConfig.title} - ${matchedPath?.[1] || siteConfig.defaultTitle}`;
+  };
+
   return (
     <>
       <Helmet>
-        <title>企業放大鏡™ - 企業資訊查詢平台</title>
-        <meta name="description" content="快速查詢企業資訊、標案資料，一站式企業智能分析平台" />
+        <title>{getPageTitle()}</title>
+        <meta name="description" content={siteConfig.description} />
       </Helmet>
 
       <Routes>
