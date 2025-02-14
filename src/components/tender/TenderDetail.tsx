@@ -23,6 +23,7 @@ interface TenderData {
     category: string;
     method: string;
     location: string;
+    awardMethod: string;
   };
   companies: Array<{
     name: string;
@@ -133,17 +134,19 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
         const result = await response.json();
         
         // 轉換API資料為所需格式
+
         const formattedData: TenderData = {
           basic: {
             title: result.records[0].brief.title,
             type: result.records[0].brief.type,
-            amount: result.records[0].brief.amount || '未提供',
+            amount: result.records[0].detail['採購資料:預算金額'] || '未提供',
             date: result.records[0].date,
             status: result.records[0].brief.type.includes('決標') ? '已決標' : '招標中',
-            description: result.records[0].detail['採購品項'] || '未提供',
-            category: result.records[0].detail['標的分類'] || '未提供',
-            method: result.records[0].detail['招標方式'] || '未提供',
-            location: result.records[0].detail['履約地點'] || '未提供'
+            description: result.records[0].detail['採購資料:財物採購性質'] || '未提供',
+            category: result.records[0].detail['採購資料:標的分類'] || '未提供',
+            method: result.records[0].detail['招標資料:招標方式'] || '未提供',
+            awardMethod: result.records[0].detail['招標資料:決標方式'] || '未提供',
+            location: result.records[0].detail['其他:履約地點'] || '未提供'
           },
           companies: Object.entries(result.records[0].brief.companies?.name_key || {}).map(([name, status]: [string, any]) => ({
             name: name.split('(')[0].trim(),
@@ -175,10 +178,10 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
           unit: {
             name: result.unit_name,
             code: result.records[0].unit_id,
-            address: result.records[0].detail['機關地址'] || '未提供',
-            contact: result.records[0].detail['聯絡人'] || '未提供',
-            phone: result.records[0].detail['聯絡電話'] || '未提供',
-            email: result.records[0].detail['電子郵件'] || '未提供'
+            address: result.records[0].detail['機關資料:機關地址'] || '未提供',
+            contact: result.records[0].detail['機關資料:聯絡人'] || '未提供',
+            phone: result.records[0].detail['機關資料:聯絡電話'] || '未提供',
+            email: result.records[0].detail['機關資料:電子郵件信箱'] || '未提供'
           }
         };
 
@@ -251,7 +254,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
                       </span>
                     </dd>
                   </div>
-                  <div className="sm:col-span-2">
+                  <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">採購品項</dt>
                     <dd className="mt-1 text-base text-gray-900">{data.basic.description}</dd>
                   </div>
@@ -263,7 +266,11 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
                     <dt className="text-base font-medium text-gray-500">招標方式</dt>
                     <dd className="mt-1 text-base text-gray-900">{data.basic.method}</dd>
                   </div>
-                  <div className="sm:col-span-2">
+                  <div className="sm:col-span-1">
+                    <dt className="text-base font-medium text-gray-500">決標方式</dt>
+                    <dd className="mt-1 text-base text-gray-900">{data.basic.awardMethod}</dd>
+                  </div>
+                  <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">履約地點</dt>
                     <dd className="mt-1 text-base text-gray-900">{data.basic.location}</dd>
                   </div>
@@ -273,11 +280,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
           </div>
         );
 
-      case 'companies':
-        if (!data.companies || data.companies.length === 0) {
-          return <UnderDevelopment message="" />;
-        }
-        
+      case 'companies':       
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
@@ -331,43 +334,39 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
         );
 
       case 'progress':
-        if (!data.progress || data.progress.currentPhase === '未提供') {
-          return <UnderDevelopment message="" />;
-        }
-
-        return (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-xl leading-6 font-medium text-gray-900">
-                履約進度
-              </h3>
-            </div>
-            <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-              <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">預計開工日</dt>
-                  <dd className="mt-1 text-base text-gray-900">{data.progress.startDate}</dd>
-                </div>
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">預計竣工日</dt>
-                  <dd className="mt-1 text-base text-gray-900">{data.progress.endDate}</dd>
-                </div>
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">目前階段</dt>
-                  <dd className="mt-1 text-base text-gray-900">{data.progress.currentPhase}</dd>
-                </div>
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">完工進度</dt>
-                  <dd className="mt-1 text-base text-gray-900">{data.progress.completionRate}</dd>
-                </div>
-                <div className="sm:col-span-2">
-                  <dt className="text-base font-medium text-gray-500">付款條件</dt>
-                  <dd className="mt-1 text-base text-gray-900">{data.progress.paymentTerms}</dd>
-                </div>
-              </dl>
-            </div>
+      return (
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6">
+            <h3 className="text-xl leading-6 font-medium text-gray-900">
+              決標資料
+            </h3>
           </div>
-        );
+          <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+              <div className="sm:col-span-1">
+                <dt className="text-base font-medium text-gray-500">履約地點（含地區）</dt>
+                <dd className="mt-1 text-base text-gray-900">{data.progress.startDate}</dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-base font-medium text-gray-500">履約期限</dt>
+                <dd className="mt-1 text-base text-gray-900">{data.progress.endDate}</dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-base font-medium text-gray-500">履約執行機關</dt>
+                <dd className="mt-1 text-base text-gray-900">{data.progress.currentPhase}</dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-base font-medium text-gray-500">完工進度</dt>
+                <dd className="mt-1 text-base text-gray-900">{data.progress.completionRate}</dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-base font-medium text-gray-500">付款條件</dt>
+                <dd className="mt-1 text-base text-gray-900">{data.progress.paymentTerms}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      );
 
       case 'documents':
         return (
@@ -424,7 +423,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
             </div>
             <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
               <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                <div className="sm:col-span-2">
+                <div className="sm:col-span-1">
                   <dt className="text-base font-medium text-gray-500">機關名稱</dt>
                   <dd className="mt-1 text-base text-gray-900">
                     <button
