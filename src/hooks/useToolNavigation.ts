@@ -7,8 +7,8 @@ export function useToolNavigation() {
 
   useEffect(() => {
     if (location.state?.fromDetail) {
-      const searchParams = sessionStorage.getItem('toolListSearch')
-      const scrollPosition = sessionStorage.getItem('toolListScroll')
+      const searchParams = sessionStorage.getItem('toolSearchParams')
+      const scrollPosition = sessionStorage.getItem('toolSearchScroll')
       
       if (searchParams) {
         const decodedParams = new URLSearchParams(decodeURIComponent(searchParams))
@@ -16,13 +16,13 @@ export function useToolNavigation() {
           replace: true,
           state: { shouldRestoreScroll: true }
         })
-        sessionStorage.removeItem('toolListSearch')
+        sessionStorage.removeItem('toolSearchParams')
       }
       
       if (scrollPosition) {
         requestAnimationFrame(() => {
           window.scrollTo(0, parseInt(scrollPosition))
-          sessionStorage.removeItem('toolListScroll')
+          sessionStorage.removeItem('toolSearchScroll')
         })
       }
     }

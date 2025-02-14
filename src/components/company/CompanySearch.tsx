@@ -178,17 +178,11 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
   };
 
   const handleCompanySelect = (taxId: string) => {
-    const currentParams = new URLSearchParams(window.location.search)
-    const scrollPosition = window.scrollY
-    const stateToSave = {
-      searchParams: currentParams.toString(),
-      scrollPosition
-    }
+    sessionStorage.setItem('companySearchParams', searchParams.toString())
+    sessionStorage.setItem('companySearchScroll', window.scrollY.toString())
 
     if (onCompanySelect) {
       onCompanySelect(taxId)
-
-      sessionStorage.setItem('previousCompanySearchState', JSON.stringify(stateToSave))
     }
   };
 

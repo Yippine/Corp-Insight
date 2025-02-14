@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import TenderSearch from '../components/tender/TenderSearch';
 import FeatureSection from '../components/FeatureSection';
@@ -7,19 +7,18 @@ import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function TenderSearchPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { trackEvent } = useGoogleAnalytics();
   const [isSearchLoaded, setIsSearchLoaded] = useState(false);
 
   useEffect(() => {
-    if (location.state?.fromDetail && 
-        location.state?.scrollPosition && 
-        isSearchLoaded) {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, location.state.scrollPosition);
-      });
+    if (isSearchLoaded) {
+      const scrollPosition = sessionStorage.getItem('tenderSearchScroll');
+      if (scrollPosition) {
+        window.scrollTo(0, parseInt(scrollPosition));
+        sessionStorage.removeItem(`tenderSearchScroll`)
+      }
     }
-  }, [location.state, isSearchLoaded]);
+  }, [isSearchLoaded]);
 
   const handleTenderSelect = (tenderId: string) => {
     trackEvent('tender_detail_click', {

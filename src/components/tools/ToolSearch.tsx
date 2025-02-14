@@ -58,8 +58,8 @@ export default function ToolSearch() {
 
   // 強化導航邏輯
   const handleToolClick = (toolId: string) => {
-    sessionStorage.setItem('toolListScroll', window.scrollY.toString())
-    sessionStorage.setItem('toolListSearch', searchParams.toString())
+    sessionStorage.setItem('toolSearchParams', searchParams.toString())
+    sessionStorage.setItem('toolSearchScroll', window.scrollY.toString())
 
     trackEvent('tool_detail_click', {
       tool_id: toolId

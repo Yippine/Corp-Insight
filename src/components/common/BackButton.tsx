@@ -15,14 +15,13 @@ export default function BackButton({
   const navigate = useNavigate()
 
   const handleBack = () => {
-    const savedState = JSON.parse(sessionStorage.getItem(stateKey) || '{}')
-    trackBackButtonClick(location.pathname)
-    navigate(`${basePath}?${savedState.searchParams || ''}`, {
-      state: { 
-        fromDetail: true,
-        scrollPosition: savedState.scrollPosition || 0
-      }
-    })
+    const savedState = JSON.parse(sessionStorage.getItem(stateKey) || '{}');
+    trackBackButtonClick(location.pathname);
+    sessionStorage.setItem(stateKey, JSON.stringify({
+      ...savedState,
+      scrollPosition: window.scrollY
+    }));
+    navigate(`${basePath}?${savedState.searchParams || ''}`);
   }
 
   return (

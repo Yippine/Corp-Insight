@@ -14,7 +14,7 @@ export default function ToolDetail() {
 
   useEffect(() => {
     if (!tool) {
-      const savedSearch = sessionStorage.getItem('toolListSearch')
+      const savedSearch = sessionStorage.getItem('toolSearchParams')
       trackUrlError(location.pathname)
       navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ''}`)
     }
@@ -23,7 +23,7 @@ export default function ToolDetail() {
   }, [tool, navigate])
 
   const handleBack = () => {
-    const savedSearch = sessionStorage.getItem('toolListSearch')
+    const savedSearch = sessionStorage.getItem('toolSearchParams')
     trackBackButtonClick(location.pathname)
     navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ''}`, {
       replace: true,

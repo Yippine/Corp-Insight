@@ -133,6 +133,15 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
     handleSearch(null, 1);
   };
 
+  const handleTenderSelect = (tenderId: string) => {
+    sessionStorage.setItem('tenderSearchParams', searchParams.toString())
+    sessionStorage.setItem('tenderSearchScroll', window.scrollY.toString())
+
+    if (onTenderSelect) {
+      onTenderSelect(tenderId)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <form onSubmit={(e) => handleSearch(e)} className="relative">
@@ -272,16 +281,7 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
                 {searchResults.map((tender) => (
                   <tr 
                     key={tender.uniqueId}
-                    onClick={() => {
-                      const currentParams = new URLSearchParams(window.location.search);
-                      const scrollPosition = window.scrollY;
-                      const stateToSave = {
-                        searchParams: currentParams.toString(),
-                        scrollPosition
-                      };
-                      sessionStorage.setItem('previousTenderSearchState', JSON.stringify(stateToSave));
-                      onTenderSelect(tender.tenderId);
-                    }}
+                    onClick={() => handleTenderSelect(tender.tenderId)}
                     className="hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-6 py-4 text-base text-gray-500">

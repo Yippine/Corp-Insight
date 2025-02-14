@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction } from 'lucide-react';
+import { Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction, X } from 'lucide-react';
 import { useTenderSearch } from '../../hooks/useTenderSearch';
 import UnderDevelopment from '../common/UnderDevelopment';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
-import BackButton from '../common/BackButton';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 
 interface TenderDetailProps {
@@ -71,7 +70,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const { batchUpdateSearchState } = useTenderSearch();
   const navigate = useNavigate();
-  const { trackEvent } = useGoogleAnalytics();
+  const { trackEvent, trackBackButtonClick } = useGoogleAnalytics();
 
   const handleUnitClick = async (unitId: string, unitName: string) => {
     try {
@@ -107,6 +106,15 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
       console.error('載入機關標案資料失敗：', err);
     }
   };
+
+  const handleBack = () => {
+    const savedSearch = sessionStorage.getItem('tenderSearchParams')
+    trackBackButtonClick(location.pathname)
+    navigate(`/tender/search${savedSearch ? `?${savedSearch}` : ''}`, {
+      replace: true,
+      state: { fromDetail: true }
+    })
+  }
 
   useEffect(() => {
     const currentSearch = window.location.search;
@@ -476,10 +484,13 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <BackButton 
-          basePath="/tender/search"
-          stateKey="previousTenderSearchState"
-        />
+        <button
+          onClick={handleBack}
+          className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
+        >
+          <X className="w-5 h-5 mr-2" />
+          返回搜尋結果
+        </button>
       </div>
 
       <div className="bg-white shadow-sm rounded-lg p-6">

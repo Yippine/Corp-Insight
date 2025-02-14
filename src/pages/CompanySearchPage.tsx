@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import HeroSection from '../components/HeroSection';
 import CompanySearch from '../components/company/CompanySearch';
@@ -7,19 +7,18 @@ import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export default function CompanySearchPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { trackEvent } = useGoogleAnalytics();
   const [isSearchLoaded, setIsSearchLoaded] = useState(false);
-
+  
   useEffect(() => {
-    if (location.state?.fromDetail && 
-        location.state?.scrollPosition && 
-        isSearchLoaded) {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, location.state.scrollPosition);
-      });
+    if (isSearchLoaded) {
+      const scrollPosition = sessionStorage.getItem('companySearchScroll');
+      if (scrollPosition) {
+        window.scrollTo(0, parseInt(scrollPosition));
+        sessionStorage.removeItem(`companySearchScroll`)
+      }
     }
-  }, [location.state, isSearchLoaded]);
+  }, [isSearchLoaded]);
 
   const handleCompanySelect = (taxId: string) => {
     trackEvent('company_detail_click', {
