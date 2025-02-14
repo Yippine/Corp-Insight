@@ -114,7 +114,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   }, [taxId, searchParams, navigate]);
 
   if (!SearchData) return (
-    <div className="py-8">
+    <div className="pt-36 pb-8">
       <InlineLoading />
     </div>
   );
@@ -707,7 +707,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               </div>
 
               {isLoadingMore ? (
-                <div className="py-8">
+                <div className="pt-36 pb-8">
                   <InlineLoading />
                 </div>
               ) : tenderError ? (

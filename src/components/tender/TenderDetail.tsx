@@ -195,7 +195,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
 
   if (loading) {
     return (
-      <div className="py-8">
+      <div className="pt-36 pb-8">
         <InlineLoading />
       </div>
     );

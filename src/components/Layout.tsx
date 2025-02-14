@@ -4,10 +4,12 @@ import SimpleFooter from './SimpleFooter';
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
+      <main className="flex-1 flex items-center">
+        <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
+          <Outlet />
+        </section>
       </main>
       <SimpleFooter />
     </div>
