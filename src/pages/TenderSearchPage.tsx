@@ -13,6 +13,7 @@ export default function TenderSearchPage() {
   useEffect(() => {
     if (isSearchLoaded) {
       const scrollPosition = sessionStorage.getItem('tenderSearchScroll');
+
       if (scrollPosition) {
         window.scrollTo(0, parseInt(scrollPosition));
         sessionStorage.removeItem(`tenderSearchScroll`)

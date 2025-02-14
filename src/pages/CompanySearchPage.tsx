@@ -13,6 +13,7 @@ export default function CompanySearchPage() {
   useEffect(() => {
     if (isSearchLoaded) {
       const scrollPosition = sessionStorage.getItem('companySearchScroll');
+
       if (scrollPosition) {
         window.scrollTo(0, parseInt(scrollPosition));
         sessionStorage.removeItem(`companySearchScroll`)

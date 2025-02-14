@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, FileText, Users, MapPin, Phone, Globe, Table, BarChart3, X } from 'lucide-react';
+import { Building2, FileText, Users, MapPin, Phone, Globe, Table, BarChart3 } from 'lucide-react';
 import { formatDetailData } from '../../utils/companyUtils';
 import UnderDevelopment from '../common/UnderDevelopment';
 import CompanyMap from '../maps/CompanyMap';
@@ -14,6 +14,7 @@ import { fetchListedCompany } from '../../api/routes';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
+import BackButton from '../common/BackButton';
 
 interface CompanyDetailProps {
   onBack?: () => void;
@@ -67,7 +68,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   const [SearchData, setSearchData] = useState<any>(null);
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [tenderView, setTenderView] = useState<'chart' | 'list'>('chart');
-  const { trackEvent, trackBackButtonClick } = useGoogleAnalytics();
+  const { trackEvent } = useGoogleAnalytics();
 
   const {
     tenders,
@@ -794,25 +795,13 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
     setSearchParams({ tab });
   };
 
-  const handleBack = () => {
-    const savedSearch = sessionStorage.getItem('companySearchParams')
-    trackBackButtonClick(location.pathname)
-    navigate(`/company/search${savedSearch ? `?${savedSearch}` : ''}`, {
-      replace: true,
-      state: { fromDetail: true }
-    })
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-      <button
-        onClick={handleBack}
-        className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
-      >
-        <X className="w-5 h-5 mr-2" />
-        返回搜尋結果
-      </button>
+        <BackButton 
+          returnPath="/company/search"
+          sessionKey="companySearchParams"
+        />
       </div>
       <div className="bg-white shadow-sm rounded-lg p-8">
         <div className="flex items-start justify-between items-center">

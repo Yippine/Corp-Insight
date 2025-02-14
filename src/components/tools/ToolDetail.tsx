@@ -1,15 +1,15 @@
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
 import { fullTagThemes } from '../../config/theme'
 import { tools } from '../../config/tools'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
+import BackButton from '../common/BackButton'
 
 export default function ToolDetail() {
   const { toolId } = useParams()
   const navigate = useNavigate()
-  const { trackBackButtonClick, trackUrlError } = useGoogleAnalytics();
+  const { trackUrlError } = useGoogleAnalytics();
   const tool = tools.find(t => t.id === toolId)
 
   useEffect(() => {
@@ -22,15 +22,6 @@ export default function ToolDetail() {
     window.scrollTo(0, 0)
   }, [tool, navigate])
 
-  const handleBack = () => {
-    const savedSearch = sessionStorage.getItem('toolSearchParams')
-    trackBackButtonClick(location.pathname)
-    navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ''}`, {
-      replace: true,
-      state: { fromDetail: true }
-    })
-  }
-
   if (!tool) return null
 
   return (
@@ -39,13 +30,11 @@ export default function ToolDetail() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <button
-        onClick={handleBack}
-        className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
-      >
-        <X className="w-5 h-5 mr-2" />
-        返回工具列表
-      </button>
+      <BackButton
+        returnPath="/aitool/search"
+        sessionKey="toolSearchParams"
+        buttonText="返回工具列表"
+      />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
