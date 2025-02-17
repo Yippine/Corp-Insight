@@ -90,6 +90,35 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
         throw new Error('找不到符合的標案！');
       }
 
+      const getStatus = (record: any, searchType: 'company' | 'tender') => {
+        if (searchType === 'company') {
+          const companies = record.brief.companies;
+          if (!companies) return '未知';
+
+          // 找到搜尋的公司
+          const searchCompanyName = companies.names.find((name: string) => 
+            name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+          const searchCompanyId = companies.ids.find((id: string) => id === searchQuery);
+
+          if (!searchCompanyName && !searchCompanyId) return '未知';
+
+          // 取得該公司的狀態
+          const companyName = searchCompanyName || 
+            (searchCompanyId ? companies.names[companies.ids.indexOf(searchCompanyId)] : null);
+
+          if (!companyName) return '未知';
+
+          const status = companies.name_key[companyName];
+          return status[1]?.includes('未得標') ? '未得標' : '得標';
+        } else {
+          const type = record.brief.type;
+          if (type === '決標公告'||type ==='定期彙送'||type ==='更正決標公告') return '已決標';
+          if (type.includes('無法決標')) return '暫停招標';
+          return '招標中';
+        }
+      };
+
       const formattedResults: TenderSearchData[] = data.records.map((record: any, index: number) => ({
         tenderId: `${record.unit_id}-${record.job_number}`,
         uniqueId: `${record.unit_id}-${record.job_number}-${index}`,
@@ -99,7 +128,7 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
         unitName: record.unit_name,
         unitId: record.unit_id,
         amount: record.brief.amount || '未提供',
-        status: record.brief.type==='決標公告' ? '已決標' : '招標中',
+        status: getStatus(record, searchType),
         companies: Object.entries(record.brief.companies?.name_key || {}).map(([name, status]: [string, any]) => ({
           name: name.split('(')[0].trim(),
           status: status[1]?.includes('未得標') ? '未得標' : '得標'
@@ -141,6 +170,23 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
       onTenderSelect(tenderId)
     }
   }
+
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case '得標':
+        return 'bg-green-100 text-green-800';
+      case '未得標':
+        return 'bg-red-100 text-red-800';
+      case '已決標':
+        return 'bg-green-100 text-green-800';
+      case '暫停招標':
+        return 'bg-red-100 text-red-800 whitespace-pre-line';
+      case '招標中':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -304,10 +350,15 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
                       {tender.amount}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
-                        tender.status === '已決標' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      <span className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-sm font-medium w-16 ${
+                        getStatusStyle(tender.status)
                       }`}>
-                        {tender.status}
+                        {tender.status === '暫停招標' ? (
+                          <div className="text-center leading-4">
+                            <div>暫停</div>
+                            <div>招標</div>
+                          </div>
+                        ) : tender.status}
                       </span>
                     </td>
                   </tr>
