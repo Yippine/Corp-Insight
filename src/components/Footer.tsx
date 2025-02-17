@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200 mt-12">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto pt-8 pb-4 px-4 sm:px-6 lg:px-8 text-center">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-base font-semibold text-gray-400 tracking-wider uppercase">
@@ -134,8 +134,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-gray-200 pt-8">
-          <p className="text-lg text-gray-400 text-center">
+        <div className="mt-8 border-t border-gray-200 pt-4">
+          <p className="text-lg text-gray-400">
             © {new Date().getFullYear()} 企業放大鏡. All rights reserved.
           </p>
         </div>
