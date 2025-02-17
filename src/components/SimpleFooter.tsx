@@ -1,13 +1,10 @@
 export default function SimpleFooter() {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-12">
-      <div 
-        className="border-gray-200 py-4"
-      >
-        <p className="text-lg text-gray-400 text-center">
-          © {new Date().getFullYear()} 企業放大鏡. All rights reserved.
-        </p>
-      </div>
+    <footer className="bg-white mt-8 border-t border-gray-200 py-6 text-center">
+      <p className="text-lg text-gray-400">
+        © {new Date().getFullYear()} 企業放大鏡™｜資料來源：政府公開資訊平台<br />
+        <span className="text-sm">本平台僅提供資料檢索服務，不保證資訊之即時性及完整性。</span>
+      </p>
     </footer>
   );
 }

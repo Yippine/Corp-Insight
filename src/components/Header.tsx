@@ -1,16 +1,26 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Search, Wrench, FileText } from 'lucide-react';
 import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
+import { useEffect, useState } from 'react';
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const { trackFeatureNavigation } = useGoogleAnalytics();
+  const [showTryText, setShowTryText] = useState(true);
 
   const handleNavigation = (path: string) => {
     trackFeatureNavigation('header');
     navigate(path);
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowTryText(prev => !prev);
+    }, 3000); // Switch every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="bg-white shadow-sm">
@@ -33,11 +43,26 @@ export default function Header() {
               className={`${
                 location.pathname.startsWith('/aitool')
                   ? 'text-amber-500 border-b-2 border-amber-500'
-                  : 'text-gray-500 hover:text-gray-700'
-              } pb-4 -mb-4 px-1 font-medium text-base flex items-center`}
+                  : 'text-gray-500 hover:text-amber-600'
+              } pb-4 -mb-4 px-1 font-medium text-base flex items-center group relative`}
             >
               <Wrench className="mr-2 h-6 w-6" />
-              試用您的 AI 助理
+              <span className="relative h-full flex items-center min-w-[95px] justify-center">
+                <span 
+                  className={`absolute left-0 right-0 transition-opacity duration-500 ${
+                    showTryText ? 'opacity-100' : 'opacity-0 invisible'
+                  } bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 bg-clip-text text-transparent animate-pulse flex justify-center items-center h-full`}
+                >
+                  立即試用 Try
+                </span>
+                <span 
+                  className={`transition-opacity duration-500 absolute left-0 right-0 ${
+                    showTryText ? 'opacity-0 invisible' : 'opacity-100'
+                  } flex justify-center items-center h-full`}
+                >
+                  您的 AI 助理
+                </span>
+              </span>
             </button>
 
             <button

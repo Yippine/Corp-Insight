@@ -41,7 +41,7 @@ export default function FeatureSection() {
           <Building2 className="h-7 w-7 text-blue-600" />
         </div>
         <div>
-          <h3 className="text-xl font-medium text-gray-900">企業資料</h3>
+          <h3 className="text-xl font-medium text-gray-900">公開企業資料</h3>
           <p className="mt-2 text-base text-gray-500">
             一鍵解析企業全貌：董監事、分公司、商標、判決、標案、稅務等 6 大面向的企業智能總覽！
           </p>
@@ -55,7 +55,7 @@ export default function FeatureSection() {
           <FileSpreadsheet className="h-7 w-7 text-green-600" />
         </div>
         <div>
-          <h3 className="text-xl font-medium text-gray-900">標案資訊</h3>
+          <h3 className="text-xl font-medium text-gray-900">公開標案資料</h3>
           <p className="mt-2 text-base text-gray-500">
             全面政府標案情報：一鍵解析標案名稱、金額、得標廠商，多元智能查詢，讓您精準抓住關鍵商機！
           </p>
