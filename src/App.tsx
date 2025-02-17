@@ -8,6 +8,9 @@ import TenderSearchPage from './pages/TenderSearchPage';
 import TenderDetail from './components/tender/TenderDetail';
 import ToolSearch from './components/tools/ToolSearch';
 import ToolDetail from './components/tools/ToolDetail';
+import FAQPage from './pages/FAQPage';
+import PrivacyPage from './pages/PrivacyPage';
+import FeedbackPage from './pages/FeedbackPage';
 import { useGoogleAnalytics } from './hooks/useGoogleAnalytics';
 import { siteConfig } from './config/site';
 
@@ -69,6 +72,11 @@ function App() {
             <Route path="search" element={<ToolSearch />} />
             <Route path="detail/:toolId" element={<ToolDetail />} />
           </Route>
+
+          {/* 網站地圖路由 */}
+          <Route path="faq" element={<FAQPage />} />
+          <Route path="privacy" element={<PrivacyPage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
 
           {/* 404 路由 */}
           <Route path="*" element={<Redirect />} />
