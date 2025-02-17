@@ -86,7 +86,7 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
         unitName: record.unit_name,
         unitId: record.unit_id,
         amount: record.brief.amount || '未提供',
-        status: record.brief.type.includes('決標') ? '已決標' : '招標中',
+        status: record.brief.type === '決標公告' ? '已決標' : '招標中',
         companies: Object.entries(record.brief.companies?.name_key || {}).map(([name, status]: [string, any]) => ({
           name: name.split('(')[0].trim(),
           status: status[1]?.includes('未得標') ? '未得標' : '得標'
@@ -133,55 +133,58 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
         );
         const result = await response.json();
         
-        // 轉換API資料為所需格式
+        const bidRecord = result.records.findLast((r: any) => r.brief.type === '決標公告');
+        const tenderRecord = result.records.find((r: any) => r.brief.type.includes('招標公告'));
 
         const formattedData: TenderData = {
           basic: {
-            title: result.records[0].brief.title,
-            type: result.records[0].brief.type,
-            amount: result.records[0].detail['採購資料:預算金額'] || '未提供',
-            date: result.records[0].date,
-            status: result.records[0].brief.type.includes('決標') ? '已決標' : '招標中',
-            description: result.records[0].detail['採購資料:財物採購性質'] || '未提供',
-            category: result.records[0].detail['採購資料:標的分類'] || '未提供',
-            method: result.records[0].detail['招標資料:招標方式'] || '未提供',
-            awardMethod: result.records[0].detail['招標資料:決標方式'] || '未提供',
-            location: result.records[0].detail['其他:履約地點'] || '未提供'
+            title: bidRecord?.brief.title || tenderRecord.brief.title,
+            type: bidRecord?.brief.type || tenderRecord.brief.type,
+            amount: bidRecord?.detail['決標資料:總決標金額'] || tenderRecord.detail['採購資料:預算金額'] || '未提供',
+            date: bidRecord?.date || tenderRecord.date,
+            description: bidRecord?.detail['決標品項:第1品項:品項名稱'] || tenderRecord.detail['採購資料:財物採購性質'] || '未提供',
+            category: bidRecord?.detail['已公告資料:標的分類'] || tenderRecord.detail['採購資料:標的分類'] || '未提供',
+            method: bidRecord?.detail['已公告資料:招標方式'] || tenderRecord.detail['招標資料:招標方式'] || '未提供',
+            awardMethod: bidRecord?.detail['已公告資料:決標方式'] || tenderRecord.detail['招標資料:決標方式'] || '未提供',
+            location: bidRecord?.detail['已公告資料:履約地點（含地區）'] || tenderRecord.detail['其他:履約地點'] || '未提供',
+            status: bidRecord ? '已決標' : '招標中',
           },
-          companies: Object.entries(result.records[0].brief.companies?.name_key || {}).map(([name, status]: [string, any]) => ({
-            name: name.split('(')[0].trim(),
-            status: status[1]?.includes('未得標') ? '未得標' : '得標',
-            amount: status[1]?.match(/金額(\d+)/)?.[1] || '未提供',
-            taxId: status[0] || '未提供'
+          companies: Object.entries(
+            bidRecord?.brief.companies?.name_key || tenderRecord.brief.companies?.name_key || {}
+          ).map(([name, status]: [string, any]) => ({
+            name: name.replace(/\s*\(.*?\)$/, '').trim(),
+            status: status.some((s: string) => s.includes('未得標')) ? '未得標' : '得標',
+            amount: status.find((s: string) => s.match(/金額\D*(\d+)/))?.[1].replace(/\D/g, '') || '未提供',
+            taxId: status.find((s: string) => /^\d{8}$/.test(s)) || '未提供'
           })),
           progress: {
-            startDate: result.records[0].detail['預計開工日'] || '未提供',
-            endDate: result.records[0].detail['預計竣工日'] || '未提供',
-            currentPhase: result.records[0].detail['履約階段'] || '未提供',
-            paymentTerms: result.records[0].detail['付款條件'] || '未提供',
-            completionRate: result.records[0].detail['完工進度'] || '未提供'
+            startDate: bidRecord?.detail['投標廠商:投標廠商1:履約起迄日期']?.split('－')[0] || '未提供',
+            endDate: bidRecord?.detail['投標廠商:投標廠商1:履約起迄日期']?.split('－')[1] || '未提供',
+            currentPhase: bidRecord?.detail['決標資料:履約執行機關'] || '未提供',
+            paymentTerms: bidRecord?.detail['決標資料:契約是否訂有依物價指數調整價金規定'] || '未提供',
+            completionRate: '未提供'
           },
           documents: [
             {
               title: '招標公告',
               type: 'announcement',
-              date: result.records[0].date,
+              date: tenderRecord.date,
               url: '#'
             },
             {
               title: '決標公告',
               type: 'award',
-              date: result.records[0].date,
+              date: bidRecord?.date || tenderRecord.date,
               url: '#'
             }
           ],
           unit: {
-            name: result.unit_name,
-            code: result.records[0].unit_id,
-            address: result.records[0].detail['機關資料:機關地址'] || '未提供',
-            contact: result.records[0].detail['機關資料:聯絡人'] || '未提供',
-            phone: result.records[0].detail['機關資料:聯絡電話'] || '未提供',
-            email: result.records[0].detail['機關資料:電子郵件信箱'] || '未提供'
+            name: result.unit_name || bidRecord?.detail['機關資料:機關名稱'] || tenderRecord.detail['機關資料:機關名稱'] || '未提供',
+            code: bidRecord.unit_id || tenderRecord.unit_id || '未提供',
+            address: bidRecord?.detail['機關資料:機關地址'] || tenderRecord.detail['機關資料:機關地址'] || '未提供',
+            contact: bidRecord?.detail['機關資料:聯絡人'] || tenderRecord.detail['機關資料:聯絡人'] || '未提供',
+            phone: bidRecord?.detail['機關資料:聯絡電話'] || tenderRecord.detail['機關資料:聯絡電話'] || '未提供',
+            email: bidRecord?.detail['機關資料:電子郵件信箱'] || tenderRecord.detail['機關資料:電子郵件信箱'] || '未提供'
           }
         };
 

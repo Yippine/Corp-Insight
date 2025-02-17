@@ -99,7 +99,7 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
         unitName: record.unit_name,
         unitId: record.unit_id,
         amount: record.brief.amount || '未提供',
-        status: record.brief.type.includes('決標') ? '已決標' : '招標中',
+        status: record.brief.type==='決標公告' ? '已決標' : '招標中',
         companies: Object.entries(record.brief.companies?.name_key || {}).map(([name, status]: [string, any]) => ({
           name: name.split('(')[0].trim(),
           status: status[1]?.includes('未得標') ? '未得標' : '得標'
