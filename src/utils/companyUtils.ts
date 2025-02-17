@@ -14,6 +14,7 @@ export interface SearchData {
 
 export interface DetailData extends Omit<SearchData, 'tenders'> {
   established: string;
+  lastChanged: string;
   phone: string;
   email: string;
   website: string;
@@ -74,6 +75,7 @@ export interface SearchResponse {
 
 export interface DetailResponse extends SearchResponse {
   核准設立日期?: { year: number; month: number; day: number };
+  最後核准變更日期?: { year: number; month: number; day: number };
   '實收資本額(元)'?: number | string;
   '董監事名單'?: { 姓名: string; 職稱: string; 出資額?: number | string; }[];
   股權狀況?: string;
@@ -204,6 +206,7 @@ const formatDetailData = (taxId: string, company: DetailResponse): DetailData =>
     status: getCompanyStatus(company),
     chairman: company.負責人姓名 || company.代表人姓名 || '無',
     established: formatDate(company.核准設立日期 || { year: 0, month: 0, day: 0 }),
+    lastChanged: formatDate(company.最後核准變更日期 || { year: 0, month: 0, day: 0 }),
     address: company.地址 || company.公司所在地 || '未提供',
     phone: '未提供',
     email: '未提供',

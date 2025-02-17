@@ -349,7 +349,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
 
                   <div className="sm:col-span-1">
                     <dt className="text-base font-medium text-gray-500">最近變更日期</dt>
-                    <dd className="mt-1 text-base text-gray-900">{SearchData.established}</dd>
+                    <dd className="mt-1 text-base text-gray-900">{SearchData.lastChanged}</dd>
                   </div>
 
                   {SearchData.registrationAuthority && SearchData.registrationAuthority !== '未提供' && (

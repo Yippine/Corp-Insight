@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -37,8 +37,8 @@ interface ManagersTimelineProps {
   established: string;
 }
 
-export default function ManagersTimeline({ managers, established }: ManagersTimelineProps) {
-  const chartRef = useRef<ChartJS<'bar', { x: Date; y: number; }[], unknown>>(null);
+export default function ManagersTimeline({ managers }: ManagersTimelineProps) {
+  const chartRef = useRef<ChartJS<'bar', { x: Date[]; y: string; }[], unknown>>(null);
 
   useEffect(() => {
     const chart = chartRef.current;
@@ -103,6 +103,8 @@ export default function ManagersTimeline({ managers, established }: ManagersTime
     };
   };
 
+  const processedData = useMemo(() => processData(), [managers]);
+
   const options = {
     indexAxis: 'y' as const,
     responsive: true,
@@ -152,7 +154,7 @@ export default function ManagersTimeline({ managers, established }: ManagersTime
         經理人到職時間軸
       </h3>
       <div className="h-[500px]">
-        <Bar ref={chartRef} data={processData()} options={options} />
+        <Bar ref={chartRef} data={processedData} options={options} />
       </div>
     </div>
   );
