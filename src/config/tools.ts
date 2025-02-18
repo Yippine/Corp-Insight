@@ -1,30 +1,14 @@
 import React from 'react';
-// import { Calculator, Package, Activity, BarChart3, Scale, DollarSign, Coins, PieChart, LineChart, Wallet, Monitor, Server, Database, Cpu, Network, Search, FileText, Type, MessageSquare, Star, Zap } from 'lucide-react';
-// import ManufacturingCalculator from '../components/tools/manufacturing/ManufacturingCalculator';
-// import MetalWeightCalculator from '../components/tools/manufacturing/MetalWeightCalculator';
-// import YieldCalculator from '../components/tools/manufacturing/YieldCalculator';
-// import PackagingCalculator from '../components/tools/manufacturing/PackagingCalculator';
-// import OEECalculator from '../components/tools/manufacturing/OEECalculator';
-// import CompoundInterestCalculator from '../components/tools/finance/CompoundInterestCalculator';
-// import CurrencyConverter from '../components/tools/finance/CurrencyConverter';
-// import LoanCalculator from '../components/tools/finance/LoanCalculator';
-// import ROICalculator from '../components/tools/finance/ROICalculator';
-// import DepositCalculator from '../components/tools/finance/DepositCalculator';
-// import GPUMemoryCalculator from '../components/tools/computer/GPUMemoryCalculator';
-// import ServerSpecCalculator from '../components/tools/computer/ServerSpecCalculator';
-// import AIInfrastructureCostCalculator from '../components/tools/computer/AIInfrastructureCostCalculator';
-// import ModelPerformanceCalculator from '../components/tools/computer/ModelPerformanceCalculator';
-// import WorkloadScalabilityCalculator from '../components/tools/computer/WorkloadScalabilityCalculator';
-// import TitleGenerator from '../components/tools/seo/TitleGenerator';
-// import DescriptionGenerator from '../components/tools/seo/DescriptionGenerator';
-// import KeywordGenerator from '../components/tools/seo/KeywordGenerator';
-// import FaqGenerator from '../components/tools/seo/FaqGenerator';
-// import ReviewGenerator from '../components/tools/seo/ReviewGenerator';
-// import FeatureGenerator from '../components/tools/seo/FeatureGenerator';
 import { promptTools, PromptToolConfig } from './promptTools';
 import PromptToolTemplate from '../components/tools/common/PromptToolTemplate';
-import { Stethoscope } from 'lucide-react';
+import { Stethoscope, Type, FileText, Search, MessageSquare, Star, Zap } from 'lucide-react';
 import TCMCheck from '../components/tools/health/TCMCheck';
+import DescriptionGenerator from '../components/tools/seo/DescriptionGenerator';
+import KeywordGenerator from '../components/tools/seo/KeywordGenerator';
+import FaqGenerator from '../components/tools/seo/FaqGenerator';
+import ReviewGenerator from '../components/tools/seo/ReviewGenerator';
+import FeatureGenerator from '../components/tools/seo/FeatureGenerator';
+import TitleGenerator from '../components/tools/seo/TitleGenerator';
 
 export interface Tool {
   id: string;
@@ -45,54 +29,54 @@ const aiTools = promptTools.map((tool: PromptToolConfig) => ({
 }));
 
 export const tools = [
-  // {
-  //   id: 'title-generator',
-  //   name: 'SEO 標題策略大師',
-  //   description: '智能生成 SEO 友好的標題，提高點擊率和搜尋排名',
-  //   icon: Type,
-  //   component: TitleGenerator,
-  //   tags: ['工具', 'SEO']
-  // },
-  // {
-  //   id: 'description-generator',
-  //   name: 'SEO 描述智能專家',
-  //   description: '生成優化的 META 描述，提升搜尋結果的點擊率',
-  //   icon: FileText,
-  //   component: DescriptionGenerator,
-  //   tags: ['工具', 'SEO']
-  // },
-  // {
-  //   id: 'keyword-generator',
-  //   name: 'SEO 關鍵詞戰略家',
-  //   description: '發掘高價值長尾關鍵字，降低競爭難度',
-  //   icon: Search,
-  //   component: KeywordGenerator,
-  //   tags: ['工具', 'SEO']
-  // },
-  // {
-  //   id: 'faq-generator',
-  //   name: 'FAQ 智能構建師',
-  //   description: '智能生成常見問題，豐富網站內容',
-  //   icon: MessageSquare,
-  //   component: FaqGenerator,
-  //   tags: ['工具', 'SEO']
-  // },
-  // {
-  //   id: 'review-generator',
-  //   name: 'SEO 社群評價專家',
-  //   description: '生成真實感產品評價，增加社交證明',
-  //   icon: Star,
-  //   component: ReviewGenerator,
-  //   tags: ['工具', 'SEO']
-  // },
-  // {
-  //   id: 'feature-generator',
-  //   name: '產品價值放大器',
-  //   description: '客製化產品功能描述，提高銷售吸引力',
-  //   icon: Zap,
-  //   component: FeatureGenerator,
-  //   tags: ['工具', 'SEO']
-  // },
+  {
+    id: 'title-generator',
+    name: 'SEO 標題策略大師',
+    description: '智能生成 SEO 友好的標題，提高點擊率和搜尋排名',
+    icon: Type,
+    component: TitleGenerator,
+    tags: ['工具', 'SEO']
+  },
+  {
+    id: 'description-generator',
+    name: 'SEO 描述智能專家',
+    description: '生成優化的 META 描述，提升搜尋結果的點擊率',
+    icon: FileText,
+    component: DescriptionGenerator,
+    tags: ['工具', 'SEO']
+  },
+  {
+    id: 'keyword-generator',
+    name: 'SEO 關鍵詞戰略家',
+    description: '發掘高價值長尾關鍵字，降低競爭難度',
+    icon: Search,
+    component: KeywordGenerator,
+    tags: ['工具', 'SEO']
+  },
+  {
+    id: 'faq-generator',
+    name: 'FAQ 智能構建師',
+    description: '智能生成常見問題，豐富網站內容',
+    icon: MessageSquare,
+    component: FaqGenerator,
+    tags: ['工具', 'SEO']
+  },
+  {
+    id: 'review-generator',
+    name: 'SEO 社群評價專家',
+    description: '生成真實感產品評價，增加社交證明',
+    icon: Star,
+    component: ReviewGenerator,
+    tags: ['工具', 'SEO']
+  },
+  {
+    id: 'feature-generator',
+    name: '產品價值放大器',
+    description: '客製化產品功能描述，提高銷售吸引力',
+    icon: Zap,
+    component: FeatureGenerator,
+    tags: ['工具', 'SEO']
+  },
   // {
   //   id: 'gpu-memory',
   //   name: 'GPU 內存計算器',
