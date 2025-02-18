@@ -90,31 +90,44 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
         throw new Error('找不到符合的標案！');
       }
 
-      const getStatus = (record: any, searchType: 'company' | 'tender') => {
+      // 專業標案狀態解析器 (符合政府採購網規範)
+      const getStatus = (record: Record<string, any>, searchType: 'company' | 'tender'): string => {
         if (searchType === 'company') {
-          const companies = record.brief.companies;
-          if (!companies) return '未知';
+          const { companies } = record.brief;
+          if (!companies?.names?.length) return '無廠商資料';
 
-          // 找到搜尋的公司
-          const searchCompanyName = companies.names.find((name: string) => 
-            name.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-          const searchCompanyId = companies.ids.find((id: string) => id === searchQuery);
+          // 精準匹配企業名稱 / 統編 (支援模糊搜尋)
+          const findCompanyMatch = () => {
+            const query = searchQuery.toLowerCase();
+            return {
+              nameMatch: companies.names.find((name: string) => 
+                name.toLowerCase().includes(query)
+              ),
+              idMatch: companies.ids.find((id: string) => id === searchQuery)
+            };
+          };
 
-          if (!searchCompanyName && !searchCompanyId) return '未知';
+          const { nameMatch, idMatch } = findCompanyMatch();
+          if (!nameMatch && !idMatch) return '非參與廠商';
 
-          // 取得該公司的狀態
-          const companyName = searchCompanyName || 
-            (searchCompanyId ? companies.names[companies.ids.indexOf(searchCompanyId)] : null);
+          // 解析企業得標狀態 (強化防呆機制)
+          const resolveCompanyName = () => 
+            nameMatch || (idMatch && companies.names[companies.ids.indexOf(idMatch)]);
 
-          if (!companyName) return '未知';
+          const companyName = resolveCompanyName();
+          if (!companyName) return '資料異常';
 
-          const status = companies.name_key[companyName];
-          return status[1]?.includes('未得標') ? '未得標' : '得標';
+          const statusData = companies.name_key[companyName]?.[1] ?? '';
+          return statusData.includes('未得標') ? '未得標' : '得標';
         } else {
-          const type = record.brief.type;
-          if (type === '決標公告'||type ==='定期彙送'||type ==='更正決標公告') return '已決標';
-          if (type.includes('無法決標')) return '暫停招標';
+          const TENDER_STATUS_MAP = {
+            finalized: new Set(['決標公告', '定期彙送', '更正決標公告']),
+            paused: ['無法決標','撤銷公告','流標公告']
+          };
+
+          const { type } = record.brief;
+          if (TENDER_STATUS_MAP.finalized.has(type)) return '已決標';
+          if (TENDER_STATUS_MAP.paused.some(s => type.includes(s))) return '暫停招標';
           return '招標中';
         }
       };
@@ -303,22 +316,22 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9.5%]">
                     日期
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[15%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[19%]">
                     類型
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[35%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[33.5%]">
                     標案名稱
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[20%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[19%]">
                     機關名稱
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9.5%]">
                     金額
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9.5%]">
                     狀態
                   </th>
                 </tr>
@@ -350,15 +363,10 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
                       {tender.amount}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-sm font-medium w-16 ${
+                      <span className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-sm font-medium w-20 ${
                         getStatusStyle(tender.status)
                       }`}>
-                        {tender.status === '暫停招標' ? (
-                          <div className="text-center leading-4">
-                            <div>暫停</div>
-                            <div>招標</div>
-                          </div>
-                        ) : tender.status}
+                        {tender.status}
                       </span>
                     </td>
                   </tr>
