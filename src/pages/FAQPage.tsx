@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, Search, FileText, Users, Wrench, AlertCircle, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 const faqs = [
   {
@@ -42,10 +44,21 @@ const faqs = [
 ];
 
 export default function FAQPage() {
+  const { trackEvent } = useGoogleAnalytics();
+  const navigate = useNavigate();
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const handleToggle = (id: string) => {
     setActiveId(activeId === id ? null : id);
+  };
+
+  const handleNavigation = (e: React.MouseEvent, pathname: string) => {
+    e.preventDefault();
+    trackEvent('faq_link_click', {
+      link_url: pathname,
+    });
+
+    navigate(pathname);
   };
 
   return (
@@ -129,12 +142,12 @@ export default function FAQPage() {
         >
           <p className="text-gray-600 text-lg">
             還有其他問題嗎？
-            <a 
-              href="/feedback" 
+            <span
+              onClick={(e) => handleNavigation(e, '/feedback')}
               className="text-blue-600 hover:text-blue-800 font-medium ml-1 hover:underline transition-colors duration-200"
             >
               請聯絡我們！
-            </a>
+            </span>
           </p>
         </motion.div>
       </div>

@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, AlertCircle, Loader2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const feedbackTypes = [
-  { id: 'data-correction', name: '資料勘誤', description: '回報資料錯誤或不準確的情況' },
-  { id: 'business-cooperation', name: '業務合作', description: '討論商業合作機會' },
-  { id: 'bug-report', name: '系統問題', description: '回報系統錯誤或異常' },
-  { id: 'feature-request', name: '功能建議', description: '提供新功能或改進建議' },
+  { id: 'data_correction', name: '資料勘誤', description: '回報資料錯誤或不準確的情況' },
+  { id: 'business_cooperation', name: '業務合作', description: '討論商業合作機會' },
+  { id: 'bug_report', name: '系統問題', description: '回報系統錯誤或異常' },
+  { id: 'feature_request', name: '功能建議', description: '提供新功能或改進建議' },
   { id: 'other', name: '其他', description: '其他意見或建議' }
 ];
+
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
 export default function FeedbackPage() {
   const [type, setType] = useState('');
@@ -24,17 +30,20 @@ export default function FeedbackPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // 從 URL 參數獲取反饋類型
-    const params = new URLSearchParams(window.location.search);
-    const typeFromUrl = params.get('type');
-    if (typeFromUrl) {
-      setType(typeFromUrl);
-    }
-  }, []);
+  const location = useLocation();
 
   useEffect(() => {
-    // 清理預覽 URL
+    const params = new URLSearchParams(location.search);
+    const typeFromUrl = params.get('type');
+    
+    if (typeFromUrl) {
+      setType(decodeURIComponent(typeFromUrl));
+    } else {
+      setType('');
+    }
+  }, [location.search]);
+
+  useEffect(() => {
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
@@ -45,15 +54,13 @@ export default function FeedbackPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // 檢查文件大小（5MB 限制）
       if (file.size > 5 * 1024 * 1024) {
-        setError('檔案大小不能超過 5MB');
+        setError('檔案大小不能超過 5MB。');
         return;
       }
       
-      // 檢查文件類型
       if (!file.type.startsWith('image/')) {
-        setError('只能上傳圖片檔案');
+        setError('只能上傳圖片檔案。');
         return;
       }
 
@@ -65,7 +72,12 @@ export default function FeedbackPage() {
 
   const handleSendVerificationCode = async () => {
     if (!email) {
-      setError('請輸入電子郵件地址');
+      setError('請輸入電子郵件地址。');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError('請輸入有效的電子郵件地址。');
       return;
     }
 
@@ -77,7 +89,7 @@ export default function FeedbackPage() {
       await new Promise(resolve => setTimeout(resolve, 1500)); // 模擬 API 調用
       setIsCodeSent(true);
     } catch (err) {
-      setError('驗證碼發送失敗，請稍後再試');
+      setError('驗證碼發送失敗，請稍後再試。');
     } finally {
       setIsSending(false);
     }
@@ -85,7 +97,7 @@ export default function FeedbackPage() {
 
   const handleVerifyCode = async () => {
     if (!verificationCode) {
-      setError('請輸入驗證碼');
+      setError('請輸入驗證碼。');
       return;
     }
 
@@ -96,7 +108,7 @@ export default function FeedbackPage() {
       await new Promise(resolve => setTimeout(resolve, 1000)); // 模擬 API 調用
       setIsVerified(true);
     } catch (err) {
-      setError('驗證碼錯誤，請重新輸入');
+      setError('驗證碼錯誤，請重新輸入。');
     }
   };
 
@@ -104,7 +116,7 @@ export default function FeedbackPage() {
     e.preventDefault();
 
     if (!type || !title || !content || !email || !isVerified) {
-      setError('請填寫所有必填欄位並完成郵箱驗證');
+      setError('請填寫所有必填欄位並完成郵箱驗證！');
       return;
     }
 
@@ -115,7 +127,6 @@ export default function FeedbackPage() {
       // 這裡應該調用後端 API 提交反饋
       await new Promise(resolve => setTimeout(resolve, 2000)); // 模擬 API 調用
       
-      // 成功後重置表單
       setType('');
       setTitle('');
       setContent('');
@@ -126,10 +137,9 @@ export default function FeedbackPage() {
       setFile(null);
       setPreviewUrl(null);
       
-      // 顯示成功消息
       alert('感謝您的反饋！我們會盡快處理。');
     } catch (err) {
-      setError('提交失敗，請稍後再試');
+      setError('提交失敗，請稍後再試。');
     } finally {
       setIsSubmitting(false);
     }
@@ -140,27 +150,31 @@ export default function FeedbackPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-sm overflow-hidden"
+        className="bg-white/50 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-white/20"
       >
-        <div className="px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700">
-          <h1 className="text-3xl font-bold text-white">
+        <div className="px-8 py-6 bg-gradient-to-r from-blue-600/90 to-blue-700/90 backdrop-blur-md">
+          <motion.h1 
+            className="text-3xl font-bold text-white tracking-tighter"
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+          >
             意見回饋
-          </h1>
-          <p className="mt-2 text-blue-100">
+          </motion.h1>
+          <p className="mt-2 text-blue-100/90 font-light">
             您的意見對我們很重要，我們會認真處理每一筆回饋。
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          {/* 反饋類型 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          <div className="space-y-2">
+            <label className="block text-lg font-semibold text-gray-700 tracking-tight">
               反饋類型 <span className="text-red-500">*</span>
             </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block w-full rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 py-3 px-4 text-gray-700 bg-white/95"
             >
               <option value="">請選擇反饋類型</option>
               {feedbackTypes.map(type => (
@@ -171,40 +185,37 @@ export default function FeedbackPage() {
             </select>
           </div>
 
-          {/* 問題概要 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="space-y-2">
+            <label className="block text-lg font-semibold text-gray-700 tracking-tight">
               問題概要 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block w-full rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:shadow-md focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
               placeholder="請簡短描述您的問題"
             />
           </div>
 
-          {/* 詳細說明 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="space-y-2">
+            <label className="block text-lg font-semibold text-gray-700 tracking-tight">
               詳細說明 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={5}
-              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block w-full rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:shadow-md focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
               placeholder="請詳細描述您遇到的問題或建議"
             />
           </div>
 
-          {/* 附件上傳 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="space-y-2">
+            <label className="block text-lg font-semibold text-gray-700 tracking-tight">
               附加截圖（選填）
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200/50 border-dashed rounded-xl bg-white/80 hover:border-blue-400/50 transition-colors duration-200">
               <div className="space-y-1 text-center">
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400"
@@ -220,7 +231,7 @@ export default function FeedbackPage() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <div className="flex text-sm text-gray-600">
+                <div className="flex text-base text-gray-600">
                   <label
                     htmlFor="file-upload"
                     className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
@@ -237,26 +248,29 @@ export default function FeedbackPage() {
                   </label>
                   <p className="pl-1">或拖放檔案</p>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-sm text-gray-500">
                   PNG, JPG, GIF 最大 5MB
                 </p>
               </div>
             </div>
             {previewUrl && (
-              <div className="mt-2">
+              <motion.div 
+                className="mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
                 <img
                   src={previewUrl}
                   alt="Preview"
-                  className="h-32 w-auto rounded-lg"
+                  className="h-32 w-auto rounded-lg shadow-sm border border-white/20"
                 />
-              </div>
+              </motion.div>
             )}
           </div>
 
-          {/* 電子郵件和驗證 */}
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-lg font-semibold text-gray-700 tracking-tight">
                 電子郵件 <span className="text-red-500">*</span>
               </label>
               <div className="flex space-x-4">
@@ -264,86 +278,95 @@ export default function FeedbackPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="block flex-1 rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
                   placeholder="your@email.com"
                   disabled={isCodeSent}
                 />
-                <button
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleSendVerificationCode}
                   disabled={!email || isCodeSent || isSending}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl shadow-sm text-white bg-blue-600/90 hover:bg-blue-700/90 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSending ? (
                     <Loader2 className="animate-spin h-5 w-5" />
                   ) : (
-                    '發送驗證碼'
+                    <span className="tracking-tight">發送驗證碼</span>
                   )}
-                </button>
+                </motion.button>
               </div>
             </div>
-
-            {isCodeSent && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  驗證碼 <span className="text-red-500">*</span>
-                </label>
-                <div className="flex space-x-4">
-                  <input
-                    type="text"
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    className="block w-32 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    placeholder="000000"
-                    disabled={isVerified}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVerifyCode}
-                    disabled={!verificationCode || isVerified}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    驗證
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* 錯誤提示 */}
-          {error && (
-            <div className="rounded-lg bg-red-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <AlertCircle className="h-5 w-5 text-red-400" />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
+          {isCodeSent && (<div className="space-y-4">
+            <motion.div 
+              className="space-y-2"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <label className="block text-lg font-semibold text-gray-700 tracking-tight">
+                驗證碼 <span className="text-red-500">*</span>
+              </label>
+              <div className="flex space-x-4">
+                <input
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  className="block w-32 rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
+                  placeholder="000000"
+                  disabled={isVerified}
+                />
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleVerifyCode}
+                  disabled={!verificationCode || isVerified}
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl shadow-sm text-white bg-blue-600/90 hover:bg-blue-700/90 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="tracking-tight">驗證</span>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
+          </div>)}
+
+          {error && (
+            <motion.div 
+              className="rounded-xl bg-red-50/90 p-4 border border-red-100"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="flex items-center">
+                <AlertCircle className="h-5 w-5 text-red-400/90 shrink-0" />
+                <p className="ml-3 text-base text-red-700/90 font-medium tracking-tight">{error}</p>
+              </div>
+            </motion.div>
           )}
 
-          {/* 提交按鈕 */}
-          <div className="pt-4">
+          <motion.div 
+            className="pt-6"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
             <button
               type="submit"
               disabled={!isVerified || isSubmitting}
-              className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-semibold rounded-xl shadow-lg text-white bg-gradient-to-r from-blue-600/90 to-blue-700/90 hover:from-blue-700/90 hover:to-blue-800/90 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
-                  提交中...
+                  <Loader2 className="animate-spin h-6 w-6 mr-3" />
+                  <span className="tracking-tight">提交中...</span>
                 </>
               ) : (
                 <>
-                  <Send className="mr-2 h-5 w-5" />
-                  提交反饋
+                  <Send className="w-5 h-5 mr-2 -ml-1" />
+                  <span className="tracking-tight">提交反饋</span>
                 </>
               )}
             </button>
-          </div>
+          </motion.div>
         </form>
       </motion.div>
     </div>

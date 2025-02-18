@@ -9,7 +9,7 @@ export default function Footer() {
 
   const handleNavigation = (e: React.MouseEvent, category: string, path: string, isExternal = false) => {
     e.preventDefault();
-    trackEvent('footer_navigation', {
+    trackEvent('footer_link_click', {
       event_category: category,
       link_url: path,
       link_type: isExternal ? 'external' : 'internal'
