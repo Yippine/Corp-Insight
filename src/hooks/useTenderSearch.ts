@@ -9,11 +9,7 @@ export interface TenderSearchData {
   unitName: string;
   unitId: string;
   amount: string;
-  status: string;
-  companies: Array<{
-    name: string;
-    status: string;
-  }>;
+  label: string;
 }
 
 interface SearchState {
