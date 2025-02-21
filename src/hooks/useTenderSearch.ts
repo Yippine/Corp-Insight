@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 
 export interface TenderSearchData {
   tenderId: string;
@@ -61,34 +61,16 @@ export function useTenderSearch() {
     });
   }, []);
 
-  const batchUpdateSearchState = useCallback((
-    results: TenderSearchData[],
-    query: string,
-    page: number,
-    totalPages: number
-  ) => {
-    updateSearchState({
-      results,
-      query,
-      currentPage: page,
-      totalPages
+  const batchUpdate = useCallback((newState: Partial<SearchState>) => {
+    setSearchState(prev => {
+      const merged = {...prev, ...newState};
+      localStorage.setItem(STORAGE_KEYS.TENDER_SEARCH, JSON.stringify(merged));
+      return merged;
     });
-  }, [updateSearchState]);
-
-  const setSearchResults = (results: TenderSearchData[]) => {
-    updateSearchState({ results });
-  };
+  }, []);
 
   const setSearchQuery = (query: string) => {
     updateSearchState({ query });
-  };
-
-  const setCurrentPage = (page: number) => {
-    updateSearchState({ currentPage: page });
-  };
-
-  const setTotalPages = (pages: number) => {
-    updateSearchState({ totalPages: pages });
   };
 
   const setSearchType = (type: 'company' | 'tender') => {
@@ -102,18 +84,33 @@ export function useTenderSearch() {
 
   const memoizedResults = useMemo(() => searchState.results, [searchState.results]);
 
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEYS.TENDER_SEARCH && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed.query && parsed.searchType) {
+            setSearchState(prev => ({...prev, ...parsed}));
+          }
+        } catch (error) {
+          console.error('Storage 解析錯誤:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   return {
     searchResults: memoizedResults,
-    setSearchResults,
     searchQuery: searchState.query,
-    setSearchQuery,
     searchType: searchState.searchType,
-    setSearchType,
     currentPage: searchState.currentPage,
-    setCurrentPage,
     totalPages: searchState.totalPages,
-    setTotalPages,
-    batchUpdateSearchState,
+    setSearchQuery,
+    setSearchType,
+    batchUpdateSearchState: batchUpdate,
     resetTenderSearch
   };
 }

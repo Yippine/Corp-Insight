@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Building2, FileSpreadsheet, FileText, Search } from 'lucide-react';
 import Pagination from '../Pagination';
 import { useTenderSearch, TenderSearchData } from '../../hooks/useTenderSearch';
@@ -8,50 +8,71 @@ import { useSearchParams } from 'react-router-dom';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
-  onSearchComplete?: () => void;
 }
 
-export default function TenderSearch({ onTenderSelect, onSearchComplete }: TenderSearchProps) {
+export const useSearchParamsSync = () => {
+  const [searchParams] = useSearchParams();
+  return useMemo(() => ({
+    q: decodeURIComponent(searchParams.get('q') || ''),
+    type: (searchParams.get('type') || 'company') as 'company' | 'tender',
+    page: Math.max(1, parseInt(searchParams.get('page') || '1'))
+  }), [searchParams]);
+};
+
+export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   const {
     searchResults,
-    setSearchResults,
     searchQuery,
     setSearchQuery,
     searchType,
     setSearchType,
     currentPage,
-    setCurrentPage,
     totalPages,
-    setTotalPages
+    batchUpdateSearchState
   } = useTenderSearch();
 
   const [isSearching, setIsSearching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { q, type, page } = useSearchParamsSync();
 
   useEffect(() => {
-    const urlQuery = searchParams.get('q');
-
-    if (!urlQuery) {
-      setSearchResults([]);
-      setSearchQuery('');
-      setCurrentPage(1);
-      setTotalPages(1);
-      return;
+    if (type === 'company' || type === 'tender') {
+      setSearchType(type);
     }
-
-    if (urlQuery) {
-      const decodedQuery = decodeURIComponent(urlQuery);
-      setSearchQuery(decodedQuery);
-      handleSearch(null, parseInt(searchParams.get('page') || '1'));
-    }
-  }, []);
+  }, [type, setSearchType]);
 
   useEffect(() => {
-    if (searchQuery.trim()) {
-      handleSearch(null, 1);
-    }
-  }, [searchType]);
+    const syncStateAndSearch = async () => {
+      if (!q) {
+        batchUpdateSearchState({
+          results: [],
+          query: '',
+          currentPage: 1,
+          totalPages: 1
+        });
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const data = await fetchSearchData(type, q, page);
+        const formattedResults = formatResults(data, type);
+        batchUpdateSearchState({
+          results: formattedResults,
+          query: q,
+          currentPage: page,
+          totalPages: data.total_pages
+        });
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : '搜尋失敗');
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    syncStateAndSearch();
+  }, [q, type, page, batchUpdateSearchState]);
 
   const fetchSearchData = async (type: 'company' | 'tender', query: string, page: number = 1): Promise<any> => {
     const baseUrl = 'https://pcc.g0v.ronny.tw/api';
@@ -81,103 +102,82 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
     }
   };
 
-  const handleSearch = async (e: React.FormEvent | null, page: number = 1) => {
+  const handleSearch = async (e?: React.FormEvent, page?: number) => {
     e?.preventDefault();
-    const trimmedQuery = searchQuery.trim();
-    if (!trimmedQuery) return;
+    const targetPage = page || 1;
     
-    setIsSearching(true);
-    setErrorMessage(null);
+    setSearchParams({
+      q: encodeURIComponent(searchQuery),
+      type: searchType,
+      page: targetPage.toString()
+    });
+  };
 
-    try {
-      const data = await fetchSearchData(searchType, trimmedQuery, page);
-      
-      if (!data.records || data.records.length === 0) {
-        throw new Error('找不到符合的標案！');
-      }
+  const getLabel = (record: Record<string, any>, searchType: 'company' | 'tender'): string => {
+    const nameKey = record.brief.companies?.name_key?.[Object.keys(record.brief.companies?.name_key || {})[0]];
+    const type = record.brief.type;
+    const labels = [];
 
-      const getLabel = (record: Record<string, any>, searchType: 'company' | 'tender'): string => {
-        const nameKey = record.brief.companies?.name_key?.[Object.keys(record.brief.companies?.name_key || {})[0]];
-        const type = record.brief.type;
-        const labels = [];
-
-        if (searchType === 'company') {
-          const isLoser = nameKey?.some((key: string) => key.includes('未得標廠商'));
-          labels.push(isLoser ? '未得標' : '得標');
-        } else {
-          const labelPatterns = [
-            {
-              label: '已決標',
-              patterns: [
-                /^決標公告/,
-                /^更正決標公告/,
-                /^定期彙送/,
-                /^更正定期彙送/
-              ]
-            },
-            {
-              label: '無法決標',
-              patterns: [
-                /^無法決標公告/,
-                /^更正無法決標公告/
-              ]
-            },
-            {
-              label: '資訊',
-              patterns: [
-                /公開徵求廠商提供參考資料/,
-                /財物變賣/,
-                /拒絕往來廠商/,
-                /招標文件公開閱覽/,
-                /財物出租/,
-                /懲戒公告/
-              ]
-            }
-          ];
-
-          const matchedLabel = labelPatterns.find(({ patterns }) => 
-            patterns.some(pattern => pattern.test(type))
-          );
-
-          if (matchedLabel) {
-            labels.push(matchedLabel.label);
-          } else {
-            labels.push('招標中');
-          }
+    if (searchType === 'company') {
+      const isLoser = nameKey?.some((key: string) => key.includes('未得標廠商'));
+      labels.push(isLoser ? '未得標' : '得標');
+    } else {
+      const labelPatterns = [
+        {
+          label: '已決標',
+          patterns: [
+            /^決標公告/,
+            /^更正決標公告/,
+            /^定期彙送/,
+            /^更正定期彙送/
+          ]
+        },
+        {
+          label: '無法決標',
+          patterns: [
+            /^無法決標公告/,
+            /^更正無法決標公告/
+          ]
+        },
+        {
+          label: '資訊',
+          patterns: [
+            /公開徵求廠商提供參考資料/,
+            /財物變賣/,
+            /拒絕往來廠商/,
+            /招標文件公開閱覽/,
+            /財物出租/,
+            /懲戒公告/
+          ]
         }
+      ];
 
-        return labels.join(',');
-      };
+      const matchedLabel = labelPatterns.find(({ patterns }) => 
+        patterns.some(pattern => pattern.test(type))
+      );
 
-      const formattedResults: TenderSearchData[] = data.records.map((record: any, index: number) => ({
-        tenderId: `${record.unit_id}-${record.job_number}`,
-        uniqueId: `${record.unit_id}-${record.job_number}-${index}`,
-        date: record.date,
-        type: record.brief.type,
-        title: record.brief.title,
-        unitName: record.unit_name,
-        unitId: record.unit_id,
-        amount: record.brief.amount || '未提供',
-        label: getLabel(record, searchType),
-      }));
-
-      setSearchResults(formattedResults);
-      setTotalPages(data.total_pages);
-      setCurrentPage(page);
-
-      setSearchParams({
-        q: encodeURIComponent(trimmedQuery),
-        type: searchType,
-        page: page.toString()
-      });
-
-      onSearchComplete?.();
-    } catch (error) {
-      console.error('搜尋失敗：', error);
-      setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
-    } finally {
-      setIsSearching(false);
+      if (matchedLabel) {
+        labels.push(matchedLabel.label);
+      } else {
+        labels.push('招標中');
+      }
     }
+
+    return labels.join(',');
+  };
+
+  const formatResults = (data: any, searchType: 'company' | 'tender'): TenderSearchData[] => {
+    return data.records.map((record: any, index: number) => ({
+      tenderId: `${record.unit_id}-${record.job_number}`,
+      uniqueId: `${record.unit_id}-${record.job_number}-${index}`,
+      date: record.date,
+      type: record.brief.type,
+      title: record.brief.title,
+      unitName: record.unit_name,
+      unitId: record.unit_id,
+      amount: record.brief.amount || '未提供',
+      label: getLabel(record, searchType),
+    }));
   };
 
   const getLabelStyle = (label: string) => {
@@ -200,11 +200,11 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
   };
 
   const handlePageChange = (page: number) => {
-    handleSearch(null, page);
+    handleSearch(undefined, page);
   };
 
   const handleReset = () => {
-    handleSearch(null, 1);
+    handleSearch(undefined, 1);
   };
 
   const handleTenderSelect = (tenderId: string) => {
@@ -216,6 +216,15 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
     }
   }
 
+  const handleTypeChange = (newType: 'company' | 'tender') => {
+    setSearchType(newType);
+    setSearchParams({ 
+      q: encodeURIComponent(searchQuery),
+      type: newType,
+      page: '1'
+    });
+  };
+
   return (
     <div className="space-y-6">
       <form onSubmit={(e) => handleSearch(e)} className="relative">
@@ -224,7 +233,7 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
           <div className="inline-flex rounded-lg p-1 bg-gray-100">
             <button
               type="button"
-              onClick={() => setSearchType('company')}
+              onClick={() => handleTypeChange('company')}
               className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all duration-200 ${
                 searchType === 'company'
                   ? 'bg-white text-green-600 shadow-sm'
@@ -236,7 +245,7 @@ export default function TenderSearch({ onTenderSelect, onSearchComplete }: Tende
             </button>
             <button
               type="button"
-              onClick={() => setSearchType('tender')}
+              onClick={() => handleTypeChange('tender')}
               className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all duration-200 ${
                 searchType === 'tender'
                   ? 'bg-white text-green-600 shadow-sm'
