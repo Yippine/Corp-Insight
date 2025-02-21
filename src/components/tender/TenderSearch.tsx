@@ -37,10 +37,16 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   const { q, type, page } = useSearchParamsSync();
 
   useEffect(() => {
-    if (type === 'company' || type === 'tender') {
+    if (type !== searchType && (type === 'company' || type === 'tender')) {
       setSearchType(type);
+      batchUpdateSearchState({
+        results: [],
+        query: searchQuery,
+        currentPage: 1,
+        totalPages: 1
+      });
     }
-  }, [type, setSearchType]);
+  }, [type]);
 
   useEffect(() => {
     const syncStateAndSearch = async () => {
@@ -55,24 +61,44 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       }
 
       setIsSearching(true);
+      setErrorMessage(null);
+
       try {
-        const data = await fetchSearchData(type, q, page);
-        const formattedResults = formatResults(data, type);
+        let currentPage = page;
+        let data = await fetchSearchData(searchType, q, currentPage);
+        if (data.records.length === 0 && currentPage > 1) {
+          currentPage = 1;
+          data = await fetchSearchData(searchType, q, currentPage);
+        }
+
+        const formattedResults = formatResults(data, searchType);
+        setSearchParams({
+          q: encodeURIComponent(q),
+          type: searchType,
+          page: currentPage.toString()
+        });
+
         batchUpdateSearchState({
           results: formattedResults,
           query: q,
-          currentPage: page,
+          currentPage: currentPage,
           totalPages: data.total_pages
         });
+
+        if (formattedResults.length === 0) {
+          throw new Error('找不到符合的標案！');
+        }
       } catch (error) {
-        setErrorMessage(error instanceof Error ? error.message : '搜尋失敗');
+        console.error('搜尋失敗：', error);
+        setErrorMessage(error instanceof Error ? error.message : '搜尋過程發生錯誤，請稍後再試。');
       } finally {
         setIsSearching(false);
       }
     };
 
-    syncStateAndSearch();
-  }, [q, type, page, batchUpdateSearchState]);
+    const timeoutId = setTimeout(syncStateAndSearch, 100);
+    return () => clearTimeout(timeoutId);
+  }, [q, searchType, page]);
 
   const fetchSearchData = async (type: 'company' | 'tender', query: string, page: number = 1): Promise<any> => {
     const baseUrl = 'https://pcc.g0v.ronny.tw/api';
