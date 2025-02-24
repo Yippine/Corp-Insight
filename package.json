@@ -7,9 +7,12 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-sitemap": "node scripts/generate-sitemap.js",
+    "start-cron": "node scripts/cron-jobs.js"
   },
   "dependencies": {
+    "@google-cloud/firestore": "^7.11.0",
     "@google/generative-ai": "^0.21.0",
     "@heroicons/react": "^2.2.0",
     "@react-google-maps/api": "^2.20.3",
@@ -20,12 +23,14 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^11.18.2",
     "lucide-react": "^0.344.0",
+    "node-cron": "^3.0.3",
     "query-string": "^9.1.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-helmet-async": "^2.0.4",
-    "react-router-dom": "^6.29.0"
+    "react-router-dom": "^6.29.0",
+    "sitemap": "^7.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

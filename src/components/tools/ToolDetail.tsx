@@ -5,6 +5,8 @@ import { fullTagThemes } from '../../config/theme'
 import { tools } from '../../config/tools'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import BackButton from '../common/BackButton'
+import SEOHead from '../SEOHead';
+import { SitemapCollector } from '../../services/SitemapCollector'
 
 export default function ToolDetail() {
   const { toolId } = useParams()
@@ -24,12 +26,29 @@ export default function ToolDetail() {
 
   if (!tool) return null
 
+  useEffect(() => {
+    if (toolId) {
+      SitemapCollector.recordToolVisit(toolId);
+    }
+  }, [toolId]);
+
+  const seoTitle = tool ? `${tool.name} | AI 助理工具 | 企業放大鏡™` : 'AI 助理工具 | 企業放大鏡™';
+  const seoDescription = tool 
+    ? `${tool.description} 立即使用這個強大的 AI 助理工具，提升您的工作效率。`
+    : '探索我們豐富的 AI 助理工具集，助您提升工作效率。';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        canonicalUrl={`/aitool/detail/${toolId}`}
+      />
+
       <BackButton
         returnPath="/aitool/search"
         sessionKey="toolSearchParams"

@@ -15,6 +15,8 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import BackButton from '../common/BackButton';
+import SEOHead from '../SEOHead';
+import { SitemapCollector } from '../../services/SitemapCollector';
 
 interface CompanyDetailProps {
   onBack?: () => void;
@@ -112,6 +114,17 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
       replace: true
     });
   }, [taxId, searchParams, navigate]);
+
+  useEffect(() => {
+    if (taxId) {
+      SitemapCollector.recordCompanyVisit(taxId);
+    }
+  }, [taxId]);
+
+  const seoTitle = SearchData ? `${SearchData.name} - 企業資訊 | 企業放大鏡™` : '企業資訊 | 企業放大鏡™';
+  const seoDescription = SearchData 
+    ? `查看 ${SearchData.name} 的詳細企業資訊，包含基本資料、財務概況、核心成員和相關標案等完整資訊。統一編號：${SearchData.taxId}。`
+    : '查看完整的企業資訊，包含基本資料、財務概況、核心成員和相關標案等詳細內容。';
 
   if (!SearchData) return (
     <div className="pt-36 pb-8">
@@ -797,6 +810,12 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
 
   return (
     <div className="space-y-6">
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        canonicalUrl={`/company/detail/${taxId}`}
+      />
+      
       <div className="flex items-center justify-between">
         <BackButton 
           returnPath="/company/search"

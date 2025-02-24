@@ -6,6 +6,8 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import BackButton from '../common/BackButton';
+import SEOHead from '../SEOHead';
+import { SitemapCollector } from '../../services/SitemapCollector';
 
 interface TenderDetailProps {
   tenderId?: string;
@@ -93,12 +95,12 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
         }))
       }));
 
-      batchUpdateSearchState(
-        formattedResults,
-        unitName,
-        1,
-        1
-      );
+      batchUpdateSearchState({
+        results: formattedResults,
+        query: unitName,
+        currentPage: 1,
+        totalPages: 1
+      });
 
       setTimeout(() => {
         onBack?.();
@@ -476,8 +478,25 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
     }
   };
 
+  useEffect(() => {
+    if (tenderId) {
+      SitemapCollector.recordTenderVisit(tenderId);
+    }
+  }, [tenderId]);
+
+  const seoTitle = data ? `${data.basic.title} - 標案資訊 | 企業放大鏡™` : '標案資訊 | 企業放大鏡™';
+  const seoDescription = data 
+    ? `查看 ${data.basic.title} 的詳細標案資訊，包含基本資料、投標廠商、履約進度等完整內容。招標機關：${data.unit.name}。`
+    : '查看完整的政府標案資訊，包含基本資料、投標廠商、履約進度等詳細內容。';
+
   return (
     <div className="space-y-6">
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        canonicalUrl={`/tender/detail/${tenderId}`}
+      />
+
       <BackButton
         returnPath="/tender/search"
         sessionKey="tenderSearchParams"
