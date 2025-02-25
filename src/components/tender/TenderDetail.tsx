@@ -1,118 +1,53 @@
-import { useEffect, useState } from 'react';
-import { Building2, FileText, Users, MapPin, Mail, Phone, FileSpreadsheet, Construction } from 'lucide-react';
-import { useTenderSearch } from '../../hooks/useTenderSearch';
-import UnderDevelopment from '../common/UnderDevelopment';
+import { useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Building2, FileText, Users, MapPin, Phone, Mail, Globe, Calendar } from 'lucide-react';
+import { useTenderDetail } from '../../hooks/useTenderDetail';
 import { InlineLoading } from '../common/loading';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import BackButton from '../common/BackButton';
 import SEOHead from '../SEOHead';
 import { SitemapCollector } from '../../services/SitemapCollector';
+import NoDataFound from '../common/NoDataFound';
 
-interface TenderDetailProps {
-  tenderId?: string;
-  onBack?: () => void;
-}
+const tabIcons = {
+  '機關資料': Building2,
+  '已公告資料': FileText,
+  '投標廠商': Users,
+  '決標品項': FileText,
+  '決標資料': FileText,
+  '採購資料': FileText,
+  '招標資料': FileText,
+  '領投開標': FileText,
+  '其他': FileText,
+  '無法決標公告': FileText,
+  '標案內容': FileText
+} as const;
 
-interface TenderData {
-  basic: {
-    title: string;
-    type: string;
-    amount: string;
-    date: string;
-    status: string;
-    description: string;
-    category: string;
-    method: string;
-    location: string;
-    awardMethod: string;
-  };
-  companies: Array<{
-    name: string;
-    status: string;
-    amount: string;
-    taxId: string;
-  }>;
-  progress: {
-    startDate: string;
-    endDate: string;
-    currentPhase: string;
-    paymentTerms: string;
-    completionRate: string;
-  };
-  documents: Array<{
-    title: string;
-    type: string;
-    date: string;
-    url: string;
-  }>;
-  unit: {
-    name: string;
-    code: string;
-    address: string;
-    contact: string;
-    phone: string;
-    email: string;
-  };
-}
-
-const tabs = [
-  { id: 'basic', name: '基本資料', icon: Building2 },
-  { id: 'companies', name: '投標廠商', icon: Users },
-  { id: 'progress', name: '履約進度', icon: Construction },
-  { id: 'documents', name: '相關文件', icon: FileText },
-  { id: 'unit', name: '機關資訊', icon: MapPin }
-];
-
-export default function TenderDetail({ onBack }: TenderDetailProps) {
+export default function TenderDetail() {
   const { tenderId } = useParams<{ tenderId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basic');
-  const [data, setData] = useState<TenderData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { batchUpdateSearchState } = useTenderSearch();
   const navigate = useNavigate();
   const { trackEvent } = useGoogleAnalytics();
 
-  const handleUnitClick = async (unitId: string, unitName: string) => {
-    try {
-      const response = await fetch(`https://pcc.g0v.ronny.tw/api/listbyunit?unit_id=${unitId}`);
-      const result = await response.json();
+  const { data, targetRecord, isLoading, error, sections } = useTenderDetail(tenderId || '');
+  const activeTab = searchParams.get('tab') || sections[0]?.title || '';
 
-      const formattedResults = result.records.map((record: any) => ({
-        tenderId: `${record.unit_id}-${record.job_number}`,
-        date: record.date,
-        type: record.brief.type,
-        title: record.brief.title,
-        unitName: record.unit_name,
-        unitId: record.unit_id,
-        amount: record.brief.amount || '未提供',
-        status: record.brief.type === '決標公告' ? '已決標' : '招標中',
-        companies: Object.entries(record.brief.companies?.name_key || {}).map(([name, status]: [string, any]) => ({
-          name: name.split('(')[0].trim(),
-          status: status[1]?.includes('未得標') ? '未得標' : '得標'
-        }))
-      }));
-
-      batchUpdateSearchState({
-        results: formattedResults,
-        query: unitName,
-        currentPage: 1,
-        totalPages: 1
-      });
-
-      setTimeout(() => {
-        onBack?.();
-      }, 0);
-    } catch (err) {
-      console.error('載入機關標案資料失敗：', err);
+  useEffect(() => {
+    if (tenderId) {
+      SitemapCollector.recordTenderVisit(tenderId);
     }
-  };
+  }, [tenderId]);
+
+  useEffect(() => {
+    if (sections.length > 0 && !activeTab) {
+      setSearchParams({ tab: sections[0].title });
+    }
+  }, [sections, activeTab, setSearchParams]);
 
   useEffect(() => {
     const currentSearch = window.location.search;
-    const tabParam = searchParams.get('tab') || 'basic';
+    const tabParam = searchParams.get('tab') || sections[0]?.title || '';
 
     trackEvent('tender_detail_tab_change', {
       tab: tabParam
@@ -122,86 +57,9 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
       state: { previousSearch: currentSearch },
       replace: true
     });
-  }, [tenderId, searchParams, navigate]);
+  }, [tenderId, searchParams, navigate, sections, trackEvent]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [unitId, jobNumber] = tenderId!.split('-');
-        const response = await fetch(
-          `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`
-        );
-        const result = await response.json();
-        
-        const bidRecord = result.records.findLast((r: any) => r.brief.type === '決標公告');
-        const tenderRecord = result.records.find((r: any) => r.brief.type.includes('招標公告'));
-
-        const formattedData: TenderData = {
-          basic: {
-            title: bidRecord?.brief.title || tenderRecord.brief.title,
-            type: bidRecord?.brief.type || tenderRecord.brief.type,
-            amount: bidRecord?.detail['決標資料:總決標金額'] || tenderRecord.detail['採購資料:預算金額'] || '未提供',
-            date: bidRecord?.date || tenderRecord.date,
-            description: bidRecord?.detail['決標品項:第1品項:品項名稱'] || tenderRecord.detail['採購資料:財物採購性質'] || '未提供',
-            category: bidRecord?.detail['已公告資料:標的分類'] || tenderRecord.detail['採購資料:標的分類'] || '未提供',
-            method: bidRecord?.detail['已公告資料:招標方式'] || tenderRecord.detail['招標資料:招標方式'] || '未提供',
-            awardMethod: bidRecord?.detail['已公告資料:決標方式'] || tenderRecord.detail['招標資料:決標方式'] || '未提供',
-            location: bidRecord?.detail['已公告資料:履約地點（含地區）'] || tenderRecord.detail['其他:履約地點'] || '未提供',
-            status: bidRecord ? '已決標' : '招標中',
-          },
-          companies: Object.entries(
-            bidRecord?.brief.companies?.name_key || tenderRecord.brief.companies?.name_key || {}
-          ).map(([name, status]: [string, any]) => ({
-            name: name.replace(/\s*\(.*?\)$/, '').trim(),
-            status: status.some((s: string) => s.includes('未得標')) ? '未得標' : '得標',
-            amount: status.find((s: string) => s.match(/金額\D*(\d+)/))?.[1].replace(/\D/g, '') || '未提供',
-            taxId: status.find((s: string) => /^\d{8}$/.test(s)) || '未提供'
-          })),
-          progress: {
-            startDate: bidRecord?.detail['投標廠商:投標廠商1:履約起迄日期']?.split('－')[0] || '未提供',
-            endDate: bidRecord?.detail['投標廠商:投標廠商1:履約起迄日期']?.split('－')[1] || '未提供',
-            currentPhase: bidRecord?.detail['決標資料:履約執行機關'] || '未提供',
-            paymentTerms: bidRecord?.detail['決標資料:契約是否訂有依物價指數調整價金規定'] || '未提供',
-            completionRate: '未提供'
-          },
-          documents: [
-            {
-              title: '招標公告',
-              type: 'announcement',
-              date: tenderRecord.date,
-              url: '#'
-            },
-            {
-              title: '決標公告',
-              type: 'award',
-              date: bidRecord?.date || tenderRecord.date,
-              url: '#'
-            }
-          ],
-          unit: {
-            name: result.unit_name || bidRecord?.detail['機關資料:機關名稱'] || tenderRecord.detail['機關資料:機關名稱'] || '未提供',
-            code: bidRecord.unit_id || tenderRecord.unit_id || '未提供',
-            address: bidRecord?.detail['機關資料:機關地址'] || tenderRecord.detail['機關資料:機關地址'] || '未提供',
-            contact: bidRecord?.detail['機關資料:聯絡人'] || tenderRecord.detail['機關資料:聯絡人'] || '未提供',
-            phone: bidRecord?.detail['機關資料:聯絡電話'] || tenderRecord.detail['機關資料:聯絡電話'] || '未提供',
-            email: bidRecord?.detail['機關資料:電子郵件信箱'] || tenderRecord.detail['機關資料:電子郵件信箱'] || '未提供'
-          }
-        };
-
-        setData(formattedData);
-      } catch (err) {
-        setError('資料載入失敗，請稍後再試');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [tenderId]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="pt-36 pb-8">
         <InlineLoading />
@@ -210,284 +68,105 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
   }
 
   if (error || !data) {
-    return (
-      <div className="text-red-600 text-center py-4">{error || '無法載入資料'}</div>
-    );
+    return <NoDataFound message={error || '無法載入標案資料'} />;
   }
 
+  const seoTitle = targetRecord ? `${targetRecord.brief.title} - 標案資訊 | 企業放大鏡™` : '標案資訊 | 企業放大鏡™';
+  const seoDescription = targetRecord 
+    ? `查看 ${targetRecord.brief.title} 的詳細標案資訊，包含基本資料、投標廠商、履約進度等完整內容。招標機關：${data.unit_name || '未提供'}。`
+    : '查看完整的政府標案資訊，包含基本資料、投標廠商、履約進度等詳細內容。';
+
   const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
     setSearchParams({ tab });
   };
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'basic':
-        return (
-          <div className="space-y-6">
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-5 sm:px-6">
-                <h3 className="text-xl leading-6 font-medium text-gray-900">
-                  標案基本資料
-                </h3>
-              </div>
-              <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <dt className="text-base font-medium text-gray-500">標案名稱</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.title}</dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">標案類型</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.type}</dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">公告日期</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.date}</dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">預算金額</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.amount}</dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">標案狀態</dt>
-                    <dd className="mt-1 text-base">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
-                        data.basic.status === '已決標' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {data.basic.status}
-                      </span>
-                    </dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">採購品項</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.description}</dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">標的分類</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.category}</dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">招標方式</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.method}</dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">決標方式</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.awardMethod}</dd>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <dt className="text-base font-medium text-gray-500">履約地點</dt>
-                    <dd className="mt-1 text-base text-gray-900">{data.basic.location}</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-          </div>
-        );
+  const renderFieldValue = (value: string | string[]) => {
+    if (Array.isArray(value)) {
+      return value.map((item, index) => (
+        <p key={index} className="text-base text-gray-900">{item}</p>
+      ));
+    }
 
-      case 'companies':       
-        return (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-xl leading-6 font-medium text-gray-900">
-                投標廠商資訊
-              </h3>
-            </div>
-            <div className="border-t border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      廠商名稱
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      統一編號
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      投標金額
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      狀態
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data.companies.map((company, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
-                        {company.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                        {company.taxId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                        {company.amount}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
-                          company.status === '得標' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                          {company.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
+    // 處理特殊格式
+    if (value.includes('\n')) {
+      return value.split('\n').map((line, index) => (
+        <p key={index} className="text-base text-gray-900">{line}</p>
+      ));
+    }
 
-      case 'progress':
+    // 處理電話號碼
+    if (value.match(/^\(\d{2,4}\)[0-9\-#]+$/)) {
       return (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-xl leading-6 font-medium text-gray-900">
-              決標資料
-            </h3>
-          </div>
-          <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-            <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-              <div className="sm:col-span-1">
-                <dt className="text-base font-medium text-gray-500">履約地點（含地區）</dt>
-                <dd className="mt-1 text-base text-gray-900">{data.progress.startDate}</dd>
-              </div>
-              <div className="sm:col-span-1">
-                <dt className="text-base font-medium text-gray-500">履約期限</dt>
-                <dd className="mt-1 text-base text-gray-900">{data.progress.endDate}</dd>
-              </div>
-              <div className="sm:col-span-1">
-                <dt className="text-base font-medium text-gray-500">履約執行機關</dt>
-                <dd className="mt-1 text-base text-gray-900">{data.progress.currentPhase}</dd>
-              </div>
-              <div className="sm:col-span-1">
-                <dt className="text-base font-medium text-gray-500">完工進度</dt>
-                <dd className="mt-1 text-base text-gray-900">{data.progress.completionRate}</dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-base font-medium text-gray-500">付款條件</dt>
-                <dd className="mt-1 text-base text-gray-900">{data.progress.paymentTerms}</dd>
-              </div>
-            </dl>
-          </div>
+        <div className="flex items-center">
+          <Phone className="h-5 w-5 text-gray-400 mr-2" />
+          <span className="text-base text-gray-900">{value}</span>
         </div>
       );
-
-      case 'documents':
-        return (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-xl leading-6 font-medium text-gray-900">
-                相關文件
-              </h3>
-            </div>
-            <div className="border-t border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      文件名稱
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      類型
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                      日期
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data.documents.map((doc, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-blue-600 hover:text-blue-800">
-                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                          {doc.title}
-                        </a>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                        {doc.type}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                        {doc.date}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-
-      case 'unit':
-        return (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-xl leading-6 font-medium text-gray-900">
-                機關資訊
-              </h3>
-            </div>
-            <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-              <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">機關名稱</dt>
-                  <dd className="mt-1 text-base text-gray-900">
-                    <button
-                      onClick={() => handleUnitClick(data.unit.code, data.unit.name)}
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
-                    >
-                      {data.unit.name}
-                    </button>
-                  </dd>
-                </div>
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">機關代碼</dt>
-                  <dd className="mt-1 text-base text-gray-900">{data.unit.code}</dd>
-                </div>
-                <div className="sm:col-span-2">
-                  <dt className="text-base font-medium text-gray-500">機關地址</dt>
-                  <dd className="mt-1 text-base text-gray-900 flex items-center">
-                    <MapPin className="h-5 w-5 text-gray-400 mr-1" />
-                    {data.unit.address}
-                  </dd>
-                </div>
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">聯絡人</dt>
-                  <dd className="mt-1 text-base text-gray-900">{data.unit.contact}</dd>
-                </div>
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">聯絡電話</dt>
-                  <dd className="mt-1 text-base text-gray-900 flex items-center">
-                    <Phone className="h-5 w-5 text-gray-400 mr-1" />
-                    {data.unit.phone}
-                  </dd>
-                </div>
-                <div className="sm:col-span-1">
-                  <dt className="text-base font-medium text-gray-500">電子郵件</dt>
-                  <dd className="mt-1 text-base text-gray-900 flex items-center">
-                    <Mail className="h-5 w-5 text-gray-400 mr-1" />
-                    {data.unit.email}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        );
-
-      default:
-        return <UnderDevelopment message="" />;
     }
+
+    // 處理電子郵件
+    if (value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return (
+        <div className="flex items-center">
+          <Mail className="h-5 w-5 text-gray-400 mr-2" />
+          <span className="text-base text-gray-900">{value}</span>
+        </div>
+      );
+    }
+
+    // 處理網址
+    if (value.startsWith('http')) {
+      return (
+        <div className="flex items-center">
+          <Globe className="h-5 w-5 text-gray-400 mr-2" />
+          <a 
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-base text-blue-600 hover:text-blue-800"
+          >
+            {value}
+          </a>
+        </div>
+      );
+    }
+
+    // 處理地址
+    if (value.match(/[縣市區鄉鎮路街]/)) {
+      return (
+        <div className="flex items-center">
+          <MapPin className="h-5 w-5 text-gray-400 mr-2" />
+          <span className="text-base text-gray-900">{value}</span>
+        </div>
+      );
+    }
+
+    return <span className="text-base text-gray-900">{value}</span>;
   };
 
-  useEffect(() => {
-    if (tenderId) {
-      SitemapCollector.recordTenderVisit(tenderId);
-    }
-  }, [tenderId]);
-
-  const seoTitle = data ? `${data.basic.title} - 標案資訊 | 企業放大鏡™` : '標案資訊 | 企業放大鏡™';
-  const seoDescription = data 
-    ? `查看 ${data.basic.title} 的詳細標案資訊，包含基本資料、投標廠商、履約進度等完整內容。招標機關：${data.unit.name}。`
-    : '查看完整的政府標案資訊，包含基本資料、投標廠商、履約進度等詳細內容。';
+  const renderSection = (section: typeof sections[0]) => {
+    return (
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <h3 className="text-xl leading-6 font-medium text-gray-900">
+            {section.title}
+          </h3>
+        </div>
+        <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+          <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+            {section.fields.map((field, index) => (
+              <div key={index} className="sm:col-span-1">
+                <dt className="text-base font-medium text-gray-500">{field.label}</dt>
+                <dd className="mt-1">
+                  {renderFieldValue(field.value)}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -506,16 +185,26 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <h2 className="text-3xl font-bold text-gray-900">
-              {data.basic.title}
+              {targetRecord?.brief.title}
             </h2>
-            <p className="flex items-center text-base text-gray-500">
-              <FileSpreadsheet className="h-5 w-5 mr-1" />
-              預算金額：{data.basic.amount}
-            </p>
-            <p className="flex items-center text-base text-gray-500">
-              <Building2 className="h-5 w-5 mr-1" />
-              {data.unit.name}
-            </p>
+            {targetRecord?.date && (
+              <p className="flex items-center text-base text-gray-500">
+                <Calendar className="h-5 w-5 mr-1" />
+                {targetRecord.date}
+              </p>
+            )}
+            {targetRecord?.brief?.type && (
+              <p className="flex items-center text-base text-gray-500">
+                <FileText className="h-5 w-5 mr-1" />
+                {targetRecord.brief.type}
+              </p>
+            )}
+            {data?.unit_name && (
+              <p className="flex items-center text-base text-gray-500">
+                <Building2 className="h-5 w-5 mr-1" />
+                {data.unit_name}
+              </p>
+            )}
           </div>
           <div className="flex space-x-3">
             <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -528,31 +217,41 @@ export default function TenderDetail({ onBack }: TenderDetailProps) {
         </div>
       </div>
 
-      <UnderDevelopment />
-
       <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
+        {sections.map((section) => {
+          const Icon = tabIcons[section.title as keyof typeof tabIcons] || FileText;
           return (
             <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
+              key={section.title}
+              onClick={() => handleTabChange(section.title)}
               className={`${
-                activeTab === tab.id
+                activeTab === section.title
                   ? 'bg-white shadow-sm'
                   : 'hover:bg-white/60'
               } flex-1 flex items-center justify-center py-2.5 px-3 rounded-md text-base font-medium transition-all duration-200`}
             >
               <Icon className={`h-6 w-6 ${
-                activeTab === tab.id ? 'text-blue-600' : 'text-gray-400'
+                activeTab === section.title ? 'text-blue-600' : 'text-gray-400'
               } mr-2`} />
-              {tab.name}
+              {section.title}
             </button>
           );
         })}
       </div>
 
-      {renderTabContent()}
+      {sections.map((section) => (
+        activeTab === section.title && (
+          <motion.div
+            key={section.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            {renderSection(section)}
+          </motion.div>
+        )
+      ))}
 
       <div className="text-sm text-gray-500 text-center mt-4">
         資料來源：{`https://pcc.g0v.ronny.tw/api`}

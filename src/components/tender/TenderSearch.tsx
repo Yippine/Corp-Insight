@@ -195,8 +195,8 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
   const formatResults = (data: any, searchType: 'company' | 'tender'): TenderSearchData[] => {
     return data.records.map((record: any, index: number) => ({
-      tenderId: `${record.unit_id}-${record.job_number}`,
-      uniqueId: `${record.unit_id}-${record.job_number}-${index}`,
+      uniqueId: index,
+      tenderId: `${record.unit_id}_${record.job_number}_${record.date}`,
       date: record.date ? formatDate(record.date) : '未提供',
       type: record.brief.type,
       title: record.brief.title,
