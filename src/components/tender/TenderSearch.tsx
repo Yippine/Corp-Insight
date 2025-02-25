@@ -6,6 +6,7 @@ import NoSearchResults from '../common/NoSearchResults';
 import { InlineLoading } from '../common/loading';
 import { useSearchParams } from 'react-router-dom';
 import { formatDate } from '../../utils/formatters';
+import { getTenderLabel, getLabelStyle as getTenderLabelStyle } from '../../utils/tenderLabels';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
@@ -140,90 +141,38 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
     });
   };
 
-  const getLabel = (record: Record<string, any>, searchType: 'company' | 'tender'): string => {
+  const getCompanyLabel = (record: any): string => {
     const nameKey = record.brief.companies?.name_key?.[Object.keys(record.brief.companies?.name_key || {})[0]];
-    const type = record.brief.type;
-    const labels = [];
-
-    if (searchType === 'company') {
-      const isLoser = nameKey?.some((key: string) => key.includes('未得標廠商'));
-      labels.push(isLoser ? '未得標' : '得標');
-    } else {
-      const labelPatterns = [
-        {
-          label: '已決標',
-          patterns: [
-            /^決標公告/,
-            /^更正決標公告/,
-            /^定期彙送/,
-            /^更正定期彙送/
-          ]
-        },
-        {
-          label: '無法決標',
-          patterns: [
-            /^無法決標公告/,
-            /^更正無法決標公告/
-          ]
-        },
-        {
-          label: '資訊',
-          patterns: [
-            /公開徵求廠商提供參考資料/,
-            /財物變賣/,
-            /拒絕往來廠商/,
-            /招標文件公開閱覽/,
-            /財物出租/,
-            /懲戒公告/
-          ]
-        }
-      ];
-
-      const matchedLabel = labelPatterns.find(({ patterns }) => 
-        patterns.some(pattern => pattern.test(type))
-      );
-
-      if (matchedLabel) {
-        labels.push(matchedLabel.label);
-      } else {
-        labels.push('招標中');
-      }
-    }
-
-    return labels.join(',');
-  };
-
-  const formatResults = (data: any, searchType: 'company' | 'tender'): TenderSearchData[] => {
-    return data.records.map((record: any, index: number) => ({
-      uniqueId: index,
-      tenderId: `${record.unit_id}_${record.job_number}_${record.date}`,
-      date: record.date ? formatDate(record.date) : '未提供',
-      type: record.brief.type,
-      title: record.brief.title,
-      unitName: record.unit_name,
-      unitId: record.unit_id,
-      amount: record.brief.amount || '未提供',
-      label: getLabel(record, searchType),
-    }));
+    const isLoser = nameKey?.some((key: string) => key.includes('未得標廠商'));
+    return isLoser ? '未得標' : '得標';
   };
 
   const getLabelStyle = (label: string) => {
-    switch (label) {
-      case '招標中':
-        return 'bg-yellow-100 text-yellow-800';
-      case '已決標':
-        return 'bg-green-100 text-green-800';
-      case '得標':
-        return 'bg-emerald-100 text-emerald-800';
-      case '未得標':
-        return 'bg-rose-100 text-rose-800';
-      case '無法決標':
-        return 'bg-red-100 text-red-800 whitespace-pre-line';
-      case '資訊':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    switch(label) {
+      case '得標': return 'bg-emerald-100 text-emerald-800';
+      case '未得標': return 'bg-rose-100 text-rose-800';
+      default: return getTenderLabelStyle(label);
     }
+  };
+
+  const formatResults = (data: any, searchType: 'company' | 'tender'): TenderSearchData[] => {
+    return data.records.map((record: any, index: number) => {
+      const label = searchType === 'company' 
+        ? getCompanyLabel(record)
+        : getTenderLabel(record.brief.type);
+      
+      return {
+        uniqueId: index,
+        tenderId: `${record.unit_id}_${record.job_number}_${record.date}`,
+        date: record.date ? formatDate(record.date) : '未提供',
+        type: record.brief.type,
+        title: record.brief.title,
+        unitName: record.unit_name,
+        unitId: record.unit_id,
+        amount: record.brief.amount || '未提供',
+        label,
+      };
+    });
   };
 
   const handlePageChange = (page: number) => {
@@ -396,16 +345,13 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
                   >
                     <td className="px-6 py-4 text-center">
                       <div className="flex flex-wrap gap-2 w-[3.25rem] justify-center">
-                        {tender.label.split(',').map((item, index) => (
-                          <span 
-                            key={index}
-                            className={`inline-flex items-center py-[0.4rem] px-3 rounded-full text-sm font-medium ${
-                              getLabelStyle(item.trim())
-                            } whitespace-nowrap`}
-                          >
-                            {item.trim()}
-                          </span>
-                        ))}
+                        <span 
+                          className={`inline-flex items-center py-[0.4rem] px-3 rounded-full text-sm font-medium ${
+                            getLabelStyle(tender.label.trim())
+                          } whitespace-nowrap`}
+                        >
+                          {tender.label.trim()}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-base text-gray-500">

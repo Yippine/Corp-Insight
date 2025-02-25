@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Building2, FileText, Users, MapPin, Phone, Mail, Globe, Calendar } from 'lucide-react';
+import { Building2, FileText, Users, MapPin, Phone, Mail, Globe, Calendar, ChevronDown } from 'lucide-react';
 import { useTenderDetail } from '../../hooks/useTenderDetail';
 import { InlineLoading } from '../common/loading';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
@@ -9,6 +9,15 @@ import BackButton from '../common/BackButton';
 import SEOHead from '../SEOHead';
 import { SitemapCollector } from '../../services/SitemapCollector';
 import NoDataFound from '../common/NoDataFound';
+import { Badge } from '../../components/common/Badge';
+import { formatDate } from '../../utils/formatters';
+import { getLabelStyle, getTenderLabel } from '../../utils/tenderLabels';
+
+interface FieldValue {
+  label: string;
+  value: string | string[];
+  children?: FieldValue[];
+}
 
 const tabIcons = {
   '機關資料': Building2,
@@ -21,7 +30,8 @@ const tabIcons = {
   '領投開標': FileText,
   '其他': FileText,
   '無法決標公告': FileText,
-  '標案內容': FileText
+  '標案內容': FileText,
+  '最有利標': Users
 } as const;
 
 export default function TenderDetail() {
@@ -29,6 +39,7 @@ export default function TenderDetail() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { trackEvent } = useGoogleAnalytics();
+  const [expandedFields, setExpandedFields] = useState<Record<string, boolean>>({});
 
   const { data, targetRecord, isLoading, error, sections } = useTenderDetail(tenderId || '');
   const activeTab = searchParams.get('tab') || sections[0]?.title || '';
@@ -80,6 +91,15 @@ export default function TenderDetail() {
     setSearchParams({ tab });
   };
 
+  // 新增切換展開狀態的處理函數
+  const toggleFieldExpansion = (fieldKey: string) => {
+    setExpandedFields(prev => ({
+      ...prev,
+      [fieldKey]: !prev[fieldKey]
+    }));
+  };
+
+  // 渲染欄位值的通用函數
   const renderFieldValue = (value: string | string[]) => {
     if (Array.isArray(value)) {
       return value.map((item, index) => (
@@ -141,30 +161,244 @@ export default function TenderDetail() {
       );
     }
 
+    // 新增評選委員特殊格式處理
+    if (typeof value === 'string' && value.startsWith('評選委員_')) {
+      const [_, ...parts] = value.split('_');
+      return (
+        <div className="flex flex-wrap gap-2">
+          {parts.map((part, index) => (
+            <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700">
+              {part}
+            </Badge>
+          ))}
+        </div>
+      );
+    }
+
     return <span className="text-base text-gray-900">{value}</span>;
   };
 
-  const renderSection = (section: typeof sections[0]) => {
+  // 在 renderSection 函數前新增評選委員專用渲染邏輯
+  const renderEvaluationCommittee = (committee: any) => {
+    const attendanceColor = committee.出席會議 === '是' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+
     return (
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-xl leading-6 font-medium text-gray-900">
+      <motion.div 
+        key={committee.姓名} 
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4"
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className="flex items-start justify-between mb-2">
+          <div className="space-y-1">
+            <h4 className="text-base font-medium flex items-center">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+              {committee.姓名 || '未提供姓名'}
+            </h4>
+            {committee.專業領域 && (
+              <div className="flex flex-wrap gap-2">
+                {committee.專業領域.split(',').map((field: string, idx: number) => (
+                  <Badge 
+                    key={idx} 
+                    variant="outline" 
+                    className="bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors text-base"
+                    title="點擊查看相關標案"
+                  >
+                    {field.trim()}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${attendanceColor}`}>
+            {committee.出席會議 === '是' ? '參與' : '未參與'}
+          </span>
+        </div>
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-base">
+          <div className="col-span-1">
+            <dt className="text-gray-500">職稱</dt>
+            <dd className="text-gray-900">{committee.服務機關 || committee.職業 || '未提供'}</dd>
+          </div>
+          <div className="col-span-2">
+            <dt className="text-gray-500">專業經歷</dt>
+            <dd className="text-gray-900 whitespace-pre-line">
+              {committee.與採購案相關之學經歷 || '無相關學經歷記錄'}
+            </dd>
+          </div>
+          {committee.備註 && (
+            <div className="col-span-2">
+              <dt className="text-gray-500">備註</dt>
+              <dd className="text-gray-900">{committee.備註}</dd>
+            </div>
+          )}
+        </dl>
+      </motion.div>
+    );
+  };
+
+  // 修改欄位渲染邏輯
+  const renderField = (field: FieldValue, depth: number = 0, sectionTitle: string, parentKey: string = '') => {
+    const hasChildren = field.children && field.children.length > 0;
+    const paddingClass = depth > 0 ? 'pl-4' : '';
+    const borderClass = depth > 0 ? 'border-l-2 border-gray-200' : '';
+    // 生成唯一識別鍵
+    const fieldKey = `${parentKey}-${field.label}`;
+    const isExpanded = expandedFields[fieldKey] ?? true; // 預設展開
+
+    // 修改後的特定區塊佈局判斷條件
+    const gridClass = 
+      (sectionTitle === '投標廠商' && depth === 0) || 
+      (sectionTitle === '決標品項' && depth === 1) 
+        ? 'grid grid-cols-2 gap-4' 
+        : '';
+
+    // 處理陣列型態的複雜資料結構
+    const isArrayOfObjects = Array.isArray(field.value) && field.value.some(item => typeof item === 'object');
+
+    return (
+      <div key={field.label} className={`${paddingClass} ${borderClass} mb-4`}>
+        <div 
+          className="flex justify-between items-start group cursor-pointer"
+          onClick={() => hasChildren && toggleFieldExpansion(fieldKey)}
+          role="button"
+          aria-expanded={isExpanded}
+        >
+          <dt className={`text-base ${
+            depth === 0 ? 'font-medium text-gray-700' : 
+            depth === 1 ? 'font-normal text-gray-600' : 'font-light text-gray-500'
+          }`}>
+            <span className="inline-block w-3 h-3 bg-blue-100 rounded-full mr-2"></span>
+            {field.label}
+          </dt>
+          {(hasChildren || isArrayOfObjects) && (
+            <motion.div
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown className="h-5 w-5 text-gray-400" />
+            </motion.div>
+          )}
+        </div>
+        
+        {/* 只在展開時顯示內容 */}
+        {isExpanded && (
+          <>
+            {/* 統一值顯示區域 */}
+            {field.value && !isArrayOfObjects && (
+              <dd className="mt-1 ml-5">
+                {renderFieldValue(field.value)}
+              </dd>
+            )}
+
+            {isArrayOfObjects ? (
+              <div className={`mt-2 ${gridClass}`}>
+                {(field.value as any[]).map((item, index) => (
+                  <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    {Object.entries(item).map(([key, value]) => (
+                      <div key={key} className="mb-3 last:mb-0">
+                        <div className="text-sm font-medium text-gray-600">{key}</div>
+                        <div className="text-base text-gray-900">
+                          {Array.isArray(value) 
+                            ? value.join(', ')
+                            : typeof value === 'object' 
+                              ? JSON.stringify(value, null, 2)
+                              : String(value || '')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              hasChildren && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className={`space-y-3 mt-2 ${gridClass}`}
+                >
+                  {field.children?.map(child => 
+                    renderField(child, depth + 1, sectionTitle, fieldKey)
+                  )}
+                </motion.div>
+              )
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
+
+  // 修改區塊渲染邏輯
+  const renderSection = (section: typeof sections[0]) => {
+    // 針對最有利標頁籤特殊處理
+    if (section.title === '最有利標') {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white shadow-lg rounded-xl overflow-hidden"
+        >
+          <div className="bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4">
+            <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+              <span className="w-2 h-6 bg-blue-500 rounded-full mr-3"></span>
+              評選委員組成
+            </h3>
+          </div>
+          
+          <div className="px-6 py-5 space-y-6">
+            {targetRecord?.detail['最有利標:評選委員']?.map((group: any[], index: number) => (
+              <motion.div 
+                key={index} 
+                className="space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                {/* <div className="border-l-4 border-blue-500 pl-3">
+                  <h4 className="text-base font-medium text-gray-700">
+                    第 {index + 1} 次評選會議
+                  </h4>
+                  <p className="text-sm text-gray-500">
+                    {targetRecord.detail[`最有利標:評選次數:第${index + 1}次`] || '無會議時間記錄'}
+                  </p>
+                </div> */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {group.map(renderEvaluationCommittee)}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white shadow-lg rounded-xl overflow-hidden"
+      >
+        <div className="bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4">
+          <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+            <span className="w-2 h-6 bg-blue-500 rounded-full mr-3"></span>
             {section.title}
           </h3>
         </div>
-        <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-          <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        
+        <div className="px-6 py-5 space-y-6">
+          <dl className={`grid ${['投標廠商', '決標品項'].includes(section.title) ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-6`}>
             {section.fields.map((field, index) => (
-              <div key={index} className="sm:col-span-1">
-                <dt className="text-base font-medium text-gray-500">{field.label}</dt>
-                <dd className="mt-1">
-                  {renderFieldValue(field.value)}
-                </dd>
+              <div 
+                key={index}
+                className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+              >
+                {renderField(field, 0, section.title)}
               </div>
             ))}
           </dl>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -184,25 +418,34 @@ export default function TenderDetail() {
       <div className="bg-white shadow-sm rounded-lg p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold text-gray-900">
-              {targetRecord?.brief.title}
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {targetRecord?.brief.title}
+              </h2>
+              {targetRecord?.brief?.type && (
+                <span className={`inline-flex items-center py-1 px-3 rounded-full text-sm font-medium ${
+                  getLabelStyle(getTenderLabel(targetRecord.brief.type))
+                }`}>
+                  {getTenderLabel(targetRecord.brief.type)}
+                </span>
+              )}
+            </div>
             {targetRecord?.date && (
               <p className="flex items-center text-base text-gray-500">
                 <Calendar className="h-5 w-5 mr-1" />
-                {targetRecord.date}
+                公告日期：{formatDate(targetRecord.date)}
               </p>
             )}
             {targetRecord?.brief?.type && (
               <p className="flex items-center text-base text-gray-500">
                 <FileText className="h-5 w-5 mr-1" />
-                {targetRecord.brief.type}
+                公告類型：{targetRecord.brief.type}
               </p>
             )}
             {data?.unit_name && (
               <p className="flex items-center text-base text-gray-500">
                 <Building2 className="h-5 w-5 mr-1" />
-                {data.unit_name}
+                招標機關：{data.unit_name}
               </p>
             )}
           </div>
@@ -217,24 +460,26 @@ export default function TenderDetail() {
         </div>
       </div>
 
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex space-x-1 bg-gradient-to-r from-blue-50 to-gray-50 p-1 rounded-xl shadow-inner">
         {sections.map((section) => {
           const Icon = tabIcons[section.title as keyof typeof tabIcons] || FileText;
           return (
-            <button
+            <motion.button
               key={section.title}
               onClick={() => handleTabChange(section.title)}
               className={`${
                 activeTab === section.title
-                  ? 'bg-white shadow-sm'
-                  : 'hover:bg-white/60'
-              } flex-1 flex items-center justify-center py-2.5 px-3 rounded-md text-base font-medium transition-all duration-200`}
+                  ? 'bg-white shadow-lg text-blue-600'
+                  : 'text-gray-500 hover:bg-white/80'
+              } flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-medium transition-all`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <Icon className={`h-6 w-6 ${
-                activeTab === section.title ? 'text-blue-600' : 'text-gray-400'
-              } mr-2`} />
+              <Icon className={`h-5 w-5 mr-2 ${
+                activeTab === section.title ? 'text-blue-500' : 'text-gray-400'
+              }`} />
               {section.title}
-            </button>
+            </motion.button>
           );
         })}
       </div>
