@@ -5,6 +5,7 @@ import { useTenderSearch, TenderSearchData } from '../../hooks/useTenderSearch';
 import NoSearchResults from '../common/NoSearchResults';
 import { InlineLoading } from '../common/loading';
 import { useSearchParams } from 'react-router-dom';
+import { formatDate } from '../../utils/formatters';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
@@ -196,7 +197,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
     return data.records.map((record: any, index: number) => ({
       tenderId: `${record.unit_id}-${record.job_number}`,
       uniqueId: `${record.unit_id}-${record.job_number}-${index}`,
-      date: record.date,
+      date: record.date ? formatDate(record.date) : '未提供',
       type: record.brief.type,
       title: record.brief.title,
       unitName: record.unit_name,
@@ -366,22 +367,22 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9.5%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[5%]">
                     {searchType === 'company' ? '狀態' : '階段'}
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9.5%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
                     日期
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[19%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[19.5%]">
                     類型
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[33.5%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[34%]">
                     標案名稱
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[19%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[19.5%]">
                     機關名稱
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9.5%]">
+                  <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
                     金額
                   </th>
                 </tr>
@@ -394,7 +395,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
                     className="hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-6 py-4 text-center">
-                      <div className="flex flex-wrap gap-2 w-20 justify-center">
+                      <div className="flex flex-wrap gap-2 w-[3.25rem] justify-center">
                         {tender.label.split(',').map((item, index) => (
                           <span 
                             key={index}
