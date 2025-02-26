@@ -42,6 +42,10 @@ export const getTenderLabel = (type: string) => {
   return matchedLabel ? matchedLabel.label : '招標中';
 };
 
+export const getAttendanceLabel = (isPresent: boolean) => {
+  return isPresent ? '參與' : '未參與';
+};
+
 export const getLabelStyle = (label: string) => {
   const baseStyle = 'inline-flex items-center py-[0.4rem] px-3 rounded-full text-sm font-medium whitespace-nowrap';
 
@@ -51,7 +55,9 @@ export const getLabelStyle = (label: string) => {
     '招標中': 'bg-yellow-100 text-yellow-800',
     '已決標': 'bg-green-100 text-green-800',
     '無法決標': 'bg-red-100 text-red-800',
-    '資訊': 'bg-blue-100 text-blue-800'
+    '資訊': 'bg-blue-100 text-blue-800',
+    '參與': 'bg-green-100 text-green-800',
+    '未參與': 'bg-red-100 text-red-800'
   };
 
   return `${baseStyle} ${colorStyles[label as keyof typeof colorStyles] || 'bg-gray-100 text-gray-800'}`;

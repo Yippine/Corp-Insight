@@ -11,6 +11,7 @@ import { SitemapCollector } from '../../services/SitemapCollector';
 import NoDataFound from '../common/NoDataFound';
 import { Badge } from '../../components/common/Badge';
 import { formatDate } from '../../utils/formatters';
+import { getAttendanceLabel, getLabelStyle } from '../../utils/tenderLabels';
 
 interface FieldValue {
   label: string;
@@ -179,7 +180,7 @@ export default function TenderDetail() {
 
   // 在 renderSection 函數前新增評選委員專用渲染邏輯
   const renderEvaluationCommittee = (committee: any) => {
-    const attendanceColor = committee.出席會議 === '是' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+    const attendanceLabel = getAttendanceLabel(committee.出席會議 === '是');
 
     return (
       <motion.div 
@@ -210,8 +211,8 @@ export default function TenderDetail() {
               </div>
             )}
           </div>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${attendanceColor}`}>
-            {committee.出席會議 === '是' ? '參與' : '未參與'}
+          <span className={getLabelStyle(attendanceLabel)}>
+            {attendanceLabel}
           </span>
         </div>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-base">

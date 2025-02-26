@@ -72,7 +72,6 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
         // 解析詳細資料結構
         const parsedSections = parseTenderDetail(targetRecord.detail);
         setSections(parsedSections);
-        console.log(`11111 parsedSections: ${JSON.stringify(parsedSections)}`);
 
       } catch (err) {
         console.error('載入標案資料失敗：', err);
