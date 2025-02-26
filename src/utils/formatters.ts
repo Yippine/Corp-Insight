@@ -26,7 +26,7 @@ export function formatDate(date: string | Date | number): string {
   if (typeof date === 'number') {
     const dateStr = String(date);
     if (dateStr.length !== 8) return '';
-    return `${dateStr.slice(0,4)}-${dateStr.slice(4,6)}-${dateStr.slice(6,8)}`;
+    return `${dateStr.slice(0,4)}/${dateStr.slice(4,6)}/${dateStr.slice(6,8)}`;
   }
 
   // 處理字串格式 (包含 ISO 8601 和 YYYYMMDD)
@@ -34,7 +34,7 @@ export function formatDate(date: string | Date | number): string {
     // 移除可能存在的非數字字元
     const cleaned = date.replace(/[^0-9]/g, '');
     if (cleaned.length === 8) {
-      return `${cleaned.slice(0,4)}-${cleaned.slice(4,6)}-${cleaned.slice(6,8)}`;
+      return `${cleaned.slice(0,4)}/${cleaned.slice(4,6)}/${cleaned.slice(6,8)}`;
     }
   }
 
@@ -47,7 +47,7 @@ export function formatDate(date: string | Date | number): string {
       d.getUTCFullYear(),
       (d.getUTCMonth() + 1).toString().padStart(2, '0'),
       d.getUTCDate().toString().padStart(2, '0')
-    ].join('-');
+    ].join('/');
   } catch {
     return '';
   }

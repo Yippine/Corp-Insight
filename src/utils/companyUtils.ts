@@ -254,7 +254,7 @@ const formatDetailData = (taxId: string, company: DetailResponse): DetailData =>
 };
 
 const formatDate = (dateObj: { year: number; month: number; day: number }) => {
-  return `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+  return `${dateObj.year}/${String(dateObj.month).padStart(2, '0')}/${String(dateObj.day).padStart(2, '0')}`;
 };
 
 export {
