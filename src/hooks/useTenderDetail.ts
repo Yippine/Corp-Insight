@@ -46,6 +46,7 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
 
         const result: TenderDetail = await response.json();
         setData(result);
+        console.log(JSON.stringify(result, null, 2));
 
         // 取得最新一筆記錄
         const targetRecord = result.records.find(record => record.date.toString() === targetDate) || result.records[result.records.length - 1];
@@ -69,38 +70,85 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
   return { data, targetRecord, isLoading, error, sections };
 }
 
+/**
+ * 共用用來合併相同欄位值的函式：
+ * 1. 若尚未設定，直接回傳新值。
+ * 2. 若已存在且為陣列，就加入新值並依「葉值（例如 "20元" 或 "0元"）優先」排序。
+ * 3. 若兩個值都是物件，則合併（用 Object.assign 將兩者的 key 合併）。
+ * 4. 否則，回傳陣列，依照葉值自動排序（葉值優先）。
+ */
+function mergeValue(existing: any, newVal: any): any {
+  if (existing === undefined) return newVal;
+  if (Array.isArray(existing)) {
+    existing.push(newVal);
+    const prim = existing.filter(x => typeof x !== 'object' || x === null);
+    const objs = existing.filter(x => (typeof x === 'object' && x !== null && !Array.isArray(x)));
+    return [...prim, ...objs];
+  }
+  if (
+    typeof existing === 'object' && !Array.isArray(existing) &&
+    typeof newVal === 'object' && !Array.isArray(newVal)
+  ) {
+    // 若兩者皆為 object，合併屬性
+    return Object.assign({}, existing, newVal);
+  }
+  // 否則合併為陣列，並將葉值放前面
+  const arr = [existing, newVal];
+  const prim = arr.filter(x => typeof x !== 'object' || x === null);
+  const objs = arr.filter(x => (typeof x === 'object' && x !== null && !Array.isArray(x)));
+  return [...prim, ...objs];
+}
+
+/**
+ * 統一處理詳細資料階層的邏輯：
+ * 若遭遇重複欄位值，則使用 mergeValue 將它們合併，
+ * 並在需要建立子階層時，若原本為葉值（primitive）則轉為陣列，
+ * 再尋找或產生一個物件容器以儲存子欄位。
+ */
+function buildHierarchyUnified(obj: Record<string, any>, keys: string[], value: any): void {
+  const [currentKey, ...remainingKeys] = keys;
+
+  if (remainingKeys.length === 0) {
+    // 達到最末層，以 mergeValue 合併
+    obj[currentKey] = mergeValue(obj[currentKey], value);
+    return;
+  }
+
+  // 若尚未建立子層，先建立物件容器
+  if (obj[currentKey] === undefined) {
+    obj[currentKey] = {};
+  } else if (typeof obj[currentKey] !== 'object' || Array.isArray(obj[currentKey])) {
+    // 遇到重複欄位、或已設定為葉值時，轉為陣列以兼容物件與原始值
+    if (!Array.isArray(obj[currentKey])) {
+      obj[currentKey] = [obj[currentKey]];
+    }
+    // 檢查陣列中是否已有物件容器，若無則新增一個空物件
+    let container = obj[currentKey].find((item: any) => typeof item === 'object' && item !== null && !Array.isArray(item));
+    if (!container) {
+      container = {};
+      obj[currentKey].push(container);
+    }
+    buildHierarchyUnified(container, remainingKeys, value);
+    return;
+  }
+
+  // 已有物件容器，可直接遞迴
+  buildHierarchyUnified(obj[currentKey], remainingKeys, value);
+}
+
 function parseTenderDetail(detail: Record<string, any>): Section[] {
   const excludedKeys = ['type', 'type2', 'url', 'pkPmsMain', 'fetched_at'];
   const countFieldsToSkip = ['投標廠商家數', '決標品項數']; // 新增需要跳過的數量欄位
 
-  // 改進的階層結構處理 (支援多層級鍵值保留)
-  const buildHierarchy = (obj: Record<string, any>, keys: string[], value: any): void => {
-    const [currentKey, ...remainingKeys] = keys;
-    
-    if (!remainingKeys.length) {
-      // 處理重複鍵值的情況
-      if (obj[currentKey] !== undefined) {
-        if (!Array.isArray(obj[currentKey])) {
-          obj[currentKey] = [obj[currentKey]];
-        }
-        obj[currentKey].push(value);
-      } else {
-        obj[currentKey] = value;
-      }
-      return;
-    }
-
-    obj[currentKey] = obj[currentKey] || {};
-    buildHierarchy(obj[currentKey], remainingKeys, value);
-  };
-
+  // 以統一的階層處理表現來建立結構
   const hierarchy: Record<string, any> = {};
   
   Object.entries(detail).forEach(([key, value]) => {
     if (excludedKeys.includes(key)) return;
     
     const keys = key.split(':');
-    buildHierarchy(hierarchy, keys, value);
+    // 使用 buildHierarchyUnified 取代原本的 buildHierarchy
+    buildHierarchyUnified(hierarchy, keys, value);
   });
 
   // 改進的欄位處理邏輯 (支援多層級結構)
@@ -145,7 +193,7 @@ function parseTenderDetail(detail: Record<string, any>): Section[] {
       // 處理基本型態資料（優化物件值顯示）
       return [{
         label: key,
-        value: typeof val === 'object' ? '' : String(val) // 隱藏物件類型的值
+        value: typeof val === 'object' ? '' : String(val)
       }];
     });
   };
