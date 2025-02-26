@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TenderDetail, TenderStatus, TenderRecord } from '../types/tender';
+import { TenderDetail, TenderRecord } from '../types/tender';
 
 interface UseTenderDetailResult {
   data: TenderDetail | null;
@@ -7,7 +7,6 @@ interface UseTenderDetailResult {
   isLoading: boolean;
   error: string | null;
   sections: Section[];
-  status: TenderStatus | null;
 }
 
 interface FieldValue {
@@ -27,7 +26,6 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
-  const [status, setStatus] = useState<TenderStatus | null>(null);
 
   useEffect(() => {
     const fetchTenderDetail = async () => {
@@ -53,22 +51,6 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
         const targetRecord = result.records.find(record => record.date.toString() === targetDate) || result.records[result.records.length - 1];
         setTargetRecord(targetRecord);
 
-        // 根據公告類型判斷狀態
-        const recordType = targetRecord.brief.type;
-        let tenderStatus: TenderStatus;
-
-        if (recordType.includes('決標公告')) {
-          tenderStatus = '已決標';
-        } else if (recordType.includes('招標公告') || recordType.includes('公開評選')) {
-          tenderStatus = '招標中';
-        } else if (recordType.includes('無法決標')) {
-          tenderStatus = '無法決標';
-        } else {
-          tenderStatus = '資訊';
-        }
-
-        setStatus(tenderStatus);
-
         // 解析詳細資料結構
         const parsedSections = parseTenderDetail(targetRecord.detail);
         setSections(parsedSections);
@@ -84,7 +66,7 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
     fetchTenderDetail();
   }, [tenderId]);
 
-  return { data, targetRecord, isLoading, error, sections, status };
+  return { data, targetRecord, isLoading, error, sections };
 }
 
 function parseTenderDetail(detail: Record<string, any>): Section[] {
