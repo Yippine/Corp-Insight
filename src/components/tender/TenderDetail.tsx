@@ -11,7 +11,6 @@ import { SitemapCollector } from '../../services/SitemapCollector';
 import NoDataFound from '../common/NoDataFound';
 import { Badge } from '../../components/common/Badge';
 import { formatDate } from '../../utils/formatters';
-import { getLabelStyle, getTenderLabel } from '../../utils/tenderLabels';
 
 interface FieldValue {
   label: string;
@@ -422,13 +421,6 @@ export default function TenderDetail() {
               <h2 className="text-3xl font-bold text-gray-900">
                 {targetRecord?.brief.title}
               </h2>
-              {targetRecord?.brief?.type && (
-                <span className={`inline-flex items-center py-1 px-3 rounded-full text-sm font-medium ${
-                  getLabelStyle(getTenderLabel(targetRecord.brief.type))
-                }`}>
-                  {getTenderLabel(targetRecord.brief.type)}
-                </span>
-              )}
             </div>
             {targetRecord?.date && (
               <p className="flex items-center text-base text-gray-500">
@@ -450,10 +442,10 @@ export default function TenderDetail() {
             )}
           </div>
           <div className="flex space-x-3">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap">
               加入追蹤
             </button>
-            <button className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap">
               下載報表
             </button>
           </div>
