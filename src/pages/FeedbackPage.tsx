@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, AlertCircle, Loader2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import UnderDevelopment from '../components/common/UnderDevelopment';
 
 const feedbackTypes = [
   { id: 'data_correction', name: '資料勘誤', description: '回報資料錯誤或不準確的情況' },
@@ -146,7 +147,11 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-[4rem]">
+      <UnderDevelopment 
+        message="意見回饋功能開發中，後端服務尚未啟用。目前表單提交僅為演示用途。" 
+        year="2024"
+      />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -369,6 +374,10 @@ export default function FeedbackPage() {
           </motion.div>
         </form>
       </motion.div>
+      <UnderDevelopment 
+        message="意見回饋功能開發中，後端服務尚未啟用。目前表單提交僅為演示用途。" 
+        year="2024"
+      />
     </div>
   );
 }
