@@ -42,10 +42,6 @@ export const getTenderLabel = (type: string) => {
   return matchedLabel ? matchedLabel.label : '招標中';
 };
 
-export const getAttendanceLabel = (isPresent: boolean) => {
-  return isPresent ? '參與' : '未參與';
-};
-
 export const getLabelStyle = (label: string) => {
   const baseStyle = 'inline-flex items-center py-[0.4rem] px-3 rounded-full text-sm font-medium whitespace-nowrap';
 
