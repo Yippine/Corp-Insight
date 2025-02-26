@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Building2, FileText, Users, MapPin, Phone, Mail, Globe, Calendar, ChevronDown } from 'lucide-react';
 import { useTenderDetail } from '../../hooks/useTenderDetail';
@@ -36,12 +36,12 @@ const tabIcons = {
 export default function TenderDetail() {
   const { tenderId } = useParams<{ tenderId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { trackEvent } = useGoogleAnalytics();
+  const { data, targetRecord, isLoading, error, sections } = useTenderDetail(tenderId || '');
   const [expandedFields, setExpandedFields] = useState<Record<string, boolean>>({});
 
-  const { data, targetRecord, isLoading, error, sections } = useTenderDetail(tenderId || '');
-  const activeTab = searchParams.get('tab') || sections[0]?.title || '';
+  const encodedTab = searchParams.get('tab');
+  const activeTab = encodedTab ? decodeURIComponent(encodedTab) : '';
 
   useEffect(() => {
     if (tenderId) {
@@ -50,24 +50,25 @@ export default function TenderDetail() {
   }, [tenderId]);
 
   useEffect(() => {
-    if (sections.length > 0 && !activeTab) {
-      setSearchParams({ tab: sections[0].title });
+    if (sections.length > 0 && !encodedTab) {
+      const defaultTab = sections[0].title;
+      const encodedDefaultTab = encodeURIComponent(defaultTab);
+
+      setSearchParams({ tab: encodedDefaultTab }, { replace: true });
+      trackEvent('tender_detail_tab_change', {
+        tab: defaultTab
+      });
     }
-  }, [sections, activeTab, setSearchParams]);
+  }, [sections, encodedTab, setSearchParams, trackEvent]);
 
-  useEffect(() => {
-    const currentSearch = window.location.search;
-    const tabParam = searchParams.get('tab') || sections[0]?.title || '';
+  const handleTabChange = (tab: string) => {
+    const encodedNewTab = encodeURIComponent(tab);
 
+    setSearchParams({ tab: encodedNewTab }, { replace: true });
     trackEvent('tender_detail_tab_change', {
-      tab: tabParam
+      tab: tab
     });
-
-    navigate(`/tender/detail/${tenderId}?tab=${tabParam}`, {
-      state: { previousSearch: currentSearch },
-      replace: true
-    });
-  }, [tenderId, searchParams, navigate, sections, trackEvent]);
+  };
 
   if (isLoading) {
     return (
@@ -85,10 +86,6 @@ export default function TenderDetail() {
   const seoDescription = targetRecord 
     ? `查看 ${targetRecord.brief.title} 的詳細標案資訊，包含基本資料、投標廠商、履約進度等完整內容。招標機關：${data.unit_name || '未提供'}。`
     : '查看完整的政府標案資訊，包含基本資料、投標廠商、履約進度等詳細內容。';
-
-  const handleTabChange = (tab: string) => {
-    setSearchParams({ tab });
-  };
 
   // 新增切換展開狀態的處理函數
   const toggleFieldExpansion = (fieldKey: string) => {
@@ -548,7 +545,7 @@ export default function TenderDetail() {
       </div>
 
       {sections.map((section) => (
-        activeTab === section.title && (
+        (activeTab === section.title || (activeTab === '' && section === sections[0])) && (
           <motion.div
             key={section.title}
             initial={{ opacity: 0, y: 20 }}
