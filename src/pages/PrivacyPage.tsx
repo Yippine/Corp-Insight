@@ -60,7 +60,7 @@ export default function PrivacyPage() {
           資料來源聲明
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          我們致力於提供準確、透明的資訊。以下是我們的資料來源及相關聲明。
+          我們致力於提供準確、透明的資訊，以下是我們的資料來源及相關聲明。
         </p>
       </div>
 
