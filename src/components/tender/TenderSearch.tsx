@@ -6,7 +6,7 @@ import NoSearchResults from '../common/NoSearchResults';
 import { InlineLoading } from '../common/loading';
 import { useSearchParams } from 'react-router-dom';
 import { formatDate } from '../../utils/formatters';
-import { getTenderLabel, getLabelStyle as getTenderLabelStyle } from '../../utils/tenderLabels';
+import { getCompanyLabel, getTenderLabel, getLabelStyle } from '../../utils/tenderLabels';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
@@ -139,20 +139,6 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       type: searchType,
       page: targetPage.toString()
     });
-  };
-
-  const getCompanyLabel = (record: any): string => {
-    const nameKey = record.brief.companies?.name_key?.[Object.keys(record.brief.companies?.name_key || {})[0]];
-    const isLoser = nameKey?.some((key: string) => key.includes('未得標廠商'));
-    return isLoser ? '未得標' : '得標';
-  };
-
-  const getLabelStyle = (label: string) => {
-    switch(label) {
-      case '得標': return 'bg-emerald-100 text-emerald-800';
-      case '未得標': return 'bg-rose-100 text-rose-800';
-      default: return getTenderLabelStyle(label);
-    }
   };
 
   const formatResults = (data: any, searchType: 'company' | 'tender'): TenderSearchData[] => {
@@ -345,11 +331,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
                   >
                     <td className="px-6 py-4 text-center">
                       <div className="flex flex-wrap gap-2 w-[3.25rem] justify-center">
-                        <span 
-                          className={`inline-flex items-center py-[0.4rem] px-3 rounded-full text-sm font-medium ${
-                            getLabelStyle(tender.label.trim())
-                          } whitespace-nowrap`}
-                        >
+                        <span className={getLabelStyle(tender.label.trim())}>
                           {tender.label.trim()}
                         </span>
                       </div>

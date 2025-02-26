@@ -1,3 +1,9 @@
+export const getCompanyLabel = (record: any): string => {
+  const nameKey = record.brief.companies?.name_key?.[Object.keys(record.brief.companies?.name_key || {})[0]];
+  const isLoser = nameKey?.some((key: string) => key.includes('未得標廠商'));
+  return isLoser ? '未得標' : '得標';
+};
+
 export const getTenderLabel = (type: string) => {
   const labelPatterns = [
     {
@@ -37,11 +43,16 @@ export const getTenderLabel = (type: string) => {
 };
 
 export const getLabelStyle = (label: string) => {
-  switch (label) {
-    case '招標中': return 'bg-yellow-100 text-yellow-800';
-    case '已決標': return 'bg-green-100 text-green-800';
-    case '無法決標': return 'bg-red-100 text-red-800';
-    case '資訊': return 'bg-blue-100 text-blue-800';
-    default: return 'bg-gray-100 text-gray-800';
-  }
+  const baseStyle = 'inline-flex items-center py-[0.4rem] px-3 rounded-full text-sm font-medium whitespace-nowrap';
+
+  const colorStyles = {
+    '得標': 'bg-emerald-100 text-emerald-800',
+    '未得標': 'bg-rose-100 text-rose-800', 
+    '招標中': 'bg-yellow-100 text-yellow-800',
+    '已決標': 'bg-green-100 text-green-800',
+    '無法決標': 'bg-red-100 text-red-800',
+    '資訊': 'bg-blue-100 text-blue-800'
+  };
+
+  return `${baseStyle} ${colorStyles[label as keyof typeof colorStyles] || 'bg-gray-100 text-gray-800'}`;
 };
