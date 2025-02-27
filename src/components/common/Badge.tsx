@@ -3,7 +3,7 @@ import { HTMLAttributes } from "react";
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: "solid" | "outline";
-  colorScheme?: "blue" | "green" | "red" | "purple";
+  colorScheme?: "blue" | "green" | "red" | "purple" | "gray";
 }
 
 export function Badge({
@@ -28,6 +28,10 @@ export function Badge({
     purple: {
       solid: "bg-purple-100 text-purple-800 hover:bg-purple-200",
       outline: "border-2 border-purple-200 text-purple-800 hover:bg-purple-50",
+    },
+    gray: {
+      solid: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+      outline: "border-2 border-gray-200 text-gray-800 hover:bg-gray-50",
     },
   };
 

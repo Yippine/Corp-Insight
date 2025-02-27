@@ -187,6 +187,85 @@ export default function TenderDetail() {
     });
   };
 
+  // 新增檢舉受理單位解析函數 (放在 parseExperience 函數下方)
+  const parseComplaintUnits = (complaintText: string) => {
+    if (!complaintText) return [];
+
+    // 使用正則表達式拆分各單位，支援全形和半形括號
+    const unitRegex = /([^（）()]+)(?:[(（]([^）)]*)[）)])?/g;
+    const units: Array<{name: string; details: Record<string, string[]>}> = [];
+    
+    let match;
+    while ((match = unitRegex.exec(complaintText)) !== null) {
+      const [_, unitName, detailsStr] = match;
+      const details: Record<string, string[]> = {};
+
+      // 拆分詳細資料並處理特殊分隔符號
+      detailsStr.split('、').forEach(detail => {
+        const [key, ...values] = detail.split(/：|:/);
+        if (key && values.length > 0) {
+          const processedValues = values.join(':').split(/;|；/).map(v => v.trim());
+          details[key.trim()] = processedValues;
+        }
+      });
+
+      units.push({
+        name: unitName.trim(),
+        details
+      });
+    }
+
+    return units;
+  };
+
+  // 新增檢舉單位渲染組件 (放在 renderEvaluationCommittee 下方)
+  const renderComplaintUnit = (unit: {name: string; details: Record<string, string[]>}) => {
+    return (
+      <motion.div 
+        key={unit.name}
+        className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6 hover:shadow-xl transition-all duration-300"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        whileHover={{ y: -2 }}
+      >
+        <div className="mb-4">
+          <h4 className="text-lg font-semibold flex items-center text-gray-900">
+            <span className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-3"></span>
+            {unit.name}
+          </h4>
+        </div>
+
+        <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Object.entries(unit.details).map(([key, values]) => (
+            <div key={key} className="space-y-2">
+              <dt className="text-sm font-medium text-gray-500 flex items-center">
+                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></span>
+                {key}
+              </dt>
+              <dd className="flex flex-wrap gap-2">
+                {values.map((value, idx) => (
+                  <Badge
+                    key={idx}
+                    variant="solid"
+                    colorScheme={
+                      key.includes('地址') ? 'blue' :
+                      key.includes('電話') ? 'green' :
+                      key.includes('傳真') ? 'purple' : 'gray'
+                    }
+                    className="text-sm font-medium tracking-wide"
+                  >
+                    {value}
+                  </Badge>
+                ))}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </motion.div>
+    );
+  };
+
   const renderEvaluationCommittee = (committee: any) => {
     const isAttended = committee.出席會議 === '是'
     const attendanceLabel = isAttended ? '已出席' : '未出席'
@@ -441,6 +520,130 @@ export default function TenderDetail() {
       );
     }
 
+    // 新增其他區塊特殊處理
+    if (section.title === '其他') {
+      const queryUnitData = targetRecord?.detail['其他:疑義、異議、申訴及檢舉受理單位:疑義、異議受理單位'];
+      const appealData = targetRecord?.detail['其他:疑義、異議、申訴及檢舉受理單位:申訴受理單位'];
+      const complaintData = targetRecord?.detail['其他:疑義、異議、申訴及檢舉受理單位:檢舉受理單位'];
+      const filteredFields = section.fields.filter(
+        field => !field.label.includes('疑義、異議、申訴及檢舉受理單位')
+      );
+
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          {/* 一般其他資料區塊 */}
+          <motion.div
+            className="bg-white shadow-lg rounded-xl overflow-hidden"
+          >
+            <div className="bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4">
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                <span className="w-2 h-6 bg-blue-500 rounded-full mr-3"></span>
+                補充說明資訊
+              </h3>
+            </div>
+            
+            <div className="px-6 py-5 space-y-6">
+              <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filteredFields.map((field, index) => (
+                  <div 
+                    key={index}
+                    className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+                  >
+                    {renderField(field, 0, section.title)}
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </motion.div>
+
+          {/* 整合後的受理單位專區 */}
+          {(queryUnitData || complaintData || appealData) && (
+            <motion.div
+              className="bg-white shadow-lg rounded-xl overflow-hidden"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                  <span className="w-2 h-6 bg-blue-500 rounded-full mr-3"></span>
+                  採購案件聯絡與申訴管道
+                </h3>
+              </div>
+              
+              <div className="px-6 py-5 space-y-8">
+                {/* 疑義/異議受理單位 */}
+                {queryUnitData && (
+                  <motion.div 
+                    className="bg-gray-50 rounded-2xl p-6 border border-gray-200"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-lg font-semibold flex items-center text-gray-900">
+                        <span className="w-2.5 h-2.5 bg-blue-500 rounded-full mr-3"></span>
+                        採購案件諮詢窗口
+                      </h4>
+                      <Users className="h-6 w-6 text-blue-500" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-gray-600">主辦機關單位</div>
+                        <Badge 
+                          variant="solid" 
+                          colorScheme="blue"
+                          className="text-base font-medium"
+                        >
+                          {queryUnitData}
+                        </Badge>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* 新增申訴受理單位區塊 */}
+                {appealData && (
+                  <motion.div 
+                    className="space-y-6"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <h4 className="text-lg font-semibold flex items-center text-gray-900 border-b pb-3">
+                      <span className="w-2.5 h-2.5 bg-purple-500 rounded-full mr-3"></span>
+                      政府採購申訴管道
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {parseComplaintUnits(appealData).map(renderComplaintUnit)}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* 檢舉受理單位列表 */}
+                {complaintData && (
+                  <motion.div 
+                    className="space-y-6"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <h4 className="text-lg font-semibold flex items-center text-gray-900 border-b pb-3">
+                      <span className="w-2.5 h-2.5 bg-red-500 rounded-full mr-3"></span>
+                      政府採購監督管道
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {parseComplaintUnits(complaintData).map(renderComplaintUnit)}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+      );
+    }
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -511,7 +714,7 @@ export default function TenderDetail() {
             )}
           </div>
           <div className="flex space-x-3">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap">
+            <button className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap ml-3">
               加入追蹤
             </button>
             <button className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap">
