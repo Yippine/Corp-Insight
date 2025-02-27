@@ -11,7 +11,7 @@ import TenderStatsChart from './charts/TenderStatsChart';
 import NoDataFound from '../common/NoDataFound';
 import { usePaginatedTenders } from '../../hooks/usePaginatedTenders';
 import { fetchListedCompany } from '../../api/routes';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { InlineLoading } from '../common/loading';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import BackButton from '../common/BackButton';
@@ -82,7 +82,27 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
     currentPage,
     fetchTenders
   } = usePaginatedTenders(taxId || '');
-  const navigate = useNavigate();
+
+  const handleTabChange = (tab: string) => {
+    // 驗證有效 tab 值
+    const validTabs = tabs.map(t => t.id);
+    const decodedTab = decodeURIComponent(tab);
+    const isValidTab = validTabs.includes(decodedTab);
+    const finalTab = isValidTab ? decodedTab : 'basic';
+
+    // 處理 URL 編碼與參數設定
+    const encodedTab = encodeURIComponent(finalTab);
+    setSearchParams({ tab: encodedTab }, { replace: true });
+    
+    // 更新狀態與追蹤事件
+    setActiveTab(finalTab);
+    trackEvent('company_detail_tab_change', { tab: finalTab });
+  };
+
+  useEffect(() => {
+    const currentTab = searchParams.get('tab') || 'basic';
+    handleTabChange(currentTab);
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     const loadSearchData = async () => {
@@ -101,20 +121,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   useEffect(() => {
     if (SearchData?.taxId) fetchTenders();
   }, [SearchData?.taxId, SearchData?.name]);
-
-  useEffect(() => {
-    const currentSearch = window.location.search;
-    const tabParam = searchParams.get('tab') || 'basic';
-
-    trackEvent('company_detail_tab_change', {
-      tab: tabParam
-    });
-
-    navigate(`/company/detail/${taxId}?tab=${tabParam}`, {
-      state: { previousSearch: currentSearch },
-      replace: true
-    });
-  }, [taxId, searchParams, navigate]);
 
   useEffect(() => {
     if (taxId) {
@@ -822,11 +828,6 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
       default:
         return <UnderDevelopment />;
     }
-  };
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setSearchParams({ tab });
   };
 
   return (
