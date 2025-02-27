@@ -1,6 +1,11 @@
-export const getCompanyLabel = (record: any): string => {
-  const nameKey = record.brief.companies?.name_key?.[Object.keys(record.brief.companies?.name_key || {})[0]];
-  const isLoser = nameKey?.some((key: string) => key.includes('未得標廠商'));
+export const getCompanyLabel = (record: any, searchQuery: string): string => {
+  const companyName = record.brief.companies?.names?.find((name: string) => 
+    name.includes(searchQuery)
+  ) ?? null;
+  const tenderResult = companyName 
+    ? record.brief.companies?.name_key?.[companyName]
+    : null;
+  const isLoser = tenderResult?.[1]?.includes('未得標') ?? false;
   return isLoser ? '未得標' : '得標';
 };
 

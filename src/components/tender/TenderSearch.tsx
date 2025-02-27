@@ -72,6 +72,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
           currentPage = 1;
           data = await fetchSearchData(searchType, q, currentPage);
         }
+        console.log(JSON.stringify(data))
 
         const formattedResults = formatResults(data, searchType);
         setSearchParams({
@@ -144,7 +145,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   const formatResults = (data: any, searchType: 'company' | 'tender'): TenderSearchData[] => {
     return data.records.map((record: any, index: number) => {
       const label = searchType === 'company' 
-        ? getCompanyLabel(record)
+        ? getCompanyLabel(record, searchQuery)
         : getTenderLabel(record.brief.type);
       
       return {
