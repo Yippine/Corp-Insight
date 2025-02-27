@@ -11,6 +11,7 @@ import { SitemapCollector } from '../../services/SitemapCollector';
 import NoDataFound from '../common/NoDataFound';
 import { Badge } from '../../components/common/Badge';
 import { formatDate } from '../../utils/formatters';
+import DataSource from '../common/DataSource';
 
 interface FieldValue {
   label: string;
@@ -558,9 +559,18 @@ export default function TenderDetail() {
         )
       ))}
 
-      <div className="text-sm text-gray-500 text-center mt-4">
-        資料來源：{`https://pcc.g0v.ronny.tw/api`}
-      </div>
+      <DataSource
+        sources={[
+          {
+            name: '政府電子採購網',
+            url: 'https://web.pcc.gov.tw/pis/'
+          },
+          {
+            name: '標案瀏覽',
+            url: 'https://pcc.g0v.ronny.tw/'
+          }
+        ]}
+      />
     </div>
   );
 }

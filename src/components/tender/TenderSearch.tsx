@@ -7,6 +7,7 @@ import { InlineLoading } from '../common/loading';
 import { useSearchParams } from 'react-router-dom';
 import { formatDate } from '../../utils/formatters';
 import { getCompanyLabel, getTenderLabel, getLabelStyle } from '../../utils/tenderLabels';
+import DataSource from '../common/DataSource';
 
 interface TenderSearchProps {
   onTenderSelect: (tenderId: string) => void;
@@ -370,9 +371,14 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
             />
           )}
 
-          <div className="text-sm text-gray-500 text-center mt-4">
-            資料來源：{`https://pcc.g0v.ronny.tw/api`}
-          </div>
+          <DataSource
+            sources={[
+              {
+                name: '標案瀏覽',
+                url: 'https://pcc.g0v.ronny.tw/'
+              }
+            ]}
+          />
         </div>
       ) : null}
     </div>

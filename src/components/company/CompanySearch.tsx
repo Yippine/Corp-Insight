@@ -5,6 +5,7 @@ import Pagination from '../Pagination';
 import NoSearchResults from '../common/NoSearchResults';
 import { InlineLoading } from '../common/loading';
 import { useSearchParams } from 'react-router-dom';
+import DataSource from '../common/DataSource';
 
 interface CompanySearchProps {
   onCompanySelect?: (taxId: string) => void;
@@ -328,9 +329,14 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
             />
           )}
 
-          <div className="text-sm text-gray-500 text-center mt-4">
-            資料來源：{`https://company.g0v.ronny.tw/api`}
-          </div>
+          <DataSource
+            sources={[
+              {
+                name: '台灣公司資料',
+                url: 'https://company.g0v.ronny.tw/'
+              }
+            ]}
+          />
         </div>
       ) : null}
     </div>

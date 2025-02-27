@@ -17,6 +17,7 @@ import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import BackButton from '../common/BackButton';
 import SEOHead from '../SEOHead';
 import { SitemapCollector } from '../../services/SitemapCollector';
+import DataSource from '../common/DataSource';
 
 interface CompanyDetailProps {
   onBack?: () => void;
@@ -410,9 +411,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               </div>
             </div>
 
-            <div className="text-sm text-gray-500 text-center mt-4">
-              資料來源：{`https://company.g0v.ronny.tw/api`}
-            </div>
+            <DataSource
+              sources={[
+                {
+                  name: '台灣公司資料',
+                  url: 'https://company.g0v.ronny.tw/'
+                }
+              ]}
+            />
           </div>
         );
       case 'financial':
@@ -596,9 +602,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               </div>
             </div>
 
-            <div className="text-sm text-gray-500 text-center mt-4">
-              資料來源：{`https://p.twincn.com/item.aspx`}
-            </div>
+            <DataSource
+              sources={[
+                {
+                  name: '台灣上市上櫃公司',
+                  url: 'https://p.twincn.com/item.aspx'
+                }
+              ]}
+            />
           </>
         );
       case 'directors':
@@ -679,9 +690,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               )}
             </div>
 
-            <div className="text-sm text-gray-500 text-center mt-4">
-              資料來源：{`https://company.g0v.ronny.tw/api`}
-            </div>
+            <DataSource
+              sources={[
+                {
+                  name: '台灣公司資料',
+                  url: 'https://company.g0v.ronny.tw/'
+                }
+              ]}
+            />
           </div>
         );
       case 'tenders':
@@ -793,9 +809,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                 <NoDataFound message="查無標案資料" />
               )}
             </div>
-            <div className="text-sm text-gray-500 text-center mt-4">
-              資料來源：{`https://pcc.g0v.ronny.tw/api`}
-            </div>
+            <DataSource
+              sources={[
+                {
+                  name: '標案瀏覽',
+                  url: 'https://pcc.g0v.ronny.tw/'
+                }
+              ]}
+            />
           </div>
         );
       default:
