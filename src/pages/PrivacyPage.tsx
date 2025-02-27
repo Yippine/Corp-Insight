@@ -1,15 +1,7 @@
 import { motion } from 'framer-motion';
-import { Globe, Database, Shield } from 'lucide-react';
+import { Globe, Database, Shield, FileText } from 'lucide-react';
 
 const dataSources = [
-  {
-    id: 'company',
-    name: '台灣公司資料',
-    url: 'https://company.g0v.ronny.tw/',
-    description: '整合經濟部商業司及財政部營業稅籍資料，提供便捷的台灣公司資訊查詢管道，協助使用者輕鬆了解企業基本資訊。',
-    icon: Database,
-    color: 'blue'
-  },
   {
     id: 'twincn',
     name: '台灣上市上櫃公司',
@@ -19,12 +11,28 @@ const dataSources = [
     color: 'green'
   },
   {
+    id: 'gov-procurement',
+    name: '政府電子採購網',
+    url: 'https://web.pcc.gov.tw/pis/',
+    description: '中華民國政府採購資訊官方平台，提供完整招標公告、決標資訊與電子採購服務，確保採購流程透明化。',
+    icon: FileText,
+    color: 'blue'
+  },
+  {
+    id: 'company',
+    name: '台灣公司資料',
+    url: 'https://company.g0v.ronny.tw/',
+    description: '整合經濟部商業司及財政部營業稅籍資料，提供便捷的台灣公司資訊查詢管道，協助使用者輕鬆了解企業基本資訊。',
+    icon: Database,
+    color: 'purple'
+  },
+  {
     id: 'tender',
     name: '標案瀏覽',
     url: 'https://pcc.g0v.ronny.tw/',
     description: '彙整中華民國政府電子採購網公開資訊，提供標案查詢與資料分析服務，遵循政府資料開放原則。',
     icon: Shield,
-    color: 'purple'
+    color: 'orange'
   }
 ];
 
@@ -49,6 +57,13 @@ const colorVariants = {
     text: 'text-purple-700',
     icon: 'text-purple-500',
     hover: 'hover:border-purple-300 hover:bg-purple-100'
+  },
+  orange: {
+    bg: 'bg-orange-50',
+    border: 'border-orange-200',
+    text: 'text-orange-700',
+    icon: 'text-orange-500',
+    hover: 'hover:border-orange-300 hover:bg-orange-100'
   }
 };
 
@@ -64,7 +79,7 @@ export default function PrivacyPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         {dataSources.map((source, index) => {
           const colors = colorVariants[source.color as keyof typeof colorVariants];
           
