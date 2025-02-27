@@ -37,12 +37,10 @@ const tabIcons = {
 export default function TenderDetail() {
   const { tenderId } = useParams<{ tenderId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basic');
   const { trackEvent } = useGoogleAnalytics();
   const { data, targetRecord, isLoading, error, sections } = useTenderDetail(tenderId || '');
   const [expandedFields, setExpandedFields] = useState<Record<string, boolean>>({});
-
-  const encodedTab = searchParams.get('tab');
-  const activeTab = encodedTab ? decodeURIComponent(encodedTab) : '';
 
   useEffect(() => {
     if (tenderId) {
@@ -50,26 +48,28 @@ export default function TenderDetail() {
     }
   }, [tenderId]);
 
-  useEffect(() => {
-    if (sections.length > 0 && !encodedTab) {
-      const defaultTab = sections[0].title;
-      const encodedDefaultTab = encodeURIComponent(defaultTab);
-
-      setSearchParams({ tab: encodedDefaultTab }, { replace: true });
-      trackEvent('tender_detail_tab_change', {
-        tab: defaultTab
-      });
-    }
-  }, [sections, encodedTab, setSearchParams, trackEvent]);
-
   const handleTabChange = (tab: string) => {
-    const encodedNewTab = encodeURIComponent(tab);
+    // 驗證有效 tab 值
+    const decodedTab = decodeURIComponent(tab);
+    const isValidTab = decodedTab && sections.some(s => s.title === decodedTab);
+    const defaultTab = sections.length > 0 ? sections[0].title : '';
+    const finalTab = isValidTab ? decodedTab : defaultTab;
 
-    setSearchParams({ tab: encodedNewTab }, { replace: true });
-    trackEvent('tender_detail_tab_change', {
-      tab: tab
-    });
+    // 處理 URL 編碼與參數設定
+    if (finalTab) {
+      const encodedTab = encodeURIComponent(finalTab);
+      setSearchParams({ tab: encodedTab }, { replace: true });
+    }
+    
+    // 更新狀態與追蹤事件
+    setActiveTab(finalTab);
+    trackEvent('tender_detail_tab_change', { tab: finalTab });
   };
+
+  useEffect(() => {
+    const currentTab = searchParams.get('tab') || '';
+    handleTabChange(currentTab);
+  }, [sections, searchParams, setSearchParams]);
 
   if (isLoading) {
     return (
