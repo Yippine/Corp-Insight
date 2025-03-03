@@ -38,7 +38,9 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
       try {
         const storedRecord = sessionStorage.getItem(`tenderRecord_${tenderId}`);
         const { date, type } = storedRecord ? JSON.parse(storedRecord) : {};
-        const [unitId, jobNumber] = tenderId.split('_');
+        const firstUnderscoreIndex = tenderId.indexOf('_');
+        const unitId = tenderId.substring(0, firstUnderscoreIndex);
+        const jobNumber = tenderId.substring(firstUnderscoreIndex + 1);
 
         const response = await fetch(
           `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`
