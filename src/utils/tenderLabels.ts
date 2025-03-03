@@ -34,8 +34,7 @@ export const getTenderLabel = (type: string) => {
         /財物變賣/,
         /拒絕往來廠商/,
         /招標文件公開閱覽/,
-        /財物出租/,
-        /懲戒公告/
+        /財物出租/
       ]
     }
   ];

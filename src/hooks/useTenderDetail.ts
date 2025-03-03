@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { TenderDetail, TenderRecord } from '../types/tender';
+import { formatDate } from '../utils/formatters';
 
 interface UseTenderDetailResult {
   data: TenderDetail | null;
@@ -35,26 +36,34 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
       setError(null);
 
       try {
-        const [unitId, jobNumber, targetDate] = tenderId.split('_');
+        const storedRecord = sessionStorage.getItem(`tenderRecord_${tenderId}`);
+        const { date, type } = storedRecord ? JSON.parse(storedRecord) : {};
+        const [unitId, jobNumber] = tenderId.split('_');
+
         const response = await fetch(
           `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`
         );
-
-        if (!response.ok) {
-          throw new Error('無法取得標案資料');
-        }
+        if (!response.ok) throw new Error('無法取得標案資料');
 
         const result: TenderDetail = await response.json();
         setData(result);
         console.log(JSON.stringify(result, null, 2));
 
-        // 取得最新一筆記錄
-        const targetRecord = result.records.find(record => record.date.toString() === targetDate) || result.records[result.records.length - 1];
-        setTargetRecord(targetRecord);
+        // 精確匹配邏輯
+        const findTargetRecord = () => {
+          if (date && type) {
+            return result.records.find(record => 
+              formatDate(record.date) === date && 
+              record.brief.type === decodeURIComponent(type)
+            );
+          }
+          if (date) return result.records.find(r => r.date.toString() === date);
+          return result.records[result.records.length - 1];
+        };
 
-        // 解析詳細資料結構
-        const parsedSections = parseTenderDetail(targetRecord.detail);
-        setSections(parsedSections);
+        const target = findTargetRecord() || result.records[0];
+        setTargetRecord(target);
+        setSections(parseTenderDetail(target.detail));
 
       } catch (err) {
         console.error('載入標案資料失敗：', err);

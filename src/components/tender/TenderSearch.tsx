@@ -151,7 +151,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
       
       return {
         uniqueId: index,
-        tenderId: `${record.unit_id}_${record.job_number}_${record.date}`,
+        tenderId: `${record.unit_id}_${record.job_number}`,
         date: record.date ? formatDate(record.date) : '未提供',
         type: record.brief.type,
         title: record.brief.title,
@@ -171,12 +171,18 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
     handleSearch(undefined, 1);
   };
 
-  const handleTenderSelect = (tenderId: string) => {
-    sessionStorage.setItem('tenderSearchParams', searchParams.toString())
-    sessionStorage.setItem('tenderSearchScroll', window.scrollY.toString())
+  const handleTenderSelect = (record: TenderSearchData) => {
+    sessionStorage.setItem('tenderSearchParams', searchParams.toString());
+    sessionStorage.setItem('tenderSearchScroll', window.scrollY.toString());
+    
+    // 將完整記錄資料存入 sessionStorage
+    sessionStorage.setItem(`tenderRecord_${record.tenderId}`, JSON.stringify({
+      date: record.date,
+      type: record.type
+    }));
 
     if (onTenderSelect) {
-      onTenderSelect(tenderId)
+      onTenderSelect(record.tenderId);
     }
   }
 
@@ -328,7 +334,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
                 {searchResults.map((tender) => (
                   <tr 
                     key={tender.uniqueId}
-                    onClick={() => handleTenderSelect(tender.tenderId)}
+                    onClick={() => handleTenderSelect(tender)}
                     className="hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-6 py-4 text-center">
