@@ -10,13 +10,13 @@ interface UseTenderDetailResult {
   sections: Section[];
 }
 
-interface FieldValue {
+export interface FieldValue {
   label: string;
   value: string | string[];
   children?: FieldValue[];
 }
 
-interface Section {
+export interface Section {
   title: string;
   fields: FieldValue[];
 }
