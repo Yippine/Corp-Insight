@@ -65,7 +65,8 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
   const handleSearch = async (
     e: React.FormEvent | null, 
     page: number = 1,
-    customQuery?: string  
+    customQuery?: string,
+    enableAutoRedirect: boolean = true  
   ) => {
     e?.preventDefault();
     const trimmedQuery = customQuery || searchQuery.trim();
@@ -85,16 +86,23 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
         const formattedResults = await formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
         setTotalPages(1);
+        
+        if (handleAutoRedirect(formattedResults, enableAutoRedirect)) return;
       } else {
         let response = await fetchSearchData('name', trimmedQuery, page);
         let formattedResults = await formatCompanyResults('name', response);
+
         if (formattedResults.length === 0) {
           response = await fetchSearchData('chairman', trimmedQuery, page);
           formattedResults = await formatCompanyResults('chairman', response);
         }
+
         if (formattedResults.length === 0) {
           throw new Error('找不到符合的公司！');
         }
+
+        if (handleAutoRedirect(formattedResults, enableAutoRedirect)) return;
+
         setSearchResults(formattedResults);
         setTotalPages(Math.ceil(response.found / 10) || 1);
         setCurrentPage(page);
@@ -128,7 +136,13 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
     setSearchQuery(decodedQuery)
     
     const executeSearch = async () => {
-      await handleSearch(null, parseInt(searchParams.get('page') || '1'), decodedQuery)
+      const isReturningFromDetail = sessionStorage.getItem('companySearchParams') !== null;
+      await handleSearch(
+        null, 
+        parseInt(searchParams.get('page') || '1'), 
+        decodedQuery,
+        !isReturningFromDetail
+      );
     }
     executeSearch()
   }, [])
@@ -136,6 +150,20 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
   const determineSearchType = (query: string): 'taxId' | 'name' => {
     const taxIdPattern = /^\d{8}$/;
     return taxIdPattern.test(query) ? 'taxId' : 'name';
+  };
+
+  /**
+   * 處理搜尋結果自動跳轉到詳情頁面
+   * @param results 搜尋結果
+   * @param enableAutoRedirect 是否啟用自動跳轉
+   * @returns 是否已經執行跳轉
+   */
+  const handleAutoRedirect = (results: SearchData[], enableAutoRedirect: boolean): boolean => {
+    if (results.length === 1 && onCompanySelect && enableAutoRedirect) {
+      onCompanySelect(results[0].taxId);
+      return true;
+    }
+    return false;
   };
 
   const formatCompanyResults = async (type: 'taxId' | 'name' | 'chairman', data: any): Promise<SearchData[]> => {
@@ -171,7 +199,7 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
   };
 
   const handlePageChange = (page: number) => {
-    handleSearch(null, page);
+    handleSearch(null, page, undefined, false);
   };
 
   const handleReset = () => {
@@ -189,7 +217,7 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
 
   return (
     <div className="space-y-6">
-      <form onSubmit={(e) => handleSearch(e)} className="relative">
+      <form onSubmit={(e) => handleSearch(e, 1, undefined, true)} className="relative">
         <div className="flex shadow-sm rounded-lg">
           <div className="relative flex-grow focus-within:z-10">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
