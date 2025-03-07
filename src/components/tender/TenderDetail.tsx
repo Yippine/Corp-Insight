@@ -80,7 +80,7 @@ export default function TenderDetail() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
       >
-        <YesNoSection section={section} />
+        {/* <YesNoSection section={section} /> */}
         <TenderBasicInfo section={section} />
       </motion.div>
     );

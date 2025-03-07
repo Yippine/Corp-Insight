@@ -28,7 +28,7 @@ export default function TenderSpecialInfo({ section, targetRecord }: TenderSpeci
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <YesNoSection section={section} />
+      {/* <YesNoSection section={section} /> */}
       <TenderBasicInfo section={section} />
     </motion.div>
   );
@@ -42,7 +42,7 @@ function renderMostAdvantageousSection(section: Section, targetRecord: TenderRec
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <YesNoSection section={section} />
+      {/* <YesNoSection section={section} /> */}
 
       <motion.div
         className="bg-white shadow-lg rounded-xl overflow-hidden"
@@ -97,7 +97,7 @@ function renderOtherInfoSection(section: Section, targetRecord: TenderRecord | n
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <YesNoSection section={section} />
+      {/* <YesNoSection section={section} /> */}
 
       {/* 使用 TenderBasicInfo 來渲染其他區塊 */}
       <TenderBasicInfo section={otherInfoSection} />
