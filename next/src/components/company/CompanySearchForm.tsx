@@ -57,6 +57,10 @@ export default function CompanySearchForm({ initialQuery = '' }: CompanySearchFo
             <Users className="h-5 w-5 mr-1" />
             負責人
           </span>
+          <span className="flex items-center">
+            <Search className="h-5 w-5 mr-1" />
+            關鍵字
+          </span>
         </div>
       </form>
     </div>

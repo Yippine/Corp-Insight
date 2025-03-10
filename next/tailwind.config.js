@@ -21,6 +21,9 @@ module.exports = {
           900: '#000e27',
         },
       },
+      animation: {
+        'spin-slow': 'spin 6s linear infinite',
+      },
     },
   },
   plugins: [],

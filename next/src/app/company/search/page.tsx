@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import HeroSection from '@/components/HeroSection';
 import CompanySearchForm from '@/components/company/CompanySearchForm';
 import CompanySearchResults from '@/components/company/CompanySearchResults';
@@ -6,6 +5,8 @@ import FeatureSection from '@/components/FeatureSection';
 import { fetchCompanySearch } from '@/lib/company/utils';
 import { generateMetadata as generateSeoMetadata, CompanySearchStructuredData } from '@/components/SEO/CompanySearchSEO';
 import { CompanyData, SearchParams } from '@/lib/company/types';
+import { InlineLoading } from '@/components/common/loading/LoadingTypes';
+import NoSearchResults from '@/components/common/NoSearchResults';
 
 interface CompanySearchPageProps {
   searchParams?: SearchParams;
@@ -19,16 +20,21 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
   // 默認狀態（尚未搜尋）
   let companies: CompanyData[] = [];
   let totalPages = 0;
+  let isSearching = false;
+  let error: string | null = null;
   
   // 如果有搜尋查詢，則執行搜索
   if (decodedQuery) {
+    isSearching = true;
     try {
       const searchResults = await fetchCompanySearch(decodedQuery, page);
       companies = searchResults.companies;
       totalPages = searchResults.totalPages;
-    } catch (error) {
-      console.error('Search failed:', error);
-      // 錯誤處理會在客戶端顯示
+      isSearching = false;
+    } catch (e) {
+      console.error('Search failed:', e);
+      error = e instanceof Error ? e.message : '搜尋過程發生錯誤，請稍後再試。';
+      isSearching = false;
     }
   }
 
@@ -45,19 +51,26 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
           highlightColor="text-blue-600"
         />
 
-        <Suspense fallback={<div>載入中...</div>}>
-          <CompanySearchForm initialQuery={decodedQuery} />
-        </Suspense>
+        <CompanySearchForm initialQuery={decodedQuery} />
         
         {decodedQuery && (
-          <Suspense fallback={<div className="text-center py-8">搜尋結果載入中...</div>}>
+          isSearching ? (
+            <div className="py-8">
+              <InlineLoading />
+            </div>
+          ) : error ? (
+            <NoSearchResults 
+              message={error}
+              searchTerm={decodedQuery}
+            />
+          ) : (
             <CompanySearchResults 
               companies={companies}
               totalPages={totalPages}
               currentPage={page}
               searchQuery={decodedQuery}
             />
-          </Suspense>
+          )
         )}
         
         {!decodedQuery && <FeatureSection />}

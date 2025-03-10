@@ -14,15 +14,15 @@ export default function HeroSection({
   highlightColor = 'text-blue-600',
 }: HeroSectionProps) {
   return (
-    <div className="bg-white py-12 rounded-lg shadow-sm">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
-          {title}{' '}
+    <div className="space-y-8">
+      <div className="text-center space-y-4 py-12">
+        <h1 className="text-5xl font-extrabold text-gray-900 sm:text-6xl sm:tracking-tight lg:text-6xl">
+          {title}
           {highlightText && (
             <span className={highlightColor}>{highlightText}</span>
           )}
         </h1>
-        <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+        <p className="mx-auto text-2xl text-gray-500">
           {description}
         </p>
       </div>

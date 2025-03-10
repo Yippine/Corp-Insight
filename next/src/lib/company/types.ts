@@ -8,6 +8,7 @@ export interface CompanyData {
   industry?: string;
   registerDate?: string;
   tenderCount?: number;
+  employees?: string;
 }
 
 export interface SearchResponse {

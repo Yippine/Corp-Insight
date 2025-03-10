@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { Building2, FileSpreadsheet, Users, MapPin, ChevronRight } from 'lucide-react';
 import { CompanyData } from '@/lib/company/types';
 import { formatCapital } from '@/lib/company/utils';
+import NoSearchResults from '@/components/common/NoSearchResults';
+import DataSource from '@/components/common/DataSource';
 
 interface CompanySearchResultsProps {
   companies: CompanyData[];
@@ -20,12 +22,10 @@ export default function CompanySearchResults({
 }: CompanySearchResultsProps) {
   if (!companies || companies.length === 0) {
     return (
-      <div className="text-center py-8">
-        <h2 className="text-2xl font-bold text-gray-800">找不到符合的公司</h2>
-        <p className="text-gray-600 mt-2">
-          沒有找到與 &quot;{searchQuery}&quot; 相符的企業資料，請嘗試其他搜尋關鍵字。
-        </p>
-      </div>
+      <NoSearchResults 
+        message="找不到符合的公司！"
+        searchTerm={searchQuery}
+      />
     );
   }
 
@@ -38,69 +38,104 @@ export default function CompanySearchResults({
       </div>
 
       <div className="space-y-4">
-        {companies.map((company) => (
-          <Link
-            href={`/company/detail/${encodeURIComponent(company.taxId)}`}
-            key={company.taxId}
-            className="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200"
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between">
-              <div className="space-y-2 flex-grow">
-                <h3 className="text-lg md:text-xl font-bold text-blue-700">
-                  {company.name}
-                </h3>
-                <div className="flex flex-col sm:flex-row sm:space-x-4 text-sm md:text-base text-gray-600">
-                  <span className="flex items-center mb-1 sm:mb-0">
-                    <FileSpreadsheet className="h-4 w-4 mr-1 inline" />
-                    統編：{company.taxId}
-                  </span>
-                  {company.chairman && (
-                    <span className="flex items-center mb-1 sm:mb-0">
-                      <Users className="h-4 w-4 mr-1 inline" />
-                      負責人：{company.chairman}
-                    </span>
-                  )}
-                </div>
-                {company.address && (
-                  <div className="flex items-start text-sm md:text-base text-gray-600">
-                    <MapPin className="h-4 w-4 mr-1 mt-1 inline shrink-0" />
-                    <span>{company.address}</span>
-                  </div>
-                )}
-                <div className="flex flex-col sm:flex-row sm:space-x-4 text-sm text-gray-600 mt-1">
-                  {company.status && (
-                    <span className="mb-1 sm:mb-0">
-                      登記狀態：
-                      <span className={company.status.includes('核准') ? 'text-green-600' : 'text-red-600'}>
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            searchQuery={searchQuery}
+          />
+        )}
+
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+          <ul className="divide-y divide-gray-200">
+            {companies.map((company) => (
+              <li key={company.taxId}>
+                <Link
+                  href={`/company/detail/${encodeURIComponent(company.taxId)}`}
+                  className="block hover:bg-gray-50 w-full text-left p-6 transition-colors duration-200"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <h3 className="text-xl font-medium text-blue-600 truncate">
+                        {company.name}
+                      </h3>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
+                        company.status === '營業中' || company.status?.includes('核准') 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
                         {company.status}
                       </span>
-                    </span>
-                  )}
-                  {company.capital !== undefined && (
-                    <span>資本額：{formatCapital(company.capital)} 元</span>
-                  )}
-                  {company.tenderCount !== undefined && company.tenderCount > 0 && (
-                    <span className="text-blue-600">
-                      標案數量：{company.tenderCount}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="mt-4 md:mt-0 md:ml-4 flex justify-end">
-                <ChevronRight className="h-6 w-6 text-gray-400" />
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+                    </div>
+                    <div className="text-base text-gray-500">
+                      統編：{company.taxId}
+                    </div>
+                  </div>
 
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          searchQuery={searchQuery}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    {company.chairman && company.chairman !== '無' &&
+                      <div className="flex items-center text-base text-gray-600">
+                        <Users className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                        <span className="truncate">負責人：{company.chairman}</span>
+                      </div>
+                    }
+                    {company.industry && company.industry !== '未分類' &&
+                      <div className="flex items-center text-base text-gray-600">
+                        <Building2 className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                        <span className="truncate">{company.industry}</span>
+                      </div>
+                    }
+                    {company.tenderCount !== undefined && company.tenderCount > 0 &&
+                      <div className="flex items-center text-base text-gray-600">
+                        <FileSpreadsheet className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                        <span>參與標案：{company.tenderCount} 件</span>
+                      </div>
+                    }
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {company.capital !== undefined &&
+                      <div className="flex items-center text-base text-gray-600">
+                        <Building2 className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                        <span>實收資本額：{formatCapital(company.capital)}</span>
+                      </div>
+                    }
+                    {company.employees && company.employees !== '未提供' &&
+                      <div className="flex items-center text-base text-gray-600">
+                        <Users className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                        <span>員工人數：{company.employees}</span>
+                      </div>
+                    }
+                    {company.address &&
+                      <div className="flex items-center text-base text-gray-600">
+                        <MapPin className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                        <span className="truncate">{company.address}</span>
+                      </div>
+                    }
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            searchQuery={searchQuery}
+          />
+        )}
+
+        <DataSource
+          sources={[
+            {
+              name: '台灣公司資料',
+              url: 'https://company.g0v.ronny.tw/'
+            }
+          ]}
         />
-      )}
+      </div>
     </div>
   );
 }
