@@ -1,0 +1,69 @@
+// 數據庫提供者
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 生成器配置
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 企業模型
+model Company {
+  id            String    @id @default(cuid())
+  name          String
+  fullName      String?
+  uniformNumber String    @unique
+  foundingDate  DateTime?
+  address       String?
+  city          String?
+  postalCode    String?
+  website       String?
+  description   String?
+  employeeCount Int?
+  capital       Float?
+  
+  // 關聯
+  tenders       Tender[]
+  contacts      CompanyContact[]
+  
+  // 時間戳
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 標案模型
+model Tender {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  publishDate   DateTime
+  deadline      DateTime
+  budget        Float?
+  
+  // 外鍵關聯
+  companyId     String?
+  company       Company?  @relation(fields: [companyId], references: [id])
+  
+  // 時間戳
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 企業聯絡人模型
+model CompanyContact {
+  id            String   @id @default(cuid())
+  name          String
+  title         String?
+  email         String?
+  phone         String?
+  
+  // 外鍵關聯
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id])
+  
+  // 時間戳
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
