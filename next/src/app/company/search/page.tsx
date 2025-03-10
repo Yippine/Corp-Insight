@@ -7,6 +7,7 @@ import { generateMetadata as generateSeoMetadata, CompanySearchStructuredData } 
 import { CompanyData, SearchParams } from '@/lib/company/types';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import NoSearchResults from '@/components/common/NoSearchResults';
+import AutoRedirect from '@/components/common/AutoRedirect';
 
 interface CompanySearchPageProps {
   searchParams?: SearchParams;
@@ -16,12 +17,15 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
   const query = searchParams?.q || '';
   const page = parseInt(searchParams?.page || '1') || 1;
   const decodedQuery = decodeURIComponent(query);
+  const disableAutoRedirect = searchParams?.noRedirect === 'true';
   
   // 默認狀態（尚未搜尋）
   let companies: CompanyData[] = [];
   let totalPages = 0;
   let isSearching = false;
   let error: string | null = null;
+  let shouldRedirect = false;
+  let redirectUrl = '';
   
   // 如果有搜尋查詢，則執行搜索
   if (decodedQuery) {
@@ -31,6 +35,12 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
       companies = searchResults.companies;
       totalPages = searchResults.totalPages;
       isSearching = false;
+      
+      // 如果僅有一個搜尋結果且未禁用自動跳轉，則設置重定向標誌
+      if (companies.length === 1 && !disableAutoRedirect) {
+        shouldRedirect = true;
+        redirectUrl = `/company/detail/${encodeURIComponent(companies[0].taxId)}`;
+      }
     } catch (e) {
       console.error('Search failed:', e);
       error = e instanceof Error ? e.message : '搜尋過程發生錯誤，請稍後再試。';
@@ -42,6 +52,9 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
     <>
       {/* 結構化數據標記 */}
       <CompanySearchStructuredData query={decodedQuery} />
+      
+      {/* 使用客戶端組件處理自動重定向 */}
+      {shouldRedirect && <AutoRedirect url={redirectUrl} />}
       
       <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <HeroSection 

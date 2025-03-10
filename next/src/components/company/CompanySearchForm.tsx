@@ -6,9 +6,10 @@ import { Search, Building2, FileSpreadsheet, Users } from 'lucide-react';
 
 interface CompanySearchFormProps {
   initialQuery?: string;
+  disableAutoRedirect?: boolean;
 }
 
-export default function CompanySearchForm({ initialQuery = '' }: CompanySearchFormProps) {
+export default function CompanySearchForm({ initialQuery = '', disableAutoRedirect = false }: CompanySearchFormProps) {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const router = useRouter();
 
@@ -18,7 +19,8 @@ export default function CompanySearchForm({ initialQuery = '' }: CompanySearchFo
     if (!trimmedQuery) return;
     
     // 使用 Next.js 路由進行導航，保持 URL 乾淨
-    router.push(`/company/search?q=${encodeURIComponent(trimmedQuery)}`);
+    const url = `/company/search?q=${encodeURIComponent(trimmedQuery)}${disableAutoRedirect ? '&noRedirect=true' : ''}`;
+    router.push(url);
   };
 
   return (
