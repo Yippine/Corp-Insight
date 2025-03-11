@@ -5,12 +5,56 @@ export function formatSearchData(data: SearchResponse): CompanyData {
     taxId: data.統一編號 || '',
     name: getCompanyName(data),
     address: data.公司所在地 || data.地址 || '',
-    chairman: data.負責人 || data.代表人姓名 || '無',
+    chairman: data.負責人 || data.負責人姓名 || data.代表人姓名 || '無',
     status: getCompanyStatus(data),
-    capital: data.資本額 ? parseInt(data.資本額.replace(/,/g, '')) : 0,
+    capital: data['資本額(元)'] ? parseInt(String(data['資本額(元)']).replace(/,/g, '')) : (
+      data['資本總額(元)'] ? parseInt(String(data['資本總額(元)']).replace(/,/g, '')) : 0
+    ),
     industry: getIndustryInfo(data),
-    registerDate: data.設立日期 || '',
+    registerDate: data.設立日期 || formatDate(data.核准設立日期) || '',
     paidInCapital: formatPaidInCapital(data['實收資本額(元)']),
+    employees: '未提供',
+    englishName: data.章程所訂外文公司名稱 || '',
+    companyType: data.組織別名稱 || '',
+    registrationAuthority: data.登記機關 || '',
+    established: formatDate(data.核准設立日期),
+    lastChanged: formatDate(data.最後核准變更日期),
+    shareholding: data.股權狀況 || '',
+    directors: data.董監事名單 ? data.董監事名單.map(director => ({
+      name: director.姓名 || '',
+      title: director.職稱 || '',
+      shares: director.出資額?.toString() || '0',
+      representative: Array.isArray(director.所代表法人) ? director.所代表法人[1] : (director.所代表法人 || '')
+    })) : [],
+    managers: data.經理人名單 || [],
+    financialReport: data.財報資訊 ? {
+      marketType: data.財報資訊.市場別 || '',
+      code: data.財報資訊.代號 || '',
+      abbreviation: data.財報資訊.簡稱 || '',
+      englishAbbreviation: data.財報資訊.英文簡稱 || '',
+      englishAddress: data.財報資訊.英文地址 || '',
+      phone: data.財報資訊.電話 || '',
+      fax: data.財報資訊.傳真 || '',
+      email: data.財報資訊.EMail || '',
+      website: data.財報資訊.網址 || '',
+      chairman: data.財報資訊.董事長 || '',
+      generalManager: data.財報資訊.總經理 || '',
+      spokesperson: data.財報資訊.發言人 || '',
+      spokespersonTitle: data.財報資訊.發言人職稱 || '',
+      deputySpokesperson: data.財報資訊.代理發言人 || '',
+      establishmentDate: data.財報資訊.成立日期 || '',
+      listingDate: data.財報資訊.上市日期 || '',
+      parValuePerShare: data.財報資訊.普通股每股面額 || '',
+      paidInCapital: data.財報資訊.實收資本額 || '',
+      privatePlacementShares: data.財報資訊.私募股數 || '',
+      preferredShares: data.財報資訊.特別股 || '',
+      stockTransferAgency: data.財報資訊.股票過戶機構 || '',
+      transferPhone: data.財報資訊.過戶電話 || '',
+      transferAddress: data.財報資訊.過戶地址 || '',
+      certifiedPublicAccountantFirm: data.財報資訊.簽證會計師事務所 || '',
+      certifiedPublicAccountant1: data.財報資訊.簽證會計師1 || '',
+      certifiedPublicAccountant2: data.財報資訊.簽證會計師2 || ''
+    } : undefined
   };
 }
 
@@ -76,6 +120,11 @@ function getIndustryInfo(company: SearchResponse): string {
     .match(chineseTextRegex)?.join('\n') || '未分類';
 
   return pureChineseItems;
+}
+
+function formatDate(dateObj: { year: number; month: number; day: number } | undefined): string {
+  if (!dateObj) return '未提供';
+  return `${dateObj.year}/${String(dateObj.month).padStart(2, '0')}/${String(dateObj.day).padStart(2, '0')}`;
 }
 
 export function determineSearchType(query: string): 'taxId' | 'name' {
@@ -180,31 +229,59 @@ async function fetchTenderInfo(taxId: string): Promise<{ count: number; }> {
 async function formatCompanyResults(type: 'taxId' | 'name' | 'chairman', data: any): Promise<CompanyData[]> {
   const companies = data?.data;
   
-  if (!companies) return [];
+  if (!companies) {
+    console.log('未獲取到公司資料');
+    return [];
+  }
 
   if (type === 'taxId') {
     const company = formatSearchData(companies);
-    const tenderInfo = await fetchTenderInfo(company.taxId);
-    return [{
-      ...company,
-      tenderCount: tenderInfo.count,
-    }];
+    try {
+      const tenderInfo = await fetchTenderInfo(company.taxId);
+      return [{
+        ...company,
+        tenderCount: tenderInfo.count,
+      }];
+    } catch (error) {
+      console.error('獲取標案資料失敗:', error);
+      return [{
+        ...company,
+        tenderCount: 0,
+      }];
+    }
   }
 
-  const formattedResults = await Promise.all(
-    Array.isArray(companies) 
-      ? companies
-          .map((company: SearchResponse) => formatSearchData(company))
-          .filter(company => company.name !== '未提供')
-          .map(async (company) => {
-            const tenderInfo = await fetchTenderInfo(company.taxId);
-            return {
-              ...company,
-              tenderCount: tenderInfo.count,
-            };
-          })
-      : []
-  );
+  try {
+    const formattedResults = await Promise.all(
+      Array.isArray(companies) 
+        ? companies
+            .map((company: SearchResponse) => {
+              const formattedCompany = formatSearchData(company);
+              return formattedCompany.name !== '未提供' ? formattedCompany : null;
+            })
+            .filter((company): company is CompanyData => company !== null)
+            .map(async (company) => {
+              try {
+                const tenderInfo = await fetchTenderInfo(company.taxId);
+                return {
+                  ...company,
+                  tenderCount: tenderInfo.count,
+                };
+              } catch (error) {
+                console.error(`獲取 ${company.name} (${company.taxId}) 標案資料失敗：`, error);
+                return {
+                  ...company,
+                  tenderCount: 0,
+                };
+              }
+            })
+        : []
+    );
 
-  return formattedResults;
+    console.log(`共格式化了 ${formattedResults.length} 家公司資料`);
+    return formattedResults;
+  } catch (error) {
+    console.error('格式化公司結果失敗：', error);
+    return [];
+  }
 }
