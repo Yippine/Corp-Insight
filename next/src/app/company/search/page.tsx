@@ -8,6 +8,7 @@ import { CompanyData, SearchParams } from '@/lib/company/types';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import AutoRedirect from '@/components/common/AutoRedirect';
+import CompanySearchClientWrapper from '@/components/company/CompanySearchClientWrapper';
 
 interface CompanySearchPageProps {
   searchParams?: SearchParams;
@@ -49,7 +50,7 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
   }
 
   return (
-    <>
+    <CompanySearchClientWrapper>
       {/* 結構化數據標記 */}
       <CompanySearchStructuredData query={decodedQuery} />
       
@@ -88,7 +89,7 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
         
         {!decodedQuery && <FeatureSection />}
       </div>
-    </>
+    </CompanySearchClientWrapper>
   );
 }
 

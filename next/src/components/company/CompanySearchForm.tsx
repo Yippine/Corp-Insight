@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Building2, FileSpreadsheet, Users } from 'lucide-react';
+import { ButtonLoading, InlineLoading } from '../common/loading/LoadingTypes';
 
 interface CompanySearchFormProps {
   initialQuery?: string;
@@ -12,6 +13,7 @@ interface CompanySearchFormProps {
 export default function CompanySearchForm({ initialQuery = '', disableAutoRedirect = false }: CompanySearchFormProps) {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -20,7 +22,11 @@ export default function CompanySearchForm({ initialQuery = '', disableAutoRedire
     
     // 使用 Next.js 路由進行導航，保持 URL 乾淨
     const url = `/company/search?q=${encodeURIComponent(trimmedQuery)}${disableAutoRedirect ? '&noRedirect=true' : ''}`;
-    router.push(url);
+    
+    // 使用 startTransition 包裝路由變化以改善使用者感知效能
+    startTransition(() => {
+      router.push(url);
+    });
   };
 
   return (
@@ -37,13 +43,15 @@ export default function CompanySearchForm({ initialQuery = '', disableAutoRedire
               onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full h-full rounded-l-lg border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 text-xl"
               placeholder="輸入公司名稱、統編、負責人或關鍵字"
+              disabled={isPending}
             />
           </div>
           <button
             type="submit"
             className="relative -ml-px inline-flex items-center px-8 py-3 border border-transparent text-xl font-medium rounded-r-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            disabled={isPending}
           >
-            搜尋
+            {isPending ? <ButtonLoading text="搜尋" /> : '搜尋'}
           </button>
         </div>
         <div className="mt-2 flex justify-center space-x-4 text-base text-gray-500">
@@ -65,6 +73,12 @@ export default function CompanySearchForm({ initialQuery = '', disableAutoRedire
           </span>
         </div>
       </form>
+      
+      {isPending && (
+        <div className="py-8">
+          <InlineLoading />
+        </div>
+      )}
     </div>
   );
 }

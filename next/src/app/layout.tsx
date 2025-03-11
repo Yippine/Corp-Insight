@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { LoadingProvider } from '@/components/common/loading/LoadingProvider';
 
 export const metadata: Metadata = {
   title: '企業資訊搜尋平台 | 商業透視鏡',
@@ -23,11 +24,13 @@ export default function RootLayout({
     <html lang="zh-TW" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <Header />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Footer />
+          <LoadingProvider>
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+          </LoadingProvider>
         </div>
       </body>
     </html>

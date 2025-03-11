@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ButtonLoading } from './common/loading/LoadingTypes';
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  isLoading?: boolean;
 }
 
-export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+export default function Pagination({ currentPage, totalPages, onPageChange, isLoading = false }: PaginationProps) {
   const [inputPage, setInputPage] = useState(currentPage.toString());
 
   const handlePageSubmit = (e: React.FormEvent) => {
@@ -38,7 +40,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
       <div className="flex items-center space-x-2">
         <button
           onClick={handleFirstPage}
-          disabled={currentPage <= 1}
+          disabled={currentPage <= 1 || isLoading}
           className="relative inline-flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           title="第一頁"
         >
@@ -46,7 +48,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
         </button>
         <button
           onClick={handlePrevPage}
-          disabled={currentPage <= 1}
+          disabled={currentPage <= 1 || isLoading}
           className="relative inline-flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           title="上一頁"
         >
@@ -60,20 +62,22 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
             max={totalPages}
             value={inputPage}
             onChange={(e) => setInputPage(e.target.value)}
-            className="w-16 px-2 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            disabled={isLoading}
+            className="w-16 px-2 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             title="輸入頁碼"
           />
           <button
             type="submit"
-            className="px-3 py-1 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            disabled={isLoading}
+            className="px-3 py-1 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            前往
+            {isLoading ? <ButtonLoading text="前往" /> : '前往'}
           </button>
         </form>
 
         <button
           onClick={handleNextPage}
-          disabled={currentPage >= totalPages}
+          disabled={currentPage >= totalPages || isLoading}
           className="relative inline-flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           title="下一頁"
         >
@@ -81,7 +85,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
         </button>
         <button
           onClick={handleLastPage}
-          disabled={currentPage >= totalPages}
+          disabled={currentPage >= totalPages || isLoading}
           className="relative inline-flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           title="最後一頁"
         >
