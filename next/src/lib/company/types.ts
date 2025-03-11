@@ -10,12 +10,16 @@ export interface CompanyData {
   tenderCount?: number;
   employees?: string;
   paidInCapital?: string;
+  totalCapital?: string;
   englishName?: string;
   companyType?: string;
   registrationAuthority?: string;
   established?: string;
   lastChanged?: string;
   shareholding?: string;
+  businessScope?: any[];
+  website?: string;
+  phone?: string;
   directors?: Array<{
     name: string;
     title: string;
@@ -28,6 +32,34 @@ export interface CompanyData {
     到職日期: { year: number; month: number; day: number };
   }>;
   financialReport?: {
+    marketType: string;
+    code: string;
+    abbreviation: string;
+    englishAbbreviation: string;
+    englishAddress: string;
+    phone: string;
+    fax: string;
+    email: string;
+    website: string;
+    chairman: string;
+    generalManager: string;
+    spokesperson: string;
+    spokespersonTitle: string;
+    deputySpokesperson: string;
+    establishmentDate: string;
+    listingDate: string;
+    parValuePerShare: string;
+    paidInCapital: string;
+    privatePlacementShares: string;
+    preferredShares: string;
+    stockTransferAgency: string;
+    transferPhone: string;
+    transferAddress: string;
+    certifiedPublicAccountantFirm: string;
+    certifiedPublicAccountant1: string;
+    certifiedPublicAccountant2: string;
+  };
+  financialReportInfo?: {
     marketType: string;
     code: string;
     abbreviation: string;
@@ -84,6 +116,9 @@ export interface SearchResponse {
   董監事名單?: { 姓名: string; 職稱: string; 出資額?: number | string; 所代表法人?: string | [number, string] }[];
   股權狀況?: string;
   經理人名單?: { 序號: string; 姓名: string; 到職日期: { year: number; month: number; day: number } }[];
+  網址?: string;
+  電話?: string;
+  員工人數?: string;
   財報資訊?: {
     市場別?: string;
     代號?: string;
