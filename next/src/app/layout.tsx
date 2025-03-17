@@ -3,6 +3,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { LoadingProvider } from '@/components/common/loading/LoadingProvider';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: '企業放大鏡™ | 企業資訊查詢平台',
@@ -13,6 +14,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  icons: {
+    icon: '/magnifier.ico',
+  },
 };
 
 export default function RootLayout({
@@ -22,6 +26,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-TW" suppressHydrationWarning>
+      <head>
+        {/* Google tag (gtag.js) */}
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-PDSWJD7GMN"></Script>
+        <Script id="google-analytics">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-PDSWJD7GMN');
+          `}
+        </Script>
+      </head>
       <body suppressHydrationWarning>
         <div className="min-h-screen flex flex-col bg-gray-50">
           <LoadingProvider>
