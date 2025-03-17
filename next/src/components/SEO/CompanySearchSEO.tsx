@@ -6,7 +6,7 @@ type CompanySearchSEOProps = {
   query?: string;
 };
 
-export function generateMetadata({
+export function generateCompanySearchMetadata({
   title = '企業資訊查詢',
   description = '輸入公司名稱、統編、負責人或關鍵字，立即獲取完整企業資訊',
   query,

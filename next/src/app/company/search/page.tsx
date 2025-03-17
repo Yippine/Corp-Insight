@@ -2,8 +2,8 @@ import HeroSection from '@/components/HeroSection';
 import CompanySearchForm from '@/components/company/CompanySearchForm';
 import CompanySearchResults from '@/components/company/CompanySearchResults';
 import FeatureSection from '@/components/FeatureSection';
-import { fetchCompanySearch } from '@/lib/company/utils';
-import { generateMetadata as generateSeoMetadata, CompanySearchStructuredData } from '@/components/SEO/CompanySearchSEO';
+import { fetchCompanySearch } from '@/lib/company/api';
+import { generateCompanySearchMetadata, CompanySearchStructuredData } from '@/components/SEO/CompanySearchSEO';
 import { CompanyData, SearchParams } from '@/lib/company/types';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import NoSearchResults from '@/components/common/NoSearchResults';
@@ -57,7 +57,7 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
       {/* 使用客戶端組件處理自動重定向 */}
       {shouldRedirect && <AutoRedirect url={redirectUrl} />}
       
-      <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-8">
         <HeroSection 
           title="快速查詢"
           highlightText="企業資訊"
@@ -98,7 +98,7 @@ export async function generateMetadata({ searchParams }: { searchParams?: Search
   const query = searchParams?.q || '';
   const decodedQuery = decodeURIComponent(query);
   
-  return generateSeoMetadata({
+  return generateCompanySearchMetadata({
     query: decodedQuery
   });
 }

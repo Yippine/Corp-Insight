@@ -51,7 +51,7 @@ const fetchDetailData = async (taxId: string) => {
       ? listedRes.value
       : { data: {} };
 
-      const company = {
+    const company = {
       ...basicData.data,
       ...listedData
     };

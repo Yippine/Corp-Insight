@@ -1,4 +1,83 @@
-import { CompanyData, SearchResponse } from './types';
+import { CompanyData } from './types';
+import { parseTwcnHtml } from './parser';
+import { formatDetailData } from './utils';
+import { determineSearchType, formatSearchData, formatCompanyResults } from './utils';
+
+export async function fetchCompanySearch(query: string, page: number = 1): Promise<{
+  companies: CompanyData[];
+  totalPages: number;
+}> {
+  const searchType = determineSearchType(query);
+  
+  try {
+    if (searchType === 'taxId') {
+      const response = await fetchSearchData('taxId', query);
+      if (!response || !response.data) {
+        throw new Error('找不到符合的公司！');
+      }
+      
+      response.data.統一編號 = query;
+      const company = formatSearchData(response.data);
+      const tenderInfo = await fetchTenderInfo(company.taxId);
+      
+      return {
+        companies: [{
+          ...company,
+          tenderCount: tenderInfo.count,
+        }],
+        totalPages: 1
+      };
+    } else {
+      let response = await fetchSearchData('name', query, page);
+      let formattedResults = await formatCompanyResults('name', response);
+
+      if (formattedResults.length === 0) {
+        response = await fetchSearchData('chairman', query, page);
+        formattedResults = await formatCompanyResults('chairman', response);
+      }
+
+      if (formattedResults.length === 0) {
+        throw new Error('找不到符合的公司！');
+      }
+
+      return {
+        companies: formattedResults,
+        totalPages: Math.ceil((response.found || 0) / 10) || 1
+      };
+    }
+  } catch (error) {
+    console.error('搜尋失敗：', error);
+    throw error instanceof Error ? error : new Error('搜尋過程發生錯誤，請稍後再試。');
+  }
+}
+
+async function fetchSearchData(type: 'taxId' | 'name' | 'chairman', query: string, page: number = 1): Promise<any> {
+  const baseUrl = 'https://company.g0v.ronny.tw/api';
+  const endpoints = {
+    taxId: `${baseUrl}/show/${query}`,
+    name: `${baseUrl}/search?q=${encodeURIComponent(query)}&page=${page}`,
+    chairman: `${baseUrl}/name?q=${encodeURIComponent(query)}&page=${page}`
+  };
+
+  try {
+    const response = await fetch(endpoints[type], {
+      cache: "no-store", // 確保獲取最新數據
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw new Error('無法連接到搜尋服務，請稍後再試');
+  }
+}
 
 /**
  * 從外部API獲取公司詳細資料
@@ -7,11 +86,12 @@ import { CompanyData, SearchResponse } from './types';
  */
 export async function fetchCompanyDetail(taxId: string): Promise<CompanyData | null> {
   try {
-    const baseUrl = 'https://company.g0v.ronny.tw/api';
+    // 使用絕對基礎 URL
+    const g0vBaseUrl = 'https://company.g0v.ronny.tw/api';
     
     // 並行獲取基本資料和上市公司資料
     const [basicRes, listedRes] = await Promise.allSettled([
-      fetch(`${baseUrl}/show/${taxId}`),
+      fetch(`${g0vBaseUrl}/show/${taxId}`),
       fetchListedCompany(taxId)
     ]);
 
@@ -32,15 +112,9 @@ export async function fetchCompanyDetail(taxId: string): Promise<CompanyData | n
     };
 
     // 格式化資料
-    const formattedData = formatDetailData(taxId, companyRawData);
-    
-    // 添加營業項目資料
-    return { 
-      ...formattedData, 
-      businessScope: companyRawData.所營事業資料 || [] 
-    };
+    return formatDetailData(taxId, companyRawData);
   } catch (error) {
-    console.error('獲取公司詳細資料失敗:', error);
+    console.error('獲取公司詳細資料失敗：', error);
     return null;
   }
 }
@@ -52,143 +126,51 @@ export async function fetchCompanyDetail(taxId: string): Promise<CompanyData | n
  */
 async function fetchListedCompany(taxId: string) {
   try {
-    // 假設這是針對上市公司的API
-    const response = await fetch(`https://p.twincn.com/api/company/${taxId}`);
+    // 創建適用於服務器端和客戶端的 URL
+    let url: string;
+    
+    // 檢查是否在服務器端運行
+    if (typeof window === 'undefined') {
+      // 服務器端 - 使用環境變量或默認值
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+      url = `${baseUrl}/api/company/twincn?no=${taxId}`;
+    } else {
+      // 客戶端 - 可以使用相對路徑
+      url = `/api/company/twincn?no=${taxId}`;
+    }
+    
+    const response = await fetch(url, {
+      cache: 'no-store'
+    });
     
     if (!response.ok) {
+      console.error(`上市公司資料請求失敗，狀態碼：${response.status}`);
       return { data: {} };
     }
     
-    return await response.json();
+    // 解析 HTML 內容
+    const html = await response.text();
+    return parseTwcnHtml(html);
   } catch (error) {
-    console.error('獲取上市公司資料失敗:', error);
+    console.error('獲取上市公司資料失敗：', error);
     return { data: {} };
   }
 }
 
-/**
- * 格式化公司詳細資料
- * @param taxId 統一編號
- * @param data 原始資料
- * @returns 格式化後的公司詳細資料
- */
-function formatDetailData(taxId: string, data: SearchResponse): CompanyData {
-  // 從原始資料抽取所需資訊
-  return {
-    taxId: taxId,
-    name: data.公司名稱 || data.商業名稱 || '',
-    address: data.公司所在地 || data.地址 || '',
-    chairman: data.負責人 || data.負責人姓名 || data.代表人姓名 || '無',
-    status: getCompanyStatus(data),
-    totalCapital: formatCapital(data['資本總額(元)'] ? Number(data['資本總額(元)']) : 0),
-    paidInCapital: formatCapital(data['實收資本額(元)'] ? Number(data['實收資本額(元)']) : 0),
-    industry: data.營業項目 || '',
-    website: data.網址 || '未提供',
-    phone: data.電話 || '未提供',
-    englishName: data.章程所訂外文公司名稱 || '未提供',
-    employees: data.員工人數 || '未提供',
-    companyType: data.組織別名稱 || '未提供',
-    registrationAuthority: data.登記機關 || '未提供',
-    established: formatDate(data.核准設立日期),
-    lastChanged: formatDate(data.最後核准變更日期),
-    shareholding: data.股權狀況 || '未提供',
-    // 提取董事和經理人資料
-    directors: data.董監事名單 ? data.董監事名單.map(director => ({
-      name: director.姓名 || '',
-      title: director.職稱 || '',
-      shares: director.出資額?.toString() || '0',
-      representative: Array.isArray(director.所代表法人) ? director.所代表法人[1] : (director.所代表法人 || '')
-    })) : [],
-    managers: data.經理人名單 || [],
-    // 提取財務報表資訊
-    financialReportInfo: data.財報資訊 ? {
-      marketType: data.財報資訊.市場別 || '未提供',
-      code: data.財報資訊.代號 || '未提供',
-      abbreviation: data.財報資訊.簡稱 || '',
-      englishAbbreviation: data.財報資訊.英文簡稱 || '',
-      englishAddress: data.財報資訊.英文地址 || '未提供',
-      phone: data.財報資訊.電話 || '未提供',
-      fax: data.財報資訊.傳真 || '未提供',
-      email: data.財報資訊.EMail || '未提供',
-      website: data.財報資訊.網址 || '未提供',
-      chairman: data.財報資訊.董事長 || '未提供',
-      generalManager: data.財報資訊.總經理 || '未提供',
-      spokesperson: data.財報資訊.發言人 || '未提供',
-      spokespersonTitle: data.財報資訊.發言人職稱 || '',
-      deputySpokesperson: data.財報資訊.代理發言人 || '未提供',
-      establishmentDate: data.財報資訊.成立日期 || '未提供',
-      listingDate: data.財報資訊.上市日期 || '未提供',
-      parValuePerShare: data.財報資訊.普通股每股面額 || '未提供',
-      paidInCapital: data.財報資訊.實收資本額 || '0',
-      privatePlacementShares: data.財報資訊.私募股數 || '0',
-      preferredShares: data.財報資訊.特別股 || '0',
-      stockTransferAgency: data.財報資訊.股票過戶機構 || '未提供',
-      transferPhone: data.財報資訊.過戶電話 || '未提供',
-      transferAddress: data.財報資訊.過戶地址 || '未提供',
-      certifiedPublicAccountantFirm: data.財報資訊.簽證會計師事務所 || '未提供',
-      certifiedPublicAccountant1: data.財報資訊.簽證會計師1 || '未提供',
-      certifiedPublicAccountant2: data.財報資訊.簽證會計師2 || '未提供',
-    } : {
-      marketType: '未提供',
-      code: '未提供',
-      abbreviation: '',
-      englishAbbreviation: '',
-      englishAddress: '未提供',
-      phone: '未提供',
-      fax: '未提供',
-      email: '未提供',
-      website: '未提供',
-      chairman: '未提供',
-      generalManager: '未提供',
-      spokesperson: '未提供',
-      spokespersonTitle: '',
-      deputySpokesperson: '未提供',
-      establishmentDate: '未提供',
-      listingDate: '未提供',
-      parValuePerShare: '未提供',
-      paidInCapital: '0',
-      privatePlacementShares: '0',
-      preferredShares: '0',
-      stockTransferAgency: '未提供',
-      transferPhone: '未提供',
-      transferAddress: '未提供',
-      certifiedPublicAccountantFirm: '未提供',
-      certifiedPublicAccountant1: '未提供',
-      certifiedPublicAccountant2: '未提供',
+export async function fetchTenderInfo(taxId: string): Promise<{ count: number; }> {
+  try {
+    const response = await fetch(`https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}`, {
+      cache: "no-store" // 確保獲取最新數據
+    });
+    
+    if (!response.ok) {
+      throw new Error(`標案查詢失敗：狀態碼 ${response.status}`);
     }
-  };
-}
-
-/**
- * 獲取公司狀態
- */
-function getCompanyStatus(data: SearchResponse): string {
-  if (data.現況 === '核准設立') return '營業中';
-  if (data.公司狀況 === '核准設立') return '營業中';
-  if (data.登記狀態 === '核准設立') return '營業中';
-  
-  if (data.現況) return data.現況;
-  if (data.公司狀況) return data.公司狀況;
-  if (data.登記狀態) return data.登記狀態;
-  
-  return '狀態未知';
-}
-
-/**
- * 格式化資本額
- */
-function formatCapital(capital: number): string {
-  if (!capital) return '未提供';
-  return `NT$ ${capital.toLocaleString()}`;
-}
-
-/**
- * 格式化日期
- */
-function formatDate(dateObj?: { year: number; month: number; day: number }): string {
-  if (!dateObj) return '未提供';
-  const { year, month, day } = dateObj;
-  // 轉換民國年到西元年
-  const westernYear = year + 1911;
-  return `${westernYear}年${month}月${day}日`;
+    
+    const data = await response.json();
+    return { count: data.total_records || 0 };
+  } catch (error) {
+    console.error('載入標案資料失敗：', error);
+    return { count: 0 };
+  }
 }

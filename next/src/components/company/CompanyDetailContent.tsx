@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { Building2, FileText, Users, MapPin, Phone, Globe, Table, BarChart3, LucideIcon } from 'lucide-react';
 import type { CompanyData } from '@/lib/company/types';
-import NoDataFound from '../common/NoDataFound';
 import DataSource from '../common/DataSource';
 import { InlineLoading } from '../common/loading';
+import BackButton from '../common/BackButton';
 
 // 圖標映射函數
 const getIconComponent = (iconName: string) => {
@@ -670,12 +669,10 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link
-          href="/company/search"
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          返回搜尋
-        </Link>
+        <BackButton 
+          returnPath="/company/search"
+          sessionKey="companySearchParams"
+        />
       </div>
       
       <div className="bg-white shadow-sm rounded-lg p-8">
