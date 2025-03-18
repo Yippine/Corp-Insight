@@ -7,6 +7,7 @@ import type { CompanyData } from '@/lib/company/types';
 import DataSource from '../common/DataSource';
 import { InlineLoading } from '../common/loading';
 import BackButton from '../common/BackButton';
+import CompanyMap from '../maps/CompanyMap';
 
 // 圖標映射函數
 const getIconComponent = (iconName: string) => {
@@ -357,10 +358,7 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                     </div>
                   )}
 
-                  {/* 地圖組件，暫時未實現 */}
-                  <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <p className="text-gray-500">地圖載入中...</p>
-                  </div>
+                  {typeof SearchData.address === 'string' && <CompanyMap address={SearchData.address} />}
                 </div>
               </div>
             </div>

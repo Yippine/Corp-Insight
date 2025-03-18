@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",
+    "@react-google-maps/api": "^2.20.6",
     "cheerio": "^1.0.0",
     "framer-motion": "^11.18.2",
     "lucide-react": "^0.479.0",
