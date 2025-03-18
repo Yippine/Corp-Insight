@@ -1,43 +1,36 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 
-export function useLoadingState(initialState = false) {
+/**
+ * 使用具有持久狀態的載入鉤子
+ * initialState: 初始載入狀態
+ * resetOnRouteChange: 路由變化時是否重置狀態
+ */
+export function useLoadingState(initialState = false, resetOnRouteChange = true) {
   const [isLoading, setIsLoading] = useState(initialState);
-  const mountedRef = useRef(true);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
+  // 路由變化時重置載入狀態
   useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const startLoading = useCallback(() => {
-    if (mountedRef.current) {
-      setIsLoading(true);
-    }
-  }, []);
-
-  const stopLoading = useCallback(() => {
-    if (mountedRef.current) {
+    if (resetOnRouteChange) {
       setIsLoading(false);
     }
-  }, []);
-
-  const withLoading = useCallback(async (fn: () => Promise<any>) => {
-    try {
-      startLoading();
-      await fn();
-    } finally {
-      stopLoading();
-    }
-  }, [startLoading, stopLoading]);
-
+  }, [pathname, searchParams, resetOnRouteChange]);
+  
   return {
     isLoading,
-    startLoading,
-    stopLoading,
-    withLoading
+    setLoading: (state: boolean) => {
+      setIsLoading(state);
+    },
+    startLoading: () => {
+      setIsLoading(true);
+    },
+    stopLoading: () => {
+      setIsLoading(false);
+    }
   };
 }
 

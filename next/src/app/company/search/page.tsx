@@ -5,10 +5,10 @@ import FeatureSection from '@/components/FeatureSection';
 import { fetchCompanySearch } from '@/lib/company/api';
 import { generateCompanySearchMetadata, CompanySearchStructuredData } from '@/components/SEO/CompanySearchSEO';
 import { CompanyData, SearchParams } from '@/lib/company/types';
-import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import AutoRedirect from '@/components/common/AutoRedirect';
 import CompanySearchClientWrapper from '@/components/company/CompanySearchClientWrapper';
+import { redirect } from 'next/navigation';
 
 interface CompanySearchPageProps {
   searchParams?: SearchParams;
@@ -19,13 +19,14 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
   const page = parseInt(searchParams?.page || '1') || 1;
   const decodedQuery = decodeURIComponent(query);
   const disableAutoRedirect = searchParams?.noRedirect === 'true';
+  const forceAutoRedirect = searchParams?.autoRedirect === 'true';
   
   // 默認狀態（尚未搜尋）
   let companies: CompanyData[] = [];
   let totalPages = 0;
   let isSearching = false;
   let error: string | null = null;
-  let shouldRedirect = false;
+  let shouldClientRedirect = false;
   let redirectUrl = '';
   
   // 如果有搜尋查詢，則執行搜索
@@ -37,9 +38,14 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
       totalPages = searchResults.totalPages;
       isSearching = false;
       
-      // 如果僅有一個搜尋結果且未禁用自動跳轉，則設置重定向標誌
+      // 如果設置了強制自動跳轉標誌，我們進行搜尋並直接伺服器端重定向
+      if (forceAutoRedirect && companies.length === 1) {
+        redirect(`/company/detail/${encodeURIComponent(companies[0].taxId)}`);
+      }
+      
+      // 如果僅有一個搜尋結果且未禁用自動跳轉，則設置客戶端重定向標誌
       if (companies.length === 1 && !disableAutoRedirect) {
-        shouldRedirect = true;
+        shouldClientRedirect = true;
         redirectUrl = `/company/detail/${encodeURIComponent(companies[0].taxId)}`;
       }
     } catch (e) {
@@ -55,7 +61,7 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
       <CompanySearchStructuredData query={decodedQuery} />
       
       {/* 使用客戶端組件處理自動重定向 */}
-      {shouldRedirect && <AutoRedirect url={redirectUrl} />}
+      {shouldClientRedirect && <AutoRedirect url={redirectUrl} />}
       
       <div className="space-y-8">
         <HeroSection 
@@ -65,16 +71,16 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
           highlightColor="text-blue-600"
         />
 
-        <CompanySearchForm initialQuery={decodedQuery} />
+        <CompanySearchForm 
+          initialQuery={decodedQuery}
+          disableAutoRedirect={disableAutoRedirect}
+          isSingleResult={companies.length === 1}
+        />
         
         {decodedQuery && (
-          isSearching ? (
-            <div className="py-8">
-              <InlineLoading />
-            </div>
-          ) : error ? (
+          error ? (
             <NoSearchResults 
-              message={error}
+              message={error as string}
               searchTerm={decodedQuery}
             />
           ) : (

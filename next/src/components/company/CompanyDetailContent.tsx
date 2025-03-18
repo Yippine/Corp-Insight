@@ -695,13 +695,13 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                 </div>
               </div>
 
-              {isLoadingMore ? (
+              {isLoadingTenders ? (
                 <div className="pt-36 pb-8">
                   <InlineLoading />
                 </div>
-              ) : tenderError ? (
+              ) : fetchTenderError ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">{tenderError}</p>
+                  <p className="text-gray-500">{fetchTenderError}</p>
                 </div>
               ) : tenders.length > 0 ? (
                 tenderView === 'list' ? (

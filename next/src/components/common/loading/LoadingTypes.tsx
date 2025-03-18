@@ -249,288 +249,102 @@ export const ButtonLoading = ({ text = "處理中..." }: { text?: string }) => (
   </motion.span>
 );
 
-// 全屏 Loading - 用於頁面級別載入
-export const FullscreenLoading = () => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
-  >
-    <motion.div
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ 
-        scale: 1, 
-        opacity: 1,
-        rotate: 360
-      }}
-      transition={{
-        rotate: {
-          duration: 2,
-          repeat: Infinity,
-          ease: "linear"
-        }
-      }}
-      className="relative w-24 h-24 flex items-center justify-center"
-    >
-      {/* 外層彩虹光環 */}
-      <motion.div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: `conic-gradient(
-            from 0deg, 
-            ${colorPalette.primary},
-            ${colorPalette.accent1},
-            ${colorPalette.highlight},
-            ${colorPalette.accent2},
-            ${colorPalette.secondary},
-            ${colorPalette.primary}
-          )`,
-          filter: 'blur(15px)',
-        }}
-        animate={{
-          rotate: 360,
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-      
-      {/* 中層光環 */}
-      <motion.div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: `linear-gradient(
-            45deg,
-            ${colorPalette.primary},
-            ${colorPalette.accent1} 30%,
-            ${colorPalette.highlight} 70%,
-            ${colorPalette.accent2}
-          )`,
-          backdropFilter: 'blur(5px)',
-        }}
-        animate={{
-          rotate: -360,
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 2.5,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      
-      {/* 主要載入區域 */}
-      <div className="relative w-24 h-24 flex items-center justify-center">
+// Block Loading - 用於內容區域載入
+export const BlockLoading = ({ overlay = false }: { overlay?: boolean }) => {
+  return (
+    <div className={`${overlay ? 'absolute inset-0 bg-white/80 backdrop-blur-sm z-10' : ''} flex items-center justify-center p-4`}>
+      <div className="relative flex flex-col items-center">
+        {/* 旋轉光圈 */}
         <motion.div
-          className="absolute inset-0 rounded-full"
+          className="w-12 h-12 rounded-full"
           style={{
-            border: '4px solid transparent',
-            borderImage: `linear-gradient(
-              45deg,
-              ${colorPalette.primary},
-              ${colorPalette.accent1} 30%,
-              ${colorPalette.highlight} 70%,
-              ${colorPalette.accent2}
-            ) 1`,
-            filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))'
+            border: `3px solid transparent`,
+            borderTopColor: colorPalette.primary,
+            borderRightColor: colorPalette.secondary,
+            willChange: 'transform'
           }}
-          animate={{
-            rotate: -360,
-          }}
+          animate={{ rotate: 360 }}
           transition={{
-            duration: 2,
+            duration: 1.5,
             repeat: Infinity,
             ease: "linear"
           }}
         />
-        <motion.div
+        
+        {/* 內部脈動 */}
+        <motion.div 
+          className="absolute inset-0 m-auto w-6 h-6 rounded-full"
+          style={{
+            background: colorPalette.primary,
+            boxShadow: `0 0 15px ${colorPalette.primary}`,
+            willChange: 'transform, opacity'
+          }}
           animate={{
-            scale: [1, 0.8, 1],
+            scale: [0.8, 1.1, 0.8],
+            opacity: [0.7, 1, 0.7]
           }}
           transition={{
-            duration: 1.5,
+            duration: 2,
             repeat: Infinity,
             ease: "easeInOut"
-          }}
-          className="text-white font-medium"
-          style={{
-            textShadow: '0 0 10px rgba(255,255,255,0.5)'
-          }}
-        >
-          Loading
-        </motion.div>
-      </div>
-    </motion.div>
-  </motion.div>
-);
-
-// 區塊 Loading - 用於卡片或面板
-export const BlockLoading = ({ overlay = false }: { overlay?: boolean }) => {
-  const content = (
-    <div className="flex items-center justify-center p-4">
-      <motion.div
-        className="relative w-16 h-16"
-        animate={{ rotate: 360 }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      >
-        {/* 彩虹光環 */}
-        <motion.div
-          className="absolute inset-0 rounded-full"
-          style={{
-            background: `conic-gradient(
-              from 0deg, 
-              ${colorPalette.primary},
-              ${colorPalette.accent1},
-              ${colorPalette.highlight},
-              ${colorPalette.accent2},
-              ${colorPalette.secondary},
-              ${colorPalette.primary}
-            )`,
-            filter: 'blur(8px)',
-          }}
-          animate={{ 
-            rotate: -360,
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3]
-          }}
-          transition={{
-            rotate: {
-              duration: 3,
-              repeat: Infinity,
-              ease: "linear"
-            },
-            scale: {
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            },
-            opacity: {
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }
           }}
         />
         
-        {/* 中心光點 */}
+        {/* 文字 */}
         <motion.div
-          className="absolute inset-0 m-auto w-8 h-8 rounded-full"
-          style={{
-            background: 'radial-gradient(circle, white 30%, rgba(255,255,255,0))',
-            boxShadow: '0 0 20px rgba(255,255,255,0.5)'
-          }}
+          className="mt-3 text-sm font-medium"
+          style={{ color: colorPalette.primary }}
           animate={{
-            scale: [0.8, 1, 0.8],
-            opacity: [0.5, 1, 0.5]
+            opacity: [0.7, 1, 0.7]
           }}
           transition={{
             duration: 1.5,
             repeat: Infinity,
             ease: "easeInOut"
           }}
-        />
-      </motion.div>
+        >
+          loading...
+        </motion.div>
+      </div>
     </div>
   );
-
-  if (overlay) {
-    return (
-      <div className="absolute inset-0 backdrop-blur-[2px] flex items-center justify-center z-10"
-           style={{
-             background: 'radial-gradient(circle at center, rgba(255,255,255,0.1), rgba(255,255,255,0.05))'
-           }}>
-        {content}
-      </div>
-    );
-  }
-
-  return content;
 };
 
-// 微型 Loading - 用於即時搜尋等小型操作
+// 迷你 Loading - 用於小區域空間
 export const MiniLoading = () => (
-  <div className="inline-flex items-center space-x-1">
-    {[...Array(3)].map((_, i) => (
-      <motion.div
-        key={i}
-        className="w-2 h-2 rounded-full bg-blue-500"
-        animate={{
-          scale: [1, 1.2, 1],
-        }}
-        transition={{
-          duration: 0.8,
-          repeat: Infinity,
-          delay: i * 0.2,
-          ease: "easeInOut"
-        }}
-      />
-    ))}
+  <div className="inline-flex items-center justify-center">
+    <motion.div
+      className="w-6 h-6 rounded-full border-2 border-t-blue-500 border-r-blue-400 border-b-transparent border-l-transparent"
+      animate={{ rotate: 360 }}
+      transition={{
+        duration: 1,
+        repeat: Infinity,
+        ease: "linear"
+      }}
+    />
   </div>
 );
 
-// 進度 Loading - 用於檔案上傳等需要顯示進度的場景
+// 進度 Loading - 帶有進度指示的載入元件
 export const ProgressLoading = ({ progress = 0 }: { progress: number }) => (
-  <div className="w-full space-y-2">
-    <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden relative">
-      <div 
-        style={{
-          background: `linear-gradient(
-            90deg,
-            ${colorPalette.primary},
-            ${colorPalette.accent1},
-            ${colorPalette.highlight},
-            ${colorPalette.accent2},
-            ${colorPalette.secondary}
-          )`,
-          filter: 'blur(4px)',
-          opacity: 0.3
-        }}
-      />
-      <motion.div
+  <div className="flex flex-col items-center justify-center p-4">
+    <div className="w-40 h-3 bg-gray-200 rounded-full overflow-hidden">
+      <motion.div 
         className="h-full rounded-full"
-        style={{
-          background: `linear-gradient(
-            90deg,
-            ${colorPalette.primary} 20%,
-            ${colorPalette.accent1} 50%,
-            ${colorPalette.highlight} 80%
-          )`,
-          boxShadow: '0 0 10px rgba(255,255,255,0.5)'
+        style={{ 
+          background: `linear-gradient(90deg, ${colorPalette.primary}, ${colorPalette.secondary})`,
+          width: `${progress}%` 
         }}
         initial={{ width: 0 }}
         animate={{ width: `${progress}%` }}
-        transition={{
-          duration: 0.5,
-          ease: "easeInOut"
-        }}
+        transition={{ duration: 0.5 }}
       />
     </div>
     <motion.div
-      className="text-sm text-center"
-      style={{
-        background: `linear-gradient(
-          90deg,
-          ${colorPalette.primary},
-          ${colorPalette.accent1},
-          ${colorPalette.highlight},
-          ${colorPalette.accent2},
-          ${colorPalette.secondary}
-        )`,
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        textShadow: '0 0 5px rgba(255,255,255,0.3)'
-      }}
+      className="mt-2 text-sm font-medium"
+      style={{ color: colorPalette.primary }}
       animate={{
-        opacity: [0.6, 1, 0.6]
+        opacity: [0.8, 1, 0.8]
       }}
       transition={{
         duration: 1.5,
@@ -538,7 +352,7 @@ export const ProgressLoading = ({ progress = 0 }: { progress: number }) => (
         ease: "easeInOut"
       }}
     >
-      {progress}%
+      {progress}% completed
     </motion.div>
   </div>
 );

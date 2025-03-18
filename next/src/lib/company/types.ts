@@ -111,4 +111,5 @@ export interface SearchParams {
   page?: string;
   type?: 'taxId' | 'name' | 'chairman';
   noRedirect?: string;
+  autoRedirect?: string;
 }

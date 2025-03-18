@@ -2,12 +2,12 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { FullscreenLoading } from './LoadingTypes';
 
 interface LoadingContextType {
   isLoading: boolean;
   startLoading: () => void;
   stopLoading: () => void;
+  setLoading: (state: boolean) => void;
 }
 
 const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
@@ -24,10 +24,10 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
 
   const startLoading = () => setIsLoading(true);
   const stopLoading = () => setIsLoading(false);
+  const setLoading = (state: boolean) => setIsLoading(state);
 
   return (
-    <LoadingContext.Provider value={{ isLoading, startLoading, stopLoading }}>
-      {isLoading && <FullscreenLoading />}
+    <LoadingContext.Provider value={{ isLoading, startLoading, stopLoading, setLoading }}>
       {children}
     </LoadingContext.Provider>
   );

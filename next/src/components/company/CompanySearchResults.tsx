@@ -9,6 +9,7 @@ import DataSource from '@/components/common/DataSource';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
+import { useLoadingState } from '@/components/common/loading/LoadingHooks';
 
 interface CompanySearchResultsProps {
   companies: CompanyData[];
@@ -25,6 +26,10 @@ export default function CompanySearchResults({
 }: CompanySearchResultsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { isLoading: isPageChangingState, setLoading } = useLoadingState(false);
+  
+  // 結合兩種狀態，創建單一isPageChanging變量
+  const isPageChanging = isPending || isPageChangingState;
   
   if (!companies || companies.length === 0) {
     return (
@@ -36,9 +41,13 @@ export default function CompanySearchResults({
   }
 
   const handlePageChange = (page: number) => {
+    // 設置loading狀態，使其更一致
+    setLoading(true);
+    
     const url = `/company/search?q=${encodeURIComponent(searchQuery)}&page=${page}`;
     startTransition(() => {
       router.push(url);
+      // 路由變化會自動重置loading狀態
     });
   };
 
@@ -49,11 +58,11 @@ export default function CompanySearchResults({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
-          isLoading={isPending}
+          isLoading={isPageChanging}
         />
       )}
 
-      {isPending ? (
+      {isPageChanging ? (
         <div className="py-8">
           <InlineLoading />
         </div>
@@ -137,7 +146,7 @@ export default function CompanySearchResults({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
-          isLoading={isPending}
+          isLoading={isPageChanging}
         />
       )}
 
