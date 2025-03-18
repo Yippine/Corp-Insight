@@ -28,6 +28,7 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
   let error: string | null = null;
   let shouldClientRedirect = false;
   let redirectUrl = '';
+  let isSingleResult = false;
   
   // 如果有搜尋查詢，則執行搜索
   if (decodedQuery) {
@@ -37,14 +38,15 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
       companies = searchResults.companies;
       totalPages = searchResults.totalPages;
       isSearching = false;
+      isSingleResult = companies.length === 1;
       
       // 如果設置了強制自動跳轉標誌，我們進行搜尋並直接伺服器端重定向
-      if (forceAutoRedirect && companies.length === 1) {
+      if (forceAutoRedirect && isSingleResult) {
         redirect(`/company/detail/${encodeURIComponent(companies[0].taxId)}`);
       }
       
       // 如果僅有一個搜尋結果且未禁用自動跳轉，則設置客戶端重定向標誌
-      if (companies.length === 1 && !disableAutoRedirect) {
+      if (isSingleResult && !disableAutoRedirect) {
         shouldClientRedirect = true;
         redirectUrl = `/company/detail/${encodeURIComponent(companies[0].taxId)}`;
       }
@@ -74,7 +76,7 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
         <CompanySearchForm 
           initialQuery={decodedQuery}
           disableAutoRedirect={disableAutoRedirect}
-          isSingleResult={companies.length === 1}
+          isSingleResult={isSingleResult}
         />
         
         {decodedQuery && (
@@ -83,14 +85,14 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
               message={error as string}
               searchTerm={decodedQuery}
             />
-          ) : (
+          ) : !isSingleResult ? (
             <CompanySearchResults 
-              companies={companies}
-              totalPages={totalPages}
-              currentPage={page}
-              searchQuery={decodedQuery}
+            companies={companies}
+            totalPages={totalPages}
+            currentPage={page}
+            searchQuery={decodedQuery}
             />
-          )
+          ) : null
         )}
         
         {!decodedQuery && <FeatureSection />}
