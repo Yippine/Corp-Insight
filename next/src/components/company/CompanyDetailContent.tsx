@@ -8,6 +8,11 @@ import DataSource from '../common/DataSource';
 import { InlineLoading } from '../common/loading';
 import BackButton from '../common/BackButton';
 import CompanyMap from '../maps/CompanyMap';
+import DirectorsChart from '@/components/company/charts/DirectorsChart';
+import DirectorsTable from '@/components/company/charts/DirectorsTable';
+import ManagersTimeline from '@/components/company/charts/ManagersTimeline';
+import ManagersTable from '@/components/company/charts/ManagersTable';
+import NoDataFound from '../common/NoDataFound';
 
 // 圖標映射函數
 const getIconComponent = (iconName: string) => {
@@ -602,17 +607,45 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
               </div>
 
               {(!SearchData.directors || SearchData.directors.length === 0) && 
-              (!SearchData.managers || SearchData.managers.length === 0) ? (
-                <div className="text-center py-10">
-                  <p className="text-gray-500">查無董事會、經理人資料</p>
-                </div>
+               (!SearchData.managers || SearchData.managers.length === 0) ? (
+                <NoDataFound message="查無董事會、經理人資料" />
               ) : (
-                <div className="space-y-8 text-center">
-                  {/* 這裡需要實現董事和經理人的圖表與表格組件 */}
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg p-6 border border-gray-200">
-                    <p className="text-gray-700">董事與經理人資料顯示組件尚在開發中</p>
+                view === 'chart' ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                    {SearchData.directors && SearchData.directors.length > 0 ? (
+                      <DirectorsChart directors={SearchData.directors} />
+                    ) : (
+                      <NoDataFound message="查無董事會資料" />
+                    )}
+                    {SearchData.managers && SearchData.managers.length > 0 ? (
+                      <ManagersTimeline 
+                        managers={SearchData.managers} 
+                        established={SearchData.established} 
+                      />
+                    ) : (
+                      <NoDataFound message="查無經理人資料" />
+                    )}
                   </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                    {SearchData.directors && SearchData.directors.length > 0 ? (
+                      <DirectorsTable 
+                        directors={SearchData.directors}
+                        onViewChange={setView}
+                      />
+                    ) : (
+                      <NoDataFound message="查無董事會資料" />
+                    )}
+                    {SearchData.managers && SearchData.managers.length > 0 ? (
+                      <ManagersTable 
+                        managers={SearchData.managers}
+                        onViewChange={setView}
+                      />
+                    ) : (
+                      <NoDataFound message="查無經理人資料" />
+                    )}
+                  </div>
+                )
               )}
             </div>
 
