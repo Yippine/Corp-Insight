@@ -12,7 +12,9 @@ import DirectorsChart from '@/components/company/charts/DirectorsChart';
 import DirectorsTable from '@/components/company/charts/DirectorsTable';
 import ManagersTimeline from '@/components/company/charts/ManagersTimeline';
 import ManagersTable from '@/components/company/charts/ManagersTable';
+import TenderStatsChart from '@/components/company/charts/TenderStatsChart';
 import NoDataFound from '../common/NoDataFound';
+import { usePaginatedTenders } from '@/lib/hooks/usePaginatedTenders';
 
 // 圖標映射函數
 const getIconComponent = (iconName: string) => {
@@ -47,6 +49,17 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
   const [tenderView, setTenderView] = useState<'chart' | 'list'>('chart');
   const [tenders, setTenders] = useState<any[]>([]);
   const [isLoadingTenders, setIsLoadingTenders] = useState(false);
+  const [tenderError, setTenderError] = useState<string | null>(null);
+  
+  const {
+    tenders: paginatedTenders,
+    isLoadingMore,
+    error: fetchTenderError,
+    progress,
+    totalPages,
+    currentPage,
+    isFullyLoaded
+  } = usePaginatedTenders(SearchData?.taxId || '');
   
   // 處理頁籤變更
   const handleTabChange = (tab: string) => {
@@ -64,29 +77,16 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
     router.push(`/company/detail/${SearchData.taxId}?${newParams.toString()}`);
   };
 
-  // 獲取標案資料
+  // 處理標案資料
   useEffect(() => {
-    const fetchTenderData = async () => {
-      if (activeTab === 'tenders' && SearchData?.taxId) {
-        setIsLoadingTenders(true);
-        try {
-          // 在實際應用中，應該從API獲取標案資料
-          // 這裡只是示例
-          const response = await fetch(`/api/company/tenders/${SearchData.taxId}`);
-          if (response.ok) {
-            const data = await response.json();
-            setTenders(data.tenders || []);
-          }
-        } catch (error) {
-          console.error('獲取標案資料失敗:', error);
-        } finally {
-          setIsLoadingTenders(false);
-        }
-      }
-    };
-    
-    fetchTenderData();
-  }, [activeTab, SearchData?.taxId]);
+    if (paginatedTenders.length > 0) {
+      setTenders(paginatedTenders);
+      setIsLoadingTenders(isLoadingMore);
+    }
+    if (fetchTenderError) {
+      setTenderError(fetchTenderError);
+    }
+  }, [paginatedTenders, isLoadingMore, fetchTenderError]);
 
   // 渲染營業項目
   const renderBusinessScope = () => {
@@ -695,9 +695,13 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                 </div>
               </div>
 
-              {isLoadingTenders ? (
+              {isLoadingMore ? (
                 <div className="pt-36 pb-8">
                   <InlineLoading />
+                </div>
+              ) : tenderError ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">{tenderError}</p>
                 </div>
               ) : tenders.length > 0 ? (
                 tenderView === 'list' ? (
@@ -725,7 +729,7 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                           key={`${tender.tenderId}-${index}`}
                           className="hover:bg-gray-50 cursor-pointer"
                           onClick={() => {
-                            // 點擊標案項目處理
+                            router.push(`/tender/detail/${tender.tenderId}`);
                           }}
                         >
                           <td className="px-6 py-4 text-base text-gray-500">
@@ -754,14 +758,17 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                   </table>
                 </div>
                 ) : (
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg p-6 border border-gray-200 text-center">
-                    <p className="text-gray-700">標案圖表視圖尚在開發中</p>
-                  </div>
+                  <TenderStatsChart 
+                    tenders={tenders}
+                    isLoadingMore={isLoadingMore}
+                    progress={progress}
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    isFullyLoaded={isFullyLoaded}
+                  />
                 )
               ) : (
-                <div className="text-center py-10">
-                  <p className="text-gray-500">查無標案資料</p>
-                </div>
+                <NoDataFound message="查無標案資料" />
               )}
             </div>
             <DataSource
