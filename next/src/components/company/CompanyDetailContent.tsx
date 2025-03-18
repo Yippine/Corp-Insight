@@ -79,10 +79,15 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
 
   // 處理標案資料
   useEffect(() => {
+    // 一律先同步Loading狀態，確保在API發查時一直顯示Loading
+    setIsLoadingTenders(isLoadingMore);
+    
+    // 當獲取到標案資料時更新本地狀態
     if (paginatedTenders.length > 0) {
       setTenders(paginatedTenders);
-      setIsLoadingTenders(isLoadingMore);
     }
+    
+    // 處理錯誤情況
     if (fetchTenderError) {
       setTenderError(fetchTenderError);
     }
@@ -696,7 +701,7 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
               </div>
 
               {isLoadingTenders ? (
-                <div className="pt-36 pb-8">
+                <div className="py-8">
                   <InlineLoading />
                 </div>
               ) : fetchTenderError ? (
@@ -767,8 +772,12 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                     isFullyLoaded={isFullyLoaded}
                   />
                 )
-              ) : (
+              ) : isFullyLoaded ? (
                 <NoDataFound message="查無標案資料" />
+              ) : (
+                <div className="py-8">
+                  <InlineLoading />
+                </div>
               )}
             </div>
             <DataSource

@@ -1,17 +1,26 @@
 'use client';
 
-import { FolderOpen } from 'lucide-react';
+import { Search } from "lucide-react";
 
 interface NoDataFoundProps {
   message?: string;
+  icon?: React.ElementType;
 }
 
-export default function NoDataFound({ message = '無相關數據' }: NoDataFoundProps) {
+export default function NoDataFound({
+  message = '查無資料',
+  icon: Icon = Search
+}: NoDataFoundProps) {
   return (
-    <div className="text-center py-10 px-4 bg-gray-50 rounded-lg">
-      <FolderOpen className="mx-auto h-12 w-12 text-gray-400" />
-      <h3 className="mt-2 text-base font-medium text-gray-900">{message}</h3>
-      <p className="mt-1 text-sm text-gray-500">系統中暫無此資料，可能尚未收集或處理</p>
+    <div className="text-center py-12">
+      <div className="bg-white overflow-hidden sm:rounded-lg p-12">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+            <Icon className="h-8 w-8 text-gray-600" />
+          </div>
+          <h3 className="text-2xl font-semibold text-gray-900">{message}</h3>
+        </div>
+      </div>
     </div>
   );
 }
