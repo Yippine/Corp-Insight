@@ -187,13 +187,13 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                     <dd className="mt-1 text-base text-gray-900">{SearchData.taxId}</dd>
                   </div>
 
-                  {SearchData.financialReportInfo?.website && SearchData.financialReportInfo.website !== '未提供' && (
+                  {SearchData.financialReportInfo?.website && SearchData.financialReportInfo?.website !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">網址</dt>
                       <dd className="mt-1 text-base text-blue-600 flex items-center">
                         <Globe className="h-5 w-5 text-gray-400 mr-1" />
-                        <a href={SearchData.financialReportInfo.website} target="_blank" rel="noopener noreferrer">
-                          {SearchData.financialReportInfo.website}
+                        <a href={SearchData.financialReportInfo?.website} target="_blank" rel="noopener noreferrer">
+                          {SearchData.financialReportInfo?.website}
                         </a>
                       </dd>
                     </div>
@@ -203,7 +203,7 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                     <dt className="text-base font-medium text-gray-500">中文名稱</dt>
                     <dd className="mt-1 text-base text-gray-900">
                       {SearchData.name}
-                      {SearchData.financialReportInfo?.abbreviation && `（${SearchData.financialReportInfo.abbreviation}）`}
+                      {SearchData.financialReportInfo?.abbreviation && `（${SearchData.financialReportInfo?.abbreviation}）`}
                     </dd>
                   </div>
 
@@ -212,7 +212,7 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                       <dt className="text-base font-medium text-gray-500">英文名稱</dt>
                       <dd className="mt-1 text-base text-gray-900">
                         {SearchData.englishName}
-                        {SearchData.financialReportInfo?.englishAbbreviation && ` (${SearchData.financialReportInfo.englishAbbreviation})`}
+                        {SearchData.financialReportInfo?.englishAbbreviation && ` (${SearchData.financialReportInfo?.englishAbbreviation})`}
                       </dd>
                     </div>
                   )}
@@ -246,22 +246,22 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                     </div>
                   )}
 
-                  {SearchData.financialReportInfo?.phone && SearchData.financialReportInfo.phone !== '未提供' && (
+                  {SearchData.financialReportInfo?.phone && SearchData.financialReportInfo?.phone !== '未提供' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">電話</dt>
                       <dd className="mt-1 text-base text-gray-900 flex items-center">
                         <Phone className="h-5 w-5 text-gray-400 mr-1" />
-                        {SearchData.financialReportInfo.phone}
+                        {SearchData.financialReportInfo?.phone}
                       </dd>
                     </div>
                   )}
 
-                  {SearchData.financialReportInfo?.fax && SearchData.financialReportInfo.fax !== '未提供' && SearchData.financialReportInfo.fax !== '無' && (
+                  {SearchData.financialReportInfo?.fax && SearchData.financialReportInfo?.fax !== '未提供' && SearchData.financialReportInfo?.fax !== '無' && (
                     <div className="sm:col-span-1">
                       <dt className="text-base font-medium text-gray-500">傳真</dt>
                       <dd className="mt-1 text-base text-gray-900 flex items-center">
                         <Phone className="h-5 w-5 text-gray-400 mr-1" />
-                        {SearchData.financialReportInfo.fax}
+                        {SearchData.financialReportInfo?.fax}
                       </dd>
                     </div>
                   )}
@@ -461,8 +461,96 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                     </div>
                   </div>
 
-                  {/* 其他財務相關內容 */}
-                  {/* ...省略其他部分... */}
+                  <div>
+                    <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
+                      <span className="inline-block w-1 h-6 bg-purple-600 rounded-full mr-3"></span>
+                      股權結構
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {SearchData.shareholding !== '未提供' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">主要股東</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.shareholding}</p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo?.parValuePerShare !== '未提供' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">普通股面額</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">{SearchData.financialReportInfo?.parValuePerShare}</p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo?.paidInCapital !== '0' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">實收資本總額</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">
+                            NT$ {parseInt(SearchData.financialReportInfo?.paidInCapital || '0').toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo?.privatePlacementShares !== '0' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">私募股份總數</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">
+                            {parseInt(SearchData.financialReportInfo?.privatePlacementShares || '0').toLocaleString()} 股
+                          </p>
+                        </div>
+                      )}
+                      {SearchData.financialReportInfo?.preferredShares !== '0' && (
+                        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm font-medium text-gray-500">特別股總數</p>
+                          <p className="mt-1 text-base font-medium text-gray-900">
+                            {parseInt(SearchData.financialReportInfo?.preferredShares || '0').toLocaleString()} 股
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-xl leading-6 font-medium text-gray-900 mb-6 flex items-center">
+                      <span className="inline-block w-1 h-6 bg-rose-600 rounded-full mr-3"></span>
+                      投資人服務
+                    </h4>
+                    <div className="grid grid-cols-1 gap-6">
+                      <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-lg p-6 border border-rose-100">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {SearchData.financialReportInfo?.stockTransferAgency !== '未提供' && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-500">股務代理機構</p>
+                              <p className="mt-1 text-base text-gray-900">{SearchData.financialReportInfo?.stockTransferAgency}</p>
+                            </div>
+                          )}
+                          {SearchData.financialReportInfo?.transferPhone !== '未提供' && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-500">股務聯絡電話</p>
+                              <p className="mt-1 text-base text-gray-900">{SearchData.financialReportInfo?.transferPhone}</p>
+                            </div>
+                          )}
+                          {SearchData.financialReportInfo?.transferAddress !== '未提供' && (
+                            <div className="md:col-span-2">
+                              <p className="text-sm font-medium text-gray-500">股務聯絡地址</p>
+                              <p className="mt-1 text-base text-gray-900">{SearchData.financialReportInfo?.transferAddress}</p>
+                            </div>
+                          )}
+                          {SearchData.financialReportInfo?.certifiedPublicAccountantFirm !== '未提供' && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-500">財務簽證會計師事務所</p>
+                              <p className="mt-1 text-base text-gray-900">{SearchData.financialReportInfo?.certifiedPublicAccountantFirm}</p>
+                            </div>
+                          )}
+                          {(SearchData.financialReportInfo?.certifiedPublicAccountant1 !== '未提供') && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-500">簽證會計師</p>
+                              <p className="mt-1 text-base text-gray-900">
+                                {SearchData.financialReportInfo?.certifiedPublicAccountant1}
+                                {SearchData.financialReportInfo?.certifiedPublicAccountant2 !== '未提供' && `、${SearchData.financialReportInfo?.certifiedPublicAccountant2}`}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
