@@ -132,7 +132,7 @@ async function fetchListedCompany(taxId: string) {
     // 檢查是否在服務器端運行
     if (typeof window === 'undefined') {
       // 服務器端 - 使用環境變量或默認值
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4173';
       url = `${baseUrl}/api/company/twincn?no=${taxId}`;
     } else {
       // 客戶端 - 可以使用相對路徑

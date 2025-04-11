@@ -41,7 +41,7 @@ npx prisma migrate dev
 ```bash
 npm run dev
 ```
-訪問 `http://localhost:3000`
+訪問 `http://localhost:4173`
 
 ### 生產構建
 ```bash
