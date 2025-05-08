@@ -35,6 +35,12 @@ export default function TenderHeader({ targetRecord, data }: TenderHeaderProps) 
           )}
         </div>
         <div className="flex space-x-3">
+           <button className="inline-flex items-center px-4 py-2 border 
+            border-transparent text-base font-medium rounded-md text-white 
+            bg-orange-400 hover:bg-orange-500 focus:outline-none focus:ring-2 
+            focus:ring-offset-2 focus:ring-orange-300 whitespace-nowrap">
+            一鍵生成洞察報告
+          </button>
           <button
             className="inline-flex items-center px-4 py-2 border 
             border-gray-300 shadow-sm text-base font-medium rounded-md 
