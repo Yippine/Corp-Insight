@@ -52,3 +52,46 @@ export function formatDate(date: string | Date | number): string {
     return '';
   }
 }
+
+/**
+ * 格式化金額（加入千分位）
+ */
+export function formatAmount(amount: string | number): string {
+  if (!amount) return '0';
+  const numericAmount = typeof amount === 'string' 
+    ? parseInt(amount.replace(/[^\d]/g, ''), 10)
+    : amount;
+  return numericAmount.toLocaleString('en-US');
+}
+
+/**
+ * 格式化電話號碼
+ */
+export function formatPhone(phone: string): string {
+  if (!phone) return '';
+  // 去除非數字字符
+  const cleaned = phone.replace(/\D/g, '');
+  
+  // 依照長度格式化
+  if (cleaned.length === 8) {
+    return `${cleaned.slice(0, 4)}-${cleaned.slice(4)}`;
+  } else if (cleaned.length === 9) {
+    return `${cleaned.slice(0, 2)}-${cleaned.slice(2, 5)}-${cleaned.slice(5)}`;
+  } else if (cleaned.length === 10) {
+    return `${cleaned.slice(0, 2)}-${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+  } else {
+    return phone;
+  }
+}
+
+/**
+ * 格式化統一編號（每4位加入一個空格）
+ */
+export function formatUnifiedId(id: string): string {
+  if (!id) return '';
+  const cleaned = id.replace(/\D/g, '');
+  if (cleaned.length === 8) {
+    return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+  }
+  return id;
+}
