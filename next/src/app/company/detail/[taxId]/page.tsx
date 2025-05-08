@@ -48,12 +48,13 @@ export default async function CompanyDetailPage({ params, searchParams }: Compan
     notFound();
   }
   
-  // 傳遞頁籤名稱而非圖標組件
+  // 傳遞頁籤名稱而非圖標組件，添加風險評估頁籤
   const tabs = [
     { id: 'basic', name: '基本資料', icon: 'Building2' },
     { id: 'financial', name: '財務概況', icon: 'BarChart3' },
     { id: 'directors', name: '核心成員', icon: 'Users' },
     { id: 'tenders', name: '標案資料', icon: 'FileText' },
+    { id: 'risk', name: '風險評估', icon: 'AlertTriangle' },
   ];
   
   return (

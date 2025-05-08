@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Building2, FileText, Users, MapPin, Phone, Globe, Table, BarChart3, LucideIcon } from 'lucide-react';
+import { Building2, FileText, Users, MapPin, Phone, Globe, Table, BarChart3, LucideIcon, AlertTriangle, Download, Clock, Filter } from 'lucide-react';
 import type { CompanyData } from '@/lib/company/types';
 import DataSource from '../common/DataSource';
 import { InlineLoading } from '../common/loading';
@@ -791,6 +791,536 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
           </div>
         );
       
+      case 'risk':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">風險評估</h3>
+                  <div className="flex items-center">
+                    <p className="text-gray-600 mr-2">企業法律風險全景分析與深度洞察</p>
+                    <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      機密情報
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      setView('chart');
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+                      view === 'chart'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <BarChart3 className="h-5 w-5" />
+                    <span className="font-medium">視覺圖表</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setView('table');
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
+                      view === 'table'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Table className="h-5 w-5" />
+                    <span className="font-medium">詳細資訊</span>
+                  </button>
+                </div>
+              </div>
+
+              {view === 'chart' ? (
+                <div className="space-y-6">
+                  {/* 風險評估圖表視圖內容 */}
+                  <div className="p-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl">
+                    <div className="bg-white p-6 rounded-xl">
+                      <div className="flex justify-between items-center mb-6">
+                        <h4 className="text-xl font-semibold text-gray-800">法律風險概覽</h4>
+                        <div className="bg-gray-100 rounded-full px-3 py-1 text-sm font-medium text-gray-800">
+                          更新於 {new Date().toLocaleDateString()}
+                        </div>
+                      </div>
+                      
+                      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-6 mb-6">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full -mr-16 -mt-16 opacity-40"></div>
+                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-100 rounded-full -ml-12 -mb-12 opacity-40"></div>
+                        
+                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between">
+                          <div className="text-center md:text-left mb-4 md:mb-0">
+                            <h5 className="text-lg font-medium text-gray-800 mb-1">整體風險評分</h5>
+                            <div className="text-5xl font-bold text-blue-600">36</div>
+                            <p className="text-sm text-gray-600 mt-1">低等風險水平</p>
+                          </div>
+                          
+                          <div className="h-52 w-52 relative">
+                            <svg className="w-full h-full" viewBox="0 0 100 100">
+                              <circle 
+                                cx="50" cy="50" r="45" 
+                                fill="none" 
+                                stroke="#e5e7eb" 
+                                strokeWidth="10"
+                              />
+                              <circle 
+                                cx="50" cy="50" r="45" 
+                                fill="none" 
+                                stroke="#3b82f6" 
+                                strokeWidth="10"
+                                strokeDasharray="100 200"
+                                strokeDashoffset="0"
+                                strokeLinecap="round"
+                                className="transition-all duration-100 ease-out"
+                                transform="rotate(-90 50 50)"
+                              />
+                              <text x="50" y="55" textAnchor="middle" className="text-2xl font-bold" fill="#1e40af">36%</text>
+                            </svg>
+                          </div>
+                          
+                          <div className="text-center md:text-right">
+                            <h5 className="text-lg font-medium text-gray-800 mb-1">同行業平均</h5>
+                            <div className="text-5xl font-bold text-gray-400">42</div>
+                            <p className="text-sm text-gray-600 mt-1">低風險水平</p>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-gray-500">合約糾紛</div>
+                            <div className="text-xl font-bold text-blue-600">45</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-gray-500">財務爭議</div>
+                            <div className="text-xl font-bold text-purple-600">38</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-gray-500">智財風險</div>
+                            <div className="text-xl font-bold text-pink-600">22</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-gray-500">合規指數</div>
+                            <div className="text-xl font-bold text-green-600">60</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 flex flex-col">
+                          <div className="text-xl font-medium text-gray-900 mb-2">案件類型佔比</div>
+                          <div className="flex-1 flex items-center justify-center">
+                            <div className="relative w-full h-64">
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="bg-white rounded-full h-32 w-32 flex items-center justify-center shadow-md">
+                                  <span className="text-lg font-semibold text-gray-800">219</span>
+                                </div>
+                              </div>
+                              <svg className="w-full h-full" viewBox="0 0 100 100">
+                                <circle 
+                                  cx="50" cy="50" r="45" 
+                                  fill="none" 
+                                  stroke="#ddd" 
+                                  strokeWidth="10"
+                                />
+                                <circle 
+                                  cx="50" cy="50" r="45" 
+                                  fill="none" 
+                                  stroke="#3b82f6" 
+                                  strokeWidth="10"
+                                  strokeDasharray="205 283"
+                                  strokeDashoffset="0"
+                                  strokeLinecap="round"
+                                  transform="rotate(-90 50 50)"
+                                >
+                                  <animate 
+                                    attributeName="stroke-dasharray"
+                                    values="0 283;205 283"
+                                    dur="1.5s"
+                                    fill="freeze"
+                                  />
+                                </circle>
+                                <circle 
+                                  cx="50" cy="50" r="45" 
+                                  fill="none" 
+                                  stroke="#10b981" 
+                                  strokeWidth="10"
+                                  strokeDasharray="75 283"
+                                  strokeDashoffset="-205"
+                                  strokeLinecap="round"
+                                  transform="rotate(-90 50 50)"
+                                >
+                                  <animate 
+                                    attributeName="stroke-dasharray"
+                                    values="0 283;75 283"
+                                    dur="1.5s"
+                                    fill="freeze"
+                                  />
+                                </circle>
+                                <circle 
+                                  cx="50" cy="50" r="45" 
+                                  fill="none" 
+                                  stroke="#ef4444" 
+                                  strokeWidth="10"
+                                  strokeDasharray="3 283"
+                                  strokeDashoffset="-280"
+                                  strokeLinecap="round"
+                                  transform="rotate(-90 50 50)"
+                                >
+                                  <animate 
+                                    attributeName="stroke-dasharray"
+                                    values="0 283;3 283"
+                                    dur="1.5s"
+                                    fill="freeze"
+                                  />
+                                </circle>
+                              </svg>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 mt-4">
+                            <div className="flex items-center">
+                              <span className="w-4 h-4 bg-blue-500 rounded-full mr-2"></span>
+                              <span className="text-sm font-medium">民事 (85%)</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-4 h-4 bg-red-500 rounded-full mr-2"></span>
+                              <span className="text-sm font-medium">刑事 (12%)</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                              <span className="text-sm font-medium">行政 (3%)</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6">
+                          <div className="text-xl font-medium text-gray-900 mb-2">時間趨勢分析</div>
+                          <div className="h-64 relative">
+                            <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200"></div>
+                            <div className="absolute left-0 bottom-0 top-0 w-px bg-gray-200"></div>
+                            <div className="absolute flex items-end inset-0 pb-6 pl-6">
+                              <svg viewBox="0 0 300 200" className="w-full h-full overflow-visible">
+                                <defs>
+                                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#8b5cf6" />
+                                    <stop offset="100%" stopColor="#ec4899" />
+                                  </linearGradient>
+                                  <linearGradient id="gradientFill" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="rgba(139, 92, 246, 0.2)" />
+                                    <stop offset="100%" stopColor="rgba(236, 72, 153, 0.2)" />
+                                  </linearGradient>
+                                </defs>
+                                
+                                <path
+                                  d="M0,150 L50,130 L100,140 L150,90 L200,100 L250,70 L300,30 V200 H0 Z"
+                                  fill="url(#gradientFill)"
+                                />
+                                
+                                <polyline
+                                  points="0,150 50,130 100,140 150,90 200,100 250,70 300,30"
+                                  fill="none"
+                                  stroke="url(#gradient)"
+                                  strokeWidth="3"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="trend-line"
+                                >
+                                  <animate 
+                                    attributeName="points"
+                                    dur="1.5s"
+                                    values="0,150 0,150 0,150 0,150 0,150 0,150 0,150;0,150 50,130 100,140 150,90 200,100 250,70 300,30"
+                                    fill="freeze"
+                                  />
+                                </polyline>
+                                
+                                <circle cx="0" cy="150" r="4" fill="#8b5cf6" />
+                                <circle cx="50" cy="130" r="4" fill="#8b5cf6" />
+                                <circle cx="100" cy="140" r="4" fill="#8b5cf6" />
+                                <circle cx="150" cy="90" r="4" fill="#8b5cf6" />
+                                <circle cx="200" cy="100" r="4" fill="#ec4899" />
+                                <circle cx="250" cy="70" r="4" fill="#ec4899" />
+                                <circle cx="300" cy="30" r="4" fill="#ec4899" />
+                              </svg>
+                            </div>
+                            <div className="absolute left-0 bottom-0 flex justify-between w-full px-6 text-xs text-gray-500">
+                              <span>2018</span>
+                              <span>2019</span>
+                              <span>2020</span>
+                              <span>2021</span>
+                              <span>2022</span>
+                              <span>2023</span>
+                              <span>2024</span>
+                            </div>
+                          </div>
+                          <div className="mt-4 text-sm text-gray-600">
+                            <p className="font-medium">近3年案件數量增長<span className="text-red-500 font-bold">25%</span></p>
+                            <p className="text-xs text-gray-500 mt-1">趨勢預測：未來一年可能增加15-20件新案件</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* 風險評估指數卡片 */}
+                    <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col transform hover:scale-105 transition-transform duration-300">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-lg font-semibold text-gray-800">風險評估指數</h4>
+                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                          <AlertTriangle className="h-5 w-5 text-amber-600" />
+                        </div>
+                      </div>
+                      <div className="flex-1 relative pt-2">
+                        <div className="text-3xl font-bold text-amber-500 mb-4">36</div>
+                        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-green-500 via-amber-500 to-red-500 rounded-full animate-pulse-slow" style={{ width: '36%' }}></div>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                          <span>低風險</span>
+                          <span>中等風險</span>
+                          <span>高風險</span>
+                        </div>
+                      </div>
+                      <div className="mt-4 text-sm text-gray-600">
+                        基於判決書分析的綜合風險評估<br/>
+                        <span className="text-amber-600 font-medium">需關注：財務爭議、智財權訴訟</span>
+                      </div>
+                    </div>
+                    
+                    {/* 主要風險類型卡片 */}
+                    <div className="bg-white rounded-xl shadow-sm p-6 transform hover:scale-105 transition-transform duration-300">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-lg font-semibold text-gray-800">主要風險類型</h4>
+                        <div className="text-xs font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded-full">
+                          關鍵指標
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm font-medium flex items-center">
+                              <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+                              合約糾紛
+                            </span>
+                            <span className="text-sm font-medium">32%</span>
+                          </div>
+                          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 rounded-full" style={{ width: '42%' }}></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm font-medium flex items-center">
+                              <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                              財務爭議
+                            </span>
+                            <span className="text-sm font-medium">31%</span>
+                          </div>
+                          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-green-500 rounded-full" style={{ width: '31%' }}></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm font-medium flex items-center">
+                              <span className="inline-block w-2 h-2 rounded-full bg-purple-500 mr-2"></span>
+                              智慧財產
+                            </span>
+                            <span className="text-sm font-medium">18%</span>
+                          </div>
+                          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-purple-500 rounded-full" style={{ width: '18%' }}></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm font-medium flex items-center">
+                              <span className="inline-block w-2 h-2 rounded-full bg-gray-500 mr-2"></span>
+                              其他
+                            </span>
+                            <span className="text-sm font-medium">9%</span>
+                          </div>
+                          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-gray-500 rounded-full" style={{ width: '9%' }}></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 text-xs text-gray-500 pt-2 border-t border-gray-100">
+                        <div className="flex items-center">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 mr-1"></div>
+                          <span>同行業合約糾紛平均僅為27%</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white rounded-xl shadow-sm p-6 transform hover:scale-105 transition-transform duration-300">
+                      <div className="text-lg font-semibold text-gray-800 mb-4">法院審理分布</div>
+                      <div className="space-y-3">
+                        <div className="flex items-center p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium mr-3">
+                            1
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium">臺灣臺北地方法院</div>
+                            <div className="text-xs text-gray-500">89 件案件</div>
+                          </div>
+                          <div className="text-sm font-medium">31%</div>
+                        </div>
+                        <div className="flex items-center p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium mr-3">
+                            2
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium">臺灣士林地方法院</div>
+                            <div className="text-xs text-gray-500">58 件案件</div>
+                          </div>
+                          <div className="text-sm font-medium">21%</div>
+                        </div>
+                        <div className="flex items-center p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium mr-3">
+                            3
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium">臺灣新北地方法院</div>
+                            <div className="text-xs text-gray-500">34 件案件</div>
+                          </div>
+                          <div className="text-sm font-medium">16%</div>
+                        </div>
+                        <div className="flex items-center p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-medium mr-3">
+                            4+
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium">其他法院</div>
+                            <div className="text-xs text-gray-500">76 件案件</div>
+                          </div>
+                          <div className="text-sm font-medium">35%</div>
+                        </div>
+                        <div className="flex items-center p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-medium mr-3">
+                            5
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium">臺灣桃園地方法院</div>
+                            <div className="text-xs text-gray-500">35 件案件</div>
+                          </div>
+                          <div className="text-sm font-medium">12%</div>
+                        </div>
+                      </div>
+                      <button className="mt-4 text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors">
+                        查看所有法院分佈 →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow-sm">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <p className="text-sm text-gray-500 mt-1">共有 219 筆資料</p>
+                  </div>
+                  
+                  <div className="p-4 bg-gray-50 border-b border-gray-200">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex-1">
+                        <div className="relative">
+                          <input 
+                            type="search" 
+                            placeholder="搜尋判決書關鍵字..." 
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                          <div className="absolute left-3 top-2.5 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <div className="relative inline-block">
+                          <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-300 text-sm font-medium hover:bg-gray-50">
+                            <Filter className="h-4 w-4 text-gray-500" />
+                            <span>過濾條件</span>
+                          </button>
+                        </div>
+                        
+                        <div className="relative inline-block">
+                          <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-300 text-sm font-medium hover:bg-gray-50">
+                            <Clock className="h-4 w-4 text-gray-500" />
+                            <span>日期範圍</span>
+                          </button>
+                        </div>
+                        
+                        <div className="relative inline-block">
+                          <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-sm font-medium text-blue-600 hover:bg-blue-100">
+                            <Download className="h-4 w-4" />
+                            <span>匯出報告</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[15%]">日期</th>
+                          <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[85%]">內容</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {/* 風險項目列表 */}
+                        <tr className="hover:bg-gray-50 transition-colors risk-item-hover">
+                          <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                            <div className="flex flex-col">
+                              <span className="font-medium">2024/11/08</span>
+                              <span className="text-xs text-gray-400">5天前</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-start gap-3">
+                              <div className="mt-1 flex-shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                  <FileText className="h-4 w-4 text-blue-600" />
+                                </div>
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-base text-gray-900 font-medium mb-1">給付買賣價金等</div>
+                                <div className="text-sm text-gray-500">
+                                  <p><span className="font-medium">法院案號：</span>臺灣新竹地方法院 113年度補字1196號</p>
+                                  <p><span className="font-medium">案件類別：</span><span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">民事</span></p>
+                                  <p><span className="font-medium">相關人員：</span>彭義,楊明,超群,彭義誠,楊明箴,王超群,葉欣宜,郭家慧,聲明第二項,國眾電腦股份有限公司</p>
+                                </div>
+                                <div className="mt-2">
+                                  <button className="text-sm text-blue-600 hover:text-blue-800 transition-colors font-medium">
+                                    查看詳情 →
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <DataSource
+              sources={[
+                {
+                  name: '司法院全球資訊網',
+                  url: 'https://www.judicial.gov.tw/tw/np-117-1.html'
+                }
+              ]}
+            />
+          </div>
+        );
+      
       default:
         return (
           <div className="text-center py-16">
@@ -819,6 +1349,9 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
           </div>
 
           <div className="flex space-x-4">
+            <button className="inline-flex items-center px-6 py-2.5 border border-transparent text-base font-medium rounded-lg text-white bg-pink-400 hover:bg-pink-500 transition-colors duration-2000">
+              一鍵生成精美官網
+            </button>
             <button className="inline-flex items-center px-6 py-2.5 border border-gray-300 shadow-sm text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
               加入追蹤
             </button>
