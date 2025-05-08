@@ -14,7 +14,6 @@ const nextConfig = {
   exportPathMap: async function() {
     return {
       '/api/company/twincn': { page: '/api/company/twincn', dynamic: true },
-      '/api/proxy/tenders': { page: '/api/proxy/tenders', dynamic: true }
     };
   }
 }

@@ -12,7 +12,13 @@ export function usePaginatedTenders(taxId: string) {
     try {
       console.log(`正在發查第 ${page} 頁的標案資料...`);
       const response = await fetch(
-        `/api/proxy/tenders?taxId=${taxId}&page=${page}`
+        `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}&page=${page}`,
+        {
+          mode: 'cors',
+          headers: {
+            'Accept': 'application/json'
+          }
+        }
       );
       const data = await response.json();
       

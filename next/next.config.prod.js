@@ -10,8 +10,7 @@ const nextConfig = {
   },
   // 顯式標記動態路由
   dynamicRoutes: [
-    '/api/company/twincn',
-    '/api/proxy/tenders'
+    '/api/company/twincn'
   ],
   // 增加靜態生成超時
   staticPageGenerationTimeout: 300,
