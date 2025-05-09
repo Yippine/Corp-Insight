@@ -26,8 +26,8 @@ export default function AiToolSearchPage({ searchParams }: AiToolSearchPageProps
       <AiToolSearchStructuredData query={decodedQuery} tag={decodedTag} />
       
       <HeroSection 
-        title="智慧 AI "
-        highlightText="助理工具"
+        title="立即釋放"
+        highlightText="職場超能力"
         description="探索專為不同場景打造的 AI 工具，提升您的工作效率與創意表現"
         highlightColor="text-amber-500"
       />
