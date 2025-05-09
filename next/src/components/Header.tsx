@@ -35,9 +35,9 @@ export default function Header() {
 
           <nav className="flex space-x-8">
             <Link
-              href="/ai-assistant"
+              href="/aitool/search"
               className={`${
-                pathname?.startsWith('/ai-assistant')
+                pathname?.startsWith('/aitool')
                   ? 'text-amber-500 border-b-2 border-amber-500'
                   : 'text-gray-500 hover:text-amber-600'
               } pb-4 -mb-4 px-1 font-medium text-base flex items-center group relative`}
