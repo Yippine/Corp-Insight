@@ -168,7 +168,7 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
                       {tool.name}
                     </h3>
                   </div>
-                  <p className={`text-sm transition-colors duration-200 ${
+                  <p className={`transition-colors duration-200 ${
                     hoveredTool === tool.id ? primaryTheme.text : 'text-gray-600'
                   }`}>
                     {tool.description}

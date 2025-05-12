@@ -297,129 +297,129 @@ const baseTools: Tools[] = [
     component: TCMCheck,
     tags: ['AI', '健康']
   },
-  // Finance Tools
-  {
-    id: 'roi-calculator',
-    name: 'ROI 計算機',
-    description: '計算投資回報率，評估投資效益',
-    iconName: 'TrendingUp',
-    component: ROICalculator,
-    tags: ['工具', '金融']
-  },
-  {
-    id: 'deposit-calculator',
-    name: '定存計算機',
-    description: '計算定期存款的本利和與總利息',
-    iconName: 'PiggyBank',
-    component: DepositCalculator,
-    tags: ['工具', '金融']
-  },
-  {
-    id: 'loan-calculator',
-    name: '貸款計算機',
-    description: '計算貸款的每月還款額、總支付金額與總利息',
-    iconName: 'Landmark',
-    component: LoanCalculator,
-    tags: ['工具', '金融']
-  },
-  {
-    id: 'currency-converter',
-    name: '匯率轉換器',
-    description: '實時轉換全球多種貨幣',
-    iconName: 'Repeat',
-    component: CurrencyConverter,
-    tags: ['工具', '金融']
-  },
-  {
-    id: 'compound-interest-calculator',
-    name: '複利計算機',
-    description: '計算複利效應下的未來價值與總利息',
-    iconName: 'CircleDollarSign',
-    component: CompoundInterestCalculator,
-    tags: ['工具', '金融']
-  },
-  // Manufacturing Tools
-  {
-    id: 'packaging-calculator',
-    name: '包裝成本計算機',
-    description: '估算產品包裝的材料和運輸成本',
-    iconName: 'Package',
-    component: PackagingCalculator,
-    tags: ['工具', '製造']
-  },
-  {
-    id: 'yield-calculator',
-    name: '生產良率計算機',
-    description: '計算生產過程中的良品率與不良品率',
-    iconName: 'ScanLine',
-    component: YieldCalculator,
-    tags: ['工具', '製造']
-  },
-  {
-    id: 'oee-calculator',
-    name: 'OEE 設備綜合效率計算器',
-    description: '評估製造設備的整體有效性',
-    iconName: 'Factory',
-    component: OEECalculator,
-    tags: ['工具', '製造']
-  },
-  {
-    id: 'metal-weight-calculator',
-    name: '金屬材料重量計算器',
-    description: '計算各種金屬材料的重量及預估成本',
-    iconName: 'Scale',
-    component: MetalWeightCalculator,
-    tags: ['工具', '製造']
-  },
-  {
-    id: 'manufacturing-calculator',
-    name: '工具機加工參數計算器',
-    description: '計算銑削/車削速度、進給率，提供最佳加工參數建議',
-    iconName: 'Calculator',
-    component: ManufacturingCalculator,
-    tags: ['工具', '製造']
-  },
-  // Computer Tools
-  {
-    id: 'server-spec-calculator',
-    name: '伺服器規格計算器',
-    description: '評估應用所需的伺服器資源配置',
-    iconName: 'Server',
-    component: ServerSpecCalculator,
-    tags: ['工具', '電腦']
-  },
-  {
-    id: 'workload-scalability-calculator',
-    name: 'AI 工作負載規模化評估',
-    description: '評估 AI 系統的可擴展性和資源效率',
-    iconName: 'Network',
-    component: WorkloadScalabilityCalculator,
-    tags: ['工具', '電腦']
-  },
-  {
-    id: 'model-performance-calculator',
-    name: '模型效能預測工具',
-    description: '預測 AI 模型的資源消耗和性能表現',
-    iconName: 'Cpu',
-    component: ModelPerformanceCalculator,
-    tags: ['工具', '電腦']
-  },
-  {
-    id: 'ai-infrastructure-cost-calculator',
-    name: 'AI 基礎設施成本估算器',
-    description: '評估 AI 專案的硬體、運營和軟體成本',
-    iconName: 'HardDrive',
-    component: AIInfrastructureCostCalculator,
-    tags: ['工具', '電腦']
-  },
-  {
-    id: 'gpu-memory-calculator',
-    name: 'GPU 內存計算器',
-    description: '計算 AI 模型運行所需的 GPU 內存',
-    iconName: 'Zap',
-    component: GPUMemoryCalculator,
-    tags: ['工具', '電腦']
-  },
+  // // Finance Tools
+  // {
+  //   id: 'roi-calculator',
+  //   name: 'ROI 計算機',
+  //   description: '計算投資回報率，評估投資效益',
+  //   iconName: 'TrendingUp',
+  //   component: ROICalculator,
+  //   tags: ['工具', '金融']
+  // },
+  // {
+  //   id: 'deposit-calculator',
+  //   name: '定存計算機',
+  //   description: '計算定期存款的本利和與總利息',
+  //   iconName: 'PiggyBank',
+  //   component: DepositCalculator,
+  //   tags: ['工具', '金融']
+  // },
+  // {
+  //   id: 'loan-calculator',
+  //   name: '貸款計算機',
+  //   description: '計算貸款的每月還款額、總支付金額與總利息',
+  //   iconName: 'Landmark',
+  //   component: LoanCalculator,
+  //   tags: ['工具', '金融']
+  // },
+  // {
+  //   id: 'currency-converter',
+  //   name: '匯率轉換器',
+  //   description: '實時轉換全球多種貨幣',
+  //   iconName: 'Repeat',
+  //   component: CurrencyConverter,
+  //   tags: ['工具', '金融']
+  // },
+  // {
+  //   id: 'compound-interest-calculator',
+  //   name: '複利計算機',
+  //   description: '計算複利效應下的未來價值與總利息',
+  //   iconName: 'CircleDollarSign',
+  //   component: CompoundInterestCalculator,
+  //   tags: ['工具', '金融']
+  // },
+  // // Manufacturing Tools
+  // {
+  //   id: 'packaging-calculator',
+  //   name: '包裝成本計算機',
+  //   description: '估算產品包裝的材料和運輸成本',
+  //   iconName: 'Package',
+  //   component: PackagingCalculator,
+  //   tags: ['工具', '製造']
+  // },
+  // {
+  //   id: 'yield-calculator',
+  //   name: '生產良率計算機',
+  //   description: '計算生產過程中的良品率與不良品率',
+  //   iconName: 'ScanLine',
+  //   component: YieldCalculator,
+  //   tags: ['工具', '製造']
+  // },
+  // {
+  //   id: 'oee-calculator',
+  //   name: 'OEE 設備綜合效率計算器',
+  //   description: '評估製造設備的整體有效性',
+  //   iconName: 'Factory',
+  //   component: OEECalculator,
+  //   tags: ['工具', '製造']
+  // },
+  // {
+  //   id: 'metal-weight-calculator',
+  //   name: '金屬材料重量計算器',
+  //   description: '計算各種金屬材料的重量及預估成本',
+  //   iconName: 'Scale',
+  //   component: MetalWeightCalculator,
+  //   tags: ['工具', '製造']
+  // },
+  // {
+  //   id: 'manufacturing-calculator',
+  //   name: '工具機加工參數計算器',
+  //   description: '計算銑削/車削速度、進給率，提供最佳加工參數建議',
+  //   iconName: 'Calculator',
+  //   component: ManufacturingCalculator,
+  //   tags: ['工具', '製造']
+  // },
+  // // Computer Tools
+  // {
+  //   id: 'server-spec-calculator',
+  //   name: '伺服器規格計算器',
+  //   description: '評估應用所需的伺服器資源配置',
+  //   iconName: 'Server',
+  //   component: ServerSpecCalculator,
+  //   tags: ['工具', '電腦']
+  // },
+  // {
+  //   id: 'workload-scalability-calculator',
+  //   name: 'AI 工作負載規模化評估',
+  //   description: '評估 AI 系統的可擴展性和資源效率',
+  //   iconName: 'Network',
+  //   component: WorkloadScalabilityCalculator,
+  //   tags: ['工具', '電腦']
+  // },
+  // {
+  //   id: 'model-performance-calculator',
+  //   name: '模型效能預測工具',
+  //   description: '預測 AI 模型的資源消耗和性能表現',
+  //   iconName: 'Cpu',
+  //   component: ModelPerformanceCalculator,
+  //   tags: ['工具', '電腦']
+  // },
+  // {
+  //   id: 'ai-infrastructure-cost-calculator',
+  //   name: 'AI 基礎設施成本估算器',
+  //   description: '評估 AI 專案的硬體、運營和軟體成本',
+  //   iconName: 'HardDrive',
+  //   component: AIInfrastructureCostCalculator,
+  //   tags: ['工具', '電腦']
+  // },
+  // {
+  //   id: 'gpu-memory-calculator',
+  //   name: 'GPU 內存計算器',
+  //   description: '計算 AI 模型運行所需的 GPU 內存',
+  //   iconName: 'Zap',
+  //   component: GPUMemoryCalculator,
+  //   tags: ['工具', '電腦']
+  // },
 ];
 
 // 統計工具標籤的分佈情況
