@@ -148,10 +148,10 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
               >
                 <button
                   onClick={() => handleToolClick(tool.id)}
-                  className={`relative w-full bg-white p-6 rounded-xl text-left transition-all duration-200 ease-in-out ${
+                  className={`relative w-full bg-white p-6 rounded-xl text-left ${
                     hoveredTool === tool.id 
-                      ? `shadow-xl ${primaryTheme.shadow} ring-2 ${primaryTheme.text.replace('text-', 'ring-')}` 
-                      : 'shadow-md border border-gray-200 hover:shadow-lg'
+                      ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}` 
+                      : 'shadow border border-gray-100'
                   }`}
                 >
                   <div className="flex items-center mb-4">
