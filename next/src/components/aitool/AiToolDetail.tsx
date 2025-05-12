@@ -1,14 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Tools, categoryThemes } from '@/lib/aitool/tools';
+import { Tools, categoryThemes, iconMap } from '@/lib/aitool/tools';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
-
-// 導入提示詞工具配置
-import { getPromptTools } from '@/lib/aitool/promptTools';
 
 interface AiToolDetailProps {
   tool: Tools;
@@ -18,12 +15,10 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
   const router = useRouter();
   const [ToolComponent, setToolComponent] = useState<React.ComponentType<any> | null>(null);
 
-  // 根據工具的 component 屬性加載對應的組件
   useEffect(() => {
     if (tool.component) {
-      setToolComponent(tool.component);
+      setToolComponent(() => tool.component as React.ComponentType<any>);
     } else {
-      // 如果找不到任何對應的組件，顯示默認提示
       setToolComponent(() => () => (
         <div className="p-6 bg-amber-50 rounded-lg border border-amber-200">
           <h3 className="text-xl font-semibold text-amber-800 mb-4">工具開發中</h3>
@@ -47,7 +42,9 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
 
   // 選擇標籤的主題
   const primaryTag = tool.tags[0] || 'AI';
-  const primaryTheme = categoryThemes[primaryTag] || categoryThemes.ai;
+  const primaryTheme = categoryThemes[primaryTag] || categoryThemes.ai || categoryThemes.default;
+
+  const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
 
   return (
     <motion.div
@@ -69,8 +66,8 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
         className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
       >
         <div className="flex items-center mb-6">
-          <div className={`p-3 rounded-lg ${primaryTheme.primary}`}>
-            <tool.icon className="h-8 w-8 text-white" />
+          <div className={`p-3 rounded-lg ${primaryTheme?.primary || 'bg-gray-500'}`}>
+            <IconComponent className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold ml-4 text-gray-900">{tool.name}</h2>
         </div>
@@ -88,13 +85,13 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
 
         <div className="flex flex-wrap gap-2">
           {tool.tags.map((tag) => {
-            const theme = categoryThemes[tag] || categoryThemes.ai;
+            const theme = categoryThemes[tag] || categoryThemes.ai || categoryThemes.default;
             return (
               <span
                 key={tag}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium ${theme.secondary} ${theme.text}`}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium ${theme?.secondary || 'bg-gray-100'} ${theme?.text || 'text-gray-800'}`}
               >
-                {theme.name}
+                {theme?.name || tag}
               </span>
             );
           })}

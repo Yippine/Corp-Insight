@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Search } from 'lucide-react';
 import Link from 'next/link';
-import { Tools, categoryThemes, fullTagThemes, getToolsData } from '@/lib/aitool/tools';
+import { Tools, categoryThemes, fullTagThemes, getToolsData, iconMap } from '@/lib/aitool/tools';
 import { sortToolsByTags, sortToolsBySelectedTag } from '@/lib/aitool/toolSorter';
 
 interface AiToolSearchProps {
@@ -122,20 +122,19 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence mode="wait">
           {filteredTools().map((tool, index) => {
-            // Determine the primary theme for the icon
-            let primaryTheme = fullTagThemes.ai; // Default theme
+            let primaryTheme = fullTagThemes.ai || categoryThemes.default; 
             const firstTagInCategories = tool.tags.find(tag => categoryThemes[tag]);
-
             if (firstTagInCategories && categoryThemes[firstTagInCategories]) {
               primaryTheme = categoryThemes[firstTagInCategories];
             } else {
-              const toolThemesFromFull = tool.tags
-                .map(t => fullTagThemes[t])
-                .filter(Boolean);
+              const toolThemesFromFull = tool.tags.map(t => fullTagThemes[t]).filter(Boolean);
               if (toolThemesFromFull.length > 0 && toolThemesFromFull[0]) {
                 primaryTheme = toolThemesFromFull[0];
               }
             }
+            primaryTheme = primaryTheme || categoryThemes.default; // Ensure primaryTheme is always defined
+
+            const IconComponent = iconMap[tool.iconName] || iconMap.Zap; // 使用 iconMap
 
             return (
               <motion.div
@@ -149,27 +148,27 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
               >
                 <button
                   onClick={() => handleToolClick(tool.id)}
-                  className={`relative w-full bg-white p-6 rounded-xl text-left ${
+                  className={`relative w-full bg-white p-6 rounded-xl text-left transition-all duration-200 ease-in-out ${
                     hoveredTool === tool.id 
-                      ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}` 
-                      : 'shadow border border-gray-100'
+                      ? `shadow-xl ${primaryTheme.shadow} ring-2 ${primaryTheme.text.replace('text-', 'ring-')}` 
+                      : 'shadow-md border border-gray-200 hover:shadow-lg'
                   }`}
                 >
                   <div className="flex items-center mb-4">
-                    <div className={`p-3 rounded-lg ${
+                    <div className={`p-3 rounded-lg transition-colors duration-200 ${
                       hoveredTool === tool.id ? primaryTheme.primary : primaryTheme.secondary
                     }`}>
-                      <tool.icon className={`h-6 w-6 ${
+                      <IconComponent className={`h-6 w-6 transition-colors duration-200 ${
                         hoveredTool === tool.id ? 'text-white' : primaryTheme.icon
                       }`} />
                     </div>
-                    <h3 className={`text-xl font-semibold ml-4 ${
+                    <h3 className={`text-xl font-semibold ml-4 transition-colors duration-200 ${
                       hoveredTool === tool.id ? primaryTheme.text : 'text-gray-900'
                     }`}>
                       {tool.name}
                     </h3>
                   </div>
-                  <p className={`${
+                  <p className={`text-sm transition-colors duration-200 ${
                     hoveredTool === tool.id ? primaryTheme.text : 'text-gray-600'
                   }`}>
                     {tool.description}
@@ -178,11 +177,11 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
                     {tool.tags.map((tag) => {
                       const themeFromCategory = categoryThemes[tag];
                       const themeFromFull = fullTagThemes[tag];
-                      const tagTheme = themeFromCategory || themeFromFull || fullTagThemes.ai;
+                      const tagTheme = themeFromCategory || themeFromFull || categoryThemes.default; // Ensure tagTheme is defined
                       return (
                         <span
                           key={tag}
-                          className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                          className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors duration-200 ${
                             hoveredTool === tool.id 
                               ? `${tagTheme.primary} text-white` 
                               : `${tagTheme.secondary} ${tagTheme.text}`
