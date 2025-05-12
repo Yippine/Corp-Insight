@@ -4,8 +4,34 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Tools, categoryThemes, iconMap } from '@/lib/aitool/tools';
-import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const componentMap: Record<string, React.ComponentType<any>> = {
+  TitleGenerator: dynamic(() => import('@/components/tools/seo/TitleGenerator')),
+  DescriptionGenerator: dynamic(() => import('@/components/tools/seo/DescriptionGenerator')),
+  KeywordGenerator: dynamic(() => import('@/components/tools/seo/KeywordGenerator')),
+  FaqGenerator: dynamic(() => import('@/components/tools/seo/FaqGenerator')),
+  ReviewGenerator: dynamic(() => import('@/components/tools/seo/ReviewGenerator')),
+  FeatureGenerator: dynamic(() => import('@/components/tools/seo/FeatureGenerator')),
+  TCMCheck: dynamic(() => import('@/components/tools/health/TCMCheck')),
+  PromptToolTemplate: dynamic(() => import('@/components/tools/common/PromptToolTemplate')),
+  ROICalculator: dynamic(() => import('@/components/tools/finance/ROICalculator')),
+  DepositCalculator: dynamic(() => import('@/components/tools/finance/DepositCalculator')),
+  LoanCalculator: dynamic(() => import('@/components/tools/finance/LoanCalculator')),
+  CurrencyConverter: dynamic(() => import('@/components/tools/finance/CurrencyConverter')),
+  CompoundInterestCalculator: dynamic(() => import('@/components/tools/finance/CompoundInterestCalculator')),
+  PackagingCalculator: dynamic(() => import('@/components/tools/manufacturing/PackagingCalculator')),
+  YieldCalculator: dynamic(() => import('@/components/tools/manufacturing/YieldCalculator')),
+  OEECalculator: dynamic(() => import('@/components/tools/manufacturing/OEECalculator')),
+  MetalWeightCalculator: dynamic(() => import('@/components/tools/manufacturing/MetalWeightCalculator')),
+  ManufacturingCalculator: dynamic(() => import('@/components/tools/manufacturing/ManufacturingCalculator')),
+  ServerSpecCalculator: dynamic(() => import('@/components/tools/computer/ServerSpecCalculator')),
+  WorkloadScalabilityCalculator: dynamic(() => import('@/components/tools/computer/WorkloadScalabilityCalculator')),
+  ModelPerformanceCalculator: dynamic(() => import('@/components/tools/computer/ModelPerformanceCalculator')),
+  AIInfrastructureCostCalculator: dynamic(() => import('@/components/tools/computer/AIInfrastructureCostCalculator')),
+  GPUMemoryCalculator: dynamic(() => import('@/components/tools/computer/GPUMemoryCalculator')),
+};
 
 interface AiToolDetailProps {
   tool: Tools;
@@ -14,21 +40,25 @@ interface AiToolDetailProps {
 export default function AiToolDetail({ tool }: AiToolDetailProps) {
   const router = useRouter();
   const [ToolComponent, setToolComponent] = useState<React.ComponentType<any> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (tool.component) {
-      setToolComponent(() => tool.component as React.ComponentType<any>);
-    } else {
-      setToolComponent(() => () => (
-        <div className="p-6 bg-amber-50 rounded-lg border border-amber-200">
-          <h3 className="text-xl font-semibold text-amber-800 mb-4">工具開發中</h3>
-          <p className="text-amber-700">
-            此工具正在開發中，敬請期待！請嘗試其他已完成的工具。
-          </p>
-        </div>
-      ));
-    }
-  }, [tool.id, tool.component]);
+    const loadComponent = async () => {
+      try {
+        setIsLoading(true);
+        const componentId = tool.componentId;
+        if (componentId && componentId in componentMap) {
+          setToolComponent(() => componentMap[componentId]);
+        }
+      } catch (error) {
+        console.error('Error loading component:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadComponent();
+  }, [tool.componentId]);
 
   useEffect(() => {
     // 在頁面加載時回到頂部
@@ -75,10 +105,21 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
         <p className="text-lg text-gray-700 mb-8">{tool.description}</p>
 
         <div className="mb-8">
-          {ToolComponent ? <ToolComponent /> : (
-            <div className="flex items-center justify-center p-8">
-              <div className="animate-spin h-8 w-8 border-3 border-blue-500 border-t-transparent rounded-full"></div>
-              <span className="ml-3 text-blue-800">載入工具中...</span>
+          {isLoading ? (
+            <div className="flex justify-center items-center min-h-[200px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          ) : ToolComponent ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <ToolComponent />
+            </motion.div>
+          ) : (
+            <div className="text-center text-gray-500 py-12">
+              此工具暫時無法使用
             </div>
           )}
         </div>

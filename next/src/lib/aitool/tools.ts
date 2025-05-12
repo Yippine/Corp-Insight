@@ -1,7 +1,5 @@
-import React from 'react';
 import { Type, FileText, Search, MessageSquare, Star, Zap, Stethoscope, Server, Cpu, Network, HardDrive, Scale, Calculator, ScanLine, Package, Factory, Landmark, PiggyBank, TrendingUp, Repeat, CircleDollarSign, LucideIcon, FileCode2, Image, Pen, Brain, Briefcase, GraduationCap, Languages, HeartPulse, Lightbulb, Globe, Monitor, Heart, Trello, BarChart3, Users, PieChart, DollarSign, Activity, Compass, BookOpen, Laugh, Clapperboard, BookText, Feather, Mic2, MonitorSmartphone, Utensils, MessageSquareText, Newspaper, Trophy, PenTool, ClipboardCheck, Share2, Target, Boxes, HandshakeIcon, FileEdit, Glasses } from 'lucide-react';
 import { getPromptTools, PromptToolConfig as OriginalPromptToolConfig } from './promptTools';
-import dynamic from 'next/dynamic';
 
 interface PromptToolConfig extends OriginalPromptToolConfig {
   iconName?: string; 
@@ -9,35 +7,6 @@ interface PromptToolConfig extends OriginalPromptToolConfig {
   subCategory?: string;
 }
 
-// 導入工具組件
-import TCMCheck from '@/components/tools/health/TCMCheck';
-import PromptToolTemplate from '@/components/tools/common/PromptToolTemplate';
-
-import ROICalculator from '@/components/tools/finance/ROICalculator';
-import DepositCalculator from '@/components/tools/finance/DepositCalculator';
-import LoanCalculator from '@/components/tools/finance/LoanCalculator';
-import CurrencyConverter from '@/components/tools/finance/CurrencyConverter';
-import CompoundInterestCalculator from '@/components/tools/finance/CompoundInterestCalculator';
-
-import PackagingCalculator from '@/components/tools/manufacturing/PackagingCalculator';
-import YieldCalculator from '@/components/tools/manufacturing/YieldCalculator';
-import OEECalculator from '@/components/tools/manufacturing/OEECalculator';
-import MetalWeightCalculator from '@/components/tools/manufacturing/MetalWeightCalculator';
-import ManufacturingCalculator from '@/components/tools/manufacturing/ManufacturingCalculator';
-
-import ServerSpecCalculator from '@/components/tools/computer/ServerSpecCalculator';
-import WorkloadScalabilityCalculator from '@/components/tools/computer/WorkloadScalabilityCalculator';
-import ModelPerformanceCalculator from '@/components/tools/computer/ModelPerformanceCalculator';
-import AIInfrastructureCostCalculator from '@/components/tools/computer/AIInfrastructureCostCalculator';
-import GPUMemoryCalculator from '@/components/tools/computer/GPUMemoryCalculator';
-
-// 動態導入 SEO 工具，因為它們可能也需要 'use client'
-const TitleGenerator = dynamic(() => import('@/components/tools/seo/TitleGenerator'));
-const DescriptionGenerator = dynamic(() => import('@/components/tools/seo/DescriptionGenerator'));
-const KeywordGenerator = dynamic(() => import('@/components/tools/seo/KeywordGenerator'));
-// FaqGenerator, ReviewGenerator, FeatureGenerator 視情況處理或保持註解
-
-// 圖示映射表
 export const iconMap: Record<string, LucideIcon> = {
   Type,
   FileText,
@@ -106,7 +75,7 @@ export interface Tools {
   name: string;
   description: string;
   iconName: keyof typeof iconMap;
-  component?: React.ComponentType<any> | (() => JSX.Element);
+  componentId?: string;
   tags: string[];
   category?: string;
   subCategory?: string;
@@ -246,7 +215,7 @@ const baseTools: Tools[] = [
     name: 'SEO 標題策略大師',
     description: '智能生成 SEO 友好的標題，提高點擊率和搜尋排名',
     iconName: 'Type',
-    component: TitleGenerator,
+    componentId: 'TitleGenerator',
     tags: ['工具', 'SEO']
   },
   {
@@ -254,7 +223,7 @@ const baseTools: Tools[] = [
     name: 'SEO 描述智能專家',
     description: '生成優化的 META 描述，提升搜尋結果的點擊率',
     iconName: 'FileText',
-    component: DescriptionGenerator,
+    componentId: 'DescriptionGenerator',
     tags: ['工具', 'SEO']
   },
   {
@@ -262,7 +231,7 @@ const baseTools: Tools[] = [
     name: 'SEO 關鍵詞戰略家',
     description: '發掘高價值長尾關鍵字，降低競爭難度',
     iconName: 'Search',
-    component: KeywordGenerator,
+    componentId: 'KeywordGenerator',
     tags: ['工具', 'SEO']
   },
   {
@@ -270,7 +239,7 @@ const baseTools: Tools[] = [
     name: 'FAQ 智能構建師',
     description: '智能生成常見問題，豐富網站內容',
     iconName: 'MessageSquare',
-    // component: FaqGenerator,
+    componentId: 'FaqGenerator',
     tags: ['工具', 'SEO']
   },
   {
@@ -278,7 +247,7 @@ const baseTools: Tools[] = [
     name: 'SEO 社群評價專家',
     description: '生成真實感產品評價，增加社交證明',
     iconName: 'Star',
-    // component: ReviewGenerator,
+    componentId: 'ReviewGenerator',
     tags: ['工具', 'SEO']
   },
   {
@@ -286,7 +255,7 @@ const baseTools: Tools[] = [
     name: '產品價值放大器',
     description: '客製化產品功能描述，提高銷售吸引力',
     iconName: 'Zap',
-    // component: FeatureGenerator,
+    componentId: 'FeatureGenerator',
     tags: ['工具', 'SEO']
   },
   {
@@ -294,132 +263,132 @@ const baseTools: Tools[] = [
     name: '中醫體質智能檢測',
     description: '根據問卷分析您的體質類型，提供個性化養生建議',
     iconName: 'Stethoscope',
-    component: TCMCheck,
+    componentId: 'TCMCheck',
     tags: ['AI', '健康']
   },
-  // // Finance Tools
-  // {
-  //   id: 'roi-calculator',
-  //   name: 'ROI 計算機',
-  //   description: '計算投資回報率，評估投資效益',
-  //   iconName: 'TrendingUp',
-  //   component: ROICalculator,
-  //   tags: ['工具', '金融']
-  // },
-  // {
-  //   id: 'deposit-calculator',
-  //   name: '定存計算機',
-  //   description: '計算定期存款的本利和與總利息',
-  //   iconName: 'PiggyBank',
-  //   component: DepositCalculator,
-  //   tags: ['工具', '金融']
-  // },
-  // {
-  //   id: 'loan-calculator',
-  //   name: '貸款計算機',
-  //   description: '計算貸款的每月還款額、總支付金額與總利息',
-  //   iconName: 'Landmark',
-  //   component: LoanCalculator,
-  //   tags: ['工具', '金融']
-  // },
-  // {
-  //   id: 'currency-converter',
-  //   name: '匯率轉換器',
-  //   description: '實時轉換全球多種貨幣',
-  //   iconName: 'Repeat',
-  //   component: CurrencyConverter,
-  //   tags: ['工具', '金融']
-  // },
-  // {
-  //   id: 'compound-interest-calculator',
-  //   name: '複利計算機',
-  //   description: '計算複利效應下的未來價值與總利息',
-  //   iconName: 'CircleDollarSign',
-  //   component: CompoundInterestCalculator,
-  //   tags: ['工具', '金融']
-  // },
-  // // Manufacturing Tools
-  // {
-  //   id: 'packaging-calculator',
-  //   name: '包裝成本計算機',
-  //   description: '估算產品包裝的材料和運輸成本',
-  //   iconName: 'Package',
-  //   component: PackagingCalculator,
-  //   tags: ['工具', '製造']
-  // },
-  // {
-  //   id: 'yield-calculator',
-  //   name: '生產良率計算機',
-  //   description: '計算生產過程中的良品率與不良品率',
-  //   iconName: 'ScanLine',
-  //   component: YieldCalculator,
-  //   tags: ['工具', '製造']
-  // },
-  // {
-  //   id: 'oee-calculator',
-  //   name: 'OEE 設備綜合效率計算器',
-  //   description: '評估製造設備的整體有效性',
-  //   iconName: 'Factory',
-  //   component: OEECalculator,
-  //   tags: ['工具', '製造']
-  // },
-  // {
-  //   id: 'metal-weight-calculator',
-  //   name: '金屬材料重量計算器',
-  //   description: '計算各種金屬材料的重量及預估成本',
-  //   iconName: 'Scale',
-  //   component: MetalWeightCalculator,
-  //   tags: ['工具', '製造']
-  // },
-  // {
-  //   id: 'manufacturing-calculator',
-  //   name: '工具機加工參數計算器',
-  //   description: '計算銑削/車削速度、進給率，提供最佳加工參數建議',
-  //   iconName: 'Calculator',
-  //   component: ManufacturingCalculator,
-  //   tags: ['工具', '製造']
-  // },
-  // // Computer Tools
-  // {
-  //   id: 'server-spec-calculator',
-  //   name: '伺服器規格計算器',
-  //   description: '評估應用所需的伺服器資源配置',
-  //   iconName: 'Server',
-  //   component: ServerSpecCalculator,
-  //   tags: ['工具', '電腦']
-  // },
-  // {
-  //   id: 'workload-scalability-calculator',
-  //   name: 'AI 工作負載規模化評估',
-  //   description: '評估 AI 系統的可擴展性和資源效率',
-  //   iconName: 'Network',
-  //   component: WorkloadScalabilityCalculator,
-  //   tags: ['工具', '電腦']
-  // },
-  // {
-  //   id: 'model-performance-calculator',
-  //   name: '模型效能預測工具',
-  //   description: '預測 AI 模型的資源消耗和性能表現',
-  //   iconName: 'Cpu',
-  //   component: ModelPerformanceCalculator,
-  //   tags: ['工具', '電腦']
-  // },
-  // {
-  //   id: 'ai-infrastructure-cost-calculator',
-  //   name: 'AI 基礎設施成本估算器',
-  //   description: '評估 AI 專案的硬體、運營和軟體成本',
-  //   iconName: 'HardDrive',
-  //   component: AIInfrastructureCostCalculator,
-  //   tags: ['工具', '電腦']
-  // },
-  // {
-  //   id: 'gpu-memory-calculator',
-  //   name: 'GPU 內存計算器',
-  //   description: '計算 AI 模型運行所需的 GPU 內存',
-  //   iconName: 'Zap',
-  //   component: GPUMemoryCalculator,
-  //   tags: ['工具', '電腦']
-  // },
+  // Finance Tools
+  {
+    id: 'roi-calculator',
+    name: 'ROI 計算機',
+    description: '計算投資回報率，評估投資效益',
+    iconName: 'TrendingUp',
+    componentId: 'ROICalculator',
+    tags: ['工具', '金融']
+  },
+  {
+    id: 'deposit-calculator',
+    name: '定存計算機',
+    description: '計算定期存款的本利和與總利息',
+    iconName: 'PiggyBank',
+    componentId: 'DepositCalculator',
+    tags: ['工具', '金融']
+  },
+  {
+    id: 'loan-calculator',
+    name: '貸款計算機',
+    description: '計算貸款的每月還款額、總支付金額與總利息',
+    iconName: 'Landmark',
+    componentId: 'LoanCalculator',
+    tags: ['工具', '金融']
+  },
+  {
+    id: 'currency-converter',
+    name: '匯率轉換器',
+    description: '實時轉換全球多種貨幣',
+    iconName: 'Repeat',
+    componentId: 'CurrencyConverter',
+    tags: ['工具', '金融']
+  },
+  {
+    id: 'compound-interest-calculator',
+    name: '複利計算機',
+    description: '計算複利效應下的未來價值與總利息',
+    iconName: 'CircleDollarSign',
+    componentId: 'CompoundInterestCalculator',
+    tags: ['工具', '金融']
+  },
+  // Manufacturing Tools
+  {
+    id: 'packaging-calculator',
+    name: '包裝成本計算機',
+    description: '估算產品包裝的材料和運輸成本',
+    iconName: 'Package',
+    componentId: 'PackagingCalculator',
+    tags: ['工具', '製造']
+  },
+  {
+    id: 'yield-calculator',
+    name: '生產良率計算機',
+    description: '計算生產過程中的良品率與不良品率',
+    iconName: 'ScanLine',
+    componentId: 'YieldCalculator',
+    tags: ['工具', '製造']
+  },
+  {
+    id: 'oee-calculator',
+    name: 'OEE 設備綜合效率計算器',
+    description: '評估製造設備的整體有效性',
+    iconName: 'Factory',
+    componentId: 'OEECalculator',
+    tags: ['工具', '製造']
+  },
+  {
+    id: 'metal-weight-calculator',
+    name: '金屬材料重量計算器',
+    description: '計算各種金屬材料的重量及預估成本',
+    iconName: 'Scale',
+    componentId: 'MetalWeightCalculator',
+    tags: ['工具', '製造']
+  },
+  {
+    id: 'manufacturing-calculator',
+    name: '工具機加工參數計算器',
+    description: '計算銑削/車削速度、進給率，提供最佳加工參數建議',
+    iconName: 'Calculator',
+    componentId: 'ManufacturingCalculator',
+    tags: ['工具', '製造']
+  },
+  // Computer Tools
+  {
+    id: 'server-spec-calculator',
+    name: '伺服器規格計算器',
+    description: '評估應用所需的伺服器資源配置',
+    iconName: 'Server',
+    componentId: 'ServerSpecCalculator',
+    tags: ['工具', '電腦']
+  },
+  {
+    id: 'workload-scalability-calculator',
+    name: 'AI 工作負載規模化評估',
+    description: '評估 AI 系統的可擴展性和資源效率',
+    iconName: 'Network',
+    componentId: 'WorkloadScalabilityCalculator',
+    tags: ['工具', '電腦']
+  },
+  {
+    id: 'model-performance-calculator',
+    name: '模型效能預測工具',
+    description: '預測 AI 模型的資源消耗和性能表現',
+    iconName: 'Cpu',
+    componentId: 'ModelPerformanceCalculator',
+    tags: ['工具', '電腦']
+  },
+  {
+    id: 'ai-infrastructure-cost-calculator',
+    name: 'AI 基礎設施成本估算器',
+    description: '評估 AI 專案的硬體、運營和軟體成本',
+    iconName: 'HardDrive',
+    componentId: 'AIInfrastructureCostCalculator',
+    tags: ['工具', '電腦']
+  },
+  {
+    id: 'gpu-memory-calculator',
+    name: 'GPU 內存計算器',
+    description: '計算 AI 模型運行所需的 GPU 內存',
+    iconName: 'Zap',
+    componentId: 'GPUMemoryCalculator',
+    tags: ['工具', '電腦']
+  },
 ];
 
 // 統計工具標籤的分佈情況
@@ -549,7 +518,7 @@ function convertPromptToolsToTools(promptTools: PromptToolConfig[]): Tools[] {
       name: ptool.name,
       description: ptool.description,
       iconName: iconNameString as keyof typeof iconMap,
-      component: () => React.createElement(PromptToolTemplate, { config: ptool as OriginalPromptToolConfig }),
+      componentId: 'PromptToolTemplate',
       tags: ptool.tags || ['AI'],
       category: ptool.category || 'AI 工具',
       subCategory: ptool.subCategory,
