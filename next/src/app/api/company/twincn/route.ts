@@ -52,3 +52,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// 設置這個路由為動態路由，防止在構建時靜態生成
+export const dynamic = 'force-dynamic';

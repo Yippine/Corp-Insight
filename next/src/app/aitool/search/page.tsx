@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import HeroSection from '@/components/HeroSection';
 import FeatureSection from '@/components/FeatureSection';
 import { AiToolSearchStructuredData, generateAiToolSearchMetadata } from '@/components/SEO/AiToolSearchSEO';
@@ -10,20 +11,20 @@ const AiToolSearch = dynamic(() => import('@/components/aitool/AiToolSearch'), {
 interface AiToolSearchPageProps {
   searchParams?: {
     q?: string;
-    tag?: string;
+    page?: string;
+    category?: string;
   };
 }
 
 export default function AiToolSearchPage({ searchParams }: AiToolSearchPageProps) {
   const query = searchParams?.q || '';
-  const tag = searchParams?.tag || '';
-  const decodedQuery = decodeURIComponent(query);
-  const decodedTag = decodeURIComponent(tag);
+  const category = searchParams?.category || '';
+  const page = parseInt(searchParams?.page || '1');
 
   return (
     <div className="space-y-8">
       {/* 結構化數據標記 */}
-      <AiToolSearchStructuredData query={decodedQuery} tag={decodedTag} />
+      <AiToolSearchStructuredData query={query} category={category} />
       
       <HeroSection 
         title="立即釋放"
@@ -32,22 +33,32 @@ export default function AiToolSearchPage({ searchParams }: AiToolSearchPageProps
         highlightColor="text-amber-500"
       />
 
-      <AiToolSearch initialQuery={decodedQuery} initialTag={decodedTag} />
+      {/* AI 工具搜索組件 */}
+      <Suspense fallback={<div className="w-full h-full min-h-[50vh] flex justify-center items-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          <div className="mt-4 text-gray-500 font-medium">載入中...</div>
+        </div>
+      </div>}>
+        <AiToolSearch 
+          initialQuery={query}
+          initialCategory={category}
+          initialPage={page}
+        />
+      </Suspense>
       
-      {(!decodedQuery && !decodedTag) && <FeatureSection />}
+      {(!query && !category) && <FeatureSection />}
     </div>
   );
 }
 
 // 動態生成元數據，以便在伺服器端渲染時反映搜尋查詢
-export function generateMetadata({ searchParams }: { searchParams?: { q?: string, tag?: string } }): Metadata {
+export async function generateMetadata({ searchParams }: AiToolSearchPageProps) {
   const query = searchParams?.q || '';
-  const tag = searchParams?.tag || '';
-  const decodedQuery = decodeURIComponent(query);
-  const decodedTag = decodeURIComponent(tag);
+  const category = searchParams?.category || '';
   
   return generateAiToolSearchMetadata({
-    query: decodedQuery,
-    tag: decodedTag
+    query,
+    category
   });
 }

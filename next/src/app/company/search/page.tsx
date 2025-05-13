@@ -9,6 +9,7 @@ import NoSearchResults from '@/components/common/NoSearchResults';
 import AutoRedirect from '@/components/common/AutoRedirect';
 import CompanySearchClientWrapper from '@/components/company/CompanySearchClientWrapper';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 interface CompanySearchPageProps {
   searchParams?: SearchParams;
@@ -58,46 +59,53 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
   }
 
   return (
-    <CompanySearchClientWrapper>
-      {/* 結構化數據標記 */}
-      <CompanySearchStructuredData query={decodedQuery} />
-      
-      {/* 使用客戶端組件處理自動重定向 */}
-      {shouldClientRedirect && <AutoRedirect url={redirectUrl} />}
-      
-      <div className="space-y-8">
-        <HeroSection 
-          title="快速查詢"
-          highlightText="企業資訊"
-          description="輸入公司名稱、統編、負責人或關鍵字，立即獲取完整企業資訊"
-          highlightColor="text-blue-600"
-        />
-
-        <CompanySearchForm 
-          initialQuery={decodedQuery}
-          disableAutoRedirect={disableAutoRedirect}
-          isSingleResult={isSingleResult}
-        />
-        
-        {decodedQuery && (
-          error ? (
-            <NoSearchResults 
-              message={error as string}
-              searchTerm={decodedQuery}
-            />
-          ) : !isSingleResult ? (
-            <CompanySearchResults 
-            companies={companies}
-            totalPages={totalPages}
-            currentPage={page}
-            searchQuery={decodedQuery}
-            />
-          ) : null
-        )}
-        
-        {!decodedQuery && <FeatureSection />}
+    <Suspense fallback={<div className="w-full h-full min-h-[50vh] flex justify-center items-center">
+      <div className="flex flex-col items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="mt-4 text-gray-500 font-medium">載入中...</div>
       </div>
-    </CompanySearchClientWrapper>
+    </div>}>
+      <CompanySearchClientWrapper>
+        {/* 結構化數據標記 */}
+        <CompanySearchStructuredData query={decodedQuery} />
+        
+        {/* 使用客戶端組件處理自動重定向 */}
+        {shouldClientRedirect && <AutoRedirect url={redirectUrl} />}
+        
+        <div className="space-y-8">
+          <HeroSection 
+            title="快速查詢"
+            highlightText="企業資訊"
+            description="輸入公司名稱、統編、負責人或關鍵字，立即獲取完整企業資訊"
+            highlightColor="text-blue-600"
+          />
+
+          <CompanySearchForm 
+            initialQuery={decodedQuery}
+            disableAutoRedirect={disableAutoRedirect}
+            isSingleResult={isSingleResult}
+          />
+          
+          {decodedQuery && (
+            error ? (
+              <NoSearchResults 
+                message={error as string}
+                searchTerm={decodedQuery}
+              />
+            ) : !isSingleResult ? (
+              <CompanySearchResults 
+              companies={companies}
+              totalPages={totalPages}
+              currentPage={page}
+              searchQuery={decodedQuery}
+              />
+            ) : null
+          )}
+          
+          {!decodedQuery && <FeatureSection />}
+        </div>
+      </CompanySearchClientWrapper>
+    </Suspense>
   );
 }
 

@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { LoadingProvider } from '@/components/common/loading/LoadingProvider';
 import Script from 'next/script';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: '企業放大鏡™ | 企業資訊查詢平台',
@@ -41,15 +42,17 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <LoadingProvider>
-            <Header />
-            <main className="flex-1 flex items-center">
-              <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
-                {children}
-              </section>
-            </main>
-            <Footer />
-          </LoadingProvider>
+          <Suspense fallback={<div className="w-full h-full flex justify-center items-center">載入中...</div>}>
+            <LoadingProvider>
+              <Header />
+              <main className="flex-1 flex items-center">
+                <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
+                  {children}
+                </section>
+              </main>
+              <Footer />
+            </LoadingProvider>
+          </Suspense>
         </div>
       </body>
     </html>

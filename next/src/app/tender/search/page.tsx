@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import HeroSection from '@/components/HeroSection';
 import TenderSearchForm from '@/components/tender/TenderSearchForm';
 import TenderSearchResults from '@/components/tender/TenderSearchResults';
@@ -12,11 +13,6 @@ import TenderSearchClientWrapper from '@/components/tender/TenderSearchClientWra
 interface TenderSearchPageProps {
   searchParams?: SearchParams;
 }
-
-export const metadata: Metadata = {
-  title: '標案資訊查詢 | 企業放大鏡™',
-  description: '輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊'
-};
 
 export default async function TenderSearchPage({ searchParams }: TenderSearchPageProps) {
   const query = searchParams?.q || '';
@@ -46,39 +42,61 @@ export default async function TenderSearchPage({ searchParams }: TenderSearchPag
   }
 
   return (
-    <TenderSearchClientWrapper>
-      <div className="space-y-8">
-        <HeroSection 
-          title="快速查詢"
-          highlightText="標案資訊"
-          description="輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊"
-          highlightColor="text-green-600"
-        />
-
-        <TenderSearchForm
-          initialQuery={decodedQuery}
-          initialType={searchType}
-        />
-        
-        {decodedQuery && (
-          error ? (
-            <NoSearchResults 
-              message={error}
-              searchTerm={decodedQuery}
-            />
-          ) : (
-            <TenderSearchResults 
-              results={results}
-              totalPages={totalPages}
-              currentPage={page}
-              searchQuery={decodedQuery}
-              searchType={searchType}
-            />
-          )
-        )}
-        
-        {!decodedQuery && <FeatureSection />}
+    <Suspense fallback={<div className="w-full h-full min-h-[50vh] flex justify-center items-center">
+      <div className="flex flex-col items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="mt-4 text-gray-500 font-medium">載入中...</div>
       </div>
-    </TenderSearchClientWrapper>
+    </div>}>
+      <TenderSearchClientWrapper>
+        <div className="space-y-8">
+          <HeroSection 
+            title="快速查詢"
+            highlightText="標案資訊"
+            description="輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊"
+            highlightColor="text-green-600"
+          />
+
+          <TenderSearchForm
+            initialQuery={decodedQuery}
+            initialType={searchType}
+          />
+          
+          {decodedQuery && (
+            error ? (
+              <NoSearchResults 
+                message={error}
+                searchTerm={decodedQuery}
+              />
+            ) : (
+              <TenderSearchResults 
+                results={results}
+                totalPages={totalPages}
+                currentPage={page}
+                searchQuery={decodedQuery}
+                searchType={searchType}
+              />
+            )
+          )}
+          
+          {!decodedQuery && <FeatureSection />}
+        </div>
+      </TenderSearchClientWrapper>
+    </Suspense>
   );
+}
+
+// 動態生成元數據
+export async function generateMetadata({ searchParams }: { searchParams?: SearchParams }): Promise<Metadata> {
+  const query = searchParams?.q || '';
+  const decodedQuery = decodeURIComponent(query);
+  
+  return {
+    title: decodedQuery 
+      ? `${decodedQuery} - 標案資訊查詢 | 企業放大鏡™` 
+      : '標案資訊查詢 | 企業放大鏡™',
+    description: decodedQuery
+      ? `查看 ${decodedQuery} 的相關標案資訊、招標公告、得標資訊等完整資料。`
+      : '輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊。'
+  };
 }
