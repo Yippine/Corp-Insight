@@ -9,12 +9,6 @@ const nextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  // 配置禁用靜態生成的頁面
-  exportPathMap: async function() {
-    return {
-      '/api/company/twincn': { page: '/api/company/twincn', dynamic: true },
-    };
   }
 }
 
