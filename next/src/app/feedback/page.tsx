@@ -2,9 +2,10 @@
 
 import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { motion } from 'framer-motion';
-import { Send, AlertCircle, Loader2 } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { Send, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import UnderDevelopment from '@/components/common/UnderDevelopment';
+import { useDropzone, FileRejection, DropzoneOptions, Accept } from 'react-dropzone';
 
 const feedbackTypes = [
   { id: 'data_correction', name: '資料勘誤', description: '回報資料錯誤或不準確的情況' },
@@ -26,14 +27,17 @@ export default function FeedbackPage() {
   const [email, setEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [isCodeSent, setIsCodeSent] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [verificationToken, setVerificationToken] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const typeFromUrl = searchParams.get('type');
@@ -53,24 +57,76 @@ export default function FeedbackPage() {
     };
   }, [previewUrl]);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('檔案大小不能超過 5MB。');
-        return;
-      }
-      
-      if (!file.type.startsWith('image/')) {
-        setError('只能上傳圖片檔案。');
-        return;
-      }
+  const onDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+    setError(null);
+    setFileError(null);
 
-      setFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setError(null);
+    if (rejectedFiles && rejectedFiles.length > 0) {
+      const firstError = rejectedFiles[0].errors[0];
+      if (firstError) {
+        setFileError(firstError.message || '檔案不符合上傳要求。');
+      } else {
+        setFileError('檔案不符合上傳要求。');
+      }
+      setFile(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      return;
+    }
+
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      const currentFile = acceptedFiles[0];
+      setFile(currentFile);
+      setPreviewUrl(URL.createObjectURL(currentFile));
     }
   };
+
+  const dropzoneOptions: DropzoneOptions = {
+    onDrop,
+    accept: {
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/gif': ['.gif'],
+    } as Accept,
+    maxSize: 5 * 1024 * 1024,
+    multiple: false,
+    validator: (file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        return {
+          code: "file-too-large",
+          message: `檔案大小超過 5MB 上限。`,
+        };
+      }
+      const acceptedMimeTypes = ['image/png', 'image/jpeg', 'image/gif'];
+      if (!acceptedMimeTypes.includes(file.type)) {
+        return {
+          code: "file-invalid-type",
+          message: `檔案格式不支援，僅接受 PNG, JPG, GIF。`,
+        };
+      }
+      return null;
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone(dropzoneOptions);
+
+  useEffect(() => {
+    if (fileRejections && fileRejections.length > 0) {
+      const firstError = fileRejections[0].errors[0];
+      setFileError(firstError.message || '檔案不符合上傳要求。');
+      setFile(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+    } else if (!fileRejections || fileRejections.length === 0) {
+      if (file === null && (!fileRejections || fileRejections.length === 0)) {
+        setFileError(null);
+      }
+    }
+  }, [fileRejections, previewUrl, file]);
 
   const handleSendVerificationCode = async () => {
     if (!email) {
@@ -85,68 +141,77 @@ export default function FeedbackPage() {
 
     setIsSending(true);
     setError(null);
+    setSuccessMessage(null);
+    setVerificationToken(null);
+    if (isCodeSent) {
+      setVerificationCode('');
+    }
 
     try {
-      console.log('Simulating sending verification code to:', email);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setIsCodeSent(true);
-      alert('驗證碼已發送 (模擬)');
+      const response = await fetch('/api/feedback/send-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || '驗證碼發送失敗，請稍後再試。');
+      } else {
+        setIsCodeSent(true);
+        setSuccessMessage(data.message || `驗證碼已成功發送至 ${email}`);
+        setVerificationToken(data.verificationToken);
+      }
     } catch (err) {
-      setError('驗證碼發送失敗，請稍後再試。');
+      console.error('Failed to send verification code:', err);
+      setError('驗證碼發送請求失敗，請檢查您的網路連線或稍後再試。');
     } finally {
       setIsSending(false);
     }
   };
 
-  const handleVerifyCode = async () => {
-    if (!verificationCode) {
-      setError('請輸入驗證碼。');
-      return;
-    }
-
-    setError(null);
-
-    try {
-      console.log('Simulating verifying code:', verificationCode);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsVerified(true);
-      alert('驗證碼驗證成功 (模擬)');
-    } catch (err) {
-      setError('驗證碼錯誤，請重新輸入。');
-    }
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
 
-    if (!type || !title || !content || !email || !isVerified) {
-      setError('請填寫所有必填欄位並完成郵箱驗證！');
+    if (!type || !title || !content || !email || !isCodeSent || !verificationCode || !verificationToken) {
+      setError('請填寫所有必填欄位，發送並輸入郵箱驗證碼。務必先發送驗證碼。！');
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
+
+    const formData = new FormData();
+    formData.append('type', type);
+    formData.append('title', title);
+    formData.append('content', content);
+    formData.append('email', email);
+    formData.append('verificationCode', verificationCode);
+    formData.append('verificationToken', verificationToken);
+    if (file) {
+      formData.append('file', file);
+    }
 
     try {
-      console.log('Simulating submitting feedback:', { type, title, content, email, file });
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setType('');
-      setTitle('');
-      setContent('');
-      setEmail('');
-      setVerificationCode('');
-      setIsCodeSent(false);
-      setIsVerified(false);
-      setFile(null);
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
+      const response = await fetch('/api/feedback/submit', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || '提交失敗，請稍後再試。');
+      } else {
+        router.push('/feedback/success');
       }
-      
-      alert('感謝您的反饋！我們會盡快處理。(模擬提交)');
     } catch (err) {
-      setError('提交失敗，請稍後再試。');
+      console.error('Failed to submit feedback:', err);
+      setError('提交請求失敗，請檢查您的網路連線或稍後再試。');
     } finally {
       setIsSubmitting(false);
     }
@@ -154,10 +219,6 @@ export default function FeedbackPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-[4rem]">
-      <UnderDevelopment 
-        message="意見回饋功能開發中，後端服務尚未啟用。目前表單提交僅為演示用途。" 
-        year="2025"
-      />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -232,20 +293,34 @@ export default function FeedbackPage() {
             <label htmlFor="file-upload" className="block text-lg font-semibold text-gray-700 tracking-tight">
               附加截圖（選填，限 5MB 內圖片）
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200/50 border-dashed rounded-xl bg-white/80 hover:border-blue-400/50 transition-colors duration-200">
-              <div className="space-y-1 text-center">
-                {previewUrl ? (
-                  <div className="relative group">
-                    <img src={previewUrl} alt="Preview" className="mx-auto h-32 w-auto rounded-lg object-contain" />
-                    <button 
-                      type="button"
-                      onClick={() => { setFile(null); if(previewUrl) URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      移除
-                    </button>
-                  </div>
-                ) : (
+            <div 
+              {...getRootProps()}
+              className={`mt-1 flex flex-col items-center justify-center px-6 pt-5 pb-6 border-2 ${isDragActive ? 'border-blue-500' : 'border-gray-200/50'} border-dashed rounded-xl bg-white/80 hover:border-blue-400/50 transition-colors duration-200 cursor-pointer`}
+            >
+              <input {...getInputProps()} />
+              
+              {previewUrl && file ? (
+                <div className="relative group w-full flex flex-col items-center">
+                  <img src={previewUrl} alt="Preview" className="mx-auto h-32 w-auto rounded-lg object-contain mb-2" />
+                  <p className="text-sm text-gray-500 truncate max-w-[calc(100%-2rem)]">{file.name}</p>
+                  <button 
+                    type="button"
+                    onClick={(e) => { 
+                      e.stopPropagation();
+                      setFile(null); 
+                      if(previewUrl) URL.revokeObjectURL(previewUrl); 
+                      setPreviewUrl(null); 
+                      setFileError(null);
+                    }}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
+                  >
+                    移除
+                  </button>
+                </div>
+              ) : isDragActive ? (
+                <p className="text-blue-600 font-semibold">將檔案拖放到此處...</p>
+              ) : (
+                <div className="space-y-1 text-center">
                   <svg
                     className="mx-auto h-12 w-12 text-gray-400"
                     stroke="currentColor"
@@ -260,41 +335,18 @@ export default function FeedbackPage() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                )}
-                <div className="flex text-base text-gray-600">
-                  <label
-                    htmlFor="file-upload"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                  >
-                    <span>{previewUrl ? '更改檔案' : '上傳檔案'}</span>
-                    <input
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      className="sr-only"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                  <p className="pl-1">或拖放檔案</p>
+                  <div className="flex text-sm text-gray-600">
+                    <p className="relative cursor-pointer rounded-md bg-transparent font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                      <span>上傳檔案</span>
+                    </p>
+                    <p className="pl-1">或拖放檔案</p>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG、JPG、GIF 最大 5MB</p>
                 </div>
-                <p className="text-sm text-gray-500">
-                  PNG、JPG、GIF 最大 5MB
-                </p>
-              </div>
+              )}
             </div>
-            {previewUrl && (
-              <motion.div 
-                className="mt-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="h-32 w-auto rounded-lg shadow-sm border border-white/20"
-                />
-              </motion.div>
+            {fileError && (
+              <p className="mt-2 text-sm text-red-600">{fileError}</p>
             )}
           </div>
 
@@ -303,31 +355,44 @@ export default function FeedbackPage() {
               <label htmlFor="email" className="block text-lg font-semibold text-gray-700 tracking-tight">
                 電子郵件 <span className="text-red-500">*</span>（用於接收回覆）
               </label>
-              <div className="flex space-x-3">
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-grow block w-full rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:shadow-md focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
-                  placeholder="your@email.com"
-                  required
-                  disabled={isCodeSent}
-                />
-                {!isCodeSent && (
+              <div className="flex flex-col space-y-2">
+                <div className="flex space-x-3">
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="flex-grow block w-full rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:shadow-md focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
+                    placeholder="your@email.com"
+                    required
+                    disabled={isCodeSent}
+                  />
                   <button
                     type="button"
                     onClick={handleSendVerificationCode}
                     disabled={isSending || !email || !validateEmail(email)}
-                    className="px-5 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center whitespace-nowrap"
+                    className={`px-5 py-3 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center whitespace-nowrap ${isCodeSent ? 'bg-orange-500 hover:bg-orange-600 focus:ring-orange-500' : 'bg-blue-500 hover:bg-blue-600 focus:ring-blue-500'}`}
                   >
-                    {isSending ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : <Send className="h-5 w-5 mr-2" />} 發送驗證碼
+                    {isSending ? (
+                      <Loader2 className="animate-spin h-5 w-5 mr-2" /> 
+                    ) : isCodeSent ? (
+                      <Send className="h-5 w-5 mr-2" /> 
+                    ) : (
+                      <Send className="h-5 w-5 mr-2" />
+                    )}
+                    {isSending ? (isCodeSent ? '重新發送中...' : '發送中...') : (isCodeSent ? '重新發送驗證碼' : '發送驗證碼')}
                   </button>
+                </div>
+                {isCodeSent && successMessage && (
+                  <div className="flex items-center text-sm text-green-600 bg-green-50 p-2 rounded-md border border-green-200">
+                    <CheckCircle2 className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span>{successMessage}</span>
+                  </div>
                 )}
               </div>
             </div>
 
-            {isCodeSent && !isVerified && (
+            {isCodeSent && (
               <div className="space-y-2">
                 <label htmlFor="verificationCode" className="block text-lg font-semibold text-gray-700 tracking-tight">
                   郵箱驗證碼 <span className="text-red-500">*</span>
@@ -337,25 +402,14 @@ export default function FeedbackPage() {
                     id="verificationCode"
                     type="text"
                     value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
+                    onChange={(e) => { setVerificationCode(e.target.value); setError(null); }}
                     className="flex-grow block w-full rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:shadow-md focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
                     placeholder="請輸入您收到的6位驗證碼"
                     required
+                    disabled={!isCodeSent || isSending}
                   />
-                  <button
-                    type="button"
-                    onClick={handleVerifyCode}
-                    disabled={!verificationCode}
-                    className="px-5 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 whitespace-nowrap"
-                  >
-                    驗證
-                  </button>
                 </div>
               </div>
-            )}
-
-            {isVerified && (
-              <p className="text-green-600 font-medium text-center bg-green-50 p-3 rounded-lg border border-green-200">✓ 電子郵件已驗證成功！</p>
             )}
           </div>
 
@@ -373,7 +427,7 @@ export default function FeedbackPage() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isSubmitting || !isVerified}
+              disabled={isSubmitting || !type || !title || !content || !email || !isCodeSent || !verificationCode || !verificationToken }
               className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-4 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-300/50 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-blue-500/30 flex items-center justify-center text-lg"
             >
               {isSubmitting ? <Loader2 className="animate-spin h-6 w-6 mr-3" /> : <Send className="h-6 w-6 mr-3" />} 提交反饋
@@ -381,10 +435,6 @@ export default function FeedbackPage() {
           </div>
         </form>
       </motion.div>
-      <UnderDevelopment 
-        message="意見回饋功能開發中，後端服務尚未啟用。目前表單提交僅為演示用途。" 
-        year="2025"
-      />
     </div>
   );
 }
