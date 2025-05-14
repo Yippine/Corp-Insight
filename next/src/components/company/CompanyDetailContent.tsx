@@ -700,11 +700,7 @@ export default function CompanyDetailContent({ companyData: SearchData, activeTa
                 </div>
               </div>
 
-              {isLoadingTenders ? (
-                <div className="py-8">
-                  <InlineLoading />
-                </div>
-              ) : fetchTenderError ? (
+              {fetchTenderError ? (
                 <div className="text-center py-12">
                   <p className="text-gray-500">{fetchTenderError}</p>
                 </div>
