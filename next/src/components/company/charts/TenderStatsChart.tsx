@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, TrendingUp, Award, Clock } from 'lucide-react';
 import { useTenderChartData } from '@/lib/hooks/useTenderChartData';
 import NoDataFound from '@/components/common/NoDataFound';
-import { BlockLoading } from '@/components/common/loading';
+import { InlineLoading } from '@/components/common/loading';
 
 ChartJS.register(
   CategoryScale,
@@ -295,7 +295,7 @@ export default function TenderStatsChart({
 
           <div className="relative h-[300px]">
             <AnimatePresence>
-              {isProcessing && <BlockLoading overlay />}
+              {isProcessing && <InlineLoading />}
             </AnimatePresence>
             <Bar ref={chartRef} options={options} data={data} />
           </div>

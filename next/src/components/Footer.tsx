@@ -18,7 +18,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-4">
               <li>
                 <Link
-                  href="/ai-assistant"
+                  href="/aitool/search"
                   className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
                 >
                   試用您的 AI 助理

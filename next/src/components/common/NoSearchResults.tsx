@@ -8,7 +8,7 @@ interface NoSearchResultsProps {
   onReset?: () => void;
 }
 
-export default function NoSearchResults({ 
+export default function NoSearchResults({
   message = '很抱歉，我們找不到符合您搜尋條件的結果。',
   searchTerm,
   onReset

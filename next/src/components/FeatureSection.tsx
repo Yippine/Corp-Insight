@@ -7,7 +7,7 @@ export default function FeatureSection() {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mt-12">
       <Link 
-        href="/ai-assistant"
+        href="/aitool/search"
         className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 cursor-pointer hover:bg-gray-50 transition-colors"
       >
         <div className="flex-shrink-0">

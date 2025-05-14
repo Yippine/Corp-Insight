@@ -25,20 +25,20 @@ export const InlineLoading = () => (
           willChange: 'transform'
         }}
         animate={{ 
-          rotate: 360,
+          rotate: 360
         }}
         transition={{
           rotate: {
-            duration: 4, // 降低動畫頻率以提升效能
+            duration: 4,
             repeat: Infinity,
             ease: "linear"
           }
         }}
       />
 
-      {/* 同步光暈層 - 使用 CSS transform 代替 motion.rotate */}
+      {/* 同步光暈層 - 使用直接的 CSS animation 確保在靜態環境中也能正常轉動 */}
       <div
-        className="absolute -inset-8 opacity-30 animate-spin-slow"
+        className="absolute -inset-8 opacity-30"
         style={{
           background: `radial-gradient(circle, ${colorPalette.primary}, transparent 70%)`,
           filter: 'blur(20px)',
@@ -53,17 +53,15 @@ export const InlineLoading = () => (
         style={{
           background: `radial-gradient(circle at center, transparent 30%, ${colorPalette.primary}22 40%, ${colorPalette.secondary}33 60%, transparent 70%)`,
           filter: 'blur(8px)',
-          transform: 'rotate(0deg) scale(1.5)'
+          willChange: 'transform'
         }}
         animate={{
           rotate: 360
         }}
         transition={{
-          rotate: {
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear"
-          }
+          duration: 15,
+          repeat: Infinity,
+          ease: "linear"
         }}
       />
 
@@ -79,10 +77,11 @@ export const InlineLoading = () => (
             ${colorPalette.primary}00
           )`,
           borderRadius: '50%',
-          filter: 'blur(1px)'
+          filter: 'blur(1px)',
+          willChange: 'transform'
         }}
         animate={{
-          rotate: [0, 360]
+          rotate: 360
         }}
         transition={{
           duration: 3,
@@ -98,7 +97,8 @@ export const InlineLoading = () => (
           className="absolute inset-0 rounded-full"
           style={{
             border: `2px solid ${colorPalette.primary}`,
-            opacity: 0.3
+            opacity: 0.3,
+            willChange: 'transform, opacity'
           }}
           animate={{
             rotate: 360,
@@ -127,7 +127,8 @@ export const InlineLoading = () => (
           background: `radial-gradient(circle, white, ${colorPalette.primary})`,
           borderRadius: '50%',
           filter: 'blur(2px)',
-          boxShadow: `0 0 30px ${colorPalette.primary}`
+          boxShadow: `0 0 30px ${colorPalette.primary}`,
+          willChange: 'transform'
         }}
         animate={{
           rotate: 360
@@ -247,112 +248,4 @@ export const ButtonLoading = ({ text = "處理中..." }: { text?: string }) => (
       />
     </motion.span>
   </motion.span>
-);
-
-// Block Loading - 用於內容區域載入
-export const BlockLoading = ({ overlay = false }: { overlay?: boolean }) => {
-  return (
-    <div className={`${overlay ? 'absolute inset-0 bg-white/80 backdrop-blur-sm z-10' : ''} flex items-center justify-center p-4`}>
-      <div className="relative flex flex-col items-center">
-        {/* 旋轉光圈 */}
-        <motion.div
-          className="w-12 h-12 rounded-full"
-          style={{
-            border: `3px solid transparent`,
-            borderTopColor: colorPalette.primary,
-            borderRightColor: colorPalette.secondary,
-            willChange: 'transform'
-          }}
-          animate={{ rotate: 360 }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
-        
-        {/* 內部脈動 */}
-        <motion.div 
-          className="absolute inset-0 m-auto w-6 h-6 rounded-full"
-          style={{
-            background: colorPalette.primary,
-            boxShadow: `0 0 15px ${colorPalette.primary}`,
-            willChange: 'transform, opacity'
-          }}
-          animate={{
-            scale: [0.8, 1.1, 0.8],
-            opacity: [0.7, 1, 0.7]
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        
-        {/* 文字 */}
-        <motion.div
-          className="mt-3 text-sm font-medium"
-          style={{ color: colorPalette.primary }}
-          animate={{
-            opacity: [0.7, 1, 0.7]
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          loading...
-        </motion.div>
-      </div>
-    </div>
-  );
-};
-
-// 迷你 Loading - 用於小區域空間
-export const MiniLoading = () => (
-  <div className="inline-flex items-center justify-center">
-    <motion.div
-      className="w-6 h-6 rounded-full border-2 border-t-blue-500 border-r-blue-400 border-b-transparent border-l-transparent"
-      animate={{ rotate: 360 }}
-      transition={{
-        duration: 1,
-        repeat: Infinity,
-        ease: "linear"
-      }}
-    />
-  </div>
-);
-
-// 進度 Loading - 帶有進度指示的載入元件
-export const ProgressLoading = ({ progress = 0 }: { progress: number }) => (
-  <div className="flex flex-col items-center justify-center p-4">
-    <div className="w-40 h-3 bg-gray-200 rounded-full overflow-hidden">
-      <motion.div 
-        className="h-full rounded-full"
-        style={{ 
-          background: `linear-gradient(90deg, ${colorPalette.primary}, ${colorPalette.secondary})`,
-          width: `${progress}%` 
-        }}
-        initial={{ width: 0 }}
-        animate={{ width: `${progress}%` }}
-        transition={{ duration: 0.5 }}
-      />
-    </div>
-    <motion.div
-      className="mt-2 text-sm font-medium"
-      style={{ color: colorPalette.primary }}
-      animate={{
-        opacity: [0.8, 1, 0.8]
-      }}
-      transition={{
-        duration: 1.5,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }}
-    >
-      {progress}% completed
-    </motion.div>
-  </div>
 );

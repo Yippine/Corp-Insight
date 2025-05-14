@@ -4,6 +4,7 @@ import FeatureSection from '@/components/FeatureSection';
 import { AiToolSearchStructuredData, generateAiToolSearchMetadata } from '@/components/SEO/AiToolSearchSEO';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
+import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 
 // 使用動態導入以避免 SSR 和客戶端狀態不一致的問題
 const AiToolSearch = dynamic(() => import('@/components/aitool/AiToolSearch'), { ssr: false });
@@ -12,19 +13,19 @@ interface AiToolSearchPageProps {
   searchParams?: {
     q?: string;
     page?: string;
-    category?: string;
+    tag?: string;
   };
 }
 
 export default function AiToolSearchPage({ searchParams }: AiToolSearchPageProps) {
   const query = searchParams?.q || '';
-  const category = searchParams?.category || '';
+  const tag = searchParams?.tag || '';
   const page = parseInt(searchParams?.page || '1');
 
   return (
     <div className="space-y-8">
       {/* 結構化數據標記 */}
-      <AiToolSearchStructuredData query={query} category={category} />
+      <AiToolSearchStructuredData query={query} tag={tag} />
       
       <HeroSection 
         title="立即釋放"
@@ -34,31 +35,25 @@ export default function AiToolSearchPage({ searchParams }: AiToolSearchPageProps
       />
 
       {/* AI 工具搜索組件 */}
-      <Suspense fallback={<div className="w-full h-full min-h-[50vh] flex justify-center items-center">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          <div className="mt-4 text-gray-500 font-medium">載入中...</div>
-        </div>
-      </div>}>
+      <Suspense fallback={<InlineLoading />}>
         <AiToolSearch 
           initialQuery={query}
-          initialCategory={category}
-          initialPage={page}
+          initialTag={tag}
         />
       </Suspense>
       
-      {(!query && !category) && <FeatureSection />}
+      {(!query && !tag) && <FeatureSection />}
     </div>
   );
 }
 
 // 動態生成元數據，以便在伺服器端渲染時反映搜尋查詢
-export async function generateMetadata({ searchParams }: AiToolSearchPageProps) {
+export async function generateMetadata({ searchParams }: AiToolSearchPageProps): Promise<Metadata> {
   const query = searchParams?.q || '';
-  const category = searchParams?.category || '';
+  const tag = searchParams?.tag || '';
   
   return generateAiToolSearchMetadata({
     query,
-    category
+    tag
   });
 }

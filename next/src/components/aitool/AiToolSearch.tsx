@@ -4,9 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Search } from 'lucide-react';
-import Link from 'next/link';
 import { Tools, categoryThemes, fullTagThemes, getToolsData, iconMap } from '@/lib/aitool/tools';
 import { sortToolsByTags, sortToolsBySelectedTag } from '@/lib/aitool/toolSorter';
+import NoSearchResults from '@/components/common/NoSearchResults';
+import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 
 interface AiToolSearchProps {
   initialQuery: string;
@@ -20,11 +21,13 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
   const [selectedTag, setSelectedTag] = useState(initialTag);
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
   const [tools, setTools] = useState<Tools[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // 獲取工具數據
     const toolsData = getToolsData();
     setTools(toolsData);
+    setIsLoading(false);
   }, []);
 
   // 參數同步邏輯
@@ -119,102 +122,103 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AnimatePresence mode="wait">
-          {filteredTools().map((tool, index) => {
-            let primaryTheme = fullTagThemes.ai || categoryThemes.default; 
-            const firstTagInCategories = tool.tags.find(tag => categoryThemes[tag]);
-            if (firstTagInCategories && categoryThemes[firstTagInCategories]) {
-              primaryTheme = categoryThemes[firstTagInCategories];
-            } else {
-              const toolThemesFromFull = tool.tags.map(t => fullTagThemes[t]).filter(Boolean);
-              if (toolThemesFromFull.length > 0 && toolThemesFromFull[0]) {
-                primaryTheme = toolThemesFromFull[0];
-              }
-            }
-            primaryTheme = primaryTheme || categoryThemes.default; // Ensure primaryTheme is always defined
+      {isLoading ? (
+        <div className="py-12">
+          <InlineLoading />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence mode="wait">
+              {filteredTools().map((tool, index) => {
+                let primaryTheme = fullTagThemes.ai || categoryThemes.default; 
+                const firstTagInCategories = tool.tags.find(tag => categoryThemes[tag]);
+                if (firstTagInCategories && categoryThemes[firstTagInCategories]) {
+                  primaryTheme = categoryThemes[firstTagInCategories];
+                } else {
+                  const toolThemesFromFull = tool.tags.map(t => fullTagThemes[t]).filter(Boolean);
+                  if (toolThemesFromFull.length > 0 && toolThemesFromFull[0]) {
+                    primaryTheme = toolThemesFromFull[0];
+                  }
+                }
+                primaryTheme = primaryTheme || categoryThemes.default; // Ensure primaryTheme is always defined
 
-            const IconComponent = iconMap[tool.iconName] || iconMap.Zap; // 使用 iconMap
+                const IconComponent = iconMap[tool.iconName] || iconMap.Zap; // 使用 iconMap
 
-            return (
-              <motion.div
-                key={`${tool.id}-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.2 }}
-                onMouseEnter={() => setHoveredTool(tool.id)}
-                onMouseLeave={() => setHoveredTool(null)}
-              >
-                <button
-                  onClick={() => handleToolClick(tool.id)}
-                  className={`relative w-full bg-white p-6 rounded-xl text-left ${
-                    hoveredTool === tool.id 
-                      ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}` 
-                      : 'shadow border border-gray-100'
-                  }`}
-                >
-                  <div className="flex items-center mb-4">
-                    <div className={`p-3 rounded-lg transition-colors duration-200 ${
-                      hoveredTool === tool.id ? primaryTheme.primary : primaryTheme.secondary
-                    }`}>
-                      <IconComponent className={`h-6 w-6 transition-colors duration-200 ${
-                        hoveredTool === tool.id ? 'text-white' : primaryTheme.icon
-                      }`} />
-                    </div>
-                    <h3 className={`text-xl font-semibold ml-4 transition-colors duration-200 ${
-                      hoveredTool === tool.id ? primaryTheme.text : 'text-gray-900'
-                    }`}>
-                      {tool.name}
-                    </h3>
-                  </div>
-                  <p className={`transition-colors duration-200 ${
-                    hoveredTool === tool.id ? primaryTheme.text : 'text-gray-600'
-                  }`}>
-                    {tool.description}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {tool.tags.map((tag) => {
-                      const themeFromCategory = categoryThemes[tag];
-                      const themeFromFull = fullTagThemes[tag];
-                      const tagTheme = themeFromCategory || themeFromFull || categoryThemes.default; // Ensure tagTheme is defined
-                      return (
-                        <span
-                          key={tag}
-                          className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors duration-200 ${
-                            hoveredTool === tool.id 
-                              ? `${tagTheme.primary} text-white` 
-                              : `${tagTheme.secondary} ${tagTheme.text}`
-                          }`}
-                        >
-                          {tagTheme.name}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </button>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </div>
-
-      {filteredTools().length === 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center py-12"
-        >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-            <Search className="h-8 w-8 text-gray-400" />
+                return (
+                  <motion.div
+                    key={`${tool.id}-${index}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.2 }}
+                    onMouseEnter={() => setHoveredTool(tool.id)}
+                    onMouseLeave={() => setHoveredTool(null)}
+                  >
+                    <button
+                      onClick={() => handleToolClick(tool.id)}
+                      className={`relative w-full bg-white p-6 rounded-xl text-left ${
+                        hoveredTool === tool.id 
+                          ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}` 
+                          : 'shadow border border-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-center mb-4">
+                        <div className={`p-3 rounded-lg transition-colors duration-200 ${
+                          hoveredTool === tool.id ? primaryTheme.primary : primaryTheme.secondary
+                        }`}>
+                          <IconComponent className={`h-6 w-6 transition-colors duration-200 ${
+                            hoveredTool === tool.id ? 'text-white' : primaryTheme.icon
+                          }`} />
+                        </div>
+                        <h3 className={`text-xl font-semibold ml-4 transition-colors duration-200 ${
+                          hoveredTool === tool.id ? primaryTheme.text : 'text-gray-900'
+                        }`}>
+                          {tool.name}
+                        </h3>
+                      </div>
+                      <p className={`transition-colors duration-200 ${
+                        hoveredTool === tool.id ? primaryTheme.text : 'text-gray-600'
+                      }`}>
+                        {tool.description}
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {tool.tags.map((tag) => {
+                          const themeFromCategory = categoryThemes[tag];
+                          const themeFromFull = fullTagThemes[tag];
+                          const tagTheme = themeFromCategory || themeFromFull || categoryThemes.default; // Ensure tagTheme is defined
+                          return (
+                            <span
+                              key={tag}
+                              className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors duration-200 ${
+                                hoveredTool === tool.id 
+                                  ? `${tagTheme.primary} text-white` 
+                                  : `${tagTheme.secondary} ${tagTheme.text}`
+                              }`}
+                            >
+                              {tagTheme.name}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </button>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            找不到相關工具
-          </h3>
-          <p className="text-gray-600">
-            請嘗試使用不同的搜尋關鍵字或篩選條件
-          </p>
-        </motion.div>
+
+          {filteredTools().length === 0 && (
+            <NoSearchResults 
+              message="很抱歉，我們找不到符合您搜尋條件的工具。" 
+              searchTerm={searchQuery}
+              onReset={() => {
+                setSearchQuery('');
+                setSelectedTag('');
+              }}
+            />
+          )}
+        </>
       )}
     </div>
   );

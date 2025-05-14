@@ -10,6 +10,7 @@ import AutoRedirect from '@/components/common/AutoRedirect';
 import CompanySearchClientWrapper from '@/components/company/CompanySearchClientWrapper';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
+import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 
 interface CompanySearchPageProps {
   searchParams?: SearchParams;
@@ -59,12 +60,7 @@ export default async function CompanySearchPage({ searchParams }: CompanySearchP
   }
 
   return (
-    <Suspense fallback={<div className="w-full h-full min-h-[50vh] flex justify-center items-center">
-      <div className="flex flex-col items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        <div className="mt-4 text-gray-500 font-medium">載入中...</div>
-      </div>
-    </div>}>
+    <Suspense fallback={<InlineLoading />}>
       <CompanySearchClientWrapper>
         {/* 結構化數據標記 */}
         <CompanySearchStructuredData query={decodedQuery} />

@@ -10,6 +10,7 @@ import TenderTabNavigation from './detail/TenderTabNavigation';
 import YesNoSection from './detail/YesNoSection';
 import TenderBasicInfo from './detail/TenderBasicInfo';
 import TenderSpecialInfo from './detail/TenderSpecialInfo';
+import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 
 interface TenderDetailProps {
   tenderId: string;
@@ -47,10 +48,8 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
   // 處理載入中或錯誤狀態
   if (isLoading) {
     return (
-      <div className="pt-36 pb-8">
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
-        </div>
+      <div className="w-full h-full min-h-[calc(100vh-var(--header-height,80px)-var(--footer-height,80px))] flex justify-center items-center">
+        <InlineLoading />
       </div>
     );
   }

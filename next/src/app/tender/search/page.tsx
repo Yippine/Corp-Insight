@@ -7,8 +7,8 @@ import FeatureSection from '@/components/FeatureSection';
 import { fetchTenderSearch } from '@/lib/tender/api';
 import type { SearchParams, TenderSearchResult } from '@/lib/tender/types';
 import NoSearchResults from '@/components/common/NoSearchResults';
-import AutoRedirect from '@/components/common/AutoRedirect';
 import TenderSearchClientWrapper from '@/components/tender/TenderSearchClientWrapper';
+import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 
 interface TenderSearchPageProps {
   searchParams?: SearchParams;
@@ -42,11 +42,8 @@ export default async function TenderSearchPage({ searchParams }: TenderSearchPag
   }
 
   return (
-    <Suspense fallback={<div className="w-full h-full min-h-[50vh] flex justify-center items-center">
-      <div className="flex flex-col items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        <div className="mt-4 text-gray-500 font-medium">載入中...</div>
-      </div>
+    <Suspense fallback={<div className="w-full h-full min-h-[calc(100vh-var(--header-height,80px)-var(--footer-height,80px))] flex justify-center items-center">
+      <InlineLoading />
     </div>}>
       <TenderSearchClientWrapper>
         <div className="space-y-8">
