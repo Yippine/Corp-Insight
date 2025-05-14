@@ -94,34 +94,34 @@ export async function POST(request: NextRequest) {
     const feedbackMailOptions = {
       from: `"${process.env.EMAIL_FROM_NAME || 'Business Magnifier 反饋系統'}" <${process.env.EMAIL_FROM}>`,
       to: developerEmail,
-      subject: `📬 新意見回饋 (#${Date.now().toString().slice(-6)}) - ${type}: ${title}`,
+      subject: `📬 新意見回饋（#${Date.now().toString().slice(-6)}）—${type}：${title}`,
       html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 700px; margin: 20px auto; padding: 25px; border: 1px solid #ccc; border-radius: 10px; background-color: #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
         <div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #0056b3;">
           <h1 style="color: #0056b3; font-size: 26px; margin: 0;">📥 新的意見回饋</h1>
         </div>
         <div style="padding: 20px 5px;">
-          <h2 style="color: #333; font-size: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 0;">回饋詳情 (ID: #${Date.now().toString().slice(-6)})</h2>
+          <h2 style="color: #333; font-size: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 0;">回饋詳情（ID：#${Date.now().toString().slice(-6)}）</h2>
           <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
             <tr style="background-color: #f8f9fa;">
-              <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057; width: 120px;">來自 (Email):</td>
+              <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057; width: 120px;">來自（Email）</td>
               <td style="padding: 10px; border: 1px solid #dee2e6;"><a href="mailto:${email}" style="color: #0056b3; text-decoration: none;">${email}</a></td>
             </tr>
             <tr>
-              <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">回饋類型:</td>
+              <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">回饋類型</td>
               <td style="padding: 10px; border: 1px solid #dee2e6;">${type}</td>
             </tr>
             <tr style="background-color: #f8f9fa;">
-              <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">問題概要:</td>
+              <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">問題概要</td>
               <td style="padding: 10px; border: 1px solid #dee2e6;">${title}</td>
             </tr>
             <tr>
-              <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057; vertical-align: top;">詳細說明:</td>
+              <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057; vertical-align: top;">詳細說明</td>
               <td style="padding: 10px; border: 1px solid #dee2e6; white-space: pre-wrap; word-wrap: break-word;">${content.replace(/\n/g, '<br>')}</td>
             </tr>
             ${attachmentsArray.length > 0 ? 
               `<tr style="background-color: #f8f9fa;">
-                <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">附件:</td>
+                <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">附加檔案</td>
                 <td style="padding: 10px; border: 1px solid #dee2e6;">${attachmentsArray.map(att => att.filename).join(', ')}</td>
               </tr>` : ''}
           </table>
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
     const userConfirmationMailOptions = {
       from: `"${process.env.EMAIL_FROM_NAME || 'Business Magnifier 客戶支援'}" <${process.env.EMAIL_FROM}>`,
       to: email,
-      subject: `我們已收到您的 Business Magnifier 意見回饋 ( #${Date.now().toString().slice(-6)} )`,
+      subject: `我們已收到您的 Business Magnifier 意見回饋（#${Date.now().toString().slice(-6)}）`,
       html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
         <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid #eee;">
@@ -158,12 +158,13 @@ export async function POST(request: NextRequest) {
         <div style="padding: 20px 0;">
           <p style="font-size: 18px; color: #28a745; font-weight: bold;">感謝您的意見！</p>
           <p style="font-size: 16px; color: #333;">您好 ${email.split('@')[0]}，</p>
-          <p style="font-size: 16px; color: #333;">我們已成功收到您提交的意見回饋 (ID: #${Date.now().toString().slice(-6)})。以下是您提交的摘要：</p>
+          <p style="font-size: 16px; color: #333;">我們已成功收到您提交的意見回饋（ID：#${Date.now().toString().slice(-6)}）。以下是您提交的摘要：</p>
           
           <div style="margin-top: 20px; padding: 15px; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px;">
-            <p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>回饋類型:</strong> ${type}</p>
-            <p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>問題概要:</strong> ${title}</p>
-            ${file ? `<p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>附加檔案:</strong> ${file.name}</p>` : ''}
+            <p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>回饋類型：</strong> ${type}</p>
+            <p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>問題概要：</strong> ${title}</p>
+            <p style="font-size: 15px; color: #333; margin: 5px 0; white-space: pre-wrap; word-wrap: break-word;"><strong>詳細說明：</strong> ${content.replace(/\n/g, '<br>')}</p>
+            ${file ? `<p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>附加檔案：</strong> ${file.name}</p>` : ''}
           </div>
 
           <p style="font-size: 16px; color: #333; margin-top: 20px;">我們會儘快處理您的回饋，並在需要時與您聯繫。</p>
