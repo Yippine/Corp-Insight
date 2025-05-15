@@ -4,8 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { LoadingProvider } from '@/components/common/loading/LoadingProvider';
 import Script from 'next/script';
-import { Suspense } from 'react';
-import { InlineLoading } from '@/components/common/loading/LoadingTypes';
+import WebVitalsReporter from '@/components/WebVitalsReporter';
 
 export const metadata: Metadata = {
   title: '企業放大鏡™ | 企業資訊查詢平台',
@@ -42,18 +41,17 @@ export default function RootLayout({
         </Script>
       </head>
       <body suppressHydrationWarning>
+        <WebVitalsReporter />
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <Suspense fallback={<InlineLoading />}>
-            <LoadingProvider>
-              <Header />
-              <main className="flex-1 flex items-center">
-                <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
-                  {children}
-                </section>
-              </main>
-              <Footer />
-            </LoadingProvider>
-          </Suspense>
+          <LoadingProvider>
+            <Header />
+            <main className="flex-1 flex items-center">
+              <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
+                {children}
+              </section>
+            </main>
+            <Footer />
+          </LoadingProvider>
         </div>
       </body>
     </html>

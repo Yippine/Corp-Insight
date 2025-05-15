@@ -1,7 +1,5 @@
-'use client';
-
 import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
 
-export default function Loading() {
+export default function FeedbackLoading() {
   return <SimpleSpinner />;
 }

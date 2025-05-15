@@ -17,11 +17,6 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // 路由變化時自動停止載入狀態
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pathname, searchParams]);
-
   const startLoading = () => setIsLoading(true);
   const stopLoading = () => setIsLoading(false);
   const setLoading = (state: boolean) => setIsLoading(state);

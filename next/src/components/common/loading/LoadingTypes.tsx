@@ -12,6 +12,13 @@ const colorPalette = {
   highlight: 'hsl(180, 70%, 65%)'    // 青綠色
 };
 
+// 簡易 Spinner - 用於輕量級載入狀態，如 loading.tsx 頁面
+export const SimpleSpinner = () => (
+  <div className="min-h-[50vh] w-full flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
+
 // 內聯 Loading - 用於內容區塊
 export const InlineLoading = () => (
   <div className="flex items-center justify-center p-8 flex-col">
