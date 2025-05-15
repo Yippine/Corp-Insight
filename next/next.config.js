@@ -19,8 +19,22 @@ const nextConfig = {
     domains: ['company.g0v.ronny.tw'], // 允許外部圖片域名
     unoptimized: process.env.NODE_ENV === "development", // 開發環境不優化圖片以加快構建
   },
+  poweredByHeader: false, // 移除X-Powered-By頭
+  // 優化頁面載入方式
+  distDir: '.next', // 指定構建輸出目錄
+  generateEtags: true, // 生成ETag頭提高客戶端緩存效率
+  compress: true, // 啟用gzip壓縮
+  productionBrowserSourceMaps: false, // 生產環境不生成source maps以減小文件大小
   experimental: {
+    optimizeCss: true, // 優化CSS
     scrollRestoration: true, // 允許頁面滾動位置保存
+    optimisticClientCache: true, // 啟用樂觀客戶端緩存
+    serverMinification: true, // 伺服器組件代碼最小化
+    serverActions: {
+      bodySizeLimit: '2mb', // 提高限制以處理較大的請求
+    },
+    forceSwcTransforms: true, // 強制使用SWC轉換
+    swcPlugins: [], // 支持SWC插件
   },
   // 添加 CORS 配置
   async headers() {
@@ -40,6 +54,11 @@ const nextConfig = {
         source: "/:path*",
         headers: [
           { key: "Access-Control-Allow-Origin", value: "*" },
+          // 添加緩存控制以提高性能
+          { key: "Cache-Control", value: "public, max-age=3600" }, // 1小時緩存
+          // 添加安全頭
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
         ]
       }
     ]

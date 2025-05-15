@@ -1,14 +1,16 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Search, Wrench, FileText } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { useLoading } from './common/loading/LoadingProvider';
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const { startLoading } = useLoading();
   const [showTryText, setShowTryText] = useState(true);
+  const navigationInProgress = useRef(false);
 
   // 模擬原來的效果，每 3 秒切換文字
   useEffect(() => {
@@ -21,42 +23,64 @@ export default function Header() {
 
   // 預加載常用路由
   useEffect(() => {
-    // 預取主要路由以提高導航速度
-    const prefetchRoutes = ['/company/search', '/tender/search', '/aitool/search'];
+    // 提前準備好所有主要路由，優先級高
+    const mainRoutes = ['/company/search', '/tender/search', '/aitool/search'];
+    Promise.all(mainRoutes.map(route => router.prefetch(route)));
+  }, [router]);
+
+  // 優化的路由處理函數
+  const handleNavigation = useCallback((path: string) => {
+    // 避免重複點擊和重複導航
+    if (navigationInProgress.current || path === pathname) {
+      return;
+    }
+
+    // 標記導航正在進行中
+    navigationInProgress.current = true;
     
-    // 排除當前路由
-    prefetchRoutes
-      .filter(route => !pathname?.startsWith(route))
-      .forEach(route => {
-        router.prefetch(route);
-      });
-  }, [pathname, router]);
+    // 立即啟動載入指示器
+    startLoading();
+    
+    // 執行導航
+    router.push(path);
+    
+    // 300ms後重置狀態，避免重複點擊
+    setTimeout(() => {
+      navigationInProgress.current = false;
+    }, 300);
+  }, [router, pathname, startLoading]);
+  
+  // 為每個按鈕創建高效的事件處理函數
+  const navHandlers = {
+    home: () => handleNavigation('/'),
+    aiTool: () => handleNavigation('/aitool/search'),
+    company: () => handleNavigation('/company/search'),
+    tender: () => handleNavigation('/tender/search')
+  };
 
   return (
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-6">
-          <Link
-            href="/"
-            className="flex items-center"
-            prefetch={true}
+          <button
+            onClick={navHandlers.home}
+            className="flex items-center cursor-pointer"
           >
             <img src="/magnifier.ico" alt="企業放大鏡 Logo" className="w-8 h-8 mr-3" />
             <h1 className="text-4xl font-bold text-gray-900">
               企業放大鏡™
               <span className="text-base ml-2 text-blue-600">βeta 版本</span>
             </h1>
-          </Link>
+          </button>
 
           <nav className="flex space-x-8">
-            <Link
-              href="/aitool/search"
+            <button
+              onClick={navHandlers.aiTool}
               className={`${
                 pathname?.startsWith('/aitool')
                   ? 'text-amber-500 border-b-2 border-amber-500'
                   : 'text-gray-500 hover:text-amber-600'
-              } pb-4 -mb-4 px-1 font-medium text-base flex items-center group relative`}
-              prefetch={true}
+              } pb-4 -mb-4 px-1 font-medium text-base flex items-center group relative cursor-pointer focus:outline-none`}
             >
               <Wrench className="mr-2 h-6 w-6" />
               <span className="relative h-full flex items-center min-w-[95px] justify-center">
@@ -75,33 +99,31 @@ export default function Header() {
                   您的 AI 助理
                 </span>
               </span>
-            </Link>
+            </button>
 
-            <Link
-              href="/company/search"
+            <button
+              onClick={navHandlers.company}
               className={`${
                 pathname?.startsWith('/company')
                   ? 'text-blue-600 border-b-2 border-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
-              } pb-4 -mb-4 px-1 font-medium text-base flex items-center`}
-              prefetch={true}
+              } pb-4 -mb-4 px-1 font-medium text-base flex items-center cursor-pointer focus:outline-none`}
             >
               <Search className="mr-2 h-6 w-6" />
               企業搜尋
-            </Link>
+            </button>
 
-            <Link
-              href="/tender/search"
+            <button
+              onClick={navHandlers.tender}
               className={`${
                 pathname?.startsWith('/tender')
                   ? 'text-green-600 border-b-2 border-green-600'
                   : 'text-gray-500 hover:text-gray-700'
-              } pb-4 -mb-4 px-1 font-medium text-base flex items-center`}
-              prefetch={true}
+              } pb-4 -mb-4 px-1 font-medium text-base flex items-center cursor-pointer focus:outline-none`}
             >
               <FileText className="mr-2 h-6 w-6" />
               標案搜尋
-            </Link>
+            </button>
           </nav>
         </div>
       </div>

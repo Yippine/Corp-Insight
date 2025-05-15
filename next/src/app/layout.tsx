@@ -1,10 +1,9 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { LoadingProvider } from '@/components/common/loading/LoadingProvider';
 import Script from 'next/script';
-import WebVitalsReporter from '@/components/WebVitalsReporter';
 
 export const metadata: Metadata = {
   title: '企業放大鏡™ | 企業資訊查詢平台',
@@ -20,6 +19,17 @@ export const metadata: Metadata = {
   },
 };
 
+// 優化移動設備體驗
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#ffffff'
+};
+
+// 禁用全局佈局的動態渲染，加速初始載入
+export const dynamic = 'force-static';
+
 export default function RootLayout({
   children,
 }: {
@@ -28,15 +38,16 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" suppressHydrationWarning>
       <head>
-        {/* Google tag (gtag.js) - 使用strategy屬性延遲加載 */}
+        {/* Google tag (gtag.js) - 使用afterInteractive策略，確保頁面可互動後再載入 */}
         <Script 
-          async 
           src="https://www.googletagmanager.com/gtag/js?id=G-PDSWJD7GMN"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
+          defer
         />
         <Script 
           id="google-analytics"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
+          defer
         >
           {`
             window.dataLayer = window.dataLayer || [];
@@ -45,9 +56,12 @@ export default function RootLayout({
             gtag('config', 'G-PDSWJD7GMN');
           `}
         </Script>
+        {/* 預加載關鍵資源 */}
+        <link rel="preload" href="/magnifier.ico" as="image" />
+        <link rel="preconnect" href="https://company.g0v.ronny.tw" />
+        <link rel="dns-prefetch" href="https://company.g0v.ronny.tw" />
       </head>
       <body suppressHydrationWarning>
-        <WebVitalsReporter />
         <div className="min-h-screen flex flex-col bg-gray-50">
           <LoadingProvider>
             <Header />

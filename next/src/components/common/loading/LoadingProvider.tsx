@@ -1,7 +1,9 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -12,22 +14,94 @@ interface LoadingContextType {
 
 const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 
+// 輕量級的非阻塞載入指示器
+const LoadingIndicator = ({ isLoading }: { isLoading: boolean }) => {
+  return (
+    <AnimatePresence>
+      {isLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          transition={{ duration: 0.2 }}
+          className="fixed top-0 inset-x-0 z-50 flex justify-center pointer-events-none"
+        >
+          <motion.div
+            className="bg-blue-600 text-white px-4 py-2 rounded-b-lg flex items-center shadow-lg"
+            animate={{ opacity: [0.8, 1, 0.8] }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 1.5,
+              ease: "easeInOut" 
+            }}
+          >
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <span className="font-medium text-sm">Loading...</span>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 export function LoadingProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  // 當URL變化時追蹤載入狀態
+  const router = useRouter();
+  
+  // 記錄組件是否已掛載
+  const isMounted = useRef(false);
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // 當組件掛載時進行初始路由預取
   useEffect(() => {
-    // 頁面載入開始時
+    isMounted.current = true;
+    
+    // 預取主要路由
+    const routesToPrefetch = ['/company/search', '/tender/search', '/aitool/search'];
+    routesToPrefetch.forEach(route => {
+      router.prefetch(route);
+    });
+    
+    return () => {
+      isMounted.current = false;
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+    };
+  }, [router]);
+
+  // 當URL變化時優化載入狀態
+  useEffect(() => {
+    // 立即啟動載入狀態
     setIsLoading(true);
     
-    // 設定一個短暫的延遲，避免快速顯示/隱藏載入指示器造成閃爍
-    const timeoutId = setTimeout(() => {
-      setIsLoading(false);
-    }, 150); // 150ms 的延遲比大多數快速加載還短，但足夠防止閃爍
+    // 清除之前的計時器
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
     
-    return () => clearTimeout(timeoutId);
+    // 15毫秒內完成的導航不需要閃爍載入狀態
+    const navigationTimeout = setTimeout(() => {
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
+    }, 1000);
+    
+    loadingTimeoutRef.current = navigationTimeout;
+    
+    // 安全機制：最多顯示載入狀態5秒
+    const safetyTimeout = setTimeout(() => {
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
+    }, 5000);
+    
+    return () => {
+      clearTimeout(navigationTimeout);
+      clearTimeout(safetyTimeout);
+    };
   }, [pathname, searchParams]);
   
   const startLoading = () => setIsLoading(true);
@@ -36,6 +110,7 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
 
   return (
     <LoadingContext.Provider value={{ isLoading, startLoading, stopLoading, setLoading }}>
+      <LoadingIndicator isLoading={isLoading} />
       {children}
     </LoadingContext.Provider>
   );
