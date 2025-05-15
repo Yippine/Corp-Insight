@@ -9,6 +9,19 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // 添加性能優化選項
+  reactStrictMode: false, // 關閉嚴格模式可以減少開發環境中的雙重渲染
+  swcMinify: true, // 使用 SWC 進行代碼壓縮
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production", // 生產環境移除 console
+  },
+  images: {
+    domains: ['company.g0v.ronny.tw'], // 允許外部圖片域名
+    unoptimized: process.env.NODE_ENV === "development", // 開發環境不優化圖片以加快構建
+  },
+  experimental: {
+    scrollRestoration: true, // 允許頁面滾動位置保存
+  },
   // 添加 CORS 配置
   async headers() {
     return [

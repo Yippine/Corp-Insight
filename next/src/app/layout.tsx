@@ -28,14 +28,20 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" suppressHydrationWarning>
       <head>
-        {/* Google tag (gtag.js) */}
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-PDSWJD7GMN"></Script>
-        <Script id="google-analytics">
+        {/* Google tag (gtag.js) - 使用strategy屬性延遲加載 */}
+        <Script 
+          async 
+          src="https://www.googletagmanager.com/gtag/js?id=G-PDSWJD7GMN"
+          strategy="lazyOnload"
+        />
+        <Script 
+          id="google-analytics"
+          strategy="lazyOnload"
+        >
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
             gtag('config', 'G-PDSWJD7GMN');
           `}
         </Script>

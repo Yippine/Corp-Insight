@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Search, Wrench, FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [showTryText, setShowTryText] = useState(true);
 
   // 模擬原來的效果，每 3 秒切換文字
@@ -18,6 +19,19 @@ export default function Header() {
     return () => clearInterval(interval);
   }, []);
 
+  // 預加載常用路由
+  useEffect(() => {
+    // 預取主要路由以提高導航速度
+    const prefetchRoutes = ['/company/search', '/tender/search', '/aitool/search'];
+    
+    // 排除當前路由
+    prefetchRoutes
+      .filter(route => !pathname?.startsWith(route))
+      .forEach(route => {
+        router.prefetch(route);
+      });
+  }, [pathname, router]);
+
   return (
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,6 +39,7 @@ export default function Header() {
           <Link
             href="/"
             className="flex items-center"
+            prefetch={true}
           >
             <img src="/magnifier.ico" alt="企業放大鏡 Logo" className="w-8 h-8 mr-3" />
             <h1 className="text-4xl font-bold text-gray-900">
@@ -41,6 +56,7 @@ export default function Header() {
                   ? 'text-amber-500 border-b-2 border-amber-500'
                   : 'text-gray-500 hover:text-amber-600'
               } pb-4 -mb-4 px-1 font-medium text-base flex items-center group relative`}
+              prefetch={true}
             >
               <Wrench className="mr-2 h-6 w-6" />
               <span className="relative h-full flex items-center min-w-[95px] justify-center">
@@ -68,6 +84,7 @@ export default function Header() {
                   ? 'text-blue-600 border-b-2 border-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
               } pb-4 -mb-4 px-1 font-medium text-base flex items-center`}
+              prefetch={true}
             >
               <Search className="mr-2 h-6 w-6" />
               企業搜尋
@@ -80,6 +97,7 @@ export default function Header() {
                   ? 'text-green-600 border-b-2 border-green-600'
                   : 'text-gray-500 hover:text-gray-700'
               } pb-4 -mb-4 px-1 font-medium text-base flex items-center`}
+              prefetch={true}
             >
               <FileText className="mr-2 h-6 w-6" />
               標案搜尋
