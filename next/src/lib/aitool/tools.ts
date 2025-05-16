@@ -549,3 +549,30 @@ export const categoryThemes: Record<string, ColorTheme> = tagThemes.merged;
 
 // 用於工具卡片標籤顯示的主題（完整版本）
 export const fullTagThemes: Record<string, ColorTheme> = tagThemes.full;
+
+// 新增：用於伺服器端快速判斷工具搜尋結果
+export function hasToolSearchResults(query?: string, tag?: string): boolean {
+  if (!query && !tag) {
+    // 沒有查詢條件時，返回 true (表示有結果，顯示所有工具)
+    return true;
+  }
+
+  const allTools = getToolsData();
+  let filtered = [...allTools];
+  
+  // 如果有查詢詞，篩選名稱或描述中包含查詢詞的工具
+  if (query) {
+    const q = query.toLowerCase();
+    filtered = filtered.filter(t => 
+      t.name.toLowerCase().includes(q) || 
+      t.description.toLowerCase().includes(q)
+    );
+  }
+  
+  // 如果有標籤，篩選包含該標籤的工具
+  if (tag && tag !== '全部') {
+    filtered = filtered.filter(t => t.tags.includes(tag));
+  }
+  
+  return filtered.length > 0;
+}

@@ -1,11 +1,12 @@
 import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
+import { staticTitles } from '@/config/pageTitles';
 
 export const metadata: Metadata = {
-  title: '企業放大鏡™ | Business Magnifier',
+  title: staticTitles.home,
   description: '專業的企業資訊查詢平台，提供最新、最全面的台灣企業和標案資料',
   openGraph: {
-    title: '企業放大鏡™ | Business Magnifier',
+    title: staticTitles.home,
     description: '專業的企業資訊查詢平台，提供最新、最全面的台灣企業和標案資料',
     url: 'https://opendata.leopilot.com',
   },

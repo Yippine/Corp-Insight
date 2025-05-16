@@ -4,9 +4,10 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { LoadingProvider } from '@/components/common/loading/LoadingProvider';
 import Script from 'next/script';
+import { staticTitles } from '@/config/pageTitles';
 
 export const metadata: Metadata = {
-  title: '企業放大鏡™ | 企業資訊查詢平台',
+  title: staticTitles.home,
   description: '專業的企業資訊查詢平台，提供最新、最全面的台灣企業資料庫',
   authors: [{ name: '國眾電腦 AI 團隊' }],
   keywords: ['企業查詢', '公司資料', '統一編號', '企業資訊', '商業情報'],

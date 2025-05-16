@@ -1,7 +1,7 @@
 import { Metadata } from "next";
-import { jsonLdScriptProps } from "react-schemaorg";
 import { SearchAction, WebPage, WithContext } from "schema-dts";
 import Script from "next/script";
+import { staticTitles, dynamicTitles } from '@/config/pageTitles';
 
 interface AiToolSearchSEOProps {
   query: string;
@@ -38,8 +38,8 @@ export function AiToolSearchStructuredData({ query, tag }: AiToolSearchSEOProps)
 }
 
 // 生成頁面元數據
-export function generateAiToolSearchMetadata({ query, tag }: AiToolSearchSEOProps): Metadata {
-  const title = getTitle(query, tag);
+export function generateAiToolSearchMetadata({ query, tag, hasResults }: AiToolSearchSEOProps & { hasResults?: boolean }): Metadata {
+  const title = getTitle(query, tag, hasResults);
   const description = getDescription(query, tag);
 
   return {
@@ -69,15 +69,18 @@ export function generateAiToolSearchMetadata({ query, tag }: AiToolSearchSEOProp
 }
 
 // 幫助函數：生成標題
-function getTitle(query: string, tag?: string): string {
+function getTitle(query: string, tag?: string, hasResults: boolean = true): string {
+  if (!hasResults) {
+    return dynamicTitles.aiToolSearchNoResult(query, tag);
+  }
   if (query && tag) {
-    return `${tag} 類別中的「${query}」AI 工具 | 企業放大鏡™`;
+    return dynamicTitles.aiToolSearchWithQueryAndTag(query, tag);
   } else if (query) {
-    return `「${query}」AI 助理工具搜尋結果 | 企業放大鏡™`;
+    return dynamicTitles.aiToolSearchWithQuery(query);
   } else if (tag) {
-    return `${tag} 類別 AI 助理工具 | 企業放大鏡™`;
+    return dynamicTitles.aiToolSearchWithTag(tag);
   } else {
-    return `AI 助理工具 | 探索智能工作流程解決方案 | 企業放大鏡™`;
+    return staticTitles.aiToolSearch;
   }
 }
 

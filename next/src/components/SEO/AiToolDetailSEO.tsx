@@ -1,8 +1,8 @@
 import { Metadata } from "next";
-import { jsonLdScriptProps } from "react-schemaorg";
 import { SoftwareApplication, WithContext } from "schema-dts";
 import Script from "next/script";
 import { Tools } from "@/lib/aitool/tools";
+import { staticTitles, dynamicTitles } from '@/config/pageTitles';
 
 interface AiToolDetailSEOProps {
   tool: Tools;
@@ -36,7 +36,7 @@ export function AiToolDetailStructuredData({ tool }: AiToolDetailSEOProps) {
 
 // 生成工具詳情頁的元數據
 export function generateAiToolDetailMetadata({ tool }: AiToolDetailSEOProps): Metadata {
-  const title = `${tool.name} | AI 助理工具 | 企業放大鏡™`;
+  const title = dynamicTitles.aiToolDetail(tool.name);
   const description = `${tool.description} 立即使用這個強大的 AI 助理工具，提升您的工作效率。`;
 
   return {

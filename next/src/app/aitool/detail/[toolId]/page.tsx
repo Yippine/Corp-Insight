@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { getToolsData } from '@/lib/aitool/tools';
 import { AiToolDetailStructuredData, generateAiToolDetailMetadata } from '@/components/SEO/AiToolDetailSEO';
 import { Suspense } from 'react';
+import { staticTitles } from '@/config/pageTitles';
 
 // 使用動態導入以避免 SSR 和客戶端狀態不一致的問題
 const AiToolDetail = dynamic(() => import('@/components/aitool/AiToolDetail'), { ssr: false });
@@ -44,7 +45,7 @@ export function generateMetadata({ params }: AiToolDetailPageProps) {
 
   if (!tool) {
     return {
-      title: '找不到工具 | 企業放大鏡™',
+      title: staticTitles.aiToolNotFound,
       description: '您請求的工具無法找到。請嘗試瀏覽我們的工具列表。'
     };
   }

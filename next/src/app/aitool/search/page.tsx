@@ -3,11 +3,9 @@ import HeroSection from '@/components/HeroSection';
 import FeatureSection from '@/components/FeatureSection';
 import { AiToolSearchStructuredData, generateAiToolSearchMetadata } from '@/components/SEO/AiToolSearchSEO';
 import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
+import AiToolSearch from '@/components/aitool/AiToolSearch';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
-
-// 使用動態導入以避免 SSR 和客戶端狀態不一致的問題
-const AiToolSearch = dynamic(() => import('@/components/aitool/AiToolSearch'), { ssr: false });
+import { hasToolSearchResults } from '@/lib/aitool/tools';
 
 interface AiToolSearchPageProps {
   searchParams?: {
@@ -20,7 +18,6 @@ interface AiToolSearchPageProps {
 export default function AiToolSearchPage({ searchParams }: AiToolSearchPageProps) {
   const query = searchParams?.q || '';
   const tag = searchParams?.tag || '';
-  const page = parseInt(searchParams?.page || '1');
 
   return (
     <div className="space-y-8">
@@ -52,8 +49,12 @@ export async function generateMetadata({ searchParams }: AiToolSearchPageProps):
   const query = searchParams?.q || '';
   const tag = searchParams?.tag || '';
   
+  // 使用 hasToolSearchResults 函數判斷是否有搜尋結果
+  const hasResults = !query && !tag ? true : hasToolSearchResults(query, tag);
+  
   return generateAiToolSearchMetadata({
     query,
-    tag
+    tag,
+    hasResults
   });
 }

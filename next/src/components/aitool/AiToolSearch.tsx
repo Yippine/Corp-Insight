@@ -1,13 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Search } from 'lucide-react';
 import { Tools, categoryThemes, fullTagThemes, getToolsData, iconMap } from '@/lib/aitool/tools';
-import { sortToolsByTags, sortToolsBySelectedTag } from '@/lib/aitool/toolSorter';
+import { sortToolsBySelectedTag } from '@/lib/aitool/toolSorter';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
+import { dynamicTitles, staticTitles } from '@/config/pageTitles';
 
 interface AiToolSearchProps {
   initialQuery: string;
@@ -17,67 +18,92 @@ interface AiToolSearchProps {
 export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [selectedTag, setSelectedTag] = useState(initialTag);
+  const pathname = usePathname();
+
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || initialQuery);
+  const [selectedTag, setSelectedTag] = useState(() => searchParams.get('tag') || initialTag);
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
   const [tools, setTools] = useState<Tools[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 獲取工具數據
     const toolsData = getToolsData();
     setTools(toolsData);
     setIsLoading(false);
   }, []);
 
-  // 參數同步邏輯
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set('q', encodeURIComponent(searchQuery));
-    if (selectedTag) params.set('tag', encodeURIComponent(selectedTag));
+    const params = new URLSearchParams(searchParams.toString());
+    if (searchQuery) {
+      params.set('q', searchQuery);
+    } else {
+      params.delete('q');
+    }
+    if (selectedTag) {
+      params.set('tag', selectedTag);
+    } else {
+      params.delete('tag');
+    }
     
-    // 構建新的 URL
-    const newUrl = `/aitool/search${params.toString() ? `?${params.toString()}` : ''}`;
+    const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
     
-    // 使用 window.history 更新 URL 而不重新加載頁面
-    window.history.pushState({}, '', newUrl);
-  }, [searchQuery, selectedTag, router]);
+    if (newUrl !== `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`) {
+      router.replace(newUrl, { scroll: false });
+    }
 
-  // 工具過濾邏輯
+  }, [searchQuery, selectedTag, router, pathname, searchParams]);
+
   const filteredTools = useCallback(() => {
     if (!tools.length) return [];
     
     let filtered = [...tools];
-    const query = searchQuery.toLowerCase();
-    const tag = selectedTag;
+    const currentQueryFromUrl = (searchParams.get('q') || '').toLowerCase();
+    const currentTagFromUrl = searchParams.get('tag') || '';
 
-    if (query) {
+    if (currentQueryFromUrl) {
       filtered = filtered.filter(t => 
-        t.name.toLowerCase().includes(query) || 
-        t.description.toLowerCase().includes(query)
+        t.name.toLowerCase().includes(currentQueryFromUrl) || 
+        t.description.toLowerCase().includes(currentQueryFromUrl)
       );
     }
 
-    if (tag && tag !== '全部') {
-      filtered = filtered.filter(t => t.tags.includes(tag));
+    if (currentTagFromUrl && currentTagFromUrl !== '全部') {
+      filtered = filtered.filter(t => t.tags.includes(currentTagFromUrl));
     }
+    
+    return sortToolsBySelectedTag(filtered, currentTagFromUrl);
+  }, [searchParams, tools]);
 
-    // 先使用標籤排序邏輯對工具進行排序，再根據選中的標籤進行二次排序
-    return sortToolsBySelectedTag(filtered, tag);
-  }, [searchQuery, selectedTag, tools]);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const query = searchParams.get('q') || '';
+      const tag = searchParams.get('tag') || '';
+      const hasResults = filteredTools().length > 0 || (!query && !tag);
 
-  // 標籤切換邏輯
+      if (!hasResults) {
+        document.title = dynamicTitles.aiToolSearchNoResult(query, tag);
+      } else if (query && tag) {
+        document.title = dynamicTitles.aiToolSearchWithQueryAndTag(query, tag);
+      } else if (query) {
+        document.title = dynamicTitles.aiToolSearchWithQuery(query);
+      } else if (tag) {
+        document.title = dynamicTitles.aiToolSearchWithTag(tag);
+      } else {
+        document.title = staticTitles.aiToolSearch;
+      }
+    }
+  }, [searchParams, filteredTools]);
+
   const handleTagSelect = (tag: string) => {
-    setSelectedTag(prevTag => tag === '全部' || prevTag === tag ? '' : tag);
+    setSelectedTag(prevTag => {
+      const newTag = tag === '全部' || prevTag === tag ? '' : tag;
+      return newTag;
+    });
   };
 
-  // 導航邏輯
   const handleToolClick = (toolId: string) => {
-    // 保存搜索參數到 sessionStorage
-    sessionStorage.setItem('toolSearchParams', new URLSearchParams(searchParams.toString()).toString());
+    sessionStorage.setItem('toolSearchParams', searchParams.toString());
     sessionStorage.setItem('toolSearchScroll', window.scrollY.toString());
-
-    // 跳轉到工具詳情頁
     router.push(`/aitool/detail/${toolId}`);
   };
 
@@ -141,9 +167,9 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
                     primaryTheme = toolThemesFromFull[0];
                   }
                 }
-                primaryTheme = primaryTheme || categoryThemes.default; // Ensure primaryTheme is always defined
+                primaryTheme = primaryTheme || categoryThemes.default;
 
-                const IconComponent = iconMap[tool.iconName] || iconMap.Zap; // 使用 iconMap
+                const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
 
                 return (
                   <motion.div
@@ -186,7 +212,7 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
                         {tool.tags.map((tag) => {
                           const themeFromCategory = categoryThemes[tag];
                           const themeFromFull = fullTagThemes[tag];
-                          const tagTheme = themeFromCategory || themeFromFull || categoryThemes.default; // Ensure tagTheme is defined
+                          const tagTheme = themeFromCategory || themeFromFull || categoryThemes.default;
                           return (
                             <span
                               key={tag}
@@ -208,10 +234,10 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
             </AnimatePresence>
           </div>
 
-          {filteredTools().length === 0 && (
+          {filteredTools().length === 0 && !isLoading && (
             <NoSearchResults 
               message="很抱歉，我們找不到符合您搜尋條件的工具。" 
-              searchTerm={searchQuery}
+              searchTerm={searchParams.get('q') || ''}
               onReset={() => {
                 setSearchQuery('');
                 setSelectedTag('');

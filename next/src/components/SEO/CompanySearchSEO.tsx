@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { dynamicTitles, staticTitles } from '@/config/pageTitles';
 
 type CompanySearchSEOProps = {
   title?: string;
@@ -12,8 +13,8 @@ export function generateCompanySearchMetadata({
   query,
 }: CompanySearchSEOProps): Metadata {
   const metaTitle = query 
-    ? `${query} - 企業放大鏡™ | 企業資訊查詢平台` 
-    : `企業放大鏡™ | 企業資訊查詢平台`;
+    ? dynamicTitles.companySearchResult(query)
+    : staticTitles.companySearch;
   
   const metaDescription = query
     ? `查看 ${query} 的企業資訊搜尋結果，包含公司基本資料、資本額、統一編號、負責人等詳細資訊。`

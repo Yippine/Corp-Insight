@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import TenderDetail from '@/components/tender/TenderDetail';
+import { staticTitles, dynamicTitles } from '@/config/pageTitles';
 
 interface TenderDetailPageProps {
   params: {
@@ -22,8 +23,8 @@ export async function generateMetadata({ params }: TenderDetailPageProps): Promi
 
     if (!response.ok) {
       return {
-        title: '標案詳情 | 企業放大鏡™',
-        description: '查看完整標案資訊，包含招標資訊、投標廠商、決標結果等詳細內容。'
+        title: staticTitles.tenderDetailError,
+        description: '您所查詢的標案資料不存在或發生錯誤。'
       };
     }
 
@@ -31,17 +32,17 @@ export async function generateMetadata({ params }: TenderDetailPageProps): Promi
     const latestRecord = data.records[data.records.length - 1];
     
     return {
-      title: `${latestRecord.brief.title} - 標案詳情 | 企業放大鏡™`,
+      title: dynamicTitles.tenderDetailWithName(latestRecord.brief.title),
       description: `查看 ${latestRecord.brief.title} 的詳細標案資訊，包含基本資料、投標廠商、履約進度等完整內容。招標機關：${data.unit_name || '未提供'}。`,
       alternates: {
         canonical: `/tender/detail/${tenderId}`
       }
     };
   } catch (error) {
-    console.error('Error generating metadata:', error);
+    console.error('Error generating metadata for tender detail:', error);
     return {
-      title: '標案詳情 | 企業放大鏡™',
-      description: '查看完整標案資訊，包含招標資訊、投標廠商、決標結果等詳細內容。'
+      title: staticTitles.tenderDetailError,
+      description: '載入標案詳情時發生錯誤，請稍後再試。'
     };
   }
 }
