@@ -1,8 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import SimpleFooter from '@/components/SimpleFooter';
+import NavLink from './common/NavLink';
+
+// 主要搜尋頁面路徑
+const SEARCH_ROUTES = ['/company/search', '/tender/search', '/aitool/search'];
 
 export default function Footer() {
   const pathname = usePathname();
@@ -17,28 +20,31 @@ export default function Footer() {
             </h3>
             <ul className="mt-4 space-y-4">
               <li>
-                <Link
+                <NavLink
                   href="/aitool/search"
                   className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
+                  smartLoading={true}
                 >
                   試用您的 AI 助理
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <NavLink
                   href="/company/search"
                   className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
+                  smartLoading={true}
                 >
                   企業搜尋
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <NavLink
                   href="/tender/search"
                   className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
+                  smartLoading={true}
                 >
                   標案搜尋
-                </Link>
+                </NavLink>
               </li>
             </ul>
           </div>
@@ -49,28 +55,31 @@ export default function Footer() {
             </h3>
             <ul className="mt-4 space-y-4">
               <li>
-                <Link
+                <NavLink
                   href="/faq"
                   className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
+                  smartLoading={true}
                 >
                   常見問題
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <NavLink
                   href="/feedback?type=data_correction"
                   className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
+                  smartLoading={true}
                 >
                   資料勘誤
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <NavLink
                   href="/privacy"
                   className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
+                  smartLoading={true}
                 >
                   資料來源聲明
-                </Link>
+                </NavLink>
               </li>
             </ul>
           </div>
@@ -82,20 +91,22 @@ export default function Footer() {
               </h3>
               <ul className="mt-4 space-y-4">
                 <li>
-                  <Link
+                  <NavLink
                     href="/feedback?type=business_cooperation"
                     className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
+                    smartLoading={true}
                   >
                     業務合作
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link
+                  <NavLink
                     href="/feedback"
                     className="text-lg text-gray-500 hover:text-gray-900 cursor-pointer"
+                    smartLoading={true}
                   >
                     意見回饋
-                  </Link>
+                  </NavLink>
                 </li>
               </ul>
             </div>

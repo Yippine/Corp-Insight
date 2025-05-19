@@ -25,6 +25,16 @@ const nextConfig = {
   generateEtags: true, // 生成ETag頭提高客戶端緩存效率
   compress: true, // 啟用gzip壓縮
   productionBrowserSourceMaps: false, // 生產環境不生成source maps以減小文件大小
+  // 配置永久靜態重定向，避免伺服器端重定向的效能問題
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/company/search',
+        permanent: true, // 使用 308 永久重定向
+      },
+    ];
+  },
   experimental: {
     optimizeCss: true, // 優化CSS
     scrollRestoration: true, // 允許頁面滾動位置保存
