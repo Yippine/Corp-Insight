@@ -9,6 +9,7 @@ import { sortToolsBySelectedTag } from '@/lib/aitool/toolSorter';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
+import { useLoading } from '@/components/common/loading/LoadingProvider';
 
 // 添加預載功能
 const preloadToolComponents = async () => {
@@ -55,6 +56,7 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const { startLoading } = useLoading();
 
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || initialQuery);
   const [selectedTag, setSelectedTag] = useState(() => searchParams.get('tag') || initialTag);
@@ -155,6 +157,8 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
   const handleToolClick = (toolId: string) => {
     sessionStorage.setItem('toolSearchParams', searchParams.toString());
     sessionStorage.setItem('toolSearchScroll', window.scrollY.toString());
+    // 顯示頂部 Loading 指示器
+    startLoading();
     router.push(`/aitool/detail/${toolId}`);
   };
 

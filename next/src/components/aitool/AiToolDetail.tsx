@@ -7,6 +7,7 @@ import { Tools, categoryThemes, iconMap } from '@/lib/aitool/tools';
 import { ChevronLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
+import { useLoading } from '@/components/common/loading/LoadingProvider';
 
 // 預載所有工具組件而不是在點擊後再載入
 // 使用設置較低的loading priority來優化初始頁面載入速度但仍提前載入組件
@@ -42,6 +43,7 @@ interface AiToolDetailProps {
 
 export default function AiToolDetail({ tool }: AiToolDetailProps) {
   const router = useRouter();
+  const { stopLoading, checkAndStopLoading } = useLoading();
 
   useEffect(() => {
     // 在頁面加載時回到頂部
@@ -52,7 +54,25 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
       // 強制預加載此工具組件
       const preloadTool = componentMap[tool.componentId];
     }
-  }, [tool.componentId]);
+
+    // 關閉頂部 Loading 指示器
+    // 使用短延遲確保 UI 已經渲染
+    const timer = setTimeout(() => {
+      stopLoading();
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [tool.componentId, stopLoading]);
+
+  // 在組件已掛載完成後立即檢查並停止 Loading
+  useEffect(() => {
+    // 使用 RAF 確保在下一幀停止 Loading
+    // 這對緩存的頁面特別有效
+    requestAnimationFrame(() => {
+      // 對於緩存的頁面，直接調用 checkAndStopLoading
+      checkAndStopLoading();
+    });
+  }, [checkAndStopLoading]);
 
   const handleBackClick = () => {
     const savedSearch = sessionStorage.getItem('toolSearchParams');
@@ -76,6 +96,10 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
       className="space-y-4"
+      onAnimationComplete={() => {
+        // 動畫完成後，再次確保 Loading 已停止
+        stopLoading();
+      }}
     >
       <button
         onClick={handleBackClick}
