@@ -10,6 +10,42 @@ import NoSearchResults from '@/components/common/NoSearchResults';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
 
+// 添加預載功能
+const preloadToolComponents = async () => {
+  // 非同步導入各工具組件，但不顯示任何東西
+  // 這些導入將被瀏覽器緩存，當用戶點擊相應工具時可以更快顯示
+  const imports = [
+    import('@/components/tools/seo/TitleGenerator'),
+    import('@/components/tools/seo/DescriptionGenerator'),
+    import('@/components/tools/seo/KeywordGenerator'),
+    import('@/components/tools/seo/FaqGenerator'),
+    import('@/components/tools/seo/ReviewGenerator'),
+    import('@/components/tools/seo/FeatureGenerator'),
+    import('@/components/tools/health/TCMCheck'),
+    import('@/components/tools/common/PromptToolTemplate'),
+    import('@/components/tools/finance/ROICalculator'),
+    import('@/components/tools/finance/DepositCalculator'),
+    import('@/components/tools/finance/LoanCalculator'),
+    import('@/components/tools/finance/CurrencyConverter'),
+    import('@/components/tools/finance/CompoundInterestCalculator'),
+    import('@/components/tools/manufacturing/PackagingCalculator'),
+    import('@/components/tools/manufacturing/YieldCalculator'),
+    import('@/components/tools/manufacturing/OEECalculator'),
+    import('@/components/tools/manufacturing/MetalWeightCalculator'),
+    import('@/components/tools/manufacturing/ManufacturingCalculator'),
+    import('@/components/tools/computer/ServerSpecCalculator'),
+    import('@/components/tools/computer/WorkloadScalabilityCalculator'),
+    import('@/components/tools/computer/ModelPerformanceCalculator'),
+    import('@/components/tools/computer/AIInfrastructureCostCalculator'),
+    import('@/components/tools/computer/GPUMemoryCalculator'),
+  ];
+  
+  // 使用 Promise.all 並行請求所有模組，但我們不需要等待它們全部完成
+  Promise.all(imports).catch(() => {
+    // 忽略任何錯誤，這只是預載
+  });
+};
+
 interface AiToolSearchProps {
   initialQuery: string;
   initialTag: string;
@@ -30,6 +66,21 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
     const toolsData = getToolsData();
     setTools(toolsData);
     setIsLoading(false);
+
+    // 當工具數據加載完成後，開始預載所有工具組件
+    // 使用 requestIdleCallback 或 setTimeout 延遲預載，以確保頁面其餘部分已加載完成
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(() => {
+          preloadToolComponents();
+        });
+      } else {
+        // 降級方案
+        setTimeout(() => {
+          preloadToolComponents();
+        }, 2000); // 延遲2秒，讓頁面先渲染完成
+      }
+    }
   }, []);
 
   useEffect(() => {

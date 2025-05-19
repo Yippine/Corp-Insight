@@ -1,36 +1,39 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Tools, categoryThemes, iconMap } from '@/lib/aitool/tools';
 import { ChevronLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
 
+// 預載所有工具組件而不是在點擊後再載入
+// 使用設置較低的loading priority來優化初始頁面載入速度但仍提前載入組件
 const componentMap: Record<string, React.ComponentType<any>> = {
-  TitleGenerator: dynamic(() => import('@/components/tools/seo/TitleGenerator')),
-  DescriptionGenerator: dynamic(() => import('@/components/tools/seo/DescriptionGenerator')),
-  KeywordGenerator: dynamic(() => import('@/components/tools/seo/KeywordGenerator')),
-  FaqGenerator: dynamic(() => import('@/components/tools/seo/FaqGenerator')),
-  ReviewGenerator: dynamic(() => import('@/components/tools/seo/ReviewGenerator')),
-  FeatureGenerator: dynamic(() => import('@/components/tools/seo/FeatureGenerator')),
-  TCMCheck: dynamic(() => import('@/components/tools/health/TCMCheck')),
-  PromptToolTemplate: dynamic(() => import('@/components/tools/common/PromptToolTemplate')),
-  ROICalculator: dynamic(() => import('@/components/tools/finance/ROICalculator')),
-  DepositCalculator: dynamic(() => import('@/components/tools/finance/DepositCalculator')),
-  LoanCalculator: dynamic(() => import('@/components/tools/finance/LoanCalculator')),
-  CurrencyConverter: dynamic(() => import('@/components/tools/finance/CurrencyConverter')),
-  CompoundInterestCalculator: dynamic(() => import('@/components/tools/finance/CompoundInterestCalculator')),
-  PackagingCalculator: dynamic(() => import('@/components/tools/manufacturing/PackagingCalculator')),
-  YieldCalculator: dynamic(() => import('@/components/tools/manufacturing/YieldCalculator')),
-  OEECalculator: dynamic(() => import('@/components/tools/manufacturing/OEECalculator')),
-  MetalWeightCalculator: dynamic(() => import('@/components/tools/manufacturing/MetalWeightCalculator')),
-  ManufacturingCalculator: dynamic(() => import('@/components/tools/manufacturing/ManufacturingCalculator')),
-  ServerSpecCalculator: dynamic(() => import('@/components/tools/computer/ServerSpecCalculator')),
-  WorkloadScalabilityCalculator: dynamic(() => import('@/components/tools/computer/WorkloadScalabilityCalculator')),
-  ModelPerformanceCalculator: dynamic(() => import('@/components/tools/computer/ModelPerformanceCalculator')),
-  AIInfrastructureCostCalculator: dynamic(() => import('@/components/tools/computer/AIInfrastructureCostCalculator')),
-  GPUMemoryCalculator: dynamic(() => import('@/components/tools/computer/GPUMemoryCalculator')),
+  TitleGenerator: dynamic(() => import('@/components/tools/seo/TitleGenerator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  DescriptionGenerator: dynamic(() => import('@/components/tools/seo/DescriptionGenerator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  KeywordGenerator: dynamic(() => import('@/components/tools/seo/KeywordGenerator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  FaqGenerator: dynamic(() => import('@/components/tools/seo/FaqGenerator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  ReviewGenerator: dynamic(() => import('@/components/tools/seo/ReviewGenerator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  FeatureGenerator: dynamic(() => import('@/components/tools/seo/FeatureGenerator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  TCMCheck: dynamic(() => import('@/components/tools/health/TCMCheck'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  PromptToolTemplate: dynamic(() => import('@/components/tools/common/PromptToolTemplate'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  ROICalculator: dynamic(() => import('@/components/tools/finance/ROICalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  DepositCalculator: dynamic(() => import('@/components/tools/finance/DepositCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  LoanCalculator: dynamic(() => import('@/components/tools/finance/LoanCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  CurrencyConverter: dynamic(() => import('@/components/tools/finance/CurrencyConverter'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  CompoundInterestCalculator: dynamic(() => import('@/components/tools/finance/CompoundInterestCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  PackagingCalculator: dynamic(() => import('@/components/tools/manufacturing/PackagingCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  YieldCalculator: dynamic(() => import('@/components/tools/manufacturing/YieldCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  OEECalculator: dynamic(() => import('@/components/tools/manufacturing/OEECalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  MetalWeightCalculator: dynamic(() => import('@/components/tools/manufacturing/MetalWeightCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  ManufacturingCalculator: dynamic(() => import('@/components/tools/manufacturing/ManufacturingCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  ServerSpecCalculator: dynamic(() => import('@/components/tools/computer/ServerSpecCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  WorkloadScalabilityCalculator: dynamic(() => import('@/components/tools/computer/WorkloadScalabilityCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  ModelPerformanceCalculator: dynamic(() => import('@/components/tools/computer/ModelPerformanceCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  AIInfrastructureCostCalculator: dynamic(() => import('@/components/tools/computer/AIInfrastructureCostCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
+  GPUMemoryCalculator: dynamic(() => import('@/components/tools/computer/GPUMemoryCalculator'), { ssr: true, loading: () => <SimpleSpinner /> }),
 };
 
 interface AiToolDetailProps {
@@ -39,31 +42,17 @@ interface AiToolDetailProps {
 
 export default function AiToolDetail({ tool }: AiToolDetailProps) {
   const router = useRouter();
-  const [ToolComponent, setToolComponent] = useState<React.ComponentType<any> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadComponent = async () => {
-      try {
-        setIsLoading(true);
-        const componentId = tool.componentId;
-        if (componentId && componentId in componentMap) {
-          setToolComponent(() => componentMap[componentId]);
-        }
-      } catch (error) {
-        console.error('Error loading component:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadComponent();
-  }, [tool.componentId]);
 
   useEffect(() => {
     // 在頁面加載時回到頂部
     window.scrollTo(0, 0);
-  }, []);
+    
+    // 預載所有工具組件
+    if (tool.componentId && componentMap[tool.componentId]) {
+      // 強制預加載此工具組件
+      const preloadTool = componentMap[tool.componentId];
+    }
+  }, [tool.componentId]);
 
   const handleBackClick = () => {
     const savedSearch = sessionStorage.getItem('toolSearchParams');
@@ -76,25 +65,27 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
 
   const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
 
+  // 直接獲取組件
+  const SpecificToolComponent = tool.componentId && componentMap[tool.componentId]
+    ? componentMap[tool.componentId]
+    : null;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
       className="space-y-4"
     >
       <button
         onClick={handleBackClick}
-        className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+        className="inline-flex items-center px-4 py-2 font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
       >
         <ChevronLeft className="w-4 h-4 mr-2" />
         返回工具列表
       </button>
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
-      >
+      <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
         <div className="flex items-center mb-6">
           <div className={`p-3 rounded-lg ${primaryTheme?.primary || 'bg-gray-500'}`}>
             <IconComponent className="h-8 w-8 text-white" />
@@ -105,18 +96,8 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
         <p className="text-lg text-gray-700 mb-8">{tool.description}</p>
 
         <div className="mb-8">
-          {isLoading ? (
-            <div className="flex justify-center items-center min-h-[200px]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            </div>
-          ) : ToolComponent ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <ToolComponent />
-            </motion.div>
+          {SpecificToolComponent ? (
+            <SpecificToolComponent />
           ) : (
             <div className="text-center text-gray-500 py-12">
               此工具暫時無法使用
@@ -137,7 +118,7 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
             );
           })}
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

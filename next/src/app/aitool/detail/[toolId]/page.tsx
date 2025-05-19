@@ -2,11 +2,14 @@ import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { getToolsData } from '@/lib/aitool/tools';
 import { AiToolDetailStructuredData, generateAiToolDetailMetadata } from '@/components/SEO/AiToolDetailSEO';
-import { Suspense } from 'react';
 import { staticTitles } from '@/config/pageTitles';
+import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
 
-// 使用動態導入以避免 SSR 和客戶端狀態不一致的問題
-const AiToolDetail = dynamic(() => import('@/components/aitool/AiToolDetail'), { ssr: false });
+// 優化動態導入以減少分階段渲染
+const AiToolDetail = dynamic(() => import('@/components/aitool/AiToolDetail'), {
+  ssr: true,
+  loading: () => <SimpleSpinner />
+});
 
 interface AiToolDetailPageProps {
   params: {
@@ -28,12 +31,8 @@ export default function AiToolDetailPage({ params }: AiToolDetailPageProps) {
       {/* 結構化數據標記 */}
       <AiToolDetailStructuredData tool={tool} />
       
-      {/* 詳情頁面 */}
-      <Suspense fallback={<div className="py-12 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>}>
-        <AiToolDetail tool={tool} />
-      </Suspense>
+      {/* 詳情頁面 - 直接渲染，不用 Suspense 包裹 */}
+      <AiToolDetail tool={tool} />
     </div>
   );
 }
