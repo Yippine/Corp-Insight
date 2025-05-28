@@ -45,6 +45,7 @@ const nextConfig = {
     },
     forceSwcTransforms: true, // 強制使用SWC轉換
     swcPlugins: [], // 支持SWC插件
+    appDir: true,
   },
   // 添加 CORS 配置
   async headers() {
@@ -70,9 +71,52 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
         ]
-      }
+      },
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
     ]
-  }
+  },
+  output: 'standalone',
+  env: {
+    MONGODB_URI: process.env.MONGODB_URI,
+    GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push({
+        'utf-8-validate': 'commonjs utf-8-validate',
+        'bufferutil': 'commonjs bufferutil',
+      });
+    }
+    
+    return config;
+  },
+  ...(process.env.NODE_ENV === 'development' && {
+    reactStrictMode: true,
+  }),
+  ...(process.env.NODE_ENV === 'production' && {
+    swcMinify: true,
+    compiler: {
+      removeConsole: {
+        exclude: ['error'],
+      },
+    },
+  }),
 }
 
 module.exports = nextConfig

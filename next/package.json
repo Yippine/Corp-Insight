@@ -6,11 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate:aitools": "npx ts-node src/lib/database/migration/migrateAITools.ts",
+    "docker:mongo": "docker-compose up mongodb -d",
+    "docker:tools": "docker-compose --profile tools up -d",
+    "docker:full": "docker-compose --profile full-stack up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "db:connect": "mongosh mongodb://localhost:27017/business-magnifier",
+    "db:connect-docker": "mongosh mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@prisma/client": "^5.10.2",
+    "mongoose": "^8.0.3",
     "@react-google-maps/api": "^2.20.6",
     "chart.js": "^4.4.8",
     "chartjs-adapter-date-fns": "^3.0.0",
@@ -37,7 +45,6 @@
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.1.0",
     "postcss": "^8.4.35",
-    "prisma": "^5.10.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.8.2"
   }

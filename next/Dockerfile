@@ -1,0 +1,68 @@
+# Business Magnifier Next.js Dockerfile
+# 多階段建置，優化映像大小和安全性
+
+FROM node:18-alpine AS base
+
+# 安裝必要的系統依賴
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# 安裝依賴階段
+FROM base AS deps
+# 複製 package 檔案
+COPY package.json package-lock.json* ./
+# 安裝依賴 (使用 npm ci 確保一致性)
+RUN npm ci
+
+# 建置階段
+FROM base AS builder
+WORKDIR /app
+# 複製依賴
+COPY --from=deps /app/node_modules ./node_modules
+# 複製原始碼
+COPY . .
+
+# 設定建置環境變數
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
+
+# 建置應用程式
+RUN npm run build
+
+# 生產環境執行階段
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# 建立非 root 使用者
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# 複製公共資源
+COPY --from=builder /app/public ./public
+
+# 設定正確的權限
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# 複製建置輸出 (使用 standalone 模式)
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# 切換到非 root 使用者
+USER nextjs
+
+# 暴露埠號
+EXPOSE 3000
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node healthcheck.js
+
+# 啟動應用程式
+CMD ["node", "server.js"]

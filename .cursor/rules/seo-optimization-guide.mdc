@@ -1,0 +1,696 @@
+---
+description: **描述**: 專業 CSR 轉 SSR 架構遷移 SEO 優化實施指南，涵蓋 Next.js 漸進式混合渲染策略、企業級專案架構設計、Nginx 代理配置、Google Search Console 監控、結構化數據實現、關鍵字策略應用和完整時程規劃。提供從問題診斷到最終部署的系統性解決方案。  **觸發條件**:  - CSR/SPA 架構轉 SSR/SSG 遷移需求 - Next.js 專案架構設計與 SEO 優化 - 漸進式網站遷移策略規劃 - 企業資料/標案資料網站 SEO 改善 - 新舊系統並行運行與 Nginx 配置 - Google Search Console 設置與監控 - 結構化數據標記與元標籤優化 - 網站地圖生成與索引策略 - 關鍵字研究與內容優化策略 - Core Web Vitals 效能優化  **關鍵詞**: `CSR轉SSR`, `Next.js架構遷移`, `漸進式混合渲染`, `SEO優化`, `結構化數據`, `Google Search Console`, `Nginx代理配置`, `網站地圖`, `關鍵字策略`, `效能優化`, `企業資料SEO`, `架構設計`
+globs: 
+alwaysApply: false
+---
+<aside>
+💡
+
+這個請求是要我創建一個完整的網站SEO優化指南，特別針對從客戶端渲染(CSR)轉換到伺服器端渲染(SSR)或靜態生成(SSG)的過程。主要目標是提高網站在搜尋引擎中的可見性。
+
+根據對話內容，這個專案是:
+
+1. 從現有的CSR (客戶端渲染) SPA (單頁應用程式) 遷移到Next.js的SSR/SSG架構
+2. 需要漸進式遷移，讓新舊系統同時運行
+3. 涉及企業資料、標案資料和AI助理功能
+4. 由一個人開發，所以需要簡潔有效的架構
+5. 最終目標是將所有內容遷移到Next.js，而非保持兩個平行系統
+
+我需要包含的內容:
+
+- 專案分析與SEO問題診斷
+- 為什麼選擇Next.js作為解決方案
+- 漸進式遷移策略和流程
+- 專案目錄結構
+- 新舊網頁的連接設定和Nginx配置
+- SEO最佳實踐(關鍵字、結構化數據、連結優化等)
+- Google Search Console的使用
+- 漸進式混合渲染策略的具體實施
+- 時間規劃與實施步驟
+
+我會確保指南簡潔、有效、完整且深入。
+
+</aside>
+
+# 專業SEO優化實施指南：CSR轉SSR漸進式架構遷移
+
+## 一、現有專案問題分析與SEO挑戰
+
+### 核心問題診斷
+
+1. **爬蟲可見性問題**：
+    - 現有SPA架構僅返回基本HTML殼，內容由JavaScript動態生成
+    - 搜尋引擎爬蟲無法完整獲取實際內容，導致索引不全面
+    - Google僅能索引少數頁面，大量有價值的企業和標案數據對搜尋引擎不可見
+2. **技術架構限制**：
+    - 單頁應用(SPA)前端渲染模式不利於SEO
+    - 缺乏伺服器端生成的結構化數據標記
+    - 頁面初始載入時間較長
+
+### 爬蟲行為原理分析
+
+搜尋引擎爬蟲在渲染JavaScript時存在延遲和資源限制：
+
+- 雖然Google爬蟲可執行JavaScript，但處理佇列長且資源有限
+- 動態生成內容可能未被及時渲染和索引
+- 完全依賴客戶端渲染的內容索引品質始終低於伺服器端渲染
+
+## 二、Next.js架構選擇與規劃
+
+### 為何選擇Next.js
+
+1. **渲染方式彈性**：
+    - 支援SSR（伺服器端渲染）、SSG（靜態生成）和CSR（客戶端渲染）
+    - 可針對不同頁面選擇最適合的渲染方式
+2. **SEO效果顯著**：
+    - 伺服器預渲染確保爬蟲可立即獲取完整HTML內容
+    - 自動生成和注入關鍵元標籤
+    - 簡化結構化數據實現
+3. **全棧能力**：
+    - API路由功能提供後端能力
+    - 可在單一專案中處理所有企業查詢、標案查詢和AI助理功能
+
+### 專案結構規劃
+
+```
+/project-root
+  /legacy                 # 舊專案(CSR) - 將逐步淘汰
+
+  /next                   # 新Next.js專案 - 最終唯一架構
+    /src
+      /app (或/pages)     # 頁面路由
+        /api              # 後端API接口
+          /company        # 企業資料API
+          /tender         # 標案資料API
+          /ai             # AI助理API
+        /company          # 企業頁面
+        /tender           # 標案頁面
+        /ai-assistant     # AI助理頁面
+      /components         # 共用UI組件
+      /lib
+        /db               # 資料庫連接和模型
+        /services         # 外部API調用服務
+        /utils            # 工具函數
+      /hooks              # 自定義React Hooks
+      /styles             # 全局樣式
+    /public               # 靜態資源
+    /prisma (或/mongoose) # 資料庫模型定義
+
+```
+
+### 最終目標說明
+
+最終目標是**完全遷移至`/next`專案**，`/legacy`資料夾最終會被淘汰。這不是兩個長期共存的系統，而是過渡期的漸進式遷移策略。
+
+## 三、漸進式混合渲染策略詳解
+
+### 混合渲染策略選擇原則
+
+根據頁面特性和SEO重要性，選擇最適合的渲染方式：
+
+1. **SSG (靜態生成)** - 使用場景：
+    - 首頁與關於頁等核心靜態頁面
+    - 類別列表頁
+    - 熱門企業/標案頁面
+    
+    ```tsx
+    // /next/src/pages/index.tsx
+    export async function getStaticProps() {
+      const featuredCompanies = await fetchFeaturedCompanies();
+      return {
+        props: { featuredCompanies },
+        revalidate: 3600 // 每小時重新生成
+      };
+    }
+    
+    ```
+    
+2. **ISR (增量靜態再生)** - 使用場景：
+    - 中等熱度的企業/標案詳情頁
+    - 定期更新的資訊頁面
+    
+    ```tsx
+    // /next/src/pages/company/[id].tsx
+    export async function getStaticPaths() {
+      // 預生成熱門企業頁面
+      const popularIds = await fetchPopularCompanyIds();
+      return {
+        paths: popularIds.map(id => ({ params: { id } })),
+        fallback: 'blocking' // 對未預渲染的頁面使用SSR
+      };
+    }
+    
+    export async function getStaticProps({ params }) {
+      const company = await fetchCompanyDetail(params.id);
+      return {
+        props: { company },
+        revalidate: 86400 // 每日重新生成
+      };
+    }
+    
+    ```
+    
+3. **SSR (伺服器渲染)** - 使用場景：
+    - 搜索結果頁
+    - 需要實時數據的頁面
+    - 低流量但SEO重要的詳情頁
+    
+    ```tsx
+    // /next/src/pages/search.tsx
+    export async function getServerSideProps({ query }) {
+      const { q, filter } = query;
+      // 獲取搜索結果
+      const results = await searchCompanies(q, filter);
+    
+      return {
+        props: {
+          query: q,
+          filter,
+          results
+        }
+      };
+    }
+    
+    ```
+    
+4. **CSR (客戶端渲染)** - 使用場景：
+    - 複雜互動組件
+    - 用戶特定功能（登入後儀表板）
+    - 不重要SEO的高互動功能
+    
+    ```tsx
+    // 使用動態導入維持互動性同時優化載入
+    import dynamic from 'next/dynamic';
+    
+    const DynamicDataVisualization = dynamic(
+      () => import('../components/DataVisualization'),
+      { ssr: false, loading: () => <p>載入中...</p> }
+    );
+    
+    ```
+    
+
+### 保持高互動性的實現方法
+
+結合SSR核心內容和CSR互動功能：
+
+```tsx
+// /next/src/pages/company/[id].tsx
+export default function CompanyPage({ company }) {
+  // 使用SWR在客戶端動態獲取評論等非核心SEO數據
+  const { data: comments, isLoading } = useSWR(
+    `/api/companies/${company.id}/comments`,
+    fetcher
+  );
+
+  return (
+    <>
+      {/* SEO重要內容由SSR/SSG提供 */}
+      <h1>{company.name}</h1>
+      <div className="company-info">
+        {/* 公司基本資料 - SSR渲染 */}
+      </div>
+
+      {/* 互動部分使用CSR - 維持高互動性 */}
+      <CommentSection comments={comments} isLoading={isLoading} />
+    </>
+  );
+}
+
+```
+
+## 四、新舊網頁連接與部署策略
+
+### Nginx代理配置
+
+實現新舊系統共存的Nginx配置：
+
+```
+# nginx.conf
+server {
+    listen 80;
+    server_name yourdomain.com;
+
+    # 已遷移的頁面路由到Next.js應用
+    location /company/ {
+        proxy_pass <http://localhost:3001>;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # 尚未遷移的頁面路由到舊應用
+    location / {
+        proxy_pass <http://localhost:3000>;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+```
+
+### 頁面間相互跳轉實現
+
+在遷移過程中，實現新舊應用間的頁面跳轉：
+
+```jsx
+// 在舊應用中跳轉到新應用頁面
+const navigateToNewApp = (path) => {
+  window.location.href = `https://yourdomain.com${path}`;
+};
+
+// 在新應用中跳轉到尚未遷移的舊頁面
+const navigateToLegacyApp = (path) => {
+  window.location.href = `https://yourdomain.com${path}`;
+};
+
+```
+
+### 避免重複內容問題
+
+確保搜尋引擎理解新舊頁面關係：
+
+```tsx
+// 在舊頁面添加canonical標籤指向新頁面
+<link rel="canonical" href="<https://yourdomain.com/company/123>" />
+
+// 使用301永久重定向逐步將流量引導至新頁面
+res.writeHead(301, { Location: '<https://yourdomain.com/company/123>' });
+res.end();
+
+```
+
+## 五、SEO最佳實踐實施細節
+
+### 1. 元標籤優化
+
+每個頁面需實現的關鍵元標籤：
+
+```tsx
+// /next/src/components/SEOHead.tsx
+import Head from 'next/head';
+
+export default function SEOHead({
+  title,
+  description,
+  canonical,
+  ogImage
+}) {
+  return (
+    <Head>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <link rel="canonical" href={canonical} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:url" content={canonical} />
+    </Head>
+  );
+}
+
+```
+
+頁面實施：
+
+```tsx
+// /next/src/pages/company/[id].tsx
+export default function CompanyDetail({ company }) {
+  return (
+    <>
+      <SEOHead
+        title={`${company.name} - 企業詳細資料 | 平台名稱`}
+        description={`查看${company.name}的完整企業資料，包含公司統一編號、資本額、董事長、地址等重要資訊。`}
+        canonical={`https://yourdomain.com/company/${company.id}`}
+        ogImage={company.logo || '/default-company-image.jpg'}
+      />
+      {/* 頁面內容 */}
+    </>
+  );
+}
+
+```
+
+### 2. 結構化數據實現
+
+為不同頁面類型添加結構化數據標記：
+
+```tsx
+// /next/src/components/StructuredData.tsx
+export function CompanyStructuredData({ company }) {
+  const structuredData = {
+    "@context": "<https://schema.org>",
+    "@type": "Organization",
+    "name": company.name,
+    "legalName": company.fullName,
+    "url": `https://yourdomain.com/company/${company.id}`,
+    "logo": company.logo,
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "TW",
+      "addressLocality": company.city,
+      "postalCode": company.postalCode,
+      "streetAddress": company.address
+    },
+    "foundingDate": company.foundingDate,
+    "numberOfEmployees": company.employeeCount
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
+```
+
+頁面實施：
+
+```tsx
+// /next/src/pages/company/[id].tsx
+export default function CompanyDetail({ company }) {
+  return (
+    <>
+      <SEOHead {...seoProps} />
+      <CompanyStructuredData company={company} />
+      {/* 頁面內容 */}
+    </>
+  );
+}
+
+```
+
+### 3. 網站地圖生成
+
+動態生成網站地圖：
+
+```tsx
+// /next/src/pages/sitemap.xml.js
+const EXTERNAL_DATA_URL = '<https://yourdomain.com/company>';
+
+function generateSiteMap(companies) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="<http://www.sitemaps.org/schemas/sitemap/0.9>">
+      <url>
+        <loc><https://yourdomain.com></loc>
+      </url>
+      ${companies
+        .map(({ id }) => {
+          return `
+        <url>
+          <loc>${`${EXTERNAL_DATA_URL}/${id}`}</loc>
+          <lastmod>${new Date().toISOString()}</lastmod>
+          <changefreq>daily</changefreq>
+          <priority>0.7</priority>
+        </url>
+      `;
+        })
+        .join('')}
+    </urlset>
+  `;
+}
+
+export async function getServerSideProps({ res }) {
+  const companies = await fetchAllCompanies();
+  const sitemap = generateSiteMap(companies);
+
+  res.setHeader('Content-Type', 'text/xml');
+  res.write(sitemap);
+  res.end();
+
+  return {
+    props: {},
+  };
+}
+
+export default function SiteMap() {}
+
+```
+
+### 4. 內部連結結構優化
+
+實現扁平化的三層連結結構：
+
+```tsx
+// /next/src/components/Navigation.tsx
+export default function Navigation() {
+  return (
+    <nav>
+      {/* 第一層：主導航 */}
+      <ul>
+        <li>
+          <Link href="/">首頁</Link>
+        </li>
+        <li>
+          <Link href="/company">企業查詢</Link>
+          {/* 第二層：類別導航 */}
+          <ul>
+            <li><Link href="/company/category/manufacturing">製造業</Link></li>
+            <li><Link href="/company/category/service">服務業</Link></li>
+            {/* 第三層：次要類別 */}
+            <ul>
+              <li><Link href="/company/category/service/finance">金融服務</Link></li>
+            </ul>
+          </ul>
+        </li>
+        <li>
+          <Link href="/tender">標案查詢</Link>
+        </li>
+        <li>
+          <Link href="/ai-assistant">AI助理</Link>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+
+```
+
+### 5. 圖片優化
+
+使用Next.js內置Image組件進行圖片優化：
+
+```tsx
+// /next/src/components/CompanyLogo.tsx
+import Image from 'next/image';
+
+export default function CompanyLogo({ company }) {
+  return (
+    <Image
+      src={company.logo || '/default-logo.png'}
+      alt={`${company.name} 公司標誌`}
+      width={200}
+      height={200}
+      loading="lazy"
+      placeholder="blur"
+      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    />
+  );
+}
+
+```
+
+## 六、實施時間表與階段規劃
+
+### 第一階段：環境準備（1-2週）
+
+1. **基礎設施搭建**
+    - 創建Next.js專案框架
+    - 配置Nginx代理環境
+    - 設置共享元件庫
+2. **核心功能遷移準備**
+    - 設計API路由結構
+    - 準備數據模型
+    - 配置CI/CD管道
+
+### 第二階段：首要頁面遷移（3-6週）
+
+1. **SEO關鍵頁面優先遷移**
+    - 企業詳情頁
+    - 標案詳情頁
+    - 首頁改造
+2. **測試與驗證**
+    - 使用Google Search Console URL檢查工具
+    - 模擬爬蟲行為測試內容可見性
+    - A/B測試流量分配
+
+### 第三階段：核心功能完善（7-12週）
+
+1. **搜索功能遷移**
+    - 搜索結果頁SSR實現
+    - 高級篩選器優化
+    - 搜索結果與URL參數映射
+2. **AI助理功能遷移**
+    - AI問答頁面
+    - 助理推薦系統
+    - 使用記錄儲存功能
+
+### 第四階段：完全切換與優化（13-16週）
+
+1. **最終頁面遷移**
+    - 剩餘次要頁面遷移
+    - 確保所有重定向正確性
+    - 更新所有內部連結
+2. **性能優化與監控**
+    - Core Web Vitals優化
+    - 建立性能監測系統
+    - SEO指標跟踪
+
+## 七、Google Search Console使用與監控
+
+### 初期設置與驗證
+
+1. **網站所有權驗證**
+    - 添加HTML標籤驗證
+    
+    ```html
+    <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" />
+    
+    ```
+    
+2. **提交網站地圖**
+    - 在Search Console提交`sitemap.xml`
+    - 監控網站地圖索引狀態
+
+### 持續監測與優化
+
+1. **使用URL檢查工具**
+    
+    ```bash
+    # 模擬Google爬蟲行為的簡單檢查
+    curl -A "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" <https://yourdomain.com/company/123>
+    
+    ```
+    
+2. **定期檢查覆蓋率報告**
+    - 監控已索引URL數量
+    - 解決被排除的URL問題
+    - 分析爬蟲錯誤
+3. **關鍵字表現跟踪**
+    - 監控有機搜索流量
+    - 分析關鍵字排名變化
+    - 優化表現不佳的頁面
+
+## 八、關鍵字研究與應用策略
+
+### 關鍵字分類與層次結構
+
+根據搜尋意圖將關鍵字分為四類：
+
+1. **資訊型**：用戶尋找資訊（如"企業資料查詢"）
+    - 實施：詳細內容頁面、教學文章
+2. **導航型**：用戶尋找特定網站（如"台灣企業資料網"）
+    - 實施：優化品牌詞、首頁和主頁面
+3. **交易型**：用戶有明確行動意圖（如"下載企業資料"）
+    - 實施：強調行動呼籲、簡化轉換路徑
+4. **商業調查型**：用戶比較選擇（如"最佳企業查詢工具"）
+    - 實施：提供比較資訊、突出優勢
+
+### 頁面關鍵字應用策略
+
+```tsx
+// /next/src/pages/company/[id].tsx
+export async function getStaticProps({ params }) {
+  const company = await fetchCompanyDetail(params.id);
+
+  // 關鍵字增強
+  const keywords = generateKeywords(company);
+
+  return {
+    props: {
+      company,
+      keywords
+    },
+    revalidate: 86400
+  };
+}
+
+export default function CompanyDetail({ company, keywords }) {
+  return (
+    <>
+      <SEOHead
+        title={`${company.name} - ${keywords.primary} | 平台名稱`}
+        description={`查看${company.name}的${keywords.secondary.join('、')}等詳細資訊。${company.shortDescription}`}
+        // 其他SEO屬性
+      />
+
+      {/* 在H1/H2標題中自然融入關鍵字 */}
+      <h1>{company.name}企業詳細資料</h1>
+
+      {/* 正文中自然分佈關鍵字 */}
+      <div className="company-description">
+        <h2>{company.name}的基本資訊</h2>
+        <p>{company.description}</p>
+      </div>
+    </>
+  );
+}
+
+```
+
+## 九、反向連結建立策略
+
+### 高品質內容創作
+
+1. **行業研究報告**
+    - 基於企業資料統計分析
+    - 視覺化呈現行業趨勢
+2. **專業工具與資源**
+    - 提供公開的企業資料分析工具
+    - 定期發布有價值的市場報告
+
+### 外部合作與連結
+
+1. **行業合作夥伴**
+    - 與相關企業網站交換連結
+    - 提供API接口供合作夥伴使用
+2. **內容分發**
+    - 在專業論壇和社群分享內容
+    - 投稿於相關產業媒體
+3. **社交媒體策略**
+    - 定期發布內容擴大影響力
+    - 增加社交分享按鈕提高傳播性
+
+## 十、執行步驟與檢查清單
+
+### 1. 初始設置檢查項
+
+- [ ]  創建Next.js基礎專案
+- [ ]  設置開發與測試環境
+- [ ]  配置Nginx代理規則
+- [ ]  建立資料庫連接
+- [ ]  實現基本API連接結構
+
+### 2. 核心SEO功能檢查項
+
+- [ ]  元標籤實現與驗證
+- [ ]  結構化數據標記測試
+- [ ]  響應式設計實現
+
+- [ ]  網站地圖生成與提交
+- [ ]  robots.txt配置
+
+### 3. 每頁遷移檢查項
+
+- [ ]  頁面內容完整重構
+- [ ]  伺服器端渲染正確實現
+- [ ]  內部連結更新
+- [ ]  301重定向設置
+- [ ]  社交分享功能測試
+- [ ]  Google Search Console URL測試
+
+### 4. 最終切換檢查項
+
+- [ ]  所有關鍵頁面成功遷移
+- [ ]  舊頁面重定向到新頁面
+- [ ]  無404錯誤頁面
+- [ ]  性能指標達標
+- [ ]  索引覆蓋率達到預期
+- [ ]  流量成功轉移到新系統
+
+## 總結
+
+這份SEO優化指南提供了從CSR架構遷移到Next.js SSR/SSG架構的完整路徑，專注於漸進式混合渲染策略。遵循這個流程，您可以在不中斷現有業務的情況下，逐步提升網站的SEO表現，確保企業資料、標案資料和AI助理功能獲得最佳的搜尋引擎能見度。
+
+始終記住，SEO優化不是一次性活動，而是持續優化的過程。通過這個框架，您可以建立起可持續改進的基礎，隨著業務發展不斷調整和優化您的SEO策略。
