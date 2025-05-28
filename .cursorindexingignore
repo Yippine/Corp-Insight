@@ -1,0 +1,214 @@
+# ===== Cursor 索引忽略配置 =====
+# 此檔案控制 Cursor 的程式碼索引功能，排除不需要建立索引的檔案
+# 這些檔案不會被包含在程式碼搜尋和自動完成中
+
+# ===== 建置和編譯輸出 =====
+# Next.js 相關
+next/.next/**
+next/out/**
+next/.swc/**
+
+# Vite 相關
+legacy/dist/**
+legacy/.vite/**
+
+# TypeScript 編譯輸出
+*.js.map
+*.d.ts.map
+*.tsbuildinfo
+
+# ===== 依賴套件（完全排除索引） =====
+# Node.js 模組
+**/node_modules/**
+
+# Yarn PnP
+.yarn/**
+.pnp.*
+
+# ===== 快取和暫存檔案 =====
+# 各種快取目錄
+**/.cache/**
+**/.parcel-cache/**
+**/.eslintcache
+**/.stylelintcache
+**/.rpt2_cache/**
+**/.rts2_cache_*/**
+
+# ===== 日誌檔案 =====
+# 所有日誌檔案
+**/*.log
+**/logs/**
+**/*-debug.log*
+**/*-error.log*
+
+# ===== 測試和覆蓋率 =====
+# 測試覆蓋率報告
+**/coverage/**
+**/*.lcov
+**/.nyc_output/**
+
+# ===== 媒體和二進位檔案 =====
+# 圖片檔案
+**/*.jpg
+**/*.jpeg
+**/*.png
+**/*.gif
+**/*.bmp
+**/*.webp
+**/*.svg
+**/*.ico
+**/*.tiff
+**/*.psd
+**/*.ai
+**/*.eps
+
+# 影片檔案
+**/*.mp4
+**/*.avi
+**/*.mov
+**/*.wmv
+**/*.flv
+**/*.webm
+
+# 音訊檔案
+**/*.mp3
+**/*.wav
+**/*.flac
+**/*.aac
+**/*.ogg
+
+# ===== 文件檔案 =====
+# Office 文件
+**/*.pdf
+**/*.doc
+**/*.docx
+**/*.xls
+**/*.xlsx
+**/*.ppt
+**/*.pptx
+
+# 壓縮檔案
+**/*.zip
+**/*.rar
+**/*.7z
+**/*.tar
+**/*.gz
+**/*.bz2
+
+# ===== 資料庫檔案 =====
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/*.mdb
+
+# ===== 字型檔案 =====
+**/*.ttf
+**/*.otf
+**/*.woff
+**/*.woff2
+**/*.eot
+
+# ===== 配置和環境檔案 =====
+# 環境變數
+**/.env*
+
+# 套件鎖定檔案
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+
+# ===== 編輯器和 IDE 檔案 =====
+# VSCode
+**/.vscode/**
+**/.vscode-test/**
+
+# JetBrains
+**/.idea/**
+**/*.iml
+
+# Vim
+**/*.swp
+**/*.swo
+
+# ===== 作業系統檔案 =====
+# macOS
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride
+**/Icon?
+**/._*
+
+# Windows
+**/Thumbs.db
+**/ehthumbs.db
+**/Desktop.ini
+**/$RECYCLE.BIN/**
+
+# Linux
+**/.fuse_hidden*
+**/.directory
+**/.Trash-*
+
+# ===== 版本控制 =====
+# Git 內部檔案
+.git/**
+
+# ===== 特定專案排除 =====
+# Bolt 工具檔案
+legacy/.bolt/**
+
+# Prisma 生成和遷移檔案
+next/prisma/migrations/**
+next/prisma/dev.db*
+
+# 自動生成的檔案
+**/sitemap*.xml
+**/robots.txt
+
+# ===== 部署和 CI/CD =====
+# Netlify
+**/.netlify/**
+
+# Vercel
+**/.vercel/**
+
+# PM2 配置
+**/ecosystem.config.*
+
+# ===== 安全性檔案 =====
+# 私鑰和憑證
+**/*.key
+**/*.pem
+**/*.p12
+**/*.crt
+**/*.cer
+**/*.der
+
+# ===== 大型或生成的檔案 =====
+# 分析報告
+**/bundle-analyzer-report.html
+**/.next/analyze/**
+
+# Storybook 建置
+**/.storybook/build/**
+**/storybook-static/**
+
+# ===== 暫存和備份 =====
+**/*.tmp
+**/*.temp
+**/*.bak
+**/*.backup
+**/*.old
+**/*~
+
+# ===== 特殊檔案類型 =====
+# 二進位檔案
+**/*.exe
+**/*.dll
+**/*.so
+**/*.dylib
+
+# 封存檔案
+**/*.tar.gz
+**/*.tar.bz2
+**/*.tar.xz
