@@ -2,70 +2,58 @@ import { CompanyData } from './types';
 import { parseTwcnHtml } from './parser';
 import { formatDetailData } from './utils';
 import { determineSearchType, formatSearchData, formatCompanyResults } from './utils';
+import { getCachedApiData, setCachedApiData } from '../mongodbUtils';
 
-// 簡單的內存緩存實現
-const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 60 * 60 * 1000; // 1小時緩存
-
-// 從緩存獲取數據或發起新請求
-async function fetchWithCache(key: string, fetcher: () => Promise<any>) {
-  const now = Date.now();
-  const cachedItem = cache.get(key);
-  
-  if (cachedItem && now - cachedItem.timestamp < CACHE_TTL) {
-    return cachedItem.data;
-  }
-  
-  const data = await fetcher();
-  cache.set(key, { data, timestamp: now });
-  return data;
-}
+// 集合名稱和 TTL 設定
+const G0V_COMPANY_API_CACHE_COLLECTION = 'g0v_company_api_cache';
+const PCC_API_CACHE_COLLECTION = 'pcc_api_cache'; // 用於 fetchTenderInfo
+const TWINCN_API_CACHE_COLLECTION = 'twincn_api_cache'; // 用於 fetchListedCompany
+const CACHE_TTL_SECONDS = 24 * 60 * 60; // 24 小時
 
 export async function fetchCompanySearch(query: string, page: number = 1): Promise<{
   companies: CompanyData[];
   totalPages: number;
 }> {
   const searchType = determineSearchType(query);
-  const cacheKey = `search_${searchType}_${query}_${page}`;
-  
+  // cacheKey 的定義將在 fetchSearchData 內部處理，因為它依賴於 API URL
+
   try {
-    return await fetchWithCache(cacheKey, async () => {
-      if (searchType === 'taxId') {
-        const response = await fetchSearchData('taxId', query);
-        if (!response || !response.data) {
-          throw new Error('找不到符合的公司！');
-        }
-        
-        response.data.統一編號 = query;
-        const company = formatSearchData(response.data);
-        const tenderInfo = await fetchTenderInfo(company.taxId);
-        
-        return {
-          companies: [{
-            ...company,
-            tenderCount: tenderInfo.count,
-          }],
-          totalPages: 1
-        };
-      } else {
-        let response = await fetchSearchData('name', query, page);
-        let formattedResults = await formatCompanyResults('name', response);
-  
-        if (formattedResults.length === 0) {
-          response = await fetchSearchData('chairman', query, page);
-          formattedResults = await formatCompanyResults('chairman', response);
-        }
-  
-        if (formattedResults.length === 0) {
-          throw new Error('找不到符合的公司！');
-        }
-  
-        return {
-          companies: formattedResults,
-          totalPages: Math.ceil((response.found || 0) / 10) || 1
-        };
+    // fetchWithCache 的邏輯將直接整合到 fetchSearchData 和其他函數中
+    if (searchType === 'taxId') {
+      const response = await fetchSearchData('taxId', query); // page 在 taxId 搜尋時通常不適用於 g0v API，但在我們的快取鍵中可能仍有用
+      if (!response || !response.data) {
+        throw new Error('找不到符合的公司！');
       }
-    });
+      
+      response.data.統一編號 = query; // 確保 taxId 存在
+      const company = formatSearchData(response.data);
+      const tenderInfo = await fetchTenderInfo(company.taxId); // fetchTenderInfo 也會使用快取
+      
+      return {
+        companies: [{
+          ...company,
+          tenderCount: tenderInfo.count,
+        }],
+        totalPages: 1 // taxId 搜尋通常只有一頁
+      };
+    } else { // name or chairman
+      let response = await fetchSearchData('name', query, page);
+      let formattedResults = await formatCompanyResults('name', response);
+
+      if (formattedResults.length === 0) {
+        response = await fetchSearchData('chairman', query, page);
+        formattedResults = await formatCompanyResults('chairman', response);
+      }
+
+      if (formattedResults.length === 0) {
+        throw new Error('找不到符合的公司！');
+      }
+
+      return {
+        companies: formattedResults,
+        totalPages: Math.ceil((response.found || 0) / 10) || 1
+      };
+    }
   } catch (error) {
     console.error('搜尋失敗：', error);
     throw error instanceof Error ? error : new Error('搜尋過程發生錯誤，請稍後再試。');
@@ -74,139 +62,144 @@ export async function fetchCompanySearch(query: string, page: number = 1): Promi
 
 async function fetchSearchData(type: 'taxId' | 'name' | 'chairman', query: string, page: number = 1): Promise<any> {
   const baseUrl = 'https://company.g0v.ronny.tw/api';
-  const endpoints = {
-    taxId: `${baseUrl}/show/${query}`,
-    name: `${baseUrl}/search?q=${encodeURIComponent(query)}&page=${page}`,
-    chairman: `${baseUrl}/name?q=${encodeURIComponent(query)}&page=${page}`
-  };
+  let apiUrl: string;
+  switch (type) {
+    case 'taxId':
+      apiUrl = `${baseUrl}/show/${query}`;
+      break;
+    case 'name':
+      apiUrl = `${baseUrl}/search?q=${encodeURIComponent(query)}&page=${page}`;
+      break;
+    case 'chairman':
+      apiUrl = `${baseUrl}/name?q=${encodeURIComponent(query)}&page=${page}`;
+      break;
+    default:
+      throw new Error('無效的搜尋類型');
+  }
+  const apiKey = apiUrl;
 
-  const cacheKey = `api_${type}_${query}_${page}`;
-  
-  return fetchWithCache(cacheKey, async () => {
-    try {
-      const response = await fetch(endpoints[type], {
-        next: { revalidate: 3600 }, // 使用Next.js的資料重驗證功能，每小時更新一次
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  const cachedData = await getCachedApiData<any>(G0V_COMPANY_API_CACHE_COLLECTION, apiKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  try {
+    const response = await fetch(apiKey, {
+      // next: { revalidate: 3600 }, // Next.js revalidate 由我們的快取機制取代
+      headers: {
+        'Accept': 'application/json'
       }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw new Error('無法連接到搜尋服務，請稍後再試');
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  });
+    
+    const data = await response.json();
+    if (data) {
+      await setCachedApiData(G0V_COMPANY_API_CACHE_COLLECTION, apiKey, data, CACHE_TTL_SECONDS);
+    }
+    return data;
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw new Error('無法連接到搜尋服務，請稍後再試');
+  }
 }
 
-/**
- * 從外部API獲取公司詳細資料
- * @param taxId 統一編號
- * @returns 格式化後的公司詳細資料
- */
 export async function fetchCompanyDetail(taxId: string): Promise<CompanyData | null> {
-  const cacheKey = `detail_${taxId}`;
-  
-  return fetchWithCache(cacheKey, async () => {
-    try {
-      // 使用絕對基礎 URL
-      const g0vBaseUrl = 'https://company.g0v.ronny.tw/api';
-      
-      // 並行獲取基本資料和上市公司資料
-      const [basicRes, listedRes] = await Promise.allSettled([
-        fetch(`${g0vBaseUrl}/show/${taxId}`, { next: { revalidate: 86400 } }), // 每天更新一次
-        fetchListedCompany(taxId)
-      ]);
-  
-      // 處理基本資料
-      const basicData = basicRes.status === 'fulfilled' 
-        ? await basicRes.value.json()
-        : { data: {} };
-        
-      // 處理上市公司資料
-      const listedData = listedRes.status === 'fulfilled' 
-        ? listedRes.value
-        : { data: {} };
-  
-      // 合併資料
-      const companyRawData = {
-        ...basicData.data,
-        ...listedData
-      };
-  
-      // 格式化資料
-      return formatDetailData(taxId, companyRawData);
-    } catch (error) {
-      console.error('獲取公司詳細資料失敗：', error);
-      return null;
+  const g0vApiUrl = `https://company.g0v.ronny.tw/api/show/${taxId}`;
+  const apiKeyG0v = g0vApiUrl;
+
+  try {
+    // 1. 獲取 G0V 公司基本資料 (快取或 API)
+    let basicDataResponse = await getCachedApiData<any>(G0V_COMPANY_API_CACHE_COLLECTION, apiKeyG0v);
+    if (!basicDataResponse) {
+      const fetchRes = await fetch(g0vApiUrl, { /* headers: { 'Accept': 'application/json' } */ });
+      if (!fetchRes.ok) throw new Error(`G0V API error for basic data: ${fetchRes.status}`);
+      basicDataResponse = await fetchRes.json();
+      if (basicDataResponse) {
+        await setCachedApiData(G0V_COMPANY_API_CACHE_COLLECTION, apiKeyG0v, basicDataResponse, CACHE_TTL_SECONDS);
+      }
     }
-  });
+    const basicData = basicDataResponse?.data || {};
+
+    // 2. 獲取上市公司資料 (fetchListedCompany 內部會處理自己的快取)
+    const listedData = await fetchListedCompany(taxId);
+    
+    const companyRawData = {
+      ...basicData,
+      ...(listedData || {}), // Ensure listedData is an object
+    };
+
+    return formatDetailData(taxId, companyRawData);
+  } catch (error) {
+    console.error('獲取公司詳細資料失敗：', error);
+    return null;
+  }
 }
 
-/**
- * 獲取上市公司資料
- * @param taxId 統一編號
- * @returns 上市公司資料
- */
 async function fetchListedCompany(taxId: string) {
-  const cacheKey = `listed_${taxId}`;
-  
-  return fetchWithCache(cacheKey, async () => {
-    try {
-      // 創建適用於服務器端和客戶端的 URL
-      let url: string;
-      
-      // 檢查是否在服務器端運行
-      if (typeof window === 'undefined') {
-        // 服務器端 - 使用環境變量或默認值
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-        url = `${baseUrl}/api/company/twincn?no=${taxId}`;
-      } else {
-        // 客戶端 - 可以使用相對路徑
-        url = `/api/company/twincn?no=${taxId}`;
-      }
-      
-      const response = await fetch(url, {
-        next: { revalidate: 86400 } // 每天更新一次
-      });
-      
-      if (!response.ok) {
-        console.error(`上市公司資料請求失敗，狀態碼：${response.status}`);
-        return { data: {} };
-      }
-      
-      // 解析 HTML 內容
-      const html = await response.text();
-      return parseTwcnHtml(html);
-    } catch (error) {
-      console.error('獲取上市公司資料失敗：', error);
-      return { data: {} };
+  // URL 構造與原邏輯保持一致，代理 API 路徑
+  let internalApiUrl: string;
+  if (typeof window === 'undefined') {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+    internalApiUrl = `${baseUrl}/api/company/twincn?no=${taxId}`;
+  } else {
+    internalApiUrl = `/api/company/twincn?no=${taxId}`;
+  }
+  const apiKey = `twincn_${taxId}`; // 快取鍵使用統編，因為代理 API 的 URL 可能因環境而異
+
+  const cachedData = await getCachedApiData<string>(TWINCN_API_CACHE_COLLECTION, apiKey);
+  if (cachedData) {
+    return parseTwcnHtml(cachedData); // 解析快取的 HTML
+  }
+
+  try {
+    const response = await fetch(internalApiUrl, {
+      // next: { revalidate: 86400 } // 由 MongoDB 快取取代
+    });
+    
+    if (!response.ok) {
+      console.error(`上市公司資料請求失敗，狀態碼：${response.status}`);
+      return { data: {} }; // 維持原有錯誤處理返回結構
     }
-  });
+    
+    const html = await response.text();
+    if (html) {
+      await setCachedApiData(TWINCN_API_CACHE_COLLECTION, apiKey, html, CACHE_TTL_SECONDS);
+    }
+    return parseTwcnHtml(html);
+  } catch (error) {
+    console.error('獲取上市公司資料失敗：', error);
+    return { data: {} }; // 維持原有錯誤處理返回結構
+  }
 }
 
 export async function fetchTenderInfo(taxId: string): Promise<{ count: number; }> {
-  const cacheKey = `tender_${taxId}`;
-  
-  return fetchWithCache(cacheKey, async () => {
-    try {
-      const response = await fetch(`https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}`, {
-        next: { revalidate: 86400 } // 每天更新一次
-      });
-      
-      if (!response.ok) {
-        throw new Error(`標案查詢失敗：狀態碼 ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return { count: data.total_records || 0 };
-    } catch (error) {
-      console.error('載入標案資料失敗：', error);
-      return { count: 0 };
+  const apiUrl = `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}`;
+  const apiKey = apiUrl;
+
+  const cachedData = await getCachedApiData<any>(PCC_API_CACHE_COLLECTION, apiKey);
+  if (cachedData) {
+    return { count: cachedData.total_records || 0 };
+  }
+
+  try {
+    const response = await fetch(apiKey, {
+      // next: { revalidate: 86400 } // 由 MongoDB 快取取代
+    });
+    
+    if (!response.ok) {
+      throw new Error(`標案查詢失敗：狀態碼 ${response.status}`);
     }
-  });
+    
+    const data = await response.json();
+    if (data) {
+      await setCachedApiData(PCC_API_CACHE_COLLECTION, apiKey, data, CACHE_TTL_SECONDS);
+    }
+    return { count: data.total_records || 0 };
+  } catch (error) {
+    console.error('載入標案資料失敗：', error);
+    return { count: 0 };
+  }
 }

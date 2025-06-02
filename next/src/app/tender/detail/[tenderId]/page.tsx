@@ -1,12 +1,16 @@
 import { Metadata } from 'next';
 import TenderDetail from '@/components/tender/TenderDetail';
 import { staticTitles, dynamicTitles } from '@/config/pageTitles';
+import { getCachedApiData, setCachedApiData } from '@/lib/mongodbUtils';
 
 interface TenderDetailPageProps {
   params: {
     tenderId: string;
   };
 }
+
+const PCC_API_CACHE_COLLECTION = 'pcc_api_cache';
+const CACHE_TTL_SECONDS = 24 * 60 * 60; // 24 小時
 
 export async function generateMetadata({ params }: TenderDetailPageProps): Promise<Metadata> {
   try {
@@ -15,20 +19,41 @@ export async function generateMetadata({ params }: TenderDetailPageProps): Promi
     const unitId = tenderId.substring(0, firstUnderscoreIndex);
     const jobNumber = tenderId.substring(firstUnderscoreIndex + 1);
 
-    // 獲取標案基本資訊以用於 SEO
-    const response = await fetch(
-      `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`,
-      { next: { revalidate: 86400 } } // 一天重新驗證一次
-    );
+    const apiUrl = `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`;
+    const apiKey = apiUrl;
 
-    if (!response.ok) {
+    let data: any; // 宣告 data 變數於 try 外部，使其可在 try-catch-finally 中被存取
+
+    // 1. 嘗試從 MongoDB 快取獲取資料
+    const cachedData = await getCachedApiData<any>(PCC_API_CACHE_COLLECTION, apiKey);
+    if (cachedData) {
+      data = cachedData;
+    } else {
+      // 2. 若快取未命中，則發送 API 請求
+      const response = await fetch(apiUrl,
+        // { next: { revalidate: 86400 } } // Next.js revalidate 由我們的快取機制取代
+      );
+
+      if (!response.ok) {
+        return {
+          title: staticTitles.tenderDetailError,
+          description: '您所查詢的標案資料不存在或發生錯誤。'
+        };
+      }
+      data = await response.json();
+      // 3. 將獲取的資料存入 MongoDB 快取
+      if (data) {
+        await setCachedApiData(PCC_API_CACHE_COLLECTION, apiKey, data, CACHE_TTL_SECONDS);
+      }
+    }
+
+    if (!data || !data.records || data.records.length === 0) {
       return {
-        title: staticTitles.tenderDetailError,
-        description: '您所查詢的標案資料不存在或發生錯誤。'
+          title: staticTitles.tenderDetailError,
+          description: '查無標案資料或資料格式錯誤。'
       };
     }
 
-    const data = await response.json();
     const latestRecord = data.records[data.records.length - 1];
     
     return {

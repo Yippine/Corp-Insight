@@ -1,0 +1,36 @@
+# Business Magnifier 開發環境 Dockerfile
+# 專為開發環境設計，支援熱重載和除錯
+
+FROM node:18-alpine
+
+# 安裝必要的系統依賴
+RUN apk add --no-cache libc6-compat git
+
+# 設定工作目錄
+WORKDIR /app
+
+# 複製 package 檔案
+COPY package.json package-lock.json* ./
+
+# 安裝依賴 (包含開發依賴)
+RUN npm ci
+
+# 複製原始碼
+COPY . .
+
+# 設定開發環境變數
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# 暴露開發伺服器埠號
+EXPOSE 3000
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+# 安裝 curl 用於健康檢查
+RUN apk add --no-cache curl
+
+# 啟動開發伺服器
+CMD ["npm", "run", "dev"]

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
 import { Buffer } from 'buffer'; // Needed for file buffer
+import { logFeedbackSubmission } from '@/lib/mongodbUtils'; // 導入
 
 interface VerificationTokenPayload {
   email: string;
@@ -187,6 +188,20 @@ export async function POST(request: NextRequest) {
       // Log this error. Even if this fails, the feedback was sent to the developer.
       // You might want to inform the user that confirmation couldn't be sent but feedback was received.
     }
+
+    // Log the feedback submission to MongoDB before returning success to user
+    const submissionDataForLog = {
+      type,
+      title,
+      content,
+      email,
+      fileName: file ? file.name : null,
+      fileSize: file ? file.size : null,
+      fileType: file ? file.type : null,
+      developer_email_sent: true, // Assuming it was successful if we reached here
+      user_confirmation_email_sent: true, // Assuming successful or logging error above
+    };
+    await logFeedbackSubmission(submissionDataForLog);
 
     return NextResponse.json({ message: '您的意見回饋已成功提交！感謝您的寶貴意見。' }, { status: 200 });
 

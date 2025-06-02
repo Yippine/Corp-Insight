@@ -71,32 +71,35 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
         const unitId = tenderId.substring(0, firstUnderscoreIndex);
         const jobNumber = tenderId.substring(firstUnderscoreIndex + 1);
 
-        // 檢查 URL 參數 (使用 window.location.search)
+        const apiUrl = `/api/tender-detail-proxy?unit_id=${unitId}&job_number=${jobNumber}`;
+
         const urlParams = new URLSearchParams(window.location.search);
         const dateParam = urlParams.get('date');
         const typeParam = urlParams.get('type');
 
-        const response = await fetch(
-          `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`
-        );
+        const response = await fetch(apiUrl);
         if (!response.ok) throw new Error('無法取得標案資料');
 
-        const result: TenderDetail = await response.json();
-        setData(result);
+        const result: TenderDetail | { error: string; details?: string } = await response.json();
 
-        // 精確匹配邏輯
+        if ('error' in result) {
+          throw new Error(result.details || result.error || '無法取得標案資料');
+        }
+        
+        setData(result as TenderDetail);
+
         const findTargetRecord = () => {
           if (dateParam && typeParam) {
-            return result.records.find(record => 
+            return (result as TenderDetail).records.find(record => 
               formatDate(record.date) === dateParam && 
               record.brief.type === decodeURIComponent(typeParam)
             );
           }
-          if (dateParam) return result.records.find(r => formatDate(r.date) === dateParam);
-          return result.records[result.records.length - 1];
+          if (dateParam) return (result as TenderDetail).records.find(r => formatDate(r.date) === dateParam);
+          return (result as TenderDetail).records[(result as TenderDetail).records.length - 1];
         };
 
-        const target = findTargetRecord() || result.records[0];
+        const target = findTargetRecord() || (result as TenderDetail).records[0];
         setTargetRecord(target);
         setSections(parseTenderDetail(target.detail));
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
+import { logEmailVerification } from '@/lib/mongodbUtils';
 
 // Helper function to generate a random 6-digit code
 function generateVerificationCode(): string {
@@ -82,12 +83,30 @@ export async function POST(request: NextRequest) {
     try {
       await transporter.sendMail(mailOptions);
       console.log('Verification email sent to:', email);
+      
+      // Log successful email verification to MongoDB
+      const sentAt = new Date();
+      const decodedTokenForLog = jwt.decode(token) as { exp?: number };
+      const jwtExpiresAt = decodedTokenForLog?.exp ? new Date(decodedTokenForLog.exp * 1000) : new Date(sentAt.getTime() + 10 * 60 * 1000);
+      await logEmailVerification(email, token, true, sentAt, jwtExpiresAt);
+
       return NextResponse.json({ 
         message: '驗證碼已成功發送至您的電子郵件。請檢查您的收件匣。' , 
         verificationToken: token // Return the JWT to the client
       }, { status: 200 });
     } catch (error) {
       console.error('Error sending email:', error);
+
+      // Log failed email verification attempt to MongoDB
+      const sentAt = new Date(); // 或許可以設為 null 或特定的失敗時間
+      // JWT 可能未成功生成，或者已生成但發送失敗
+      const decodedTokenForLog = token ? jwt.decode(token) as { exp?: number } : null;
+      const jwtExpiresAt = decodedTokenForLog?.exp 
+        ? new Date(decodedTokenForLog.exp * 1000) 
+        : new Date(sentAt.getTime() + 10 * 60 * 1000); // 預計的過期時間
+      // 即使郵件發送失敗，也記錄嘗試和生成的token (如果有的話)
+      await logEmailVerification(email, token || 'generation_failed', false, sentAt, jwtExpiresAt);
+
       // Check for specific Nodemailer errors if needed
       if (error instanceof Error && error.message.includes('Invalid login')) {
         return NextResponse.json({ message: '郵件伺服器認證失敗，請檢查管理員配置。' }, { status: 500 });

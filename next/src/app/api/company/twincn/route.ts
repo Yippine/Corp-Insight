@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCachedApiData, setCachedApiData } from '@/lib/mongodbUtils';
+
+const TWINCN_API_CACHE_COLLECTION = 'twincn_api_cache';
+const CACHE_TTL_SECONDS = 24 * 60 * 60; // 24 小時
 
 /**
  * 處理對台灣企業網的代理請求
@@ -19,8 +23,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 向台灣企業網發送請求
-    const response = await fetch(`https://p.twincn.com/item.aspx?no=${taxId}`, {
+    const apiKey = `twincn_${taxId}`; // 使用 taxId 構造唯一的快取鍵
+
+    // 1. 嘗試從 MongoDB 快取獲取 HTML 資料
+    const cachedHtml = await getCachedApiData<string>(TWINCN_API_CACHE_COLLECTION, apiKey);
+    if (cachedHtml) {
+      return new NextResponse(cachedHtml, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+          'X-Cache-Status': 'HIT' // 可選：添加快取狀態頭
+        }
+      });
+    }
+
+    // 2. 若快取未命中，則向台灣企業網發送請求
+    const externalApiUrl = `https://p.twincn.com/item.aspx?no=${taxId}`;
+    const response = await fetch(externalApiUrl, {
       headers: {
         // 模擬瀏覽器請求，避免反爬蟲機制
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -29,15 +48,20 @@ export async function GET(request: NextRequest) {
         'Referer': 'https://p.twincn.com/',
         'Origin': 'https://p.twincn.com'
       },
-      cache: 'no-store'
+      // cache: 'no-store' // Next.js fetch cache 由我們的 MongoDB 快取處理
     });
 
     if (!response.ok) {
       throw new Error(`台灣企業網請求失敗：${response.status} ${response.statusText}`);
     }
 
-    // 獲取並返回 HTML 內容
     const html = await response.text();
+
+    // 3. 將獲取的 HTML 存入 MongoDB 快取
+    if (html) {
+      await setCachedApiData(TWINCN_API_CACHE_COLLECTION, apiKey, html, CACHE_TTL_SECONDS);
+    }
+
     return new NextResponse(html, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',

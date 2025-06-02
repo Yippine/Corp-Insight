@@ -24,12 +24,12 @@ services:
       retries: 3
       start_period: 40s
 
-  # Next.js 應用程式服務 (可選，主要用於生產環境測試)
-  app:
+  # Next.js 開發環境服務
+  app-dev:
     build: 
       context: .
-      dockerfile: Dockerfile
-    container_name: business-magnifier-app
+      dockerfile: Dockerfile.dev
+    container_name: business-magnifier-app-dev
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -39,17 +39,44 @@ services:
       - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY:-}
       - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-for-dev}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - business-magnifier-network
     profiles:
-      - full-stack  # 使用 profile 讓應用程式容器為可選
+      - dev  # 開發環境 profile
+
+  # Next.js 生產環境服務 (用於生產環境測試)
+  app-prod:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: business-magnifier-app-prod
+    restart: unless-stopped
+    ports:
+      - "3001:3000"  # 使用不同埠號避免衝突
+    environment:
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
+      - NODE_ENV=production
+      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY:-}
+      - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
+      - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-for-prod}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - business-magnifier-network
+    profiles:
+      - prod  # 生產環境測試 profile
 
   # MongoDB Express (資料庫管理介面，開發環境使用)
   mongo-express:
-    image: mongo-express:1.0.0
+    image: mongo-express:latest
     container_name: business-magnifier-mongo-express
     restart: unless-stopped
     ports:
@@ -59,13 +86,16 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: password
       ME_CONFIG_MONGODB_URL: mongodb://admin:password@mongodb:27017/
       ME_CONFIG_BASICAUTH: false
+      ME_CONFIG_BASICAUTH_USERNAME: ""
+      ME_CONFIG_BASICAUTH_PASSWORD: ""
+      ME_CONFIG_SITE_BASEURL: "/"
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - business-magnifier-network
     profiles:
-      - tools  # 使用 profile 讓管理介面為可選
+      - tools  # 管理工具 profile
 
 # 資料卷
 volumes:

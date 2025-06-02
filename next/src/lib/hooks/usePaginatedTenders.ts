@@ -9,10 +9,13 @@ export function usePaginatedTenders(taxId: string) {
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
 
   const fetchTenderPage = useCallback(async (page: number, signal: AbortSignal) => {
+    const apiUrl = `/api/tender-search-proxy?taxId=${taxId}&page=${page}`;
+
     try {
       console.log(`正在發查第 ${page} 頁的標案資料 (taxId: ${taxId})...`);
+
       const response = await fetch(
-        `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}&page=${page}`,
+        apiUrl,
         {
           mode: 'cors',
           headers: {
@@ -26,11 +29,16 @@ export function usePaginatedTenders(taxId: string) {
       }
       const data = await response.json();
       
+      if (data.error) {
+        throw new Error(data.details || data.error || '無法取得標案資料');
+      }
+
       if (!data.records) {
         throw new Error('無法取得標案資料');
       }
 
       console.log(`第 ${page} 頁資料載入成功，筆數：${data.records.length}`);
+
       return {
         tenders: data.records.map((record: any) => {
           const companies = record.brief.companies;
@@ -69,6 +77,9 @@ export function usePaginatedTenders(taxId: string) {
         console.log(`第 ${page} 頁標案資料查詢被中止 (taxId: ${taxId})`);
       } else {
         console.error(`載入第 ${page} 頁標案資料失敗 (taxId: ${taxId})：`, error);
+        if (!((error as Error).name === 'AbortError')) {
+          setError(error instanceof Error ? error.message : '載入標案資料時發生錯誤');
+        }
       }
       throw error;
     }
@@ -130,7 +141,9 @@ export function usePaginatedTenders(taxId: string) {
         console.log(`標案資料查詢被中止 (taxId: ${taxId})`);
       } else {
         console.error(`載入標案資料時發生錯誤 (taxId: ${taxId})：`, error);
-        setError(error instanceof Error ? error.message : '載入標案資料時發生錯誤');
+        if (!((error as Error).name === 'AbortError')) {
+          setError(error instanceof Error ? error.message : '載入標案資料時發生錯誤');
+        }
       }
       setIsFullyLoaded(false);
     } finally {

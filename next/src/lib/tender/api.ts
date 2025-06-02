@@ -1,6 +1,10 @@
 import { SearchType, TenderSearchResult } from './types';
 import { getCompanyLabel, getTenderLabel } from './labels';
 import { formatDate } from '../utils/formatters';
+import { getCachedApiData, setCachedApiData } from '../mongodbUtils';
+
+const PCC_API_CACHE_COLLECTION = 'pcc_api_cache';
+const CACHE_TTL_SECONDS = 24 * 60 * 60;
 
 export async function fetchTenderSearch(query: string, searchType: SearchType, page: number = 1): Promise<{
   results: TenderSearchResult[];
@@ -34,8 +38,15 @@ async function fetchSearchData(type: SearchType, query: string, page: number = 1
       : `${baseUrl}/searchbycompanyname?query=${encodeURIComponent(query)}&page=${page}`
   };
 
+  const apiKey = endpoints[type];
+
+  const cachedData = await getCachedApiData<any>(PCC_API_CACHE_COLLECTION, apiKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   try {
-    const response = await fetch(endpoints[type], {
+    const response = await fetch(apiKey, {
       mode: 'cors',
       headers: {
         'Accept': 'application/json'
@@ -46,7 +57,13 @@ async function fetchSearchData(type: SearchType, query: string, page: number = 1
       throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+
+    if (data) {
+      await setCachedApiData(PCC_API_CACHE_COLLECTION, apiKey, data, CACHE_TTL_SECONDS);
+    }
+
+    return data;
   } catch (error) {
     console.error('API 請求失敗：', error);
     throw new Error('無法連線到標案搜尋服務，請稍後再試');
