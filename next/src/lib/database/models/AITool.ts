@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { getDb } from '@/lib/mongodbUtils';
+import { Collection, ObjectId } from 'mongodb';
 
 // AI 工具資料介面定義
 export interface IAITool extends Document {
@@ -308,3 +310,221 @@ AIToolSchema.set('toObject', { virtuals: true });
 const AITool: Model<IAITool> = mongoose.models.AITool || mongoose.model<IAITool>('AITool', AIToolSchema);
 
 export default AITool;
+
+export interface AIToolDocument {
+  _id?: ObjectId;
+  id: string;
+  name: string;
+  description: string;
+  icon: string; // 儲存 icon 名稱而非函數
+  tags: string[];
+  instructions: {
+    what: string;
+    why: string;
+    how: string;
+  };
+  placeholder: string;
+  promptTemplate: {
+    prefix: string;
+    suffix: string;
+  };
+  category?: string;
+  subCategory?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class AIToolModel {
+  private static collectionName = 'ai_tools';
+
+  private static async getCollection(): Promise<Collection<AIToolDocument>> {
+    const db = await getDb();
+    return db.collection<AIToolDocument>(this.collectionName);
+  }
+
+  // 獲取所有啟用的 AI 工具
+  static async getAllActive(): Promise<AIToolDocument[]> {
+    try {
+      const collection = await this.getCollection();
+      return await collection
+        .find({ isActive: true })
+        .sort({ createdAt: 1 })
+        .toArray();
+    } catch (error) {
+      console.error('Error fetching AI tools:', error);
+      return [];
+    }
+  }
+
+  // 根據 ID 獲取工具
+  static async getById(id: string): Promise<AIToolDocument | null> {
+    try {
+      const collection = await this.getCollection();
+      return await collection.findOne({ id, isActive: true });
+    } catch (error) {
+      console.error('Error fetching AI tool by ID:', error);
+      return null;
+    }
+  }
+
+  // 根據標籤搜尋工具
+  static async getByTags(tags: string[]): Promise<AIToolDocument[]> {
+    try {
+      const collection = await this.getCollection();
+      return await collection
+        .find({ 
+          tags: { $in: tags },
+          isActive: true 
+        })
+        .sort({ createdAt: 1 })
+        .toArray();
+    } catch (error) {
+      console.error('Error fetching AI tools by tags:', error);
+      return [];
+    }
+  }
+
+  // 搜尋工具（名稱或描述）
+  static async search(query: string): Promise<AIToolDocument[]> {
+    try {
+      const collection = await this.getCollection();
+      return await collection
+        .find({
+          $and: [
+            { isActive: true },
+            {
+              $or: [
+                { name: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } }
+              ]
+            }
+          ]
+        })
+        .sort({ createdAt: 1 })
+        .toArray();
+    } catch (error) {
+      console.error('Error searching AI tools:', error);
+      return [];
+    }
+  }
+
+  // 創建新工具
+  static async create(toolData: Omit<AIToolDocument, '_id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
+    try {
+      const collection = await this.getCollection();
+      const now = new Date();
+      const result = await collection.insertOne({
+        ...toolData,
+        createdAt: now,
+        updatedAt: now
+      });
+      return result.insertedId.toString();
+    } catch (error) {
+      console.error('Error creating AI tool:', error);
+      return null;
+    }
+  }
+
+  // 更新工具
+  static async update(id: string, updateData: Partial<Omit<AIToolDocument, '_id' | 'id' | 'createdAt'>>): Promise<boolean> {
+    try {
+      const collection = await this.getCollection();
+      const result = await collection.updateOne(
+        { id },
+        { 
+          $set: {
+            ...updateData,
+            updatedAt: new Date()
+          }
+        }
+      );
+      return result.modifiedCount > 0;
+    } catch (error) {
+      console.error('Error updating AI tool:', error);
+      return false;
+    }
+  }
+
+  // 軟刪除工具
+  static async softDelete(id: string): Promise<boolean> {
+    try {
+      const collection = await this.getCollection();
+      const result = await collection.updateOne(
+        { id },
+        { 
+          $set: {
+            isActive: false,
+            updatedAt: new Date()
+          }
+        }
+      );
+      return result.modifiedCount > 0;
+    } catch (error) {
+      console.error('Error soft deleting AI tool:', error);
+      return false;
+    }
+  }
+
+  // 批量插入工具（用於資料遷移）
+  static async insertMany(tools: Omit<AIToolDocument, '_id' | 'createdAt' | 'updatedAt'>[]): Promise<boolean> {
+    try {
+      const collection = await this.getCollection();
+      const now = new Date();
+      const toolsWithTimestamps = tools.map(tool => ({
+        ...tool,
+        createdAt: now,
+        updatedAt: now
+      }));
+      
+      const result = await collection.insertMany(toolsWithTimestamps);
+      return result.insertedCount === tools.length;
+    } catch (error) {
+      console.error('Error batch inserting AI tools:', error);
+      return false;
+    }
+  }
+
+  // 清空所有工具（謹慎使用）
+  static async deleteAll(): Promise<boolean> {
+    try {
+      const collection = await this.getCollection();
+      await collection.deleteMany({});
+      return true;
+    } catch (error) {
+      console.error('Error deleting all AI tools:', error);
+      return false;
+    }
+  }
+
+  // 創建索引以提升查詢效能
+  static async createIndexes(): Promise<void> {
+    try {
+      const collection = await this.getCollection();
+      
+      // 為常用查詢字段創建索引
+      await collection.createIndex({ id: 1 }, { unique: true });
+      await collection.createIndex({ tags: 1 });
+      await collection.createIndex({ isActive: 1 });
+      await collection.createIndex({ createdAt: 1 });
+      
+      // 文字搜尋索引
+      await collection.createIndex(
+        { 
+          name: 'text', 
+          description: 'text' 
+        },
+        { 
+          weights: { 
+            name: 10, 
+            description: 5 
+          } 
+        }
+      );
+      
+      console.log('AI Tools indexes created successfully');
+    } catch (error) {
+      console.error('Error creating AI tools indexes:', error);
+    }
+  }
+}

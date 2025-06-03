@@ -35,7 +35,11 @@
     "// === 資料庫相關指令 ===": "",
     "db:connect": "mongosh mongodb://localhost:27017/business-magnifier",
     "db:connect-docker": "mongosh mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin",
-    "migrate:aitools": "npx ts-node src/lib/database/migration/migrateAITools.ts",
+    
+    "// === 新增：AI 工具遷移指令 ===": "",
+    "migrate-tools": "node scripts/migrate-tools.js",
+    "migrate-tools:clean": "node scripts/migrate-tools.js --clean",
+    "migrate-tools:help": "node scripts/migrate-tools.js --help",
     
     "// === 快速啟動指令 (推薦使用) ===": "",
     "start:dev": "npm run docker:full-dev",

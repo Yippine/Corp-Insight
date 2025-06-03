@@ -5,14 +5,24 @@ import { Search, RefreshCw } from 'lucide-react';
 interface NoSearchResultsProps {
   message?: string;
   searchTerm?: string;
+  query?: string;
+  tag?: string;
   onReset?: () => void;
+  onClear?: () => void;
 }
 
 export default function NoSearchResults({
   message = '很抱歉，我們找不到符合您搜尋條件的結果。',
   searchTerm,
-  onReset
+  query,
+  tag,
+  onReset,
+  onClear
 }: NoSearchResultsProps) {
+  // 使用 query 或 searchTerm，優先使用 query
+  const displayTerm = query || searchTerm;
+  const handleReset = onClear || onReset;
+
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg p-12">
       <div className="text-center space-y-4">
@@ -27,8 +37,14 @@ export default function NoSearchResults({
               <br />
             </>
           )}
-          {searchTerm && (
-            <span className="font-medium">「{searchTerm}」</span>
+          {displayTerm && (
+            <span className="font-medium">搜尋詞：「{displayTerm}」</span>
+          )}
+          {tag && (
+            <>
+              {displayTerm && <br />}
+              <span className="font-medium">標籤：「{tag}」</span>
+            </>
           )}
         </p>
         <div className="space-y-4">
@@ -37,15 +53,16 @@ export default function NoSearchResults({
             <li>• 檢查關鍵字是否有誤字</li>
             <li>• 嘗試使用不同的關鍵字</li>
             <li>• 使用較寬鬆的搜尋條件</li>
+            <li>• 清除篩選條件重新搜尋</li>
           </ul>
         </div>
-        {onReset && (
+        {handleReset && (
           <button 
             className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800"
-            onClick={onReset}
+            onClick={handleReset}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            重新整理
+            清除篩選
           </button>
         )}
       </div>

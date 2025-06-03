@@ -3,97 +3,240 @@ description: **描述**: 完整的 MongoDB 遷移實施指南，涵蓋從 Postgr
 globs: 
 alwaysApply: false
 ---
-# MongoDB 遷移指南 🚀
+# MongoDB 遷移與 AI 工具管理指南 🚀
 
-本指南將協助您從 PostgreSQL + Prisma 架構遷移到 MongoDB + Mongoose 架構。
+本指南將協助您建立 MongoDB 資料庫並將 AI 工具資料從靜態檔案遷移到動態資料庫管理。
 
 ## 📋 遷移概述
 
-### 為什麼選擇 MongoDB？
+### 為什麼使用 MongoDB？
 
-1. **JSON 原生支援** - 企業資料、標案資料本身就是 JSON 格式
-2. **靈活的 Schema** - 適應不同企業的資料結構差異
+1. **JSON 原生支援** - AI 工具資料本身就是 JSON 格式，適合 NoSQL
+2. **靈活的 Schema** - 適應不同工具的配置差異
 3. **水平擴展** - 支援未來 RAG 功能的向量搜尋
-4. **開發效率** - 減少 JSON ↔ 關聯式表格的轉換成本
+4. **開發效率** - 動態管理工具，無需重新部署
+5. **效能提升** - 減少程式碼體積，提升載入速度
 
 ### 遷移範圍
 
-- ✅ **AI 工具資料** - 5960 行 promptTools.ts → MongoDB
-- ✅ **企業資料模型** - 支援完整的企業資訊結構
+- ✅ **AI 工具資料** - 5960+ 行 `promptTools.ts` → MongoDB
+- ✅ **企業資料模型** - 支援完整的企業資訊結構  
 - ✅ **標案資料模型** - 標案查詢和管理
 - ✅ **使用者回饋** - 回饋收集和分析
+- ✅ **動態工具管理** - 無需重新部署即可新增/編輯工具
 
-## 🛠️ 遷移步驟
+## 🛠️ 環境準備與設定
 
-### 第一步：環境準備
+### 第一步：Docker MongoDB 環境建置
 
-#### 1.1 安裝 MongoDB
+#### 1.1 Docker 環境概述
 
-**本地開發環境：**
-```bash
-# macOS (使用 Homebrew)
-brew tap mongodb/brew
-brew install mongodb-community
+本專案使用 Docker Compose 管理完整的開發環境，包含：
 
-# Windows (使用 Chocolatey)
-choco install mongodb
+- **MongoDB 7.0** - 主要資料庫服務
+- **Mongo Express** - 資料庫管理界面
+- **Next.js 應用** - 開發和生產環境
 
-# Ubuntu/Debian
-sudo apt-get install mongodb
+#### 1.2 MongoDB Docker 配置
 
-# 啟動 MongoDB 服務
-sudo systemctl start mongod
+**服務配置** (`docker-compose.yml`)：
+```yaml
+mongodb:
+  image: mongo:7.0
+  container_name: business-magnifier:
+    - "27017:27017"
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: admin
+    MONGO_INITDB_ROOT_PASSWORD: password
+    MONGO_INITDB_DATABASE: business-magnifier
+  volumes:
+    - mongodb_data:/data/db
 ```
 
-**雲端環境 (推薦)：**
-1. 註冊 [MongoDB Atlas](mdc:https:/www.mongodb.com/cloud/atlas)
-2. 建立免費叢集 (512MB 免費額度)
-3. 設定網路存取和資料庫使用者
-4. 取得連線字串
-
-#### 1.2 更新專案依賴
-
-```bash
-cd next
-
-# 移除 Prisma 相關套件
-npm uninstall @prisma/client prisma
-
-# 安裝 MongoDB 相關套件
-npm install mongoose@^8.0.3
-npm install --save-dev @types/mongoose
+**管理界面配置**：
+```yaml
+mongo-express:
+  image: mongo-express:latest
+  ports:
+    - "8081:8081"
+  environment:
+    ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+    ME_CONFIG_MONGODB_ADMINPASSWORD: password
 ```
 
-#### 1.3 環境變數設定
+#### 1.3 Docker 環境啟動
 
-建立 `.env.local`：
+**基本 MongoDB 服務**：
+```bash
+# 只啟動 MongoDB
+npm run docker:mongo
+
+# 檢查服務狀態
+npm run docker:ps
+```
+
+**完整開發環境**：
+```bash
+# 啟動 MongoDB + Mongo Express
+npm run docker:tools
+
+# 啟動完整開發環境（推薦）
+npm run start:dev
+# 等同於：npm run docker:full-dev
+```
+
+**其他常用指令**：
+```bash
+# 查看日誌
+npm run docker:logs
+
+# 停止所有服務
+npm run stop
+# 等同於：npm run docker:down
+
+# 重新啟動服務
+npm run docker:restart
+```
+
+#### 1.4 依賴套件確認
+
+確認 `package.json` 包含必要套件：
+```json
+{
+  "dependencies": {
+    "mongoose": "^8.0.3"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.11.97"
+  }
+}
+```
+
+#### 1.5 環境變數設定
+
+**本地開發** (`.env.local`)：
 ```env
-# MongoDB 連線 (本地)
-MONGODB_URI=mongodb://localhost:27017/business-magnifier
+# Docker MongoDB 連線
+MONGODB_URI=mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
 
-# MongoDB 連線 (Atlas 雲端)
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/business-magnifier
-
-# 其他環境變數...
+# 其他必要環境變數
 GOOGLE_AI_API_KEY=your_api_key
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_maps_key
 JWT_SECRET=your_jwt_secret
 ```
 
-### 第二步：資料庫架構建立
+**Docker 容器內**：
+```env
+# 容器間通訊使用內部網路
+MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
+```
 
-#### 2.1 連線設定
+### 第二步：資料庫連線驗證
 
-檔案已建立：`src/lib/database/connection.ts`
+#### 2.1 連線測試
+
+```bash
+# 方法 1：使用 npm 腳本
+npm run db:connect-docker
+
+# 方法 2：直接使用 mongosh
+mongosh mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
+
+# 方法 3：在 MongoDB Shell 中測試
+use business-magnifier
+db.test.insertOne({message: "連線測試成功"})
+db.test.find()
+```
+
+#### 2.2 Web 管理界面
+
+啟動 Mongo Express 後，可透過瀏覽器管理資料庫：
+
+```
+URL: http://localhost:8081
+資料庫: business-magnifier
+集合: ai_tools, companies, feedbacks
+```
+
+#### 2.3 健康檢查
+
+Docker Compose 包含自動健康檢查：
+```bash
+# 檢查容器健康狀態
+docker ps --format "table {{.Names}}\t{{.Status}}"
+
+# 查看詳細健康檢查
+docker inspect business-magnifier-mongo | grep -A 5 Health
+```
+
+## 🗃️ 資料模型與架構
+
+### 第三步：資料庫架構建立
+
+#### 3.1 連線設定
+
+檔案：`src/lib/database/connection.ts`
 - ✅ 連線池管理
-- ✅ 錯誤處理
+- ✅ 錯誤處理  
 - ✅ 自動重連機制
 
-#### 2.2 資料模型定義
+```typescript
+// 主要連線功能
+export async function connectToDatabase(): Promise<typeof mongoose>
+export async function getDb(): Promise<Db>
+```
+
+#### 3.2 AI 工具資料模型
+
+檔案：`src/lib/database/models/AITool.ts`
+
+**介面定義：**
+```typescript
+interface AIToolDocument {
+  _id?: ObjectId;
+  id: string;                    // 唯一識別碼
+  name: string;                  // 工具名稱
+  description: string;           // 工具描述
+  icon: string;                  // 圖示名稱
+  tags: string[];               // 標籤陣列
+  instructions: {               // 指導說明
+    what: string;
+    why: string;
+    how: string;
+  };
+  placeholder: string;          // 輸入提示
+  promptTemplate: {             // 提示詞範本
+    prefix: string;
+    suffix: string;
+  };
+  category?: string;            // 分類
+  subCategory?: string;         // 子分類
+  isActive: boolean;           // 是否啟用
+  createdAt: Date;             // 創建時間
+  updatedAt: Date;             // 更新時間
+}
+```
+
+**模型方法：**
+```typescript
+class AIToolModel {
+  static async getAllActive(): Promise<AIToolDocument[]>
+  static async getById(id: string): Promise<AIToolDocument | null>
+  static async getByTags(tags: string[]): Promise<AIToolDocument[]>
+  static async search(query: string): Promise<AIToolDocument[]>
+  static async create(toolData: Omit<AIToolDocument, '_id' | 'createdAt' | 'updatedAt'>): Promise<string | null>
+  static async update(id: string, updateData: Partial<AIToolDocument>): Promise<boolean>
+  static async softDelete(id: string): Promise<boolean>
+  static async insertMany(tools: AIToolDocument[]): Promise<boolean>
+  static async deleteAll(): Promise<boolean>
+  static async createIndexes(): Promise<void>
+}
+```
+
+#### 3.3 其他資料模型
 
 **企業模型** (`src/lib/database/models/Company.ts`)：
 ```typescript
-// 支援完整的企業資訊結構
 interface ICompany {
   taxId: string;           // 統一編號
   name: string;            // 公司名稱
@@ -101,344 +244,616 @@ interface ICompany {
   contact: {...};          // 聯絡資訊
   directors: [...];        // 董監事
   businessScope: [...];    // 營業項目
-  // ... 更多欄位
 }
 ```
 
-**AI 工具模型** (`src/lib/database/models/AITool.ts`)：
-```typescript
-// AI 工具定義和使用統計
-interface IAITool {
-  id: string;
-  name: string;
-  config: {
-    instructions: {...};
-    promptTemplate: {...};
-  };
-  usage: {
-    totalUses: number;
-    popularityScore: number;
-  };
-  // ... 更多欄位
-}
+## 🚀 AI 工具遷移實作
+
+### 第四步：遷移工具與腳本
+
+#### 4.1 環境準備檢查
+
+**啟動 Docker 服務**：
+```bash
+# 確保 MongoDB 服務運行
+npm run docker:mongo
+
+# 檢查服務狀態
+npm run docker:ps
+
+# 應該看到類似輸出：
+# business-magnifier-mongo   Up (healthy)
 ```
 
-### 第三步：資料遷移執行
-
-#### 3.1 AI 工具遷移
-
+**連線測試**：
 ```bash
-# 執行完整的 AI 工具遷移
-npm run migrate:aitools
+# 測試資料庫連線
+npm run db:connect-docker
 
-# 或手動執行
-npx ts-node src/lib/database/migration/migrateAITools.ts
+# 在 MongoDB Shell 中執行
+show dbs
+use business-magnifier
+show collections
 ```
 
-遷移過程包含：
-1. **資料轉換** - promptTools.ts → MongoDB 文檔
-2. **分類推斷** - 自動分類 AI 工具
-3. **索引建立** - 搜尋和效能優化
-4. **驗證檢查** - 確保資料完整性
+#### 4.2 遷移腳本
 
-#### 3.2 遷移結果驗證
+檔案：`scripts/migrate-tools.js`
 
+**功能特色：**
+- 🎨 彩色終端輸出
+- 📊 詳細遷移報告
+- 🔍 智能狀態檢查
+- 🧹 資料庫清理功能
+- ⚡ 自動索引創建
+
+**使用方式：**
 ```bash
+# 確保 Next.js 開發伺服器運行
+npm run dev
+
+# 在另一個終端執行遷移
+npm run migrate-tools
+
+# 檢查遷移狀態
+npm run migrate-tools:help
+
+# 強制重新遷移（清理後遷移）
+npm run migrate-tools:clean
+```
+
+#### 4.3 遷移流程
+
+1. **環境檢查** - 確認 Docker MongoDB 服務運行
+2. **狀態檢查** - 確認當前資料庫狀態
+3. **資料轉換** - `promptTools.ts` → MongoDB 文檔格式
+4. **批量插入** - 使用 `insertMany` 提升效能
+5. **索引創建** - 自動建立搜尋和效能索引
+6. **結果驗證** - 確保資料完整性
+
+#### 4.4 遷移驗證
+
+**方法 1：使用遷移腳本**
+```bash
+npm run migrate-tools
+```
+
+**方法 2：直接查詢資料庫**
+```bash
+# 連線到 MongoDB
+npm run db:connect-docker
+
 # 檢查遷移結果
-node -e "
-const { validateMigration } = require('./src/lib/database/migration/migrateAITools.ts');
-validateMigration();
-"
+use business-magnifier
+db.ai_tools.countDocuments()
+db.ai_tools.find().limit(5).pretty()
+```
+
+**方法 3：使用 Mongo Express**
+```
+1. 訪問：http://localhost:8081
+2. 選擇資料庫：business-magnifier
+3. 查看集合：ai_tools
+4. 檢查文檔數量和內容
 ```
 
 預期輸出：
 ```
-📊 資料庫統計:
-- 總工具數: 150+
-- 啟用工具數: 150+
-- 原始工具數: 150+
+📊 遷移狀態報告:
+   資料庫中的工具數量: 150+
+   原始檔案中的工具數量: 150+ 
+   是否已遷移: 是
+   需要遷移: 否
 
-📈 分類分布:
-- 提示詞: 45 個工具
-- 寫作: 32 個工具
-- 商業: 28 個工具
-- ...
-
-✅ 沒有發現重複的工具 ID
+🛠️ 已遷移的工具列表:
+   1. SEO 標題生成器 (ID: title-generator)
+   2. 內容創作助手 (ID: content-creator)
+   ...
 ```
 
-### 第四步：API 路由更新
+### 第五步：API 路由實作
 
-#### 4.1 移除 Prisma 相關程式碼
+#### 5.1 主要 AI 工具 API
 
-```bash
-# 搜尋並替換 Prisma 相關引用
-grep -r "prisma" src/ --include="*.ts" --include="*.tsx"
-```
+檔案：`src/app/api/aitool/route.ts`
 
-#### 4.2 更新 API 路由
-
-**企業 API 範例**：
+**GET** - 獲取 AI 工具
 ```typescript
-// src/app/api/company/[id]/route.ts
-import connectToDatabase from '@/lib/database/connection';
-import Company from '@/lib/database/models/Company';
+// 支援多種查詢方式
+GET /api/aitool                    // 獲取所有工具
+GET /api/aitool?q=搜尋詞           // 文字搜尋
+GET /api/aitool?tag=標籤           // 標籤篩選
+GET /api/aitool?id=工具ID          // 特定工具
+GET /api/aitool?q=搜尋詞&tag=標籤  // 組合查詢
+```
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  try {
-    await connectToDatabase();
-    
-    const company = await Company.findByTaxId(params.id);
-    
-    if (!company) {
-      return NextResponse.json({ error: '企業不存在' }, { status: 404 });
-    }
-    
-    return NextResponse.json(company);
-  } catch (error) {
-    return NextResponse.json({ error: '查詢失敗' }, { status: 500 });
+**POST** - 創建新工具
+```typescript
+POST /api/aitool
+{
+  "id": "custom-tool",
+  "name": "自訂工具",
+  "description": "工具描述",
+  "icon": "Zap",
+  "tags": ["AI", "自訂"],
+  "instructions": {
+    "what": "工具用途",
+    "why": "使用原因",
+    "how": "使用方法"
+  },
+  "placeholder": "請輸入您的需求...",
+  "promptTemplate": {
+    "prefix": "您好，",
+    "suffix": "請協助我完成任務。"
   }
 }
 ```
 
-**AI 工具 API 範例**：
-```typescript
-// src/app/api/aitool/route.ts
-import AITool from '@/lib/database/models/AITool';
+**PUT** - 更新工具
+**DELETE** - 軟刪除工具
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const category = searchParams.get('category');
-  const query = searchParams.get('q');
-  
-  const tools = await AITool.searchTools(query || '', { category });
-  return NextResponse.json(tools);
-}
-```
+#### 5.2 遷移管理 API
 
-### 第五步：前端元件更新
-
-#### 5.1 更新資料獲取邏輯
+檔案：`src/app/api/aitool/migrate/route.ts`
 
 ```typescript
-// 舊版 (Prisma)
-const company = await prisma.company.findUnique({
-  where: { uniformNumber: taxId }
-});
-
-// 新版 (MongoDB)
-const company = await Company.findByTaxId(taxId);
+GET /api/aitool/migrate     // 檢查遷移狀態
+POST /api/aitool/migrate    // 執行遷移
+DELETE /api/aitool/migrate  // 清理資料庫
 ```
 
-#### 5.2 更新型別定義
+#### 5.3 基礎工具 API
+
+檔案：`src/app/api/aitool/base-tools/route.ts`
 
 ```typescript
-// src/types/database.ts
-export interface CompanyDocument extends ICompany {
-  _id: string;
-  displayName: string;  // 虛擬欄位
-  isListed: boolean;    // 虛擬欄位
-}
+GET /api/aitool/base-tools              // 所有基礎工具
+GET /api/aitool/base-tools?category=SEO // 分類篩選
 ```
 
-### 第六步：索引優化
+### 第六步：前端整合更新
 
-#### 6.1 建立搜尋索引
+#### 6.1 工具資料獲取更新
+
+檔案：`src/lib/aitool/tools.ts`
+
+**新的資料獲取方式：**
+```typescript
+// 從 MongoDB 獲取工具（伺服器端）
+export async function getToolsData(): Promise<Tools[]>
+
+// 從 API 獲取工具（客戶端）
+export async function getToolsDataFromAPI(): Promise<Tools[]>
+
+// 動態主題生成
+export async function getCategoryThemes(): Promise<Record<string, ColorTheme>>
+export async function getFullTagThemes(): Promise<Record<string, ColorTheme>>
+```
+
+**向後兼容：**
+```typescript
+// 舊的同步版本（已廢棄，只返回基礎工具）
+export function getToolsDataSync(): Tools[]
+```
+
+#### 6.2 搜尋元件更新
+
+檔案：`src/components/aitool/AiToolSearch.tsx`
+
+**主要變更：**
+- ✅ 使用 API 獲取工具資料
+- ✅ 支援載入狀態顯示
+- ✅ 並行載入工具和主題
+- ✅ 預載工具組件提升效能
+- ✅ 錯誤處理和降級方案
+
+```typescript
+// 並行載入資料和主題
+const [toolsResponse, categoryThemesData, fullTagThemesData] = await Promise.all([
+  fetch('/api/aitool'),
+  getCategoryThemes(),
+  getFullTagThemes()
+]);
+```
+
+## 🔧 索引優化與效能
+
+### 第七步：資料庫索引策略
+
+#### 7.1 自動創建的索引
 
 ```javascript
-// MongoDB Shell 指令
-db.companies.createIndex({ "taxId": 1 }, { unique: true })
-db.companies.createIndex({ "name": "text", "fullName": "text" })
-db.companies.createIndex({ "searchKeywords": 1 })
+// 唯一性索引
+{ "id": 1 }
 
-db.aitools.createIndex({ "id": 1 }, { unique: true })
-db.aitools.createIndex({ "category": 1, "isActive": 1 })
-db.aitools.createIndex({ "usage.popularityScore": -1 })
+// 查詢索引  
+{ "tags": 1 }
+{ "isActive": 1 }
+{ "createdAt": 1 }
+
+// 複合索引
+{ "category": 1, "isActive": 1 }
+{ "tags": 1, "isActive": 1 }
+{ "usage.popularityScore": -1 }
+
+// 文字搜尋索引
+{ 
+  "name": "text", 
+  "description": "text"
+}
 ```
 
-#### 6.2 效能監控
+#### 7.2 效能優化策略
 
+**快取機制：**
 ```typescript
-// 啟用 MongoDB 查詢分析
-mongoose.set('debug', process.env.NODE_ENV === 'development');
+// 主題配置快取
+let cachedCategoryThemes: Record<string, ColorTheme> | null = null;
+let cachedFullTagThemes: Record<string, ColorTheme> | null = null;
+
+// API 回應可配置 CDN 快取
+export async function GET(request: NextRequest) {
+  const response = NextResponse.json(data);
+  response.headers.set('Cache-Control', 'public, max-age=300'); // 5 分鐘快取
+  return response;
+}
+```
+
+**組件預載：**
+```typescript
+// 非同步預載所有工具組件
+const preloadToolComponents = async () => {
+  const imports = [
+    import('@/components/tools/seo/TitleGenerator'),
+    import('@/components/tools/common/PromptToolTemplate'),
+    // ... 更多組件
+  ];
+  
+  Promise.all(imports).catch(() => {
+    // 忽略預載錯誤
+  });
+};
 ```
 
 ## 🧪 測試與驗證
 
 ### 測試清單
 
-- [ ] **連線測試** - MongoDB 連線正常
+- [ ] **Docker 服務** - MongoDB 容器正常運行
+- [ ] **資料庫連線** - 本地連線正常
 - [ ] **資料遷移** - AI 工具資料完整遷移
 - [ ] **API 功能** - 所有 API 路由正常運作
-- [ ] **搜尋功能** - 企業和 AI 工具搜尋正常
-- [ ] **效能測試** - 查詢速度符合預期
+- [ ] **搜尋功能** - 工具搜尋和篩選正常
+- [ ] **前端整合** - `/aitool/search` 頁面正常顯示
+- [ ] **效能測試** - 載入速度和查詢效能符合預期
 
 ### 測試指令
 
 ```bash
-# 連線測試
-npm run test:db-connection
+# Docker 服務測試
+npm run docker:ps
+npm run docker:logs
 
-# API 測試
-npm run test:api
+# 資料庫連線測試
+npm run db:connect-docker
 
-# 整合測試
-npm run test:integration
+# 遷移測試
+npm run migrate-tools
+
+# API 測試 (手動)
+curl http://localhost:3000/api/aitool
+curl "http://localhost:3000/api/aitool?q=SEO"
+curl "http://localhost:3000/api/aitool?tag=AI"
 ```
 
-## 🚀 部署指南
+### 手動驗證步驟
 
-### Netlify 部署
+1. **啟動 Docker 服務**：`npm run start:dev`
+2. **檢查服務狀態**：`npm run docker:ps`
+3. **執行遷移**：`npm run migrate-tools`
+4. **訪問搜尋頁面**：`http://localhost:3000/aitool/search`
+5. **測試搜尋功能**：輸入關鍵字和篩選標籤
+6. **檢查工具詳情**：點擊工具卡片查看詳情
+7. **驗證管理界面**：訪問 `http://localhost:8081`
 
-1. **環境變數設定**：
-   ```
-   MONGODB_URI=mongodb+srv://...
-   GOOGLE_AI_API_KEY=...
-   NODE_ENV=production
-   ```
+## 🚀 部署配置
 
-2. **建置設定**：
-   ```toml
-   # netlify.toml
-   [build]
-     command = "npm run build"
-     publish = ".next"
-   
-   [[plugins]]
-     package = "@netlify/plugin-nextjs"
-   ```
+### Docker 生產部署
 
-### Vercel 部署
-
+**生產環境測試**：
 ```bash
-# 安裝 Vercel CLI
-npm i -g vercel
+# 建置並啟動生產環境容器
+npm run docker:prod
 
-# 部署
-vercel --prod
-
-# 設定環境變數
-vercel env add MONGODB_URI
+# 訪問生產環境應用
+# http://localhost:3001
 ```
 
-## 📊 效能優化建議
-
-### 1. 索引策略
-
-```javascript
-// 複合索引 - 提升複雜查詢效能
-db.companies.createIndex({ 
-  "industry": 1, 
-  "financial.paidInCapital": -1 
-})
-
-// 文字搜尋索引 - 提升搜尋效能
-db.companies.createIndex({
-  "name": "text",
-  "fullName": "text",
-  "searchKeywords": "text"
-})
+**環境變數設定**：
+```env
+# 生產環境配置
+MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
+NODE_ENV=production
+GOOGLE_AI_API_KEY=your_api_key
+JWT_SECRET=your_production_jwt_secret
 ```
 
-### 2. 查詢優化
+### 外部部署（Netlify/Vercel）
 
-```typescript
-// 使用投影減少資料傳輸
-const companies = await Company.find(query)
-  .select('taxId name address financial.paidInCapital')
-  .limit(20);
+由於使用 Docker MongoDB，外部部署需要：
 
-// 使用聚合管道進行複雜查詢
-const stats = await Company.aggregate([
-  { $match: { status: '核准設立' } },
-  { $group: { _id: '$industry', count: { $sum: 1 } } },
-  { $sort: { count: -1 } }
-]);
+1. **雲端 MongoDB 服務**：
+   - 可考慮 MongoDB Atlas（如需要）
+   - 或部署 MongoDB 到雲端伺服器
+
+2. **環境變數調整**：
+```env
+# 外部部署時需要可公開存取的 MongoDB
+MONGODB_URI=mongodb://your-cloud-mongodb:27017/business-magnifier
 ```
 
-### 3. 快取策略
-
-```typescript
-// Redis 快取 (可選)
-import Redis from 'ioredis';
-
-const redis = new Redis(process.env.REDIS_URL);
-
-// 快取熱門查詢
-const cacheKey = `company:${taxId}`;
-let company = await redis.get(cacheKey);
-
-if (!company) {
-  company = await Company.findByTaxId(taxId);
-  await redis.setex(cacheKey, 3600, JSON.stringify(company));
-}
-```
+3. **Docker 部署方案**：
+   - 使用 Docker 容器平台（如 Railway, Render）
+   - 整個應用打包為 Docker 容器部署
 
 ## 🔧 故障排除
 
-### 常見問題
+### 常見問題與解決方案
 
-**1. 連線失敗**
-```
-Error: MongoNetworkError: failed to connect to server
-```
-解決方案：
-- 檢查 `MONGODB_URI` 是否正確
-- 確認網路連線和防火牆設定
-- 檢查 MongoDB Atlas 白名單設定
+#### 1. Docker 相關問題
 
-**2. 索引建立失敗**
+**問題：Docker 服務無法啟動**
 ```
-Error: Index with name already exists
+錯誤：Cannot connect to the Docker daemon
 ```
-解決方案：
-```javascript
-// 刪除現有索引
-db.companies.dropIndex("name_text_fullName_text")
-// 重新建立索引
-db.companies.createIndex({ "name": "text", "fullName": "text" })
-```
+**解決方案：**
+- 確認 Docker Desktop 是否運行
+- 檢查 Docker 服務狀態：`docker --version`
+- 重新啟動 Docker Desktop
 
-**3. 記憶體使用過高**
+**問題：MongoDB 容器健康檢查失敗**
 ```
-Error: JavaScript heap out of memory
+錯誤：business-magnifier-mongo (unhealthy)
 ```
-解決方案：
+**解決方案：**
 ```bash
-# 增加 Node.js 記憶體限制
-NODE_OPTIONS="--max-old-space-size=4096" npm run dev
+# 查看容器日誌
+docker logs business-magnifier-mongo
+
+# 重新啟動容器
+npm run docker:restart
+
+# 檢查埠號是否被占用
+netstat -an | grep 27017
 ```
 
-### 監控和日誌
+#### 2. 遷移相關問題
+
+**問題：遷移腳本連線失敗**
+```
+錯誤：Failed to connect to MongoDB
+```
+**解決方案：**
+1. 確認 Docker MongoDB 服務運行：`npm run docker:ps`
+2. 檢查環境變數：確認 `MONGODB_URI` 正確
+3. 測試直接連線：`npm run db:connect-docker`
+
+**問題：重複遷移**
+```
+錯誤：Migration already completed
+```
+**解決方案：**
+```bash
+# 使用 --clean 參數強制重新遷移
+npm run migrate-tools:clean
+```
+
+#### 3. API 相關問題
+
+**問題：API 回應 500 錯誤**
+```
+錯誤：Internal Server Error
+```
+**解決方案：**
+1. 檢查 Next.js 應用日誌
+2. 確認資料庫連線正常
+3. 檢查 API 路由是否正確
+
+#### 4. 效能相關問題
+
+**問題：查詢速度慢**
+```
+錯誤：API 回應時間過長
+```
+**解決方案：**
+- 確認索引已正確創建：`db.ai_tools.getIndexes()`
+- 檢查 Docker 資源分配
+- 監控容器效能：`docker stats business-magnifier-mongo`
+
+### 除錯工具
+
+```bash
+# Docker 相關除錯
+npm run docker:ps              # 檢查容器狀態
+npm run docker:logs            # 查看所有日誌
+docker logs business-magnifier-mongo  # 查看 MongoDB 日誌
+
+# MongoDB 除錯
+npm run db:connect-docker      # 連線測試
+# 在 MongoDB Shell 中：
+show dbs
+use business-magnifier
+db.ai_tools.find().count()
+db.ai_tools.getIndexes()
+
+# API 除錯
+curl http://localhost:3000/api/aitool/migrate  # 檢查遷移狀態
+curl -v http://localhost:3000/api/aitool       # 詳細 HTTP 回應
+
+# Web 界面除錯
+# Mongo Express: http://localhost:8081
+# Next.js App: http://localhost:3000
+```
+
+## 📊 進階功能與擴展
+
+### Docker 環境管理
+
+#### 1. 資料持久化
+
+```bash
+# 資料卷管理
+docker volume ls | grep mongodb_data
+docker volume inspect next_mongodb_data
+
+# 資料備份
+docker run --rm -v next_mongodb_data:/data/db -v $(pwd):/backup mongo:7.0 tar czf /backup/mongodb-backup.tar.gz /data/db
+
+# 資料恢復
+docker run --rm -v next_mongodb_data:/data/db -v $(pwd):/backup mongo:7.0 tar xzf /backup/mongodb-backup.tar.gz -C /
+```
+
+#### 2. 容器監控
+
+```bash
+# 即時監控容器資源使用
+docker stats business-magnifier-mongo
+
+# 檢查容器詳細信息
+docker inspect business-magnifier-mongo
+
+# 進入容器 Shell
+docker exec -it business-magnifier-mongo mongosh
+```
+
+#### 3. 網路管理
+
+```bash
+# 檢查 Docker 網路
+docker network ls
+docker network inspect next_business-magnifier-network
+
+# 測試容器間連線
+docker exec -it business-magnifier-app-dev ping mongodb
+```
+
+### 資料庫管理
+
+#### 1. 索引管理
+
+```javascript
+// 在 MongoDB Shell 中管理索引
+use business-magnifier
+
+// 查看所有索引
+db.ai_tools.getIndexes()
+
+// 手動創建索引
+db.ai_tools.createIndex({ "name": "text", "description": "text" })
+
+// 刪除索引
+db.ai_tools.dropIndex("name_text_description_text")
+
+// 查看索引使用統計
+db.ai_tools.aggregate([{$indexStats: {}}])
+```
+
+#### 2. 效能監控
+
+```javascript
+// 啟用查詢分析
+db.setProfilingLevel(2)
+
+// 查看慢查詢
+db.system.profile.find().sort({ts: -1}).limit(5)
+
+// 禁用查詢分析
+db.setProfilingLevel(0)
+```
+
+#### 3. 資料清理
+
+```javascript
+// 清理測試資料
+db.ai_tools.deleteMany({id: /^test-/})
+
+// 重建索引
+db.ai_tools.reIndex()
+
+// 壓縮資料庫
+db.runCommand({compact: "ai_tools"})
+```
+
+### 自訂工具開發
+
+#### 1. 新增自訂工具
 
 ```typescript
-// 啟用詳細日誌
-mongoose.set('debug', true);
+// 透過 API 新增工具
+const newTool = {
+  id: 'custom-seo-tool',
+  name: '自訂 SEO 工具',
+  description: '專為您的需求設計的 SEO 工具',
+  icon: 'Target',
+  tags: ['SEO', '自訂'],
+  instructions: {
+    what: '這是一個專門的 SEO 分析工具',
+    why: '幫助您提升網站搜尋排名',
+    how: '輸入網站 URL 和關鍵字進行分析'
+  },
+  placeholder: '請輸入您的網站 URL...',
+  promptTemplate: {
+    prefix: '請分析以下網站的 SEO 狀況：',
+    suffix: '請提供具體的優化建議。'
+  }
+};
 
-// 監控慢查詢
-mongoose.connection.on('slow', (query) => {
-  console.warn('慢查詢:', query);
+// POST 請求新增
+const response = await fetch('/api/aitool', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(newTool)
 });
 ```
 
-## 📈 未來擴展
-
-### RAG 功能準備
+#### 2. 批次操作
 
 ```typescript
-// AI 工具向量化 (未來功能)
+// 批次更新標籤
+const tools = await fetch('/api/aitool').then(r => r.json());
+for (const tool of tools.data) {
+  if (tool.category === 'AI 工具') {
+    await fetch('/api/aitool', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: tool.id,
+        tags: [...tool.tags, '新標籤']
+      })
+    });
+  }
+}
+```
+
+### 未來擴展功能
+
+#### 1. RAG 向量搜尋準備
+
+```typescript
+// 擴展 AI 工具模型以支援向量搜尋
 interface IAITool {
   // ... 現有欄位
-  embedding?: number[];  // 768 維向量
-  semanticTags?: string[]; // 語義標籤
+  embedding?: number[];     // 768 維向量
+  semanticTags?: string[];  // 語義標籤
+  similarity?: number;      // 相似度分數
 }
 
-// 向量搜尋 (MongoDB Atlas Vector Search)
+// MongoDB Atlas Vector Search (如未來遷移到雲端)
 const similarTools = await AITool.aggregate([
   {
     $vectorSearch: {
       index: "vector_index",
-      path: "embedding",
+      path: "embedding", 
       queryVector: userQueryVector,
       numCandidates: 100,
       limit: 10
@@ -447,43 +862,147 @@ const similarTools = await AITool.aggregate([
 ]);
 ```
 
-### 分析功能
+#### 2. 使用統計分析
 
 ```typescript
-// 使用統計分析
+// 熱門工具分析
 const popularTools = await AITool.aggregate([
   { $match: { isActive: true } },
   { $sort: { "usage.totalUses": -1 } },
   { $limit: 10 }
 ]);
 
-// 企業資料分析
-const industryStats = await Company.aggregate([
+// 分類統計
+const categoryStats = await AITool.aggregate([
+  { $match: { isActive: true } },
   { $group: { 
-    _id: "$industry", 
+    _id: "$category", 
     count: { $sum: 1 },
-    avgCapital: { $avg: "$financial.paidInCapital" }
-  }}
+    avgUsage: { $avg: "$usage.totalUses" }
+  }},
+  { $sort: { count: -1 } }
 ]);
+```
+
+#### 3. 智能推薦系統
+
+```typescript
+// 基於標籤的工具推薦
+export async function getRecommendedTools(currentToolId: string, limit = 5) {
+  const currentTool = await AIToolModel.getById(currentToolId);
+  if (!currentTool) return [];
+  
+  return await AIToolModel.getByTags(currentTool.tags);
+}
+
+// 基於使用頻率的推薦
+export async function getTrendingTools(limit = 10) {
+  const collection = await AIToolModel.getCollection();
+  return await collection.aggregate([
+    { $match: { isActive: true } },
+    { $addFields: { 
+      trendScore: { 
+        $add: [
+          { $multiply: ["$usage.totalUses", 0.7] },
+          { $multiply: ["$usage.popularityScore", 0.3] }
+        ]
+      }
+    }},
+    { $sort: { trendScore: -1 } },
+    { $limit: limit }
+  ]).toArray();
+}
 ```
 
 ## ✅ 遷移檢查清單
 
-- [ ] MongoDB 環境建置完成
-- [ ] 依賴套件更新完成
-- [ ] 資料模型建立完成
-- [ ] AI 工具資料遷移完成
-- [ ] API 路由更新完成
-- [ ] 前端元件更新完成
-- [ ] 索引建立完成
-- [ ] 測試通過
-- [ ] 部署設定完成
-- [ ] 效能監控設定完成
+### 環境準備
+- [ ] Docker Desktop 已安裝並運行
+- [ ] Docker Compose 配置檢查完成
+- [ ] MongoDB 容器成功啟動 (`npm run docker:mongo`)
+- [ ] 環境變數設定完成 (`MONGODB_URI`)
+- [ ] 依賴套件確認 (`mongoose`)
+
+### 資料庫設置
+- [ ] 資料庫連線測試通過 (`npm run db:connect-docker`)
+- [ ] Mongo Express 管理界面可正常訪問 (`http://localhost:8081`)
+- [ ] AI 工具資料模型建立完成
+- [ ] 其他資料模型建立完成 (Company, 等)
+
+### 遷移執行
+- [ ] Next.js 開發伺服器運行中 (`npm run dev`)
+- [ ] 遷移腳本執行成功 (`npm run migrate-tools`)
+- [ ] AI 工具資料完整遷移
+- [ ] 資料庫索引自動創建完成
+- [ ] 遷移結果驗證通過
+
+### API 與前端
+- [ ] API 路由建立完成 (`/api/aitool/*`)
+- [ ] 前端組件更新完成 (`AiToolSearch.tsx`)
+- [ ] 工具資料獲取邏輯更新完成 (`tools.ts`)
+- [ ] 搜尋和篩選功能正常運作
+
+### 測試與驗證
+- [ ] `/aitool/search` 頁面正常顯示
+- [ ] 工具搜尋功能正常
+- [ ] 標籤篩選功能正常
+- [ ] 工具詳情頁面正常
+- [ ] Docker 容器健康檢查通過
+
+### 效能與優化
+- [ ] 資料庫索引策略實施
+- [ ] 快取機制配置完成
+- [ ] 組件預載功能實施
+- [ ] 載入效能符合預期
+- [ ] Docker 容器資源監控設置
+
+### 生產準備
+- [ ] 生產環境變數設定
+- [ ] Docker 生產環境測試通過
+- [ ] 資料備份策略確立
+- [ ] 監控和日誌配置完成
 
 ---
 
-🎉 **恭喜！您已成功完成 MongoDB 遷移！**
+## 🎉 遷移完成！
 
+恭喜您成功完成基於 Docker 的 AI 工具 MongoDB 遷移！現在您可以：
 
+### ✨ 享受的新功能
+- **容器化部署**：整個環境可輕鬆複製和部署
+- **動態管理**：無需重新部署即可新增/編輯工具
+- **更好效能**：減少程式碼體積，提升載入速度  
+- **可擴展性**：支援大量工具資料和未來功能
+- **維護性**：集中化資料管理，容器化運維
 
-現在您可以享受 MongoDB 帶來的靈活性和效能優勢，特別是在處理 JSON 資料和未來的 RAG 功能擴展方面。
+### 🚀 下一步可以做的事
+1. **資料管理**：透過 Mongo Express 界面管理工具
+2. **清理舊檔案**：考慮刪除 `promptTools.ts` (備份後)
+3. **新增自訂工具**：透過 API 新增專屬工具
+4. **效能監控**：設置 Docker 容器監控
+5. **備份策略**：建立定期資料備份機制
+
+### 📞 持續支援
+- **容器管理**：使用 npm 腳本管理 Docker 服務
+- **資料庫維護**：透過 Mongo Express 進行日常維護
+- **效能監控**：監控容器資源使用和查詢效能
+- **版本更新**：關注 MongoDB 和 Docker 版本更新
+
+### 🛠️ 常用管理指令
+```bash
+# 日常操作
+npm run start:dev         # 啟動完整開發環境
+npm run stop              # 停止所有服務
+npm run docker:logs       # 查看服務日誌
+npm run db:connect-docker # 連線到資料庫
+
+# 資料管理
+npm run migrate-tools     # 執行工具遷移
+http://localhost:8081     # 資料庫管理界面
+
+# 監控維護
+npm run docker:ps         # 檢查容器狀態
+docker stats              # 監控資源使用
+```
+
+現在您的 AI 工具平台已經具備了現代化的容器化資料庫架構，可以支援更大規模的應用和更豐富的功能！🐳📊

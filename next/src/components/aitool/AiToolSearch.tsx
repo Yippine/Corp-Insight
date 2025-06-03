@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Search } from 'lucide-react';
-import { Tools, categoryThemes, fullTagThemes, getToolsData, iconMap } from '@/lib/aitool/tools';
+import { Tools, iconMap, getCategoryThemes, getFullTagThemes, ColorTheme } from '@/lib/aitool/tools';
 import { sortToolsBySelectedTag } from '@/lib/aitool/toolSorter';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
@@ -63,14 +63,82 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
   const [tools, setTools] = useState<Tools[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [categoryThemes, setCategoryThemes] = useState<Record<string, ColorTheme>>({});
+  const [fullTagThemes, setFullTagThemes] = useState<Record<string, ColorTheme>>({});
 
+  // 從 API 載入工具資料
   useEffect(() => {
-    const toolsData = getToolsData();
-    setTools(toolsData);
-    setIsLoading(false);
+    const loadToolsData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // 並行載入工具資料和主題
+        const [toolsResponse, categoryThemesData, fullTagThemesData] = await Promise.all([
+          fetch('/api/aitool'),
+          getCategoryThemes(),
+          getFullTagThemes()
+        ]);
+
+        if (!toolsResponse.ok) {
+          throw new Error('Failed to fetch tools');
+        }
+
+        const { data: aiToolsFromAPI } = await toolsResponse.json();
+        
+        // 轉換 AI 工具格式
+        const aiTools: Tools[] = aiToolsFromAPI.map((tool: any) => ({
+          id: tool.id,
+          name: tool.name,
+          description: tool.description,
+          iconName: tool.icon in iconMap ? tool.icon : 'Zap',
+          componentId: 'PromptToolTemplate',
+          tags: tool.tags || ['AI'],
+          category: tool.category || 'AI 工具',
+          subCategory: tool.subCategory,
+          instructions: tool.instructions,
+          placeholder: tool.placeholder,
+          promptTemplate: tool.promptTemplate,
+        }));
+
+        // 獲取基礎工具並合併
+        const baseToolsResponse = await fetch('/api/aitool/base-tools');
+        let allTools = aiTools;
+        
+        if (baseToolsResponse.ok) {
+          const { data: baseTools } = await baseToolsResponse.json();
+          const formattedBaseTools: Tools[] = baseTools.map((tool: any) => ({
+            id: tool.id,
+            name: tool.name,
+            description: tool.description,
+            iconName: tool.iconName in iconMap ? tool.iconName : 'Zap',
+            componentId: tool.componentId,
+            tags: tool.tags || ['工具'],
+            category: tool.category,
+            subCategory: tool.subCategory,
+          }));
+          allTools = [...formattedBaseTools, ...aiTools];
+        }
+
+        // 去除重複工具
+        const uniqueTools = allTools.filter((tool, index, self) => 
+          index === self.findIndex((t) => t.id === tool.id)
+        );
+
+        setTools(uniqueTools);
+        setCategoryThemes(categoryThemesData);
+        setFullTagThemes(fullTagThemesData);
+      } catch (error) {
+        console.error('Error loading tools data:', error);
+        // 發生錯誤時設置空數組
+        setTools([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadToolsData();
 
     // 當工具數據加載完成後，開始預載所有工具組件
-    // 使用 requestIdleCallback 或 setTimeout 延遲預載，以確保頁面其餘部分已加載完成
     if (typeof window !== 'undefined') {
       if ('requestIdleCallback' in window) {
         (window as any).requestIdleCallback(() => {
@@ -162,6 +230,18 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
     router.push(`/aitool/detail/${toolId}`);
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="flex items-center justify-center py-12">
+          <InlineLoading />
+        </div>
+      </div>
+    );
+  }
+
+  const filtered = filteredTools();
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
       <div className="flex items-center justify-between mb-6">
@@ -180,7 +260,7 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
         <div className="flex items-center ml-4 px-4 py-2 bg-gray-50 rounded-lg">
           <ListFilter className="h-5 w-5 text-gray-500 mr-2" />
           <span className="text-gray-600 font-medium">
-            {filteredTools().length} 個工具
+            {filtered.length} 個工具
           </span>
         </div>
       </div>
@@ -198,108 +278,87 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
                 : `${theme.secondary} ${theme.text} ${theme.hover}`
             }`}
           >
-            {theme.name}
+            {tag}
           </motion.button>
         ))}
       </div>
 
-      {isLoading ? (
-        <div className="py-12">
-          <InlineLoading />
-        </div>
+      {filtered.length === 0 ? (
+        <NoSearchResults
+          query={searchQuery}
+          tag={selectedTag}
+          onClear={() => {
+            setSearchQuery('');
+            setSelectedTag('');
+          }}
+        />
       ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence mode="wait">
-              {filteredTools().map((tool, index) => {
-                let primaryTheme = fullTagThemes.ai || categoryThemes.default; 
-                const firstTagInCategories = tool.tags.find(tag => categoryThemes[tag]);
-                if (firstTagInCategories && categoryThemes[firstTagInCategories]) {
-                  primaryTheme = categoryThemes[firstTagInCategories];
-                } else {
-                  const toolThemesFromFull = tool.tags.map(t => fullTagThemes[t]).filter(Boolean);
-                  if (toolThemesFromFull.length > 0 && toolThemesFromFull[0]) {
-                    primaryTheme = toolThemesFromFull[0];
-                  }
-                }
-                primaryTheme = primaryTheme || categoryThemes.default;
-
-                const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
-
-                return (
-                  <motion.div
-                    key={`${tool.id}-${index}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ duration: 0.2 }}
-                    onMouseEnter={() => setHoveredTool(tool.id)}
-                    onMouseLeave={() => setHoveredTool(null)}
-                  >
-                    <button
-                      onClick={() => handleToolClick(tool.id)}
-                      className={`relative w-full bg-white p-6 rounded-xl text-left ${
-                        hoveredTool === tool.id 
-                          ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}` 
-                          : 'shadow border border-gray-100'
-                      }`}
-                    >
-                      <div className="flex items-center mb-4">
-                        <div className={`p-3 rounded-lg transition-colors duration-200 ${
-                          hoveredTool === tool.id ? primaryTheme.primary : primaryTheme.secondary
-                        }`}>
-                          <IconComponent className={`h-6 w-6 transition-colors duration-200 ${
-                            hoveredTool === tool.id ? 'text-white' : primaryTheme.icon
-                          }`} />
-                        </div>
-                        <h3 className={`text-xl font-semibold ml-4 transition-colors duration-200 ${
-                          hoveredTool === tool.id ? primaryTheme.text : 'text-gray-900'
-                        }`}>
-                          {tool.name}
-                        </h3>
-                      </div>
-                      <p className={`transition-colors duration-200 ${
-                        hoveredTool === tool.id ? primaryTheme.text : 'text-gray-600'
-                      }`}>
-                        {tool.description}
-                      </p>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {tool.tags.map((tag) => {
-                          const themeFromCategory = categoryThemes[tag];
-                          const themeFromFull = fullTagThemes[tag];
-                          const tagTheme = themeFromCategory || themeFromFull || categoryThemes.default;
-                          return (
-                            <span
-                              key={tag}
-                              className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors duration-200 ${
-                                hoveredTool === tool.id 
-                                  ? `${tagTheme.primary} text-white` 
-                                  : `${tagTheme.secondary} ${tagTheme.text}`
-                              }`}
-                            >
-                              {tagTheme.name}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </button>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-
-          {filteredTools().length === 0 && !isLoading && (
-            <NoSearchResults 
-              message="很抱歉，我們找不到符合您搜尋條件的工具。" 
-              searchTerm={searchParams.get('q') || ''}
-              onReset={() => {
-                setSearchQuery('');
-                setSelectedTag('');
-              }}
-            />
-          )}
-        </>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence mode="popLayout">
+            {filtered.map((tool) => {
+              const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
+              const isAITool = tool.componentId === 'PromptToolTemplate';
+              
+              return (
+                <motion.div
+                  key={tool.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ 
+                    scale: 1.02,
+                    transition: { duration: 0.2 }
+                  }}
+                  className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                  onClick={() => handleToolClick(tool.id)}
+                  onMouseEnter={() => setHoveredTool(tool.id)}
+                  onMouseLeave={() => setHoveredTool(null)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 rounded-lg ${isAITool ? 'bg-gradient-to-br from-purple-100 to-pink-100' : 'bg-blue-50'} group-hover:scale-110 transition-transform duration-300`}>
+                      <IconComponent className={`h-6 w-6 ${isAITool ? 'text-purple-600' : 'text-blue-600'}`} />
+                    </div>
+                    {isAITool && (
+                      <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
+                        AI
+                      </span>
+                    )}
+                  </div>
+                  
+                  <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                    {tool.name}
+                  </h3>
+                  
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                    {tool.description}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-1">
+                    {tool.tags.slice(0, 3).map((tag) => {
+                      const tagTheme = fullTagThemes[tag];
+                      if (!tagTheme) return null;
+                      
+                      return (
+                        <span
+                          key={tag}
+                          className={`px-2 py-1 text-xs rounded-full ${tagTheme.secondary} ${tagTheme.text}`}
+                        >
+                          {tag}
+                        </span>
+                      );
+                    })}
+                    {tool.tags.length > 3 && (
+                      <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+                        +{tool.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
       )}
     </div>
   );

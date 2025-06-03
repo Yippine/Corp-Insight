@@ -1,11 +1,5 @@
 import { Type, FileText, Search, MessageSquare, Star, Zap, Stethoscope, Server, Cpu, Network, HardDrive, Scale, Calculator, ScanLine, Package, Factory, Landmark, PiggyBank, TrendingUp, Repeat, CircleDollarSign, LucideIcon, FileCode2, Image, Pen, Brain, Briefcase, GraduationCap, Languages, HeartPulse, Lightbulb, Globe, Monitor, Heart, Trello, BarChart3, Users, PieChart, DollarSign, Activity, Compass, BookOpen, Laugh, Clapperboard, BookText, Feather, Mic2, MonitorSmartphone, Utensils, MessageSquareText, Newspaper, Trophy, PenTool, ClipboardCheck, Share2, Target, Boxes, HandshakeIcon, FileEdit, Glasses } from 'lucide-react';
-import { getPromptTools, PromptToolConfig as OriginalPromptToolConfig } from './promptTools';
-
-interface PromptToolConfig extends OriginalPromptToolConfig {
-  iconName?: string; 
-  category?: string;
-  subCategory?: string;
-}
+import { AIToolModel, AIToolDocument } from '@/lib/database/models/AITool';
 
 export const iconMap: Record<string, LucideIcon> = {
   Type,
@@ -79,6 +73,16 @@ export interface Tools {
   tags: string[];
   category?: string;
   subCategory?: string;
+  instructions?: {
+    what: string;
+    why: string;
+    how: string;
+  };
+  placeholder?: string;
+  promptTemplate?: {
+    prefix: string;
+    suffix: string;
+  };
 }
 
 // 顏色主題接口
@@ -391,6 +395,32 @@ const baseTools: Tools[] = [
   },
 ];
 
+// 將 MongoDB 工具文檔轉換為 Tools 格式
+function convertAIToolDocumentToTools(aiTools: AIToolDocument[]): Tools[] {
+  return aiTools.map((tool) => {
+    let iconNameString: string = tool.icon || 'Zap';
+
+    // 確保 icon 名稱在 iconMap 中存在
+    if (!iconMap[iconNameString]) {
+      iconNameString = 'Zap';
+    }
+
+    return {
+      id: tool.id,
+      name: tool.name,
+      description: tool.description,
+      iconName: iconNameString as keyof typeof iconMap,
+      componentId: 'PromptToolTemplate',
+      tags: tool.tags || ['AI'],
+      category: tool.category || 'AI 工具',
+      subCategory: tool.subCategory,
+      instructions: tool.instructions,
+      placeholder: tool.placeholder,
+      promptTemplate: tool.promptTemplate,
+    };
+  });
+}
+
 // 統計工具標籤的分佈情況
 export function getTagStatistics(tools: Tools[]): TagStats {
   // 建立標籤計數映射
@@ -495,84 +525,130 @@ export function generateTagThemes(tools: Tools[]): TagThemes {
   };
 }
 
-// 將提示詞工具轉換為普通工具格式
-function convertPromptToolsToTools(promptTools: PromptToolConfig[]): Tools[] {
-  return promptTools.map((ptool) => {
-    let iconNameString: string;
-
-    if (ptool.iconName && typeof ptool.iconName === 'string') {
-      iconNameString = ptool.iconName;
-    } else if (ptool.icon && typeof ptool.icon === 'function') {
-      const funcName = (ptool.icon as LucideIcon).displayName || (ptool.icon as LucideIcon).name || 'Zap';
-      iconNameString = funcName;
-    } else {
-      iconNameString = 'Zap';
-    }
-
-    if (!iconMap[iconNameString]) {
-      iconNameString = 'Zap';
-    }
-
-    return {
-      id: ptool.id,
-      name: ptool.name,
-      description: ptool.description,
-      iconName: iconNameString as keyof typeof iconMap,
-      componentId: 'PromptToolTemplate',
-      tags: ptool.tags || ['AI'],
-      category: ptool.category || 'AI 工具',
-      subCategory: ptool.subCategory,
-    };
-  });
+// 工具數據獲取函數（從 MongoDB 獲取 AI 工具）
+export async function getToolsData(): Promise<Tools[]> {
+  try {
+    // 從 MongoDB 獲取 AI 工具
+    const aiToolsFromDB = await AIToolModel.getAllActive();
+    const aiTools = convertAIToolDocumentToTools(aiToolsFromDB);
+    
+    // 合併基礎工具和 AI 工具
+    const allTools = [...baseTools, ...aiTools];
+    
+    // 去除重複的工具
+    const uniqueTools = allTools.filter((tool, index, self) => 
+      index === self.findIndex((t) => t.id === tool.id)
+    );
+    
+    return uniqueTools;
+  } catch (error) {
+    console.error('Error fetching tools data:', error);
+    // 如果 MongoDB 失敗，至少返回基礎工具
+    return baseTools;
+  }
 }
 
-// 工具數據獲取函數
-export function getToolsData(): Tools[] {
-  const rawPromptTools = getPromptTools() as PromptToolConfig[];
-  const promptToolsAsTools = convertPromptToolsToTools(rawPromptTools);
-  
-  const allTools = [...baseTools, ...promptToolsAsTools];
-  
-  const uniqueTools = allTools.filter((tool, index, self) => 
-    index === self.findIndex((t) => t.id === tool.id)
-  );
-  
-  return uniqueTools;
+// 客戶端使用的同步版本（使用 API 調用）
+export async function getToolsDataFromAPI(): Promise<Tools[]> {
+  try {
+    const response = await fetch('/api/aitool');
+    if (!response.ok) {
+      throw new Error('Failed to fetch tools from API');
+    }
+    
+    const { data: aiToolsFromAPI } = await response.json();
+    const aiTools = convertAIToolDocumentToTools(aiToolsFromAPI);
+    
+    // 合併基礎工具和 AI 工具
+    const allTools = [...baseTools, ...aiTools];
+    
+    // 去除重複的工具
+    const uniqueTools = allTools.filter((tool, index, self) => 
+      index === self.findIndex((t) => t.id === tool.id)
+    );
+    
+    return uniqueTools;
+  } catch (error) {
+    console.error('Error fetching tools data from API:', error);
+    // 如果 API 失敗，至少返回基礎工具
+    return baseTools;
+  }
 }
 
-// 動態生成標籤主題
-const toolsData = getToolsData();
-const tagThemes = generateTagThemes(toolsData);
-
-// 用於標籤分類顯示的主題（合併後的版本）
-export const categoryThemes: Record<string, ColorTheme> = tagThemes.merged;
-
-// 用於工具卡片標籤顯示的主題（完整版本）
-export const fullTagThemes: Record<string, ColorTheme> = tagThemes.full;
+// 為了向後兼容，保留舊的同步版本（但現在會返回空的 AI 工具列表）
+export function getToolsDataSync(): Tools[] {
+  console.warn('getToolsDataSync is deprecated. Use getToolsData() or getToolsDataFromAPI() instead.');
+  return baseTools;
+}
 
 // 新增：用於伺服器端快速判斷工具搜尋結果
-export function hasToolSearchResults(query?: string, tag?: string): boolean {
+export async function hasToolSearchResults(query?: string, tag?: string): Promise<boolean> {
   if (!query && !tag) {
     // 沒有查詢條件時，返回 true (表示有結果，顯示所有工具)
     return true;
   }
 
-  const allTools = getToolsData();
-  let filtered = [...allTools];
-  
-  // 如果有查詢詞，篩選名稱或描述中包含查詢詞的工具
-  if (query) {
-    const q = query.toLowerCase();
-    filtered = filtered.filter(t => 
-      t.name.toLowerCase().includes(q) || 
-      t.description.toLowerCase().includes(q)
-    );
+  try {
+    const allTools = await getToolsData();
+    let filtered = [...allTools];
+    
+    // 如果有查詢詞，篩選名稱或描述中包含查詢詞的工具
+    if (query) {
+      const q = query.toLowerCase();
+      filtered = filtered.filter(t => 
+        t.name.toLowerCase().includes(q) || 
+        t.description.toLowerCase().includes(q)
+      );
+    }
+    
+    // 如果有標籤，篩選包含該標籤的工具
+    if (tag && tag !== '全部') {
+      filtered = filtered.filter(t => t.tags.includes(tag));
+    }
+    
+    return filtered.length > 0;
+  } catch (error) {
+    console.error('Error checking search results:', error);
+    return false;
   }
-  
-  // 如果有標籤，篩選包含該標籤的工具
-  if (tag && tag !== '全部') {
-    filtered = filtered.filter(t => t.tags.includes(tag));
-  }
-  
-  return filtered.length > 0;
 }
+
+// 動態生成標籤主題（需要異步）
+let cachedCategoryThemes: Record<string, ColorTheme> | null = null;
+let cachedFullTagThemes: Record<string, ColorTheme> | null = null;
+
+export async function getCategoryThemes(): Promise<Record<string, ColorTheme>> {
+  if (cachedCategoryThemes) {
+    return cachedCategoryThemes;
+  }
+  
+  try {
+    const toolsData = await getToolsData();
+    const tagThemes = generateTagThemes(toolsData);
+    cachedCategoryThemes = tagThemes.merged;
+    return cachedCategoryThemes;
+  } catch (error) {
+    console.error('Error generating category themes:', error);
+    return {};
+  }
+}
+
+export async function getFullTagThemes(): Promise<Record<string, ColorTheme>> {
+  if (cachedFullTagThemes) {
+    return cachedFullTagThemes;
+  }
+  
+  try {
+    const toolsData = await getToolsData();
+    const tagThemes = generateTagThemes(toolsData);
+    cachedFullTagThemes = tagThemes.full;
+    return cachedFullTagThemes;
+  } catch (error) {
+    console.error('Error generating full tag themes:', error);
+    return {};
+  }
+}
+
+// 為了向後兼容，提供同步版本（使用預設主題）
+export const categoryThemes: Record<string, ColorTheme> = {};
+export const fullTagThemes: Record<string, ColorTheme> = {};
