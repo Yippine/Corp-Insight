@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { getToolsData } from '@/lib/aitool/tools';
+import { getToolsDataFromAPI } from '@/lib/aitool/apiHelpers';
 import { AiToolDetailStructuredData, generateAiToolDetailMetadata } from '@/components/SEO/AiToolDetailSEO';
 import { staticTitles } from '@/config/pageTitles';
 import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
@@ -17,9 +17,9 @@ interface AiToolDetailPageProps {
   };
 }
 
-export default function AiToolDetailPage({ params }: AiToolDetailPageProps) {
+export default async function AiToolDetailPage({ params }: AiToolDetailPageProps) {
   const { toolId } = params;
-  const tools = getToolsData();
+  const tools = await getToolsDataFromAPI();
   const tool = tools.find(t => t.id === toolId);
 
   if (!tool) {
@@ -37,9 +37,9 @@ export default function AiToolDetailPage({ params }: AiToolDetailPageProps) {
   );
 }
 
-export function generateMetadata({ params }: AiToolDetailPageProps) {
+export async function generateMetadata({ params }: AiToolDetailPageProps) {
   const { toolId } = params;
-  const tools = getToolsData();
+  const tools = await getToolsDataFromAPI();
   const tool = tools.find(t => t.id === toolId);
 
   if (!tool) {
@@ -50,13 +50,4 @@ export function generateMetadata({ params }: AiToolDetailPageProps) {
   }
 
   return generateAiToolDetailMetadata({ tool });
-}
-
-// 靜態生成可能的路徑，以提升性能
-export async function generateStaticParams() {
-  const tools = getToolsData();
-  
-  return tools.map(tool => ({
-    toolId: tool.id
-  }));
 }

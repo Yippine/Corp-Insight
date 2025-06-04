@@ -5,7 +5,7 @@ import { AiToolSearchStructuredData, generateAiToolSearchMetadata } from '@/comp
 import { Metadata } from 'next';
 import AiToolSearch from '@/components/aitool/AiToolSearch';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
-import { hasToolSearchResults } from '@/lib/aitool/tools';
+import { hasToolSearchResults } from '@/lib/aitool/apiHelpers';
 
 interface AiToolSearchPageProps {
   searchParams?: {
@@ -50,7 +50,7 @@ export async function generateMetadata({ searchParams }: AiToolSearchPageProps):
   const tag = searchParams?.tag || '';
   
   // 使用 hasToolSearchResults 函數判斷是否有搜尋結果
-  const hasResults = !query && !tag ? true : hasToolSearchResults(query, tag);
+  const hasResults = (!query && !tag) ? true : await hasToolSearchResults(query, tag);
   
   return generateAiToolSearchMetadata({
     query,

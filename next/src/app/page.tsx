@@ -18,17 +18,6 @@ export const revalidate = false;
 
 // 使用簡化的重定向方式
 export default function HomePage() {
-  // 這種方式在 next.config.js 中已經配置了更高效的靜態重定向
-  // 這里作為備用機制，當靜態重定向失敗時才會執行
-  return null;
-}
-
-// 添加重定向配置，這會在路由層面處理，避免不必要的渲染
-export function generateMetadata() {
-  return {
-    redirect: {
-      destination: '/company/search',
-      permanent: true,
-    },
-  };
+  // 在這裡直接進行重定向
+  redirect('/company/search');
 }

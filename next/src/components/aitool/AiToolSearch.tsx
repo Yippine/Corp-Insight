@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Search } from 'lucide-react';
-import { Tools, iconMap, getCategoryThemes, getFullTagThemes, ColorTheme } from '@/lib/aitool/tools';
+import { getCategoryThemes, getFullTagThemes } from '@/lib/aitool/apiHelpers';
+import { iconMap } from '@/lib/aitool/iconMap';
+import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import { sortToolsBySelectedTag } from '@/lib/aitool/toolSorter';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
@@ -83,48 +85,36 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
           throw new Error('Failed to fetch tools');
         }
 
-        const { data: aiToolsFromAPI } = await toolsResponse.json();
+        const { data: allToolsFromAPI } = await toolsResponse.json();
         
-        // 轉換 AI 工具格式
-        const aiTools: Tools[] = aiToolsFromAPI.map((tool: any) => ({
-          id: tool.id,
-          name: tool.name,
-          description: tool.description,
-          iconName: tool.icon in iconMap ? tool.icon : 'Zap',
-          componentId: 'PromptToolTemplate',
-          tags: tool.tags || ['AI'],
-          category: tool.category || 'AI 工具',
-          subCategory: tool.subCategory,
-          instructions: tool.instructions,
-          placeholder: tool.placeholder,
-          promptTemplate: tool.promptTemplate,
-        }));
+        // 轉換工具格式
+        const allTools: Tools[] = allToolsFromAPI.map((tool: any) => {
+          let currentTags = tool.tags || [];
+          
+          // 檢查是否為 AI 工具
+          const isAITool = tool.isAITool !== false && tool.renderType !== 'component';
+          
+          // 確保 AI 工具有 'AI' 標籤
+          if (isAITool && !currentTags.includes('AI')) {
+            currentTags.push('AI');
+          }
 
-        // 獲取基礎工具並合併
-        const baseToolsResponse = await fetch('/api/aitool/base-tools');
-        let allTools = aiTools;
-        
-        if (baseToolsResponse.ok) {
-          const { data: baseTools } = await baseToolsResponse.json();
-          const formattedBaseTools: Tools[] = baseTools.map((tool: any) => ({
+          return {
             id: tool.id,
             name: tool.name,
             description: tool.description,
-            iconName: tool.iconName in iconMap ? tool.iconName : 'Zap',
-            componentId: tool.componentId,
-            tags: tool.tags || ['工具'],
+            iconName: tool.icon in iconMap ? tool.icon : 'Zap',
+            componentId: tool.componentId || (isAITool ? 'PromptToolTemplate' : tool.componentId),
+            tags: currentTags,
             category: tool.category,
             subCategory: tool.subCategory,
-          }));
-          allTools = [...formattedBaseTools, ...aiTools];
-        }
+            instructions: tool.instructions,
+            placeholder: tool.placeholder,
+            promptTemplate: tool.promptTemplate,
+          };
+        });
 
-        // 去除重複工具
-        const uniqueTools = allTools.filter((tool, index, self) => 
-          index === self.findIndex((t) => t.id === tool.id)
-        );
-
-        setTools(uniqueTools);
+        setTools(allTools);
         setCategoryThemes(categoryThemesData);
         setFullTagThemes(fullTagThemesData);
       } catch (error) {
@@ -319,11 +309,6 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
                     <div className={`p-3 rounded-lg ${isAITool ? 'bg-gradient-to-br from-purple-100 to-pink-100' : 'bg-blue-50'} group-hover:scale-110 transition-transform duration-300`}>
                       <IconComponent className={`h-6 w-6 ${isAITool ? 'text-purple-600' : 'text-blue-600'}`} />
                     </div>
-                    {isAITool && (
-                      <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
-                        AI
-                      </span>
-                    )}
                   </div>
                   
                   <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">

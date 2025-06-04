@@ -1,9 +1,24 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { PromptToolConfig } from '@/lib/aitool/promptTools';
 import { SendHorizonal, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+interface PromptToolConfig {
+  id: string;
+  name: string;
+  description: string;
+  instructions: {
+    what: string;
+    why: string;
+    how: string;
+  };
+  placeholder: string;
+  promptTemplate: {
+    prefix: string;
+    suffix: string;
+  };
+}
 
 interface PromptToolTemplateProps {
   config: PromptToolConfig;

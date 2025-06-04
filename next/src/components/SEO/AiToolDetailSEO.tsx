@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { SoftwareApplication, WithContext } from "schema-dts";
 import Script from "next/script";
-import { Tools } from "@/lib/aitool/tools";
+import type { Tools } from "@/lib/aitool/types";
 import { staticTitles, dynamicTitles } from '@/config/pageTitles';
 
 interface AiToolDetailSEOProps {
@@ -10,18 +10,22 @@ interface AiToolDetailSEOProps {
 
 // 生成工具詳情頁的結構化數據
 export function AiToolDetailStructuredData({ tool }: AiToolDetailSEOProps) {
-  const structuredData: WithContext<SoftwareApplication> = {
+  const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": tool.name,
     "description": tool.description,
-    "applicationCategory": tool.tags.join(", "),
-    "operatingSystem": "Web",
-    "url": `https://example.com/aitool/detail/${tool.id}`,
+    "applicationCategory": "AI Tool",
+    "operatingSystem": "Web Browser",
     "offers": {
       "@type": "Offer",
       "price": "0",
-      "priceCurrency": "TWD"
+      "priceCurrency": "USD"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "Business Magnifier",
+      "url": "https://magnifier.tw"
     }
   };
 
@@ -37,30 +41,33 @@ export function AiToolDetailStructuredData({ tool }: AiToolDetailSEOProps) {
 // 生成工具詳情頁的元數據
 export function generateAiToolDetailMetadata({ tool }: AiToolDetailSEOProps): Metadata {
   const title = dynamicTitles.aiToolDetail(tool.name);
-  const description = `${tool.description} 立即使用這個強大的 AI 助理工具，提升您的工作效率。`;
+  const description = tool.description || `使用 ${tool.name} 來提升您的工作效率。這是一個強大的 AI 工具，專為現代職場設計。`;
 
   return {
     title,
     description,
+    keywords: [
+      tool.name,
+      ...(tool.tags || [])
+    ].join(', '),
     openGraph: {
       title,
       description,
-      url: `https://example.com/aitool/detail/${tool.id}`,
       type: 'website',
-      images: [
-        {
-          url: 'https://example.com/images/aitool-og.jpg',
-          width: 1200,
-          height: 630,
-          alt: tool.name,
-        },
-      ],
+      url: `/aitool/detail/${tool.id}`,
+      siteName: 'Business Magnifier',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: ['https://example.com/images/aitool-og.jpg'],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: `/aitool/detail/${tool.id}`,
     },
   };
 }

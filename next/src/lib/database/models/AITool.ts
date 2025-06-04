@@ -13,15 +13,21 @@ export interface IAITool extends Document {
   // 工具配置
   config: {
     icon: string;
-    placeholder: string;
-    instructions: {
+    placeholder?: string; // 對於非 AI 工具，這是選填的
+    instructions?: {      // 對於非 AI 工具，這是選填的
       what: string;
       why: string;
       how: string;
     };
-    promptTemplate: {
+    promptTemplate?: {    // 對於非 AI 工具，這是選填的
       prefix: string;
       suffix: string;
+    };
+    // 新增：渲染配置
+    renderConfig?: {
+      componentId?: string;     // 自定義組件 ID（工具類別使用）
+      renderType: 'prompt' | 'component'; // 渲染類型
+      isAITool: boolean;        // 是否為 AI 工具
     };
   };
   
@@ -44,7 +50,36 @@ export interface IAITool extends Document {
   updatedAt: Date;
 }
 
-// AI 工具 Schema 定義
+// 簡化的介面，用於 API 回傳
+export interface AIToolDocument {
+  _id?: any;
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  tags: string[];
+  instructions?: {
+    what: string;
+    why: string;
+    how: string;
+  };
+  placeholder?: string;
+  promptTemplate?: {
+    prefix: string;
+    suffix: string;
+  };
+  category?: string;
+  subCategory?: string;
+  // 新增：渲染配置
+  componentId?: string;
+  renderType?: 'prompt' | 'component';
+  isAITool?: boolean;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// AI 工具 Schema 定義 - 更新以支援工具類別
 const AIToolSchema = new Schema<IAITool>({
   id: {
     type: String,
@@ -75,6 +110,12 @@ const AIToolSchema = new Schema<IAITool>({
     index: true,
     enum: [
       '提示詞',
+      'AI 工具', 
+      'SEO',
+      '健康',
+      '電腦',
+      '金融',
+      '製造',
       '寫作',
       '分析',
       '創意',
@@ -103,36 +144,54 @@ const AIToolSchema = new Schema<IAITool>({
     
     placeholder: {
       type: String,
-      required: true,
-      trim: true
+      trim: true,
+      required: false // 對於非 AI 工具，這是選填的
     },
     
     instructions: {
       what: {
         type: String,
-        required: true,
-        trim: true
+        trim: true,
+        required: false // 對於非 AI 工具，這是選填的
       },
       why: {
         type: String,
-        required: true,
-        trim: true
+        trim: true,
+        required: false
       },
       how: {
         type: String,
-        required: true,
-        trim: true
+        trim: true,
+        required: false
       }
     },
     
     promptTemplate: {
       prefix: {
         type: String,
-        required: true
+        required: false // 對於非 AI 工具，這是選填的
       },
       suffix: {
         type: String,
-        required: true
+        required: false
+      }
+    },
+    
+    // 渲染配置
+    renderConfig: {
+      componentId: {
+        type: String,
+        trim: true,
+        required: false // 只有工具類別需要
+      },
+      renderType: {
+        type: String,
+        enum: ['prompt', 'component'],
+        default: 'prompt'
+      },
+      isAITool: {
+        type: Boolean,
+        default: true
       }
     }
   },
@@ -180,26 +239,25 @@ const AIToolSchema = new Schema<IAITool>({
 // 複合索引
 AIToolSchema.index({ category: 1, isActive: 1 });
 AIToolSchema.index({ tags: 1, isActive: 1 });
-AIToolSchema.index({ 'usage.popularityScore': -1 });
-AIToolSchema.index({ name: 'text', description: 'text' });
+AIToolSchema.index({ 'config.renderConfig.isAITool': 1, isActive: 1 });
 
-// 中介軟體：儲存前自動計算熱門度分數
-AIToolSchema.pre('save', function(next) {
-  if (this.isModified('usage.totalUses')) {
-    // 基於使用次數和最近使用時間計算熱門度分數
-    const baseScore = Math.min(this.usage.totalUses * 2, 80); // 最高 80 分
-    
-    if (this.usage.lastUsed) {
-      const daysSinceLastUse = (Date.now() - this.usage.lastUsed.getTime()) / (1000 * 60 * 60 * 24);
-      const recencyBonus = Math.max(20 - daysSinceLastUse, 0); // 最近使用加分
-      this.usage.popularityScore = Math.min(baseScore + recencyBonus, 100);
-    } else {
-      this.usage.popularityScore = baseScore;
-    }
+// 文字搜尋索引
+AIToolSchema.index(
+  { 
+    name: 'text', 
+    description: 'text',
+    category: 'text',
+    tags: 'text'
+  },
+  { 
+    weights: { 
+      name: 10, 
+      description: 5,
+      category: 3,
+      tags: 2
+    } 
   }
-  
-  next();
-});
+);
 
 // 靜態方法：根據 ID 查找工具
 AIToolSchema.statics.findByToolId = function(toolId: string) {
@@ -214,10 +272,11 @@ AIToolSchema.statics.searchTools = function(
     tags?: string[]; 
     page?: number; 
     limit?: number; 
-    sortBy?: string 
+    sortBy?: string;
+    isAITool?: boolean; // 新增：按工具類型篩選
   } = {}
 ) {
-  const { category, tags, page = 1, limit = 20, sortBy = 'usage.popularityScore' } = options;
+  const { category, tags, page = 1, limit = 20, sortBy = 'usage.popularityScore', isAITool } = options;
   const skip = (page - 1) * limit;
   
   const searchCondition: any = { isActive: true };
@@ -241,6 +300,11 @@ AIToolSchema.statics.searchTools = function(
     searchCondition.tags = { $in: tags };
   }
   
+  // 工具類型篩選
+  if (typeof isAITool === 'boolean') {
+    searchCondition['config.renderConfig.isAITool'] = isAITool;
+  }
+  
   const sortOrder = sortBy.startsWith('usage.') ? -1 : 1;
   
   return this.find(searchCondition)
@@ -250,8 +314,13 @@ AIToolSchema.statics.searchTools = function(
 };
 
 // 靜態方法：取得熱門工具
-AIToolSchema.statics.getPopularTools = function(limit: number = 10) {
-  return this.find({ isActive: true })
+AIToolSchema.statics.getPopularTools = function(limit: number = 10, isAITool?: boolean) {
+  const condition: any = { isActive: true };
+  if (typeof isAITool === 'boolean') {
+    condition['config.renderConfig.isAITool'] = isAITool;
+  }
+  
+  return this.find(condition)
     .sort({ 'usage.popularityScore': -1 })
     .limit(limit);
 };
@@ -295,10 +364,23 @@ AIToolSchema.virtual('isNew').get(function() {
 
 // 虛擬欄位：完整的提示詞範本
 AIToolSchema.virtual('fullPromptTemplate').get(function() {
+  const config = this.config;
+  if (!config || !config.promptTemplate) {
+    return {
+      prefix: '',
+      suffix: '',
+      combined: '[此工具沒有提示詞範本]'
+    };
+  }
+  
+  const promptTemplate = config.promptTemplate;
+  const prefix = promptTemplate.prefix || '';
+  const suffix = promptTemplate.suffix || '';
+  
   return {
-    prefix: this.config.promptTemplate.prefix,
-    suffix: this.config.promptTemplate.suffix,
-    combined: `${this.config.promptTemplate.prefix}\n\n[使用者輸入]\n\n${this.config.promptTemplate.suffix}`
+    prefix,
+    suffix,
+    combined: `${prefix}\n\n[使用者輸入]\n\n${suffix}`
   };
 });
 
@@ -310,30 +392,6 @@ AIToolSchema.set('toObject', { virtuals: true });
 const AITool: Model<IAITool> = mongoose.models.AITool || mongoose.model<IAITool>('AITool', AIToolSchema);
 
 export default AITool;
-
-export interface AIToolDocument {
-  _id?: ObjectId;
-  id: string;
-  name: string;
-  description: string;
-  icon: string; // 儲存 icon 名稱而非函數
-  tags: string[];
-  instructions: {
-    what: string;
-    why: string;
-    how: string;
-  };
-  placeholder: string;
-  promptTemplate: {
-    prefix: string;
-    suffix: string;
-  };
-  category?: string;
-  subCategory?: string;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export class AIToolModel {
   private static collectionName = 'ai_tools';
@@ -353,6 +411,26 @@ export class AIToolModel {
         .toArray();
     } catch (error) {
       console.error('Error fetching AI tools:', error);
+      return [];
+    }
+  }
+
+  // 根據工具類型獲取工具
+  static async getByToolType(isAITool: boolean): Promise<AIToolDocument[]> {
+    try {
+      const collection = await this.getCollection();
+      return await collection
+        .find({ 
+          isActive: true,
+          $or: [
+            { 'config.renderConfig.isAITool': isAITool },
+            { isAITool: isAITool } // 向後兼容
+          ]
+        })
+        .sort({ createdAt: 1 })
+        .toArray();
+    } catch (error) {
+      console.error('Error fetching AI tools by type:', error);
       return [];
     }
   }
@@ -409,59 +487,21 @@ export class AIToolModel {
     }
   }
 
-  // 創建新工具
-  static async create(toolData: Omit<AIToolDocument, '_id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
+  // 新增工具
+  static async insertOne(tool: Omit<AIToolDocument, '_id' | 'createdAt' | 'updatedAt'>): Promise<boolean> {
     try {
       const collection = await this.getCollection();
       const now = new Date();
-      const result = await collection.insertOne({
-        ...toolData,
+      const toolWithTimestamps = {
+        ...tool,
         createdAt: now,
         updatedAt: now
-      });
-      return result.insertedId.toString();
+      };
+      
+      const result = await collection.insertOne(toolWithTimestamps);
+      return !!result.insertedId;
     } catch (error) {
-      console.error('Error creating AI tool:', error);
-      return null;
-    }
-  }
-
-  // 更新工具
-  static async update(id: string, updateData: Partial<Omit<AIToolDocument, '_id' | 'id' | 'createdAt'>>): Promise<boolean> {
-    try {
-      const collection = await this.getCollection();
-      const result = await collection.updateOne(
-        { id },
-        { 
-          $set: {
-            ...updateData,
-            updatedAt: new Date()
-          }
-        }
-      );
-      return result.modifiedCount > 0;
-    } catch (error) {
-      console.error('Error updating AI tool:', error);
-      return false;
-    }
-  }
-
-  // 軟刪除工具
-  static async softDelete(id: string): Promise<boolean> {
-    try {
-      const collection = await this.getCollection();
-      const result = await collection.updateOne(
-        { id },
-        { 
-          $set: {
-            isActive: false,
-            updatedAt: new Date()
-          }
-        }
-      );
-      return result.modifiedCount > 0;
-    } catch (error) {
-      console.error('Error soft deleting AI tool:', error);
+      console.error('Error inserting AI tool:', error);
       return false;
     }
   }
@@ -485,12 +525,32 @@ export class AIToolModel {
     }
   }
 
-  // 清空所有工具（謹慎使用）
+  // 更新工具
+  static async updateOne(id: string, updates: Partial<AIToolDocument>): Promise<boolean> {
+    try {
+      const collection = await this.getCollection();
+      const result = await collection.updateOne(
+        { id },
+        { 
+          $set: { 
+            ...updates, 
+            updatedAt: new Date() 
+          } 
+        }
+      );
+      return result.modifiedCount > 0;
+    } catch (error) {
+      console.error('Error updating AI tool:', error);
+      return false;
+    }
+  }
+
+  // 刪除所有工具（僅用於測試）
   static async deleteAll(): Promise<boolean> {
     try {
       const collection = await this.getCollection();
-      await collection.deleteMany({});
-      return true;
+      const result = await collection.deleteMany({});
+      return result.acknowledged;
     } catch (error) {
       console.error('Error deleting all AI tools:', error);
       return false;
@@ -507,17 +567,21 @@ export class AIToolModel {
       await collection.createIndex({ tags: 1 });
       await collection.createIndex({ isActive: 1 });
       await collection.createIndex({ createdAt: 1 });
+      await collection.createIndex({ category: 1 });
+      await collection.createIndex({ 'config.renderConfig.isAITool': 1 });
       
       // 文字搜尋索引
       await collection.createIndex(
         { 
           name: 'text', 
-          description: 'text' 
+          description: 'text',
+          category: 'text'
         },
         { 
           weights: { 
             name: 10, 
-            description: 5 
+            description: 5,
+            category: 3
           } 
         }
       );

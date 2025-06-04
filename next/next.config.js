@@ -97,11 +97,62 @@ const nextConfig = {
     GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
   },
   webpack: (config, { isServer }) => {
+    // 處理伺服器端 MongoDB 相關模組
     if (isServer) {
       config.externals.push({
         'utf-8-validate': 'commonjs utf-8-validate',
         'bufferutil': 'commonjs bufferutil',
+        'mongodb': 'commonjs mongodb',
+        'mongoose': 'commonjs mongoose',
       });
+    } else {
+      // 客戶端 fallback 配置 - 解決 MongoDB 驅動程式的 Node.js 模組問題
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        dns: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        os: false,
+        path: false,
+        querystring: false,
+        util: false,
+        buffer: false,
+        events: false,
+        child_process: false,
+        cluster: false,
+        dgram: false,
+        module: false,
+        perf_hooks: false,
+        readline: false,
+        repl: false,
+        worker_threads: false,
+        inspector: false,
+        'mongodb-client-encryption': false,
+      };
+
+      // 忽略 MongoDB 相關模組在客戶端的載入
+      config.externals = config.externals || [];
+      config.externals.push({
+        mongodb: 'mongodb',
+        mongoose: 'mongoose',
+        'mongodb-client-encryption': 'mongodb-client-encryption',
+      });
+
+      // 添加 IgnorePlugin 來忽略特定模組
+      const webpack = require('webpack');
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^(mongodb|mongoose|mongodb-client-encryption)$/,
+        })
+      );
     }
     
     return config;

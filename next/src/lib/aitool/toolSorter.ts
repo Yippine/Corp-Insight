@@ -1,12 +1,13 @@
-import { Tools, categoryThemes } from './tools';
+import type { Tools } from './types';
+
+// 由於我們現在動態生成主題，這裡使用一個基本的排序邏輯
+const defaultCategoryOrder = ['全部', 'AI', '工具', 'SEO', '健康', '電腦', '金融', '製造'];
 
 // 根據類別主題順序對標籤進行排序的核心邏輯
 function sortTagsByCategory(tags: string[]): string[] {
-  const categoryOrder = Object.keys(categoryThemes);
-  
   return [...tags].sort((a, b) => {
-    const aIndex = categoryOrder.indexOf(a);
-    const bIndex = categoryOrder.indexOf(b);
+    const aIndex = defaultCategoryOrder.indexOf(a);
+    const bIndex = defaultCategoryOrder.indexOf(b);
     
     // 處理未定義類別的標籤排序邏輯
     if (aIndex === -1 && bIndex === -1) {
@@ -37,8 +38,8 @@ export function sortToolsByTags(tools: Tools[]): Tools[] {
       if (!a.tags[i] && !b.tags[i]) continue;
       
       // 其次根據類別主題順序排序
-      const aIndex = Object.keys(categoryThemes).indexOf(a.tags[i]);
-      const bIndex = Object.keys(categoryThemes).indexOf(b.tags[i]);
+      const aIndex = defaultCategoryOrder.indexOf(a.tags[i]);
+      const bIndex = defaultCategoryOrder.indexOf(b.tags[i]);
       
       if (aIndex !== bIndex) {
         return aIndex - bIndex;
@@ -51,7 +52,7 @@ export function sortToolsByTags(tools: Tools[]): Tools[] {
 
 // 基於選定標籤的排序函數（但會優先使用主要的標籤排序邏輯）
 export function sortToolsBySelectedTag(tools: Tools[], selectedTag?: string): Tools[] {
-  if (!selectedTag) return sortToolsByTags(tools);
+  if (!selectedTag || selectedTag === '全部') return sortToolsByTags(tools);
   
   return [...sortToolsByTags(tools)].sort((a, b) => {
     const aHasTag = a.tags.includes(selectedTag);

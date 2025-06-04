@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Tools, categoryThemes, iconMap } from '@/lib/aitool/tools';
+import { getCategoryThemes } from '@/lib/aitool/apiHelpers';
+import { iconMap } from '@/lib/aitool/iconMap';
+import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import { ChevronLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
@@ -44,6 +46,21 @@ interface AiToolDetailProps {
 export default function AiToolDetail({ tool }: AiToolDetailProps) {
   const router = useRouter();
   const { stopLoading, checkAndStopLoading } = useLoading();
+  const [categoryThemes, setCategoryThemes] = useState<Record<string, ColorTheme>>({});
+
+  useEffect(() => {
+    // 載入分類主題
+    const loadThemes = async () => {
+      try {
+        const themes = await getCategoryThemes();
+        setCategoryThemes(themes);
+      } catch (error) {
+        console.error('Error loading category themes:', error);
+      }
+    };
+    
+    loadThemes();
+  }, []);
 
   useEffect(() => {
     // 在頁面加載時回到頂部
