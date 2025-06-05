@@ -1,4 +1,41 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://opendata.leopilot.com/sitemap.xml
+# 企業搜尋和詳情頁面 - 高優先級
+Allow: /company/
+Allow: /company/search*
+Allow: /company/detail/*
+
+# 標案搜尋和詳情頁面 - 高優先級  
+Allow: /tender/
+Allow: /tender/search*
+Allow: /tender/detail/*
+
+# AI 工具頁面 - 中等優先級
+Allow: /aitool/
+Allow: /aitool/search*
+Allow: /aitool/detail/*
+
+# 靜態頁面 - 高優先級
+Allow: /faq
+Allow: /privacy
+Allow: /feedback
+Allow: /feedback/success
+
+# API 端點不需要索引
+Disallow: /api/
+
+# Next.js 內部文件和開發資源
+Disallow: /_next/
+Disallow: /next.config.js
+Disallow: /.well-known/
+
+# 測試和調試頁面
+Disallow: /test-dedup/
+
+# 網站地圖位置（開發環境將使用 localhost:3000）
+Sitemap: http://localhost:3000/sitemap-index.xml
+Sitemap: http://localhost:3000/sitemap.xml
+
+# 爬蟲友好設定
+Crawl-delay: 1

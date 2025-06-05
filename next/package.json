@@ -45,7 +45,18 @@
     "// === 快速啟動指令 (推薦使用) ===": "",
     "start:dev": "npm run docker:full-dev",
     "start:prod": "npm run docker:full-prod",
-    "stop": "npm run docker:force-stop && npm run docker:cleanup"
+    "stop": "npm run docker:force-stop && npm run docker:cleanup",
+    "// === 故障排除指令 ===": "",
+    "fix:critters-issue": "sh ./scripts/fix-critters-issue.sh",
+    "fix:critters": "node scripts/fix-critters.js",
+    "fix:docker": "npm run stop && docker system prune -f && npm run docker:dev:build",
+    "fix:deps": "rm -rf node_modules package-lock.json && npm install",
+    "// === Sitemap 監控與管理指令 ===": "",
+    "sitemap:test": "node scripts/sitemap-monitor.js test",
+    "sitemap:monitor": "node scripts/sitemap-monitor.js monitor",
+    "sitemap:stop": "node scripts/sitemap-monitor.js stop",
+    "sitemap:status": "node scripts/sitemap-monitor.js status",
+    "sitemap:clear-cache": "node scripts/sitemap-monitor.js clear-cache"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -53,7 +64,7 @@
     "chart.js": "^4.4.8",
     "chartjs-adapter-date-fns": "^3.0.0",
     "cheerio": "^1.0.0",
-    "critters": "^0.0.23",
+    "critters": "^0.0.24",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.18.2",
     "jsonwebtoken": "^9.0.2",
@@ -65,7 +76,8 @@
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.3.8",
-    "react-schemaorg": "^2.0.0"
+    "react-schemaorg": "^2.0.0",
+    "web-vitals": "^5.0.2"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^4.41.3",

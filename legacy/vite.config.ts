@@ -25,6 +25,6 @@ export default defineConfig({
     }
   },
   preview: {
-    allowedHosts: ['opendata.leopilot.com']
+    allowedHosts: ['insight.leopilot.com']
   }
 });

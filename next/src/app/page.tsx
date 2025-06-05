@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: staticTitles.home,
     description: '專業的企業資訊查詢平台，提供最新、最全面的台灣企業和標案資料',
-    url: 'https://opendata.leopilot.com',
+    url: 'https://insight.leopilot.com',
   },
 };
 

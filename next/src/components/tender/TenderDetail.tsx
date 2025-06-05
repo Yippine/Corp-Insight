@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTenderDetail } from '../../hooks/useTenderDetail';
 import BackButton from '../common/BackButton';
+import TenderDetailTracker from './TenderDetailTracker';
 import TenderHeader from './detail/TenderHeader';
 import TenderTabNavigation from './detail/TenderTabNavigation';
 import YesNoSection from './detail/YesNoSection';
@@ -75,7 +76,7 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
   const renderSection = (section: (typeof sections)[0]) => {
     if (section.title === '最有利標' || section.title === '其他') {
       return (
-        <TenderSpecialInfo section={section} targetRecord={targetRecord} />
+        <TenderSpecialInfo section={section} />
       );
     }
 
@@ -105,6 +106,12 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      {/* GA 標案詳情追蹤 */}
+      <TenderDetailTracker 
+        tenderId={tenderId} 
+        tenderTitle={targetRecord?.brief?.title} 
+      />
+      
       <BackButton returnPath="/tender/search" />
 
       <TenderHeader targetRecord={targetRecord} data={data} />

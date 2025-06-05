@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://opendata.leopilot.com/sitemap.xml
+Sitemap: https://insight.leopilot.com/sitemap.xml

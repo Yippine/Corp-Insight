@@ -5,6 +5,7 @@ import FeatureSection from '@/components/FeatureSection';
 import { fetchCompanySearch } from '@/lib/company/api';
 import { CompanySearchStructuredData } from '@/components/SEO/CompanySearchSEO';
 import { CompanyData, SearchParams } from '@/lib/company/types';
+import CompanySearchTracker from '@/components/company/CompanySearchTracker';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import AutoRedirect from '@/components/common/AutoRedirect';
 import { redirect } from 'next/navigation';
@@ -134,6 +135,15 @@ export default async function CompanySearchPage({
     <>
       {/* SEO 數據標記 */}
       <CompanySearchStructuredData query={decodedQuery} />
+
+      {/* GA 搜尋結果追蹤 */}
+      {decodedQuery && (
+        <CompanySearchTracker 
+          query={decodedQuery} 
+          totalResults={companies.length} 
+          hasError={!!error} 
+        />
+      )}
 
       {/* 自動跳轉處理 */}
       {shouldClientRedirect && <AutoRedirect url={redirectUrl} />}

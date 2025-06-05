@@ -36,10 +36,10 @@ const nextConfig = {
     ];
   },
   experimental: {
-    optimizeCss: true, // 優化CSS
+    optimizeCss: process.env.NODE_ENV === 'production', // 只在生產環境優化 CSS
     scrollRestoration: true, // 允許頁面滾動位置保存
     optimisticClientCache: true, // 啟用樂觀客戶端緩存
-    serverMinification: true, // 伺服器組件代碼最小化
+    serverMinification: process.env.NODE_ENV === 'production', // 只在生產環境最小化
     serverActions: {
       bodySizeLimit: '2mb', // 提高限制以處理較大的請求
     },

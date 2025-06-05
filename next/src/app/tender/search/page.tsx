@@ -8,6 +8,7 @@ import { fetchTenderSearch } from '@/lib/tender/api';
 import type { SearchParams, TenderSearchResult } from '@/lib/tender/types';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import TenderSearchClientWrapper from '@/components/tender/TenderSearchClientWrapper';
+import TenderSearchTracker from '@/components/tender/TenderSearchTracker';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
 import { cache } from 'react';
@@ -82,6 +83,16 @@ export default async function TenderSearchPage({
       }
     >
       <TenderSearchClientWrapper>
+        {/* GA 搜尋結果追蹤 */}
+        {decodedQuery && (
+          <TenderSearchTracker 
+            query={decodedQuery} 
+            searchType={searchType}
+            totalResults={results.length} 
+            hasError={!!error} 
+          />
+        )}
+        
         <div className="space-y-8">
           <HeroSection
             title="快速查詢"

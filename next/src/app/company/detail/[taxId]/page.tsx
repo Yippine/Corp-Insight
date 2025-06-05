@@ -7,6 +7,7 @@ import {
   generateCompanyDetailMetadata,
   CompanyDetailStructuredData,
 } from '@/components/SEO/CompanyDetailSEO';
+import CompanyDetailTracker from '@/components/company/CompanyDetailTracker';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,6 +69,7 @@ export default async function CompanyDetailPage({
   return (
     <>
       <CompanyDetailStructuredData companyData={companyData} />
+      <CompanyDetailTracker companyData={companyData} />
 
       <CompanyDetailContent
         companyData={companyData}

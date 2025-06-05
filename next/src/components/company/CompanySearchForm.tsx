@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Search, Building2, FileSpreadsheet, Users } from 'lucide-react';
 import { ButtonLoading, InlineLoading } from '../common/loading/LoadingTypes';
 import { useLoadingState } from '../common/loading/LoadingHooks';
+import { trackBusinessEvents } from '../GoogleAnalytics';
 
 interface CompanySearchFormProps {
   initialQuery?: string;

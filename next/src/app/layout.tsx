@@ -5,6 +5,9 @@ import Footer from '@/components/Footer';
 import { LoadingProvider } from '@/components/common/loading/LoadingProvider';
 import Script from 'next/script';
 import { staticTitles } from '@/config/pageTitles';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
+import GoogleAnalyticsDebug from '@/components/GoogleAnalyticsDebug';
+import WebVitalsTracker from '@/components/WebVitalsTracker';
 
 export const metadata: Metadata = {
   title: staticTitles.home,
@@ -39,26 +42,15 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" suppressHydrationWarning>
       <head>
-        {/* Google tag (gtag.js) - 使用afterInteractive策略，確保頁面可互動後再載入 */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-PDSWJD7GMN"
-          strategy="afterInteractive"
-          defer
-        />
-        <Script id="google-analytics" strategy="afterInteractive" defer>
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-PDSWJD7GMN');
-          `}
-        </Script>
         {/* 預加載關鍵資源 */}
         <link rel="preload" href="/magnifier.ico" as="image" />
         <link rel="preconnect" href="https://company.g0v.ronny.tw" />
         <link rel="dns-prefetch" href="https://company.g0v.ronny.tw" />
       </head>
       <body suppressHydrationWarning>
+        <GoogleAnalytics />
+        <GoogleAnalyticsDebug />
+        <WebVitalsTracker />
         <div className="flex min-h-screen flex-col bg-gray-50">
           <LoadingProvider>
             <Header />

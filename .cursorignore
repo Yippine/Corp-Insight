@@ -161,8 +161,8 @@ next/prisma/migrations/
 next/prisma/dev.db*
 
 # 站點地圖和 SEO 檔案
-sitemap*.xml
-robots.txt
+# sitemap*.xml
+# robots.txt
 
 # ===== 部署相關 =====
 # Netlify

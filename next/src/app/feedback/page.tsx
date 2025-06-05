@@ -10,6 +10,7 @@ import {
   DropzoneOptions,
   Accept,
 } from 'react-dropzone';
+import { trackBusinessEvents } from '@/components/GoogleAnalytics';
 
 const feedbackTypes = [
   {
@@ -236,6 +237,8 @@ export default function FeedbackPage() {
       if (!response.ok) {
         setError(data.message || '提交失敗，請稍後再試。');
       } else {
+        // GA 追蹤回饋提交成功
+        trackBusinessEvents.feedbackSubmit(type);
         router.push('/feedback/success');
       }
     } catch (err) {

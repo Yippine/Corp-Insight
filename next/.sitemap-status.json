@@ -1,0 +1,72 @@
+{
+  "statusMap": {
+    "robots": {
+      "id": "robots",
+      "name": "robots.txt",
+      "url": "/robots.txt",
+      "description": "搜索引擎爬蟲指令",
+      "status": "success",
+      "statusText": "✅ 正常 (33ms)",
+      "responseTime": 33,
+      "contentLength": 705,
+      "lastChecked": "2025-06-05T13:26:43.420Z"
+    },
+    "index": {
+      "id": "index",
+      "name": "Sitemap Index",
+      "url": "/sitemap-index.xml",
+      "description": "管理所有 sitemap 索引",
+      "status": "success",
+      "statusText": "✅ 正常 (330ms)",
+      "responseTime": 330,
+      "contentLength": 663,
+      "lastChecked": "2025-06-05T13:26:43.713Z"
+    },
+    "companies": {
+      "id": "companies",
+      "name": "企業 Sitemap",
+      "url": "/sitemap-companies.xml",
+      "description": "企業詳情頁面",
+      "status": "success",
+      "statusText": "✅ 正常 (415ms)",
+      "responseTime": 415,
+      "contentLength": 110,
+      "lastChecked": "2025-06-05T13:26:43.798Z"
+    },
+    "main": {
+      "id": "main",
+      "name": "主要 Sitemap",
+      "url": "/sitemap.xml",
+      "description": "靜態頁面 + 動態內容",
+      "status": "success",
+      "statusText": "✅ 正常 (442ms)",
+      "responseTime": 442,
+      "contentLength": 25607,
+      "lastChecked": "2025-06-05T13:26:43.816Z"
+    },
+    "tenders": {
+      "id": "tenders",
+      "name": "標案 Sitemap",
+      "url": "/sitemap-tenders.xml",
+      "description": "標案詳情頁面",
+      "status": "success",
+      "statusText": "✅ 正常 (438ms)",
+      "responseTime": 438,
+      "contentLength": 110,
+      "lastChecked": "2025-06-05T13:26:43.823Z"
+    },
+    "aitools": {
+      "id": "aitools",
+      "name": "AI 工具 Sitemap",
+      "url": "/sitemap-aitools.xml",
+      "description": "AI 工具詳情頁面",
+      "status": "success",
+      "statusText": "✅ 正常 (443ms)",
+      "responseTime": 443,
+      "contentLength": 110,
+      "lastChecked": "2025-06-05T13:26:43.827Z"
+    }
+  },
+  "timestamp": 1749130003828,
+  "lastUpdate": "2025-06-05T13:26:43.828Z"
+}

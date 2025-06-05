@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { getCategoryThemes } from '@/lib/aitool/apiHelpers';
 import { iconMap } from '@/lib/aitool/iconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
+import { trackBusinessEvents } from '../GoogleAnalytics';
 import { ChevronLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
@@ -137,6 +138,9 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
     // 在頁面加載時回到頂部
     window.scrollTo(0, 0);
 
+    // GA 追蹤 AI 工具詳情頁瀏覽
+    trackBusinessEvents.aiToolUse(tool.name, tool.tags[0] || 'unknown');
+
     // 關閉頂部 Loading 指示器
     // 使用短延遲確保 UI 已經渲染
     const timer = setTimeout(() => {
@@ -144,7 +148,7 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
     }, 50);
 
     return () => clearTimeout(timer);
-  }, [tool.componentId, stopLoading]);
+  }, [tool.componentId, tool.name, tool.tags, stopLoading]);
 
   // 在組件已掛載完成後立即檢查並停止 Loading
   useEffect(() => {

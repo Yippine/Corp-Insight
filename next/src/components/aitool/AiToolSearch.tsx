@@ -12,6 +12,7 @@ import NoSearchResults from '@/components/common/NoSearchResults';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
 import { useLoading } from '@/components/common/loading/LoadingProvider';
+import { trackBusinessEvents } from '../GoogleAnalytics';
 
 // 添加預載功能
 const preloadToolComponents = async () => {
@@ -189,11 +190,24 @@ export default function AiToolSearch({
   const handleTagSelect = (tag: string) => {
     setSelectedTag(prevTag => {
       const newTag = tag === '全部' || prevTag === tag ? '' : tag;
+      
+      // GA 追蹤 AI 工具分類選擇
+      if (newTag) {
+        trackBusinessEvents.aiToolSearch(newTag, filteredTools().length);
+      }
+      
       return newTag;
     });
   };
 
   const handleToolClick = (toolId: string) => {
+    // 找到被點擊的工具資訊
+    const clickedTool = tools.find(tool => tool.id === toolId);
+    if (clickedTool) {
+      // GA 追蹤 AI 工具使用
+      trackBusinessEvents.aiToolUse(clickedTool.name, clickedTool.tags[0] || 'unknown');
+    }
+
     sessionStorage.setItem('toolSearchParams', searchParams.toString());
     sessionStorage.setItem('toolSearchScroll', window.scrollY.toString());
     // 顯示頂部 Loading 指示器

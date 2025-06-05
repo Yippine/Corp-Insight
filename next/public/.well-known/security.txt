@@ -1,0 +1,6 @@
+Contact: mailto:security@insight.leopilot.com
+Expires: 2025-12-31T23:59:59.000Z
+Acknowledgments: https://insight.leopilot.com/security
+Preferred-Languages: zh-TW, en
+Canonical: https://insight.leopilot.com/.well-known/security.txt
+Policy: https://insight.leopilot.com/security-policy
