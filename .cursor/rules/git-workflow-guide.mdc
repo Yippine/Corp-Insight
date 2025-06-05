@@ -1,5 +1,5 @@
 ---
-description: Git 工作流程與版本控制指南。用於查詢本專案的 commit message 格式、分支策略(如推送至 next 或 main 分支)、自動化部署流程，或需要 AI 輔助判斷如何根據異動檔案和分支進行推送時調用。
+description: Git 工作流程與版本控制指南。當使用者提及「上版」、「提交版本」、「commit」、「push」或要求執行 Git 發布相關操作時，優先調用此規則。用於查詢 commit message 格式、分支策略、自動化部署流程，及 AI 輔助版本控制。
 globs: 
 alwaysApply: false
 ---
