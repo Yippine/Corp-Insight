@@ -6,7 +6,7 @@ interface InstructionsProps {
 
 export default function Instructions({ what, why, how }: InstructionsProps) {
   return (
-    <div className="mb-6 bg-blue-50 rounded-lg p-4 space-y-3">
+    <div className="mb-6 space-y-3 rounded-lg bg-blue-50 p-4">
       <div>
         <h3 className="text-base font-medium text-blue-800">這是什麼？</h3>
         <p className="text-base text-blue-600">{what}</p>

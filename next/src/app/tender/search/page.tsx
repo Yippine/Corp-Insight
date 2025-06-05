@@ -24,49 +24,66 @@ type CachedSearchResult = {
   error?: string | null;
 };
 
-const getCachedTenderSearch = cache(async (query: string, searchType: 'company' | 'tender', page: number): Promise<CachedSearchResult> => {
-  try {
-    const searchResults = await fetchTenderSearch(query, searchType, page);
-    return {
-      ...searchResults,
-      error: null
-    };
-  } catch (e) {
-    console.error('Search failed:', e);
-    return {
-      results: [] as TenderSearchResult[],
-      totalPages: 0,
-      error: e instanceof Error ? e.message : '搜尋過程發生錯誤，請稍後再試。'
-    };
+const getCachedTenderSearch = cache(
+  async (
+    query: string,
+    searchType: 'company' | 'tender',
+    page: number
+  ): Promise<CachedSearchResult> => {
+    try {
+      const searchResults = await fetchTenderSearch(query, searchType, page);
+      return {
+        ...searchResults,
+        error: null,
+      };
+    } catch (e) {
+      console.error('Search failed:', e);
+      return {
+        results: [] as TenderSearchResult[],
+        totalPages: 0,
+        error:
+          e instanceof Error ? e.message : '搜尋過程發生錯誤，請稍後再試。',
+      };
+    }
   }
-});
+);
 
-export default async function TenderSearchPage({ searchParams }: TenderSearchPageProps) {
+export default async function TenderSearchPage({
+  searchParams,
+}: TenderSearchPageProps) {
   const query = searchParams?.q || '';
   const searchType = (searchParams?.type || 'company') as 'company' | 'tender';
   const page = parseInt(searchParams?.page || '1') || 1;
   const decodedQuery = decodeURIComponent(query);
-  
+
   // 默認狀態
   let results: TenderSearchResult[] = [];
   let totalPages = 0;
   let error: string | null = null;
-  
+
   // 如果有搜尋查詢，則執行搜索
   if (decodedQuery) {
-    const searchResults = await getCachedTenderSearch(decodedQuery, searchType, page);
+    const searchResults = await getCachedTenderSearch(
+      decodedQuery,
+      searchType,
+      page
+    );
     results = searchResults.results;
     totalPages = searchResults.totalPages;
     error = searchResults.error || null;
   }
 
   return (
-    <Suspense fallback={<div className="w-full h-full min-h-[calc(100vh-var(--header-height,80px)-var(--footer-height,80px))] flex justify-center items-center">
-      <InlineLoading />
-    </div>}>
+    <Suspense
+      fallback={
+        <div className="flex h-full min-h-[calc(100vh-var(--header-height,80px)-var(--footer-height,80px))] w-full items-center justify-center">
+          <InlineLoading />
+        </div>
+      }
+    >
       <TenderSearchClientWrapper>
         <div className="space-y-8">
-          <HeroSection 
+          <HeroSection
             title="快速查詢"
             highlightText="標案資訊"
             description="輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊"
@@ -77,24 +94,20 @@ export default async function TenderSearchPage({ searchParams }: TenderSearchPag
             initialQuery={decodedQuery}
             initialType={searchType}
           />
-          
-          {decodedQuery && (
-            error ? (
-              <NoSearchResults 
-                message={error}
-                searchTerm={decodedQuery}
-              />
+
+          {decodedQuery &&
+            (error ? (
+              <NoSearchResults message={error} searchTerm={decodedQuery} />
             ) : (
-              <TenderSearchResults 
+              <TenderSearchResults
                 results={results}
                 totalPages={totalPages}
                 currentPage={page}
                 searchQuery={decodedQuery}
                 searchType={searchType}
               />
-            )
-          )}
-          
+            ))}
+
           {!decodedQuery && <FeatureSection />}
         </div>
       </TenderSearchClientWrapper>
@@ -103,7 +116,11 @@ export default async function TenderSearchPage({ searchParams }: TenderSearchPag
 }
 
 // 動態生成元數據
-export async function generateMetadata({ searchParams }: { searchParams?: SearchParams }): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: SearchParams;
+}): Promise<Metadata> {
   const query = searchParams?.q || '';
   const searchType = (searchParams?.type || 'tender') as 'company' | 'tender'; // 預設為 'tender'
   const decodedQuery = decodeURIComponent(query);
@@ -112,22 +129,27 @@ export async function generateMetadata({ searchParams }: { searchParams?: Search
   if (!decodedQuery) {
     return {
       title: staticTitles.tenderSearch,
-      description: '輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊。'
+      description:
+        '輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊。',
     };
   }
 
   // 使用 getCachedTenderSearch 判斷搜尋結果
   // 只獲取第一頁的數據，這對於標題生成已經足夠
-  const searchResults = await getCachedTenderSearch(decodedQuery, searchType, 1);
-  
+  const searchResults = await getCachedTenderSearch(
+    decodedQuery,
+    searchType,
+    1
+  );
+
   // 根據結果決定使用哪個標題
   const hasResults = searchResults.results.length > 0;
-  const title = hasResults 
+  const title = hasResults
     ? dynamicTitles.tenderSearchWithQueryAndType(decodedQuery, searchType)
     : dynamicTitles.tenderSearchNoResult(decodedQuery, searchType);
-  
+
   return {
     title,
-    description: `查看 ${decodedQuery} (${searchType === 'company' ? '廠商' : '標案'}) 的相關標案資訊、招標公告、得標資訊等完整資料。`
+    description: `查看 ${decodedQuery} (${searchType === 'company' ? '廠商' : '標案'}) 的相關標案資訊、招標公告、得標資訊等完整資料。`,
   };
 }

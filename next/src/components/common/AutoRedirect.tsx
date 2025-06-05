@@ -22,7 +22,7 @@ export default function AutoRedirect({ url }: AutoRedirectProps) {
       setLoading(true);
       // 執行跳轉
       router.push(url);
-      
+
       // 清理函數 - 當元件卸載時執行
       return () => {
         // 路由變化完成後元件會卸載，此時自動停止加載狀態

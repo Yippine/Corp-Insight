@@ -1,6 +1,12 @@
 'use client';
 
-import { forwardRef, PropsWithChildren, useRef, useEffect, useState } from 'react';
+import {
+  forwardRef,
+  PropsWithChildren,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useLoading } from './loading/LoadingProvider';
@@ -22,27 +28,30 @@ type NavLinkProps = PropsWithChildren<{
  * 在點擊時立即顯示加載狀態，提升用戶體驗
  */
 const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
-  ({ 
-    href, 
-    children, 
-    className = '', 
-    activeClassName = '', 
-    onClick, 
-    prefetch = true,
-    replace = false,
-    scroll = true,
-    // 默認啟用智能加載
-    smartLoading = true,
-    ...props 
-  }, ref) => {
+  (
+    {
+      href,
+      children,
+      className = '',
+      activeClassName: _activeClassName = '',
+      onClick,
+      prefetch = true,
+      replace = false,
+      scroll: _scroll = true,
+      // 默認啟用智能加載
+      smartLoading = true,
+      ...props
+    },
+    ref
+  ) => {
     const router = useRouter();
     const currentPathname = usePathname();
     const currentSearchParams = useSearchParams();
     const { startLoading, checkAndStopLoading } = useLoading();
-    
+
     // 快取防抖，避免重複導航
     const navigationInProgress = useRef(false);
-    
+
     // 記錄上次導航到此頁面的時間
     const [lastNavigationTime] = useState<Record<string, number>>(() => {
       // 嘗試從 sessionStorage 恢復導航記錄
@@ -50,7 +59,7 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
         try {
           const storedTimes = sessionStorage.getItem('navLinkNavigationTimes');
           return storedTimes ? JSON.parse(storedTimes) : {};
-        } catch (e) {
+        } catch {
           return {};
         }
       }
@@ -67,11 +76,11 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
         }
         // 處理絕對URL
         const urlObj = new URL(url, window.location.origin);
-        return { 
-          path: urlObj.pathname, 
-          query: urlObj.search.replace('?', '') 
+        return {
+          path: urlObj.pathname,
+          query: urlObj.search.replace('?', ''),
         };
-      } catch (e) {
+      } catch {
         // 如果解析失敗，簡單分割
         const [path, query] = url.split('?');
         return { path, query: query || '' };
@@ -80,7 +89,9 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
 
     // 是否是 /aitool/search, /company/search, /tender/search 這三個主要搜尋頁面
     const isMainSearchPage = (path: string) => {
-      return ['/aitool/search', '/company/search', '/tender/search'].includes(path);
+      return ['/aitool/search', '/company/search', '/tender/search'].includes(
+        path
+      );
     };
 
     // 檢查是否需要顯示 Loading
@@ -90,18 +101,21 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
       // 檢查是否最近導航過 (5 分鐘內)
       const now = Date.now();
       const lastNavigated = lastNavigationTime[targetPath] || 0;
-      const recentlyNavigated = (now - lastNavigated) < 300000; // 5 分鐘 = 300000ms
-      
+      const recentlyNavigated = now - lastNavigated < 300000; // 5 分鐘 = 300000ms
+
       // 1. 如果是主要搜尋頁面之間的導航 - 智能判斷
-      if (isMainSearchPage(currentPathname || '') && isMainSearchPage(targetPath)) {
+      if (
+        isMainSearchPage(currentPathname || '') &&
+        isMainSearchPage(targetPath)
+      ) {
         return !recentlyNavigated; // 如果最近導航過，不顯示 Loading
       }
-      
+
       // 2. 導航到相同頁面 - 只有參數變化，使用更短的 Loading
       if (targetPath === (currentPathname || '')) {
         return false; // 只有參數變化，不顯示 Loading
       }
-      
+
       // 3. 其他情況顯示 Loading
       return true;
     };
@@ -110,12 +124,15 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
     const updateNavigationTime = (path: string) => {
       const now = Date.now();
       lastNavigationTime[path] = now;
-      
+
       // 保存到 sessionStorage
       if (typeof window !== 'undefined') {
         try {
-          sessionStorage.setItem('navLinkNavigationTimes', JSON.stringify(lastNavigationTime));
-        } catch (e) {
+          sessionStorage.setItem(
+            'navLinkNavigationTimes',
+            JSON.stringify(lastNavigationTime)
+          );
+        } catch {
           // 忽略儲存錯誤
         }
       }
@@ -128,11 +145,11 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
 
         // 解析目標和當前路徑
         const { path: targetPath, query: targetQuery } = getPathAndParams(href);
-        const { path: currentPath, query: currentQuery } = { 
-          path: currentPathname || '/', 
-          query: currentSearchParams?.toString() || '' 
+        const { path: currentPath, query: currentQuery } = {
+          path: currentPathname || '/',
+          query: currentSearchParams?.toString() || '',
         };
-        
+
         // 如果目標路徑與當前路徑及參數完全相同，直接跳過導航與 Loading
         if (targetPath === currentPath && targetQuery === currentQuery) {
           return;
@@ -142,12 +159,13 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
         if (navigationInProgress.current) {
           return;
         }
-        
+
         // 標記導航進行中
         navigationInProgress.current = true;
 
         // 檢查是否為同頁參數變化導航
-        const isOnlyParamsChanged = targetPath === currentPath && targetQuery !== currentQuery;
+        const isOnlyParamsChanged =
+          targetPath === currentPath && targetQuery !== currentQuery;
 
         // 決定是否顯示載入狀態
         if (shouldShowLoading(targetPath)) {

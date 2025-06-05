@@ -42,7 +42,7 @@ export interface TenderRecord {
   url: string;
 }
 
-export type TenderStatus = 
+export type TenderStatus =
   | '已決標'
   | '招標中'
   | '無法決標'

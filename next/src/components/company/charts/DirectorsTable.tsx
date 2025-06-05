@@ -14,10 +14,10 @@ interface DirectorsTableProps {
 
 export default function DirectorsTable({ directors }: DirectorsTableProps) {
   return (
-    <div className="bg-white shadow-lg rounded-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
+    <div className="overflow-hidden rounded-lg bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
       <div className="px-6 py-5">
-        <h3 className="text-xl leading-6 font-medium text-gray-900 flex items-center">
-          <span className="inline-block w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
+        <h3 className="flex items-center text-xl font-medium leading-6 text-gray-900">
+          <span className="mr-3 inline-block h-6 w-1 rounded-full bg-blue-600"></span>
           董監事名單
         </h3>
       </div>
@@ -26,46 +26,60 @@ export default function DirectorsTable({ directors }: DirectorsTableProps) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium uppercase tracking-wider text-gray-500"
+                >
                   職稱
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium uppercase tracking-wider text-gray-500"
+                >
                   姓名
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium uppercase tracking-wider text-gray-500"
+                >
                   持有股份
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium uppercase tracking-wider text-gray-500"
+                >
                   代表法人
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {directors.map((director, index) => (
-                <tr 
+                <tr
                   key={index}
-                  className="hover:bg-gray-50 transition-colors duration-150"
+                  className="transition-colors duration-150 hover:bg-gray-50"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center">
                       <span className="text-base font-medium text-gray-900">
                         {director.title}
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="text-base text-gray-900">
                       {director.name}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="text-base text-gray-900">
                       {director.shares || '0'}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="text-base text-gray-900">
-                      {Array.isArray(director.representative) ? director.representative[1] : director.representative || '-'}
+                      {Array.isArray(director.representative)
+                        ? director.representative[1]
+                        : director.representative || '-'}
                     </div>
                   </td>
                 </tr>

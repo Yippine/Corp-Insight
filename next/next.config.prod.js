@@ -9,14 +9,12 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   // 顯式標記動態路由
-  dynamicRoutes: [
-    '/api/company/twincn'
-  ],
+  dynamicRoutes: ['/api/company/twincn'],
   // 增加靜態生成超時
   staticPageGenerationTimeout: 300,
   // 禁用圖像優化以節省內存
   images: {
-    unoptimized: true
+    unoptimized: true,
   },
   // 禁用壓縮以加快構建速度
   compress: false,
@@ -24,10 +22,10 @@ const nextConfig = {
   runtime: 'nodejs',
   // 為特定頁面設置渲染模式
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { _dev, _isServer }) => {
     // 自定義 webpack 配置
     return config;
-  }
+  },
 };
 
 module.exports = nextConfig;

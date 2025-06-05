@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import Instructions from '../Instructions';
-import { productCategories, targetAudiences } from '../../../config/geminiOptions';
+import {
+  productCategories,
+  targetAudiences,
+} from '../../../config/geminiOptions';
 import { streamGenerateContent } from '../../../lib/gemini';
 import { ButtonLoading } from '../../common/loading/LoadingTypes';
 
@@ -22,7 +25,9 @@ export default function FaqGenerator() {
   const generatePrompt = (isOptimizing: boolean) => {
     if (isOptimizing && !result?.content) return '';
 
-    const selectedCategory = productCategories.find(c => c.id === category)?.name;
+    const selectedCategory = productCategories.find(
+      c => c.id === category
+    )?.name;
     const selectedAudience = targetAudiences.find(a => a.id === audience)?.name;
 
     const basePrompt = `你是一位專業的 FAQ 內容策劃專家，專注於創造高品質、簡潔且實用的常見問題與解答。
@@ -68,17 +73,17 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
     if (result) {
       setResult({
         ...result,
-        isOptimizing: true
+        isOptimizing: true,
       });
     }
 
     try {
       const prompt = generatePrompt(isOptimizing);
-      
-      await streamGenerateContent(prompt, (text) => {
+
+      await streamGenerateContent(prompt, text => {
         setResult({
           content: text,
-          isOptimizing: false
+          isOptimizing: false,
         });
       });
     } catch (error) {
@@ -89,7 +94,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <Instructions
         what="AI FAQ 生成器幫助您快速生成專業的常見問題與答案。"
         why="優質的 FAQ 內容可以提升使用者體驗、增加網站權威性並改善 SEO 排名。"
@@ -99,25 +104,25 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               產品／服務名稱 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={product}
-              onChange={(e) => setProduct(e.target.value)}
+              onChange={e => setProduct(e.target.value)}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：線上英語學習平台"
             />
           </div>
 
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               使用者痛點 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={painPoints}
-              onChange={(e) => setPainPoints(e.target.value)}
+              onChange={e => setPainPoints(e.target.value)}
               rows={3}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：學習時間不固定、需要靈活安排課程、想要 Native Speaker 授課"
@@ -126,15 +131,15 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-base font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-base font-medium text-gray-700">
                 產品類別
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={e => setCategory(e.target.value)}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                {productCategories.map((option) => (
+                {productCategories.map(option => (
                   <option key={option.id} value={option.id}>
                     {option.name}
                   </option>
@@ -143,15 +148,15 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
             </div>
 
             <div>
-              <label className="block text-base font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-base font-medium text-gray-700">
                 目標受眾
               </label>
               <select
                 value={audience}
-                onChange={(e) => setAudience(e.target.value)}
+                onChange={e => setAudience(e.target.value)}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                {targetAudiences.map((option) => (
+                {targetAudiences.map(option => (
                   <option key={option.id} value={option.id}>
                     {option.name}
                   </option>
@@ -165,7 +170,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
           <button
             onClick={() => handleGenerate(false)}
             disabled={isGenerating || !product.trim() || !painPoints.trim()}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isGenerating && !result?.isOptimizing ? (
               <ButtonLoading text="生成中..." />
@@ -176,8 +181,10 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
           <button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !result || !product.trim() || !painPoints.trim()}
-            className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            disabled={
+              isGenerating || !result || !product.trim() || !painPoints.trim()
+            }
+            className={`flex-1 rounded-md border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
               result
                 ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
                 : 'border-gray-300 text-gray-400'
@@ -192,8 +199,8 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
         </div>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-xl font-medium text-gray-900 mb-4">對話結果</h3>
+          <div className="rounded-lg bg-gray-50 p-6">
+            <h3 className="mb-4 text-xl font-medium text-gray-900">對話結果</h3>
             <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
               {result.content}
             </div>

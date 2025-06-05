@@ -15,16 +15,14 @@ export default function HeroSection({
 }: HeroSectionProps) {
   return (
     <div className="space-y-8">
-      <div className="text-center space-y-4 py-12">
+      <div className="space-y-4 py-12 text-center">
         <h1 className="text-5xl font-extrabold text-gray-900 sm:text-6xl sm:tracking-tight lg:text-6xl">
           {title}
           {highlightText && (
             <span className={highlightColor}>{highlightText}</span>
           )}
         </h1>
-        <p className="mx-auto text-2xl text-gray-500">
-          {description}
-        </p>
+        <p className="mx-auto text-2xl text-gray-500">{description}</p>
       </div>
     </div>
   );

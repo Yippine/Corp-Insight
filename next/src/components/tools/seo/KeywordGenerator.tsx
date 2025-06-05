@@ -9,16 +9,26 @@ export default function KeywordGenerator() {
   const [industry, setIndustry] = useState('');
   const [intent, setIntent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [keywords, setKeywords] = useState<{ keyword: string; difficulty: number; volume: number; }[]>([]);
+  const [keywords, setKeywords] = useState<
+    { keyword: string; difficulty: number; volume: number }[]
+  >([]);
 
   const industryOptions = [
-    '電子商務', '科技', '健康醫療', '教育', '金融', '房地產', 
-    '旅遊', '食品餐飲', '美容時尚', '家居園藝', '藝術娛樂', '運動健身'
+    '電子商務',
+    '科技',
+    '健康醫療',
+    '教育',
+    '金融',
+    '房地產',
+    '旅遊',
+    '食品餐飲',
+    '美容時尚',
+    '家居園藝',
+    '藝術娛樂',
+    '運動健身',
   ];
-  
-  const intentOptions = [
-    '信息查詢', '購買意圖', '比較研究', '問題解決'
-  ];
+
+  const intentOptions = ['信息查詢', '購買意圖', '比較研究', '問題解決'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +40,7 @@ export default function KeywordGenerator() {
 
     setIsLoading(true);
     setKeywords([]);
-    
+
     try {
       // 模擬API調用
       setTimeout(() => {
@@ -75,12 +85,12 @@ export default function KeywordGenerator() {
             keyword: `${mainKeyword}${industry ? `適合${industry}` : '入門'}`,
             difficulty: Math.floor(Math.random() * 15) + 5,
             volume: Math.floor(Math.random() * 800) + 50,
-          }
+          },
         ];
-        
+
         // 按搜索量排序
         generatedKeywords.sort((a, b) => b.volume - a.volume);
-        
+
         setKeywords(generatedKeywords);
         setIsLoading(false);
       }, 1800);
@@ -97,11 +107,13 @@ export default function KeywordGenerator() {
 
   const exportToCSV = () => {
     if (keywords.length === 0) return;
-    
-    const csvContent = 
-      "關鍵詞,競爭難度,月搜索量\n" + 
-      keywords.map(k => `"${k.keyword}",${k.difficulty},${k.volume}`).join("\n");
-    
+
+    const csvContent =
+      '關鍵詞,競爭難度,月搜索量\n' +
+      keywords
+        .map(k => `"${k.keyword}",${k.difficulty},${k.volume}`)
+        .join('\n');
+
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -122,7 +134,7 @@ export default function KeywordGenerator() {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+        <h3 className="mb-2 text-xl font-semibold text-gray-800">
           長尾關鍵詞生成器
         </h3>
         <p className="text-gray-600">
@@ -131,34 +143,37 @@ export default function KeywordGenerator() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-6">
+      <form
+        onSubmit={handleSubmit}
+        className="mb-6 rounded-lg border border-gray-100 bg-white p-6 shadow-sm"
+      >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               主要關鍵詞 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               placeholder="例如：瑜伽墊、程式語言、股票投資"
               value={mainKeyword}
-              onChange={(e) => setMainKeyword(e.target.value)}
+              onChange={e => setMainKeyword(e.target.value)}
               required
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 行業領域
               </label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full rounded-lg border border-gray-300 bg-white p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
+                onChange={e => setIndustry(e.target.value)}
               >
                 <option value="">請選擇行業領域（可選）</option>
-                {industryOptions.map((option) => (
+                {industryOptions.map(option => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -167,16 +182,16 @@ export default function KeywordGenerator() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 搜索意圖
               </label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full rounded-lg border border-gray-300 bg-white p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 value={intent}
-                onChange={(e) => setIntent(e.target.value)}
+                onChange={e => setIntent(e.target.value)}
               >
                 <option value="">請選擇搜索意圖（可選）</option>
-                {intentOptions.map((option) => (
+                {intentOptions.map(option => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -191,16 +206,16 @@ export default function KeywordGenerator() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium transition-all ${
+            className={`flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium text-white transition-all ${
               isLoading
-                ? 'bg-gray-400 cursor-not-allowed'
+                ? 'cursor-not-allowed bg-gray-400'
                 : 'bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-lg'
             }`}
             disabled={isLoading}
           >
             {isLoading ? (
               <>
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                 <span>生成中...</span>
               </>
             ) : (
@@ -217,55 +232,74 @@ export default function KeywordGenerator() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100"
+          className="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6"
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center">
-              <Search className="h-5 w-5 text-blue-600 mr-2" />
-              <h4 className="text-lg font-medium text-blue-800">長尾關鍵詞建議</h4>
+              <Search className="mr-2 h-5 w-5 text-blue-600" />
+              <h4 className="text-lg font-medium text-blue-800">
+                長尾關鍵詞建議
+              </h4>
             </div>
             <button
               onClick={exportToCSV}
-              className="inline-flex items-center px-3 py-1.5 bg-white border border-blue-300 rounded-md text-blue-600 text-sm hover:bg-blue-50"
+              className="inline-flex items-center rounded-md border border-blue-300 bg-white px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50"
             >
               <Download size={16} className="mr-1" />
               導出CSV
             </button>
           </div>
 
-          <div className="bg-white rounded-lg border border-blue-100 overflow-hidden">
+          <div className="overflow-hidden rounded-lg border border-blue-100 bg-white">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  >
                     關鍵詞
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  >
                     競爭難度
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  >
                     月搜索量
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  >
                     操作
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 bg-white">
                 {keywords.map((item, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr
+                    key={index}
+                    className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                  >
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                       {item.keyword}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(item.difficulty)}`}>
+                    <td className="whitespace-nowrap px-6 py-4">
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getDifficultyColor(item.difficulty)}`}
+                      >
                         {item.difficulty}/100
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {item.volume.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       <button
                         onClick={() => copyToClipboard(item.keyword)}
                         className="text-blue-600 hover:text-blue-800"
@@ -281,10 +315,14 @@ export default function KeywordGenerator() {
 
           <div className="mt-4 text-sm text-blue-700">
             <p className="font-medium">提示：</p>
-            <ul className="list-disc pl-5 mt-2 space-y-1">
+            <ul className="mt-2 list-disc space-y-1 pl-5">
               <li>競爭難度越低（綠色），排名機會越高</li>
-              <li>關注月搜索量在100-1000之間的關鍵詞，它們往往是最佳的長尾關鍵詞</li>
-              <li>將這些關鍵詞自然地融入您的內容，尤其是在標題、小標題和首段</li>
+              <li>
+                關注月搜索量在100-1000之間的關鍵詞，它們往往是最佳的長尾關鍵詞
+              </li>
+              <li>
+                將這些關鍵詞自然地融入您的內容，尤其是在標題、小標題和首段
+              </li>
             </ul>
           </div>
         </motion.div>

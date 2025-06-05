@@ -13,13 +13,19 @@ export async function POST(request: NextRequest) {
     const { email } = await request.json();
 
     if (!email) {
-      return NextResponse.json({ message: '缺少電子郵件地址' }, { status: 400 });
+      return NextResponse.json(
+        { message: '缺少電子郵件地址' },
+        { status: 400 }
+      );
     }
 
     // Basic email validation (consider a more robust library for production)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json({ message: '無效的電子郵件格式' }, { status: 400 });
+      return NextResponse.json(
+        { message: '無效的電子郵件格式' },
+        { status: 400 }
+      );
     }
 
     const verificationCode = generateVerificationCode();
@@ -27,14 +33,17 @@ export async function POST(request: NextRequest) {
 
     if (!jwtSecret) {
       console.error('JWT_SECRET 未設定');
-      return NextResponse.json({ message: '伺服器內部錯誤：JWT 配置不當' }, { status: 500 });
+      return NextResponse.json(
+        { message: '伺服器內部錯誤：JWT 配置不當' },
+        { status: 500 }
+      );
     }
 
     // Create a JWT containing the email and verification code
     // The token will expire in 10 minutes
     const token = jwt.sign(
-      { email, code: verificationCode }, 
-      jwtSecret, 
+      { email, code: verificationCode },
+      jwtSecret,
       { expiresIn: '10m' } // 10 minutes
     );
 
@@ -50,9 +59,9 @@ export async function POST(request: NextRequest) {
       // 僅供測試環境時使用，正式環境不得使用
       ...(process.env.NODE_ENV === 'development' && {
         tls: {
-          rejectUnauthorized: false
-        }
-      })
+          rejectUnauthorized: false,
+        },
+      }),
     });
 
     const mailOptions = {
@@ -83,39 +92,60 @@ export async function POST(request: NextRequest) {
     try {
       await transporter.sendMail(mailOptions);
       console.log('Verification email sent to:', email);
-      
+
       // Log successful email verification to MongoDB
       const sentAt = new Date();
       const decodedTokenForLog = jwt.decode(token) as { exp?: number };
-      const jwtExpiresAt = decodedTokenForLog?.exp ? new Date(decodedTokenForLog.exp * 1000) : new Date(sentAt.getTime() + 10 * 60 * 1000);
+      const jwtExpiresAt = decodedTokenForLog?.exp
+        ? new Date(decodedTokenForLog.exp * 1000)
+        : new Date(sentAt.getTime() + 10 * 60 * 1000);
       await logEmailVerification(email, token, true, sentAt, jwtExpiresAt);
 
-      return NextResponse.json({ 
-        message: '驗證碼已成功發送至您的電子郵件。請檢查您的收件匣。' , 
-        verificationToken: token // Return the JWT to the client
-      }, { status: 200 });
+      return NextResponse.json(
+        {
+          message: '驗證碼已成功發送至您的電子郵件。請檢查您的收件匣。',
+          verificationToken: token, // Return the JWT to the client
+        },
+        { status: 200 }
+      );
     } catch (error) {
       console.error('Error sending email:', error);
 
       // Log failed email verification attempt to MongoDB
       const sentAt = new Date(); // 或許可以設為 null 或特定的失敗時間
       // JWT 可能未成功生成，或者已生成但發送失敗
-      const decodedTokenForLog = token ? jwt.decode(token) as { exp?: number } : null;
-      const jwtExpiresAt = decodedTokenForLog?.exp 
-        ? new Date(decodedTokenForLog.exp * 1000) 
+      const decodedTokenForLog = token
+        ? (jwt.decode(token) as { exp?: number })
+        : null;
+      const jwtExpiresAt = decodedTokenForLog?.exp
+        ? new Date(decodedTokenForLog.exp * 1000)
         : new Date(sentAt.getTime() + 10 * 60 * 1000); // 預計的過期時間
       // 即使郵件發送失敗，也記錄嘗試和生成的token (如果有的話)
-      await logEmailVerification(email, token || 'generation_failed', false, sentAt, jwtExpiresAt);
+      await logEmailVerification(
+        email,
+        token || 'generation_failed',
+        false,
+        sentAt,
+        jwtExpiresAt
+      );
 
       // Check for specific Nodemailer errors if needed
       if (error instanceof Error && error.message.includes('Invalid login')) {
-        return NextResponse.json({ message: '郵件伺服器認證失敗，請檢查管理員配置。' }, { status: 500 });
+        return NextResponse.json(
+          { message: '郵件伺服器認證失敗，請檢查管理員配置。' },
+          { status: 500 }
+        );
       }
-      return NextResponse.json({ message: '驗證碼郵件發送失敗，請稍後再試。' }, { status: 500 });
+      return NextResponse.json(
+        { message: '驗證碼郵件發送失敗，請稍後再試。' },
+        { status: 500 }
+      );
     }
-
   } catch (error) {
     console.error('POST /api/feedback/send-code error:', error);
-    return NextResponse.json({ message: '處理請求時發生錯誤' }, { status: 500 });
+    return NextResponse.json(
+      { message: '處理請求時發生錯誤' },
+      { status: 500 }
+    );
   }
 }

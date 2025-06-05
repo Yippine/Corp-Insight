@@ -19,19 +19,19 @@ interface ScalabilityFactor {
 const computeFactors: ScalabilityFactor[] = [
   { id: 'peak-performance', name: '峰值算力', weight: 0.4 },
   { id: 'scalability', name: '可擴展性', weight: 0.3 },
-  { id: 'load-balancing', name: '負載均衡', weight: 0.3 }
+  { id: 'load-balancing', name: '負載均衡', weight: 0.3 },
 ];
 
 const resourceFactors: ScalabilityFactor[] = [
   { id: 'resource-allocation', name: '資源分配', weight: 0.4 },
   { id: 'multi-cluster', name: '多集群支持', weight: 0.3 },
-  { id: 'edge-computing', name: '邊緣計算', weight: 0.3 }
+  { id: 'edge-computing', name: '邊緣計算', weight: 0.3 },
 ];
 
 const costFactors: ScalabilityFactor[] = [
   { id: 'resource-utilization', name: '資源利用率', weight: 0.4 },
   { id: 'auto-scaling', name: '自動擴縮容', weight: 0.3 },
-  { id: 'cost-control', name: '成本控制', weight: 0.3 }
+  { id: 'cost-control', name: '成本控制', weight: 0.3 },
 ];
 
 export default function WorkloadScalabilityCalculator() {
@@ -41,7 +41,7 @@ export default function WorkloadScalabilityCalculator() {
   const handleScoreChange = (factorId: string, value: string) => {
     setScores(prev => ({
       ...prev,
-      [factorId]: parseInt(value)
+      [factorId]: parseInt(value),
     }));
   };
 
@@ -77,16 +77,16 @@ export default function WorkloadScalabilityCalculator() {
       resourceScore,
       costScore,
       totalScore,
-      recommendations
+      recommendations,
     });
   };
 
   const renderScoreInputs = (factors: ScalabilityFactor[], title: string) => (
     <div className="space-y-4">
       <h3 className="text-xl font-medium text-gray-900">{title}</h3>
-      {factors.map((factor) => (
+      {factors.map(factor => (
         <div key={factor.id}>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             {factor.name} (1-10)
           </label>
           <input
@@ -94,7 +94,7 @@ export default function WorkloadScalabilityCalculator() {
             min="1"
             max="10"
             value={scores[factor.id] || ''}
-            onChange={(e) => handleScoreChange(factor.id, e.target.value)}
+            onChange={e => handleScoreChange(factor.id, e.target.value)}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
@@ -103,7 +103,7 @@ export default function WorkloadScalabilityCalculator() {
   );
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <Instructions
         what="AI 工作負載規模化評估工具幫助您評估 AI 系統的可擴展性。"
         why="了解系統的擴展能力對於規劃長期發展和資源配置至關重要。"
@@ -116,13 +116,13 @@ export default function WorkloadScalabilityCalculator() {
 
         <button
           onClick={calculateScalability}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           計算評估結果
         </button>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
             <h3 className="text-xl font-medium text-gray-900">評估結果</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -152,8 +152,10 @@ export default function WorkloadScalabilityCalculator() {
             </div>
             {result.recommendations.length > 0 && (
               <div className="mt-4">
-                <h4 className="text-base font-medium text-gray-900 mb-2">改進建議</h4>
-                <ul className="list-disc pl-5 space-y-1">
+                <h4 className="mb-2 text-base font-medium text-gray-900">
+                  改進建議
+                </h4>
+                <ul className="list-disc space-y-1 pl-5">
                   {result.recommendations.map((rec, index) => (
                     <li key={index} className="text-base text-gray-600">
                       {rec}

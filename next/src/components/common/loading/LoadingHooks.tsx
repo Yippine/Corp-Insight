@@ -8,7 +8,10 @@ import { usePathname, useSearchParams } from 'next/navigation';
  * initialState: 初始載入狀態
  * resetOnRouteChange: 路由變化時是否重置狀態
  */
-export function useLoadingState(initialState = false, resetOnRouteChange = true) {
+export function useLoadingState(
+  initialState = false,
+  resetOnRouteChange = true
+) {
   const [isLoading, setIsLoading] = useState(initialState);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -19,7 +22,7 @@ export function useLoadingState(initialState = false, resetOnRouteChange = true)
       setIsLoading(false);
     }
   }, [pathname, searchParams, resetOnRouteChange]);
-  
+
   return {
     isLoading,
     setLoading: (state: boolean) => {
@@ -30,7 +33,7 @@ export function useLoadingState(initialState = false, resetOnRouteChange = true)
     },
     stopLoading: () => {
       setIsLoading(false);
-    }
+    },
   };
 }
 
@@ -70,6 +73,6 @@ export function useDebounceLoading(delay = 300) {
   return {
     isLoading,
     startLoading,
-    stopLoading
+    stopLoading,
   };
 }

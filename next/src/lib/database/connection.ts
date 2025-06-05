@@ -13,14 +13,14 @@ const connection: MongoConnection = {};
  */
 function getMongoURI(): string {
   const MONGODB_URI = process.env.MONGODB_URI;
-  
+
   if (!MONGODB_URI) {
     // 預設本地開發環境連線
     const defaultURI = 'mongodb://localhost:27017/business-magnifier';
     console.log('⚠️ 未設定 MONGODB_URI，使用預設本地連線:', defaultURI);
     return defaultURI;
   }
-  
+
   return MONGODB_URI;
 }
 
@@ -38,36 +38,35 @@ async function connectToDatabase(): Promise<typeof mongoose> {
 
   try {
     const MONGODB_URI = getMongoURI();
-    
+
     // 連線配置選項 (針對本地開發優化)
     const options = {
       bufferCommands: false,
-      maxPoolSize: 10,        // 連線池最大連線數
+      maxPoolSize: 10, // 連線池最大連線數
       serverSelectionTimeoutMS: 5000, // 伺服器選擇超時
       socketTimeoutMS: 45000, // Socket 超時
       connectTimeoutMS: 10000, // 連線超時
-      family: 4,              // 使用 IPv4
-      retryWrites: true,      // 啟用重試寫入
-      w: 'majority',          // 寫入確認
+      family: 4, // 使用 IPv4
+      retryWrites: true, // 啟用重試寫入
+      w: 'majority', // 寫入確認
     };
 
     // 建立連線
     console.log('🔌 正在連線到 MongoDB...');
     console.log('📍 連線位址:', MONGODB_URI.replace(/\/\/.*@/, '//***:***@')); // 隱藏密碼
-    
+
     const db = await mongoose.connect(MONGODB_URI, options);
-    
+
     connection.isConnected = db.connections[0].readyState;
-    
+
     console.log('✅ MongoDB 連線成功');
     console.log('🏠 資料庫名稱:', db.connections[0].name);
     console.log('🌐 連線狀態:', getConnectionStatus());
-    
+
     return db;
-    
   } catch (error) {
     console.error('❌ MongoDB 連線失敗:', error);
-    
+
     // 提供詳細的錯誤診斷
     if (error instanceof Error) {
       if (error.message.includes('ECONNREFUSED')) {
@@ -81,7 +80,7 @@ async function connectToDatabase(): Promise<typeof mongoose> {
         console.error('   2. 資料庫權限設定');
       }
     }
-    
+
     throw new Error(`MongoDB 連線失敗: ${error}`);
   }
 }
@@ -107,8 +106,10 @@ function getConnectionStatus(): string {
     2: 'connecting',
     3: 'disconnecting',
   };
-  
-  return states[mongoose.connection.readyState as keyof typeof states] || 'unknown';
+
+  return (
+    states[mongoose.connection.readyState as keyof typeof states] || 'unknown'
+  );
 }
 
 /**
@@ -121,25 +122,27 @@ async function checkDatabaseHealth(): Promise<{
 }> {
   try {
     const startTime = Date.now();
-    
+
     // 執行簡單的 ping 操作
     await mongoose.connection.db?.admin().ping();
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     // 取得集合數量
-    const collections = await mongoose.connection.db?.listCollections().toArray();
-    
+    const collections = await mongoose.connection.db
+      ?.listCollections()
+      .toArray();
+
     return {
       status: 'healthy',
       responseTime,
-      collections: collections?.length || 0
+      collections: collections?.length || 0,
     };
-  } catch (error) {
+  } catch {
     return {
       status: 'unhealthy',
       responseTime: -1,
-      collections: 0
+      collections: 0,
     };
   }
 }
@@ -149,7 +152,7 @@ mongoose.connection.on('connected', () => {
   console.log('🟢 Mongoose 已連線到 MongoDB');
 });
 
-mongoose.connection.on('error', (err) => {
+mongoose.connection.on('error', err => {
   console.error('🔴 Mongoose 連線錯誤:', err);
 });
 
@@ -181,11 +184,11 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-export { 
-  connectToDatabase, 
-  disconnectFromDatabase, 
+export {
+  connectToDatabase,
+  disconnectFromDatabase,
   getConnectionStatus,
-  checkDatabaseHealth 
+  checkDatabaseHealth,
 };
 
 export default connectToDatabase;

@@ -29,15 +29,15 @@ export default function CompoundInterestCalculator() {
     let previousAmount = p;
 
     for (let year = 1; year <= t; year++) {
-      const amount = p * Math.pow(1 + r/n, n * year);
+      const amount = p * Math.pow(1 + r / n, n * year);
       const yearlyInterest = amount - previousAmount;
-      
+
       yearlyBreakdown.push({
         year,
         amount,
-        interest: yearlyInterest
+        interest: yearlyInterest,
       });
-      
+
       previousAmount = amount;
     }
 
@@ -47,12 +47,12 @@ export default function CompoundInterestCalculator() {
     setResult({
       finalAmount,
       totalInterest,
-      yearlyBreakdown
+      yearlyBreakdown,
     });
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <Instructions
         what="複利計算器可以幫助您計算投資隨時間增長的價值。"
         why="了解複利效應對於長期投資規劃和財務目標設定非常重要。"
@@ -60,26 +60,26 @@ export default function CompoundInterestCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             本金 (NT$)
           </label>
           <input
             type="number"
             value={principal}
-            onChange={(e) => setPrincipal(e.target.value)}
+            onChange={e => setPrincipal(e.target.value)}
             min="0"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             年利率 (%)
           </label>
           <input
             type="number"
             value={rate}
-            onChange={(e) => setRate(e.target.value)}
+            onChange={e => setRate(e.target.value)}
             min="0"
             step="0.1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -87,25 +87,25 @@ export default function CompoundInterestCalculator() {
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             投資期間 (年)
           </label>
           <input
             type="number"
             value={years}
-            onChange={(e) => setYears(e.target.value)}
+            onChange={e => setYears(e.target.value)}
             min="1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             複利頻率 (次/年)
           </label>
           <select
             value={frequency}
-            onChange={(e) => setFrequency(e.target.value)}
+            onChange={e => setFrequency(e.target.value)}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           >
             <option value="1">年複利</option>
@@ -118,39 +118,53 @@ export default function CompoundInterestCalculator() {
 
         <button
           onClick={calculateCompoundInterest}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           計算複利
         </button>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-6">
+          <div className="space-y-6 rounded-lg bg-gray-50 p-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-base text-gray-500">最終金額</p>
                 <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.finalAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  NT${' '}
+                  {result.finalAmount.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </p>
               </div>
               <div>
                 <p className="text-base text-gray-500">總利息收入</p>
                 <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  NT${' '}
+                  {result.totalInterest.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </p>
               </div>
             </div>
 
             <div>
-              <h4 className="text-base font-medium text-gray-700 mb-3">年度明細</h4>
+              <h4 className="mb-3 text-base font-medium text-gray-700">
+                年度明細
+              </h4>
               <div className="space-y-2">
-                {result.yearlyBreakdown.map((year) => (
+                {result.yearlyBreakdown.map(year => (
                   <div key={year.year} className="grid grid-cols-3 text-base">
                     <div>第 {year.year} 年</div>
                     <div className="text-right">
-                      NT$ {year.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      NT${' '}
+                      {year.amount.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </div>
                     <div className="text-right text-green-600">
-                      +{year.interest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      +
+                      {year.interest.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </div>
                   </div>
                 ))}

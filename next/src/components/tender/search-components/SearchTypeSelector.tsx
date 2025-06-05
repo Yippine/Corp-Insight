@@ -8,35 +8,35 @@ interface SearchTypeSelectorProps {
   onChange: (type: SearchType) => void;
 }
 
-export default function SearchTypeSelector({ 
-  currentType, 
-  onChange 
+export default function SearchTypeSelector({
+  currentType,
+  onChange,
 }: SearchTypeSelectorProps) {
   return (
     <div className="flex justify-center">
-      <div className="inline-flex rounded-lg p-1 bg-gray-100">
+      <div className="inline-flex rounded-lg bg-gray-100 p-1">
         <button
           type="button"
           onClick={() => onChange('company')}
-          className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+          className={`flex items-center rounded-md px-4 py-2 text-base font-medium transition-all duration-200 ${
             currentType === 'company'
               ? 'bg-white text-green-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
-          <Building2 className="h-5 w-5 mr-2" />
+          <Building2 className="mr-2 h-5 w-5" />
           廠商搜尋
         </button>
         <button
           type="button"
           onClick={() => onChange('tender')}
-          className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all duration-200 ${
+          className={`flex items-center rounded-md px-4 py-2 text-base font-medium transition-all duration-200 ${
             currentType === 'tender'
               ? 'bg-white text-green-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
-          <FileText className="h-5 w-5 mr-2" />
+          <FileText className="mr-2 h-5 w-5" />
           標案搜尋
         </button>
       </div>

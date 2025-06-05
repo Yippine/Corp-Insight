@@ -10,7 +10,9 @@ const REDIRECT_DELAY_SECONDS = 10;
 
 export default function FeedbackSuccessPage() {
   const router = useRouter();
-  const [secondsRemaining, setSecondsRemaining] = useState(REDIRECT_DELAY_SECONDS);
+  const [secondsRemaining, setSecondsRemaining] = useState(
+    REDIRECT_DELAY_SECONDS
+  );
 
   useEffect(() => {
     if (secondsRemaining <= 0) {
@@ -22,47 +24,56 @@ export default function FeedbackSuccessPage() {
       setSecondsRemaining(secondsRemaining - 1);
     }, 1000);
 
-    return () => clearTimeout(timer); 
+    return () => clearTimeout(timer);
   }, [secondsRemaining, router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col items-center justify-center p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.8, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "backOut" }}
-        className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 md:p-12 text-center max-w-lg w-full border border-white/30"
+        transition={{ duration: 0.5, ease: 'backOut' }}
+        className="w-full max-w-lg rounded-2xl border border-white/30 bg-white/80 p-8 text-center shadow-2xl backdrop-blur-lg md:p-12"
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 260, damping: 20 }}
-          className="mx-auto mb-6 flex items-center justify-center h-20 w-20 rounded-full bg-green-500/10 border-2 border-green-500/30"
+          transition={{
+            delay: 0.2,
+            type: 'spring',
+            stiffness: 260,
+            damping: 20,
+          }}
+          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-2 border-green-500/30 bg-green-500/10"
         >
           <CheckCircle className="h-12 w-12 text-green-500" />
         </motion.div>
-        
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight mb-4">
+
+        <h1 className="mb-4 text-3xl font-bold tracking-tight text-gray-800 md:text-4xl">
           反饋已成功提交！
         </h1>
-        <p className="text-gray-600 text-lg mb-8">
+        <p className="mb-8 text-lg text-gray-600">
           感謝您的寶貴意見。我們將會儘快處理您的反饋，並在需要時與您聯繫。
         </p>
-        <p className="text-gray-500 text-sm mb-8">
-          本頁面將在 <span className="font-semibold text-blue-600">{secondsRemaining}</span> 秒後自動跳轉至首頁。
+        <p className="mb-8 text-sm text-gray-500">
+          本頁面將在{' '}
+          <span className="font-semibold text-blue-600">
+            {secondsRemaining}
+          </span>{' '}
+          秒後自動跳轉至首頁。
         </p>
-        
+
         <div className="space-y-4">
           <Link href="/" legacyBehavior>
-            <a className="w-full inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-xl shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105 duration-150">
+            <a className="inline-flex w-full transform items-center justify-center rounded-xl border border-transparent bg-blue-600 px-8 py-3 text-base font-medium text-white shadow-md transition-transform duration-150 hover:scale-105 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
               返回首頁
             </a>
           </Link>
           <button
             onClick={() => router.back()}
-            className="w-full inline-flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-xl shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105 duration-150"
+            className="inline-flex w-full transform items-center justify-center rounded-xl border border-gray-300 bg-white px-8 py-3 text-base font-medium text-gray-700 shadow-sm transition-transform duration-150 hover:scale-105 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="mr-2 h-5 w-5" />
             返回上一頁
           </button>
         </div>
@@ -72,4 +83,4 @@ export default function FeedbackSuccessPage() {
       </motion.div>
     </div>
   );
-} 
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Search } from "lucide-react";
+import { Search } from 'lucide-react';
 
 interface NoDataFoundProps {
   message?: string;
@@ -9,13 +9,13 @@ interface NoDataFoundProps {
 
 export default function NoDataFound({
   message = '查無資料',
-  icon: Icon = Search
+  icon: Icon = Search,
 }: NoDataFoundProps) {
   return (
-    <div className="text-center py-12">
-      <div className="bg-white overflow-hidden sm:rounded-lg p-12">
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+    <div className="py-12 text-center">
+      <div className="overflow-hidden bg-white p-12 sm:rounded-lg">
+        <div className="space-y-4 text-center">
+          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
             <Icon className="h-8 w-8 text-gray-600" />
           </div>
           <h3 className="text-2xl font-semibold text-gray-900">{message}</h3>

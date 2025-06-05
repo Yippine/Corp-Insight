@@ -5,25 +5,28 @@ import { Building2, FileSpreadsheet, Calculator } from 'lucide-react';
 
 export default function FeatureSection() {
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mt-12">
-      <Link 
+    <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <Link
         href="/aitool/search"
-        className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 cursor-pointer hover:bg-gray-50 transition-colors"
+        className="flex cursor-pointer items-start space-x-4 rounded-lg bg-white p-6 shadow-sm transition-colors hover:bg-gray-50"
       >
         <div className="flex-shrink-0">
           <Calculator className="h-7 w-7 text-amber-500" />
         </div>
         <div>
-          <h3 className="text-xl font-medium text-gray-900">試用您的 AI 助理</h3>
+          <h3 className="text-xl font-medium text-gray-900">
+            試用您的 AI 助理
+          </h3>
           <p className="mt-2 text-base text-gray-500">
-            立即解鎖 AI 智能助理！16 個領域輕鬆提升效率，從寫作到職涯，一鍵客製化您的專屬智能夥伴！
+            立即解鎖 AI 智能助理！16
+            個領域輕鬆提升效率，從寫作到職涯，一鍵客製化您的專屬智能夥伴！
           </p>
         </div>
       </Link>
-      
+
       <Link
         href="/company/search"
-        className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 cursor-pointer hover:bg-gray-50 transition-colors"
+        className="flex cursor-pointer items-start space-x-4 rounded-lg bg-white p-6 shadow-sm transition-colors hover:bg-gray-50"
       >
         <div className="flex-shrink-0">
           <Building2 className="h-7 w-7 text-blue-600" />
@@ -31,14 +34,15 @@ export default function FeatureSection() {
         <div>
           <h3 className="text-xl font-medium text-gray-900">公開企業資料</h3>
           <p className="mt-2 text-base text-gray-500">
-            一鍵解析企業全貌：董監事、分公司、商標、判決、標案、稅務等 6 大面向的企業智能總覽！
+            一鍵解析企業全貌：董監事、分公司、商標、判決、標案、稅務等 6
+            大面向的企業智能總覽！
           </p>
         </div>
       </Link>
-      
-      <Link 
+
+      <Link
         href="/tender/search"
-        className="bg-white rounded-lg shadow-sm p-6 flex items-start space-x-4 cursor-pointer hover:bg-gray-50 transition-colors"
+        className="flex cursor-pointer items-start space-x-4 rounded-lg bg-white p-6 shadow-sm transition-colors hover:bg-gray-50"
       >
         <div className="flex-shrink-0">
           <FileSpreadsheet className="h-7 w-7 text-green-600" />

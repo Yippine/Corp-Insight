@@ -1,6 +1,6 @@
-import { Metadata } from "next";
-import { SearchAction, WebPage, WithContext } from "schema-dts";
-import Script from "next/script";
+import { Metadata } from 'next';
+import { SearchAction, WebPage, WithContext } from 'schema-dts';
+import Script from 'next/script';
 import { staticTitles, dynamicTitles } from '@/config/pageTitles';
 
 interface AiToolSearchSEOProps {
@@ -9,23 +9,26 @@ interface AiToolSearchSEOProps {
 }
 
 // 生成 Search 結構化數據
-export function AiToolSearchStructuredData({ query, tag }: AiToolSearchSEOProps) {
+export function AiToolSearchStructuredData({
+  query,
+  tag,
+}: AiToolSearchSEOProps) {
   // 創建符合 Schema.org 規範的結構化數據
   const structuredData: WithContext<WebPage> = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": getTitle(query, tag),
-    "description": getDescription(query, tag),
-    "url": `https://example.com/aitool/search${query ? `?q=${encodeURIComponent(query)}` : ''}${tag ? `&tag=${encodeURIComponent(tag)}` : ''}`,
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": "https://example.com/aitool/search?q={search_term_string}"
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: getTitle(query, tag),
+    description: getDescription(query, tag),
+    url: `https://example.com/aitool/search${query ? `?q=${encodeURIComponent(query)}` : ''}${tag ? `&tag=${encodeURIComponent(tag)}` : ''}`,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://example.com/aitool/search?q={search_term_string}',
       },
       // Schema.org類型定義中沒有query-input屬性，需要修改結構
-      "query": "required name=search_term_string"
-    } as SearchAction
+      query: 'required name=search_term_string',
+    } as SearchAction,
   };
 
   return (
@@ -38,7 +41,11 @@ export function AiToolSearchStructuredData({ query, tag }: AiToolSearchSEOProps)
 }
 
 // 生成頁面元數據
-export function generateAiToolSearchMetadata({ query, tag, hasResults }: AiToolSearchSEOProps & { hasResults?: boolean }): Metadata {
+export function generateAiToolSearchMetadata({
+  query,
+  tag,
+  hasResults,
+}: AiToolSearchSEOProps & { hasResults?: boolean }): Metadata {
   const title = getTitle(query, tag, hasResults);
   const description = getDescription(query, tag);
 
@@ -69,7 +76,11 @@ export function generateAiToolSearchMetadata({ query, tag, hasResults }: AiToolS
 }
 
 // 幫助函數：生成標題
-function getTitle(query: string, tag?: string, hasResults: boolean = true): string {
+function getTitle(
+  query: string,
+  tag?: string,
+  hasResults: boolean = true
+): string {
   if (!hasResults) {
     return dynamicTitles.aiToolSearchNoResult(query, tag);
   }

@@ -11,39 +11,32 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write . && eslint --fix .",
-    
     "// === Docker 開發環境指令 ===": "",
     "docker:dev": "docker-compose --profile dev up -d",
     "docker:dev:build": "docker-compose --profile dev up --build -d",
     "docker:dev:logs": "docker-compose logs -f app-dev",
     "docker:dev:shell": "docker exec -it business-magnifier-app-dev sh",
-    
     "// === Docker 基礎服務指令 ===": "",
     "docker:mongo": "docker-compose up mongodb -d",
     "docker:tools": "docker-compose --profile tools up -d",
     "docker:prod": "docker-compose --profile prod up -d",
-    
     "// === Docker 完整環境指令 ===": "",
     "docker:full-dev": "docker-compose --profile dev --profile tools up -d",
     "docker:full-prod": "docker-compose --profile prod --profile tools up -d",
     "docker:all": "docker-compose --profile dev --profile prod --profile tools up -d",
-    
     "// === Docker 管理指令 ===": "",
     "docker:down": "docker-compose down",
     "docker:down:volumes": "docker-compose down -v",
     "docker:logs": "docker-compose logs -f",
     "docker:ps": "docker-compose ps",
     "docker:restart": "docker-compose restart",
-    
     "// === 資料庫相關指令 ===": "",
     "db:connect": "mongosh mongodb://localhost:27017/business-magnifier",
     "db:connect-docker": "mongosh mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin",
-
     "// === MongoDB AI Tools 備份與還原 ===": "",
     "db:backup": "sh ./scripts/backup-ai-tools.sh",
     "db:restore": "node scripts/restore-ai-tools.js",
     "db:list": "node scripts/analyze-backups.js",
-    
     "// === 快速啟動指令 (推薦使用) ===": "",
     "start:dev": "npm run docker:full-dev",
     "start:prod": "npm run docker:full-prod",

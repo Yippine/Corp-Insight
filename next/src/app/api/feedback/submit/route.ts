@@ -24,7 +24,14 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File | null;
 
     // --- 1. Validate required fields ---
-    if (!type || !title || !content || !email || !verificationCode || !tokenFromClient) {
+    if (
+      !type ||
+      !title ||
+      !content ||
+      !email ||
+      !verificationCode ||
+      !tokenFromClient
+    ) {
       return NextResponse.json({ message: '缺少必要欄位' }, { status: 400 });
     }
 
@@ -32,25 +39,40 @@ export async function POST(request: NextRequest) {
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error('JWT_SECRET 未設定');
-      return NextResponse.json({ message: '伺服器內部錯誤：JWT 配置不當' }, { status: 500 });
+      return NextResponse.json(
+        { message: '伺服器內部錯誤：JWT 配置不當' },
+        { status: 500 }
+      );
     }
 
     let decodedToken: VerificationTokenPayload;
     try {
-      decodedToken = jwt.verify(tokenFromClient, jwtSecret) as VerificationTokenPayload;
+      decodedToken = jwt.verify(
+        tokenFromClient,
+        jwtSecret
+      ) as VerificationTokenPayload;
     } catch (error) {
       console.error('JWT 驗證失敗:', error);
       if (error instanceof jwt.TokenExpiredError) {
-        return NextResponse.json({ message: '驗證碼已過期，請重新發送' }, { status: 401 });
+        return NextResponse.json(
+          { message: '驗證碼已過期，請重新發送' },
+          { status: 401 }
+        );
       }
       if (error instanceof jwt.JsonWebTokenError) {
         return NextResponse.json({ message: '驗證權杖無效' }, { status: 401 });
       }
-      return NextResponse.json({ message: '驗證失敗，請重試' }, { status: 401 });
+      return NextResponse.json(
+        { message: '驗證失敗，請重試' },
+        { status: 401 }
+      );
     }
 
     if (decodedToken.email !== email) {
-      return NextResponse.json({ message: '電子郵件與驗證權杖不符' }, { status: 401 });
+      return NextResponse.json(
+        { message: '電子郵件與驗證權杖不符' },
+        { status: 401 }
+      );
     }
     if (decodedToken.code !== verificationCode) {
       return NextResponse.json({ message: '驗證碼錯誤' }, { status: 401 });
@@ -68,13 +90,13 @@ export async function POST(request: NextRequest) {
       // 僅供測試環境時使用，正式環境不得使用
       ...(process.env.NODE_ENV === 'development' && {
         tls: {
-          rejectUnauthorized: false
-        }
-      })
+          rejectUnauthorized: false,
+        },
+      }),
     });
 
-    // --- 4. Handle file attachment --- 
-    let attachmentsArray: nodemailer.SendMailOptions['attachments'] = [];
+    // --- 4. Handle file attachment ---
+    const attachmentsArray: nodemailer.SendMailOptions['attachments'] = [];
     if (file && file.size > 0) {
       const fileBuffer = Buffer.from(await file.arrayBuffer());
       attachmentsArray.push({
@@ -89,7 +111,10 @@ export async function POST(request: NextRequest) {
     if (!developerEmail) {
       console.error('NEXT_PUBLIC_DEVELOPER_EMAIL 未設定');
       // Decide if this should be a fatal error for the user or just logged
-      return NextResponse.json({ message: '伺服器內部錯誤：開發者郵箱未配置' }, { status: 500 });
+      return NextResponse.json(
+        { message: '伺服器內部錯誤：開發者郵箱未配置' },
+        { status: 500 }
+      );
     }
 
     const feedbackMailOptions = {
@@ -120,11 +145,14 @@ export async function POST(request: NextRequest) {
               <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057; vertical-align: top;">詳細說明</td>
               <td style="padding: 10px; border: 1px solid #dee2e6; white-space: pre-wrap; word-wrap: break-word;">${content.replace(/\n/g, '<br>')}</td>
             </tr>
-            ${attachmentsArray.length > 0 ? 
-              `<tr style="background-color: #f8f9fa;">
+            ${
+              attachmentsArray.length > 0
+                ? `<tr style="background-color: #f8f9fa;">
                 <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">附加檔案</td>
                 <td style="padding: 10px; border: 1px solid #dee2e6;">${attachmentsArray.map(att => att.filename).join(', ')}</td>
-              </tr>` : ''}
+              </tr>`
+                : ''
+            }
           </table>
         </div>
         <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #888;">
@@ -140,10 +168,13 @@ export async function POST(request: NextRequest) {
       console.log('Feedback email sent to developer:', developerEmail);
     } catch (error) {
       console.error('Error sending feedback email to developer:', error);
-      // Log this error but don't necessarily fail the whole request yet, 
+      // Log this error but don't necessarily fail the whole request yet,
       // as sending confirmation to user is also important.
       // However, if this fails, the primary goal is missed.
-      return NextResponse.json({ message: '提交回饋時發送給開發者郵件失敗' }, { status: 500 });
+      return NextResponse.json(
+        { message: '提交回饋時發送給開發者郵件失敗' },
+        { status: 500 }
+      );
     }
 
     // --- 6. Send confirmation email to user ---
@@ -203,14 +234,25 @@ export async function POST(request: NextRequest) {
     };
     await logFeedbackSubmission(submissionDataForLog);
 
-    return NextResponse.json({ message: '您的意見回饋已成功提交！感謝您的寶貴意見。' }, { status: 200 });
-
+    return NextResponse.json(
+      { message: '您的意見回饋已成功提交！感謝您的寶貴意見。' },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('POST /api/feedback/submit error:', error);
     // Check if it's a known error type, e.g., from formData parsing
-    if (error instanceof TypeError && error.message.includes('Failed to parse' )) {
-        return NextResponse.json({ message: '提交的表單資料格式錯誤' }, { status: 400 });
+    if (
+      error instanceof TypeError &&
+      error.message.includes('Failed to parse')
+    ) {
+      return NextResponse.json(
+        { message: '提交的表單資料格式錯誤' },
+        { status: 400 }
+      );
     }
-    return NextResponse.json({ message: '提交回饋時發生未知錯誤' }, { status: 500 });
+    return NextResponse.json(
+      { message: '提交回饋時發生未知錯誤' },
+      { status: 500 }
+    );
   }
 }

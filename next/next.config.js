@@ -13,11 +13,11 @@ const nextConfig = {
   reactStrictMode: false, // 關閉嚴格模式可以減少開發環境中的雙重渲染
   swcMinify: true, // 使用 SWC 進行代碼壓縮
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production", // 生產環境移除 console
+    removeConsole: process.env.NODE_ENV === 'production', // 生產環境移除 console
   },
   images: {
     domains: ['company.g0v.ronny.tw'], // 允許外部圖片域名
-    unoptimized: process.env.NODE_ENV === "development", // 開發環境不優化圖片以加快構建
+    unoptimized: process.env.NODE_ENV === 'development', // 開發環境不優化圖片以加快構建
   },
   poweredByHeader: false, // 移除X-Powered-By頭
   // 優化頁面載入方式
@@ -52,25 +52,32 @@ const nextConfig = {
     return [
       {
         // 應用於所有 API 路由
-        source: "/api/:path*",
+        source: '/api/:path*',
         headers: [
-          { key: "Access-Control-Allow-Credentials", value: "true" },
-          { key: "Access-Control-Allow-Origin", value: "*" }, // 生產環境下應更改為特定域名
-          { key: "Access-Control-Allow-Methods", value: "GET,POST,PUT,DELETE,OPTIONS" },
-          { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" },
-        ]
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' }, // 生產環境下應更改為特定域名
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,POST,PUT,DELETE,OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value:
+              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization',
+          },
+        ],
       },
       {
         // 應用於根路由
-        source: "/:path*",
+        source: '/:path*',
         headers: [
-          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
           // 添加緩存控制以提高性能
-          { key: "Cache-Control", value: "public, max-age=3600" }, // 1小時緩存
+          { key: 'Cache-Control', value: 'public, max-age=3600' }, // 1小時緩存
           // 添加安全頭
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-XSS-Protection", value: "1; mode=block" },
-        ]
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+        ],
       },
       {
         source: '/(.*)',
@@ -89,7 +96,7 @@ const nextConfig = {
           },
         ],
       },
-    ]
+    ];
   },
   output: 'standalone',
   env: {
@@ -101,9 +108,9 @@ const nextConfig = {
     if (isServer) {
       config.externals.push({
         'utf-8-validate': 'commonjs utf-8-validate',
-        'bufferutil': 'commonjs bufferutil',
-        'mongodb': 'commonjs mongodb',
-        'mongoose': 'commonjs mongoose',
+        bufferutil: 'commonjs bufferutil',
+        mongodb: 'commonjs mongodb',
+        mongoose: 'commonjs mongoose',
       });
     } else {
       // 客戶端 fallback 配置 - 解決 MongoDB 驅動程式的 Node.js 模組問題
@@ -154,7 +161,7 @@ const nextConfig = {
         })
       );
     }
-    
+
     return config;
   },
   ...(process.env.NODE_ENV === 'development' && {
@@ -168,6 +175,6 @@ const nextConfig = {
       },
     },
   }),
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

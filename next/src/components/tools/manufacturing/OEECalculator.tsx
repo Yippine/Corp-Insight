@@ -41,12 +41,12 @@ export default function OEECalculator() {
       availability,
       performance,
       quality,
-      oee
+      oee,
     });
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <Instructions
         what="OEE（設備綜合效率）計算器用於評估設備的整體使用效率。"
         why="OEE是衡量生產效率的重要指標，可以幫助識別需要改善的領域。"
@@ -54,39 +54,39 @@ export default function OEECalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             計劃生產時間 (分鐘)
           </label>
           <input
             type="number"
             value={plannedTime}
-            onChange={(e) => setPlannedTime(e.target.value)}
+            onChange={e => setPlannedTime(e.target.value)}
             min="1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             停機時間 (分鐘)
           </label>
           <input
             type="number"
             value={downtime}
-            onChange={(e) => setDowntime(e.target.value)}
+            onChange={e => setDowntime(e.target.value)}
             min="0"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             理想週期時間 (分鐘/件)
           </label>
           <input
             type="number"
             value={idealCycleTime}
-            onChange={(e) => setIdealCycleTime(e.target.value)}
+            onChange={e => setIdealCycleTime(e.target.value)}
             min="0.1"
             step="0.1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -94,26 +94,26 @@ export default function OEECalculator() {
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             總產出數量 (件)
           </label>
           <input
             type="number"
             value={totalParts}
-            onChange={(e) => setTotalParts(e.target.value)}
+            onChange={e => setTotalParts(e.target.value)}
             min="1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             不良品數量 (件)
           </label>
           <input
             type="number"
             value={defectParts}
-            onChange={(e) => setDefectParts(e.target.value)}
+            onChange={e => setDefectParts(e.target.value)}
             min="0"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
@@ -121,13 +121,13 @@ export default function OEECalculator() {
 
         <button
           onClick={calculateOEE}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           計算OEE
         </button>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
             <h3 className="text-xl font-medium text-gray-900">計算結果</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>

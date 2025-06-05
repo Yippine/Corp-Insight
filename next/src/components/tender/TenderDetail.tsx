@@ -19,8 +19,12 @@ interface TenderDetailProps {
 export default function TenderDetail({ tenderId }: TenderDetailProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'basic');
-  const { data, targetRecord, isLoading, error, sections } = useTenderDetail(tenderId || '');
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get('tab') || 'basic'
+  );
+  const { data, targetRecord, isLoading, error, sections } = useTenderDetail(
+    tenderId || ''
+  );
 
   const handleTabChange = (tab: string) => {
     // 驗證有效 tab 值
@@ -33,9 +37,11 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
     if (finalTab) {
       const params = new URLSearchParams(searchParams.toString());
       params.set('tab', encodeURIComponent(finalTab));
-      router.replace(`/tender/detail/${tenderId}?${params.toString()}`, { scroll: false });
+      router.replace(`/tender/detail/${tenderId}?${params.toString()}`, {
+        scroll: false,
+      });
     }
-    
+
     // 更新狀態
     setActiveTab(finalTab);
   };
@@ -48,7 +54,7 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
   // 處理載入中或錯誤狀態
   if (isLoading) {
     return (
-      <div className="w-full h-full min-h-[calc(100vh-var(--header-height,80px)-var(--footer-height,80px))] flex justify-center items-center">
+      <div className="flex h-full min-h-[calc(100vh-var(--header-height,80px)-var(--footer-height,80px))] w-full items-center justify-center">
         <InlineLoading />
       </div>
     );
@@ -56,8 +62,8 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
 
   if (error || !data) {
     return (
-      <div className="pt-10 pb-8 text-center">
-        <div className="bg-red-50 text-red-800 p-6 rounded-lg">
+      <div className="pb-8 pt-10 text-center">
+        <div className="rounded-lg bg-red-50 p-6 text-red-800">
           <h3 className="text-lg font-medium">無法載入標案資料</h3>
           <p className="mt-2">{error || '發生未知錯誤'}</p>
         </div>
@@ -66,9 +72,11 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
   }
 
   // 修改區塊渲染邏輯
-  const renderSection = (section: typeof sections[0]) => {
+  const renderSection = (section: (typeof sections)[0]) => {
     if (section.title === '最有利標' || section.title === '其他') {
-      return <TenderSpecialInfo section={section} targetRecord={targetRecord} />;
+      return (
+        <TenderSpecialInfo section={section} targetRecord={targetRecord} />
+      );
     }
 
     // 檢查是否包含是/否欄位
@@ -96,38 +104,40 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl space-y-6">
       <BackButton returnPath="/tender/search" />
 
       <TenderHeader targetRecord={targetRecord} data={data} />
 
-      <TenderTabNavigation 
-        sections={sections} 
-        activeTab={activeTab} 
-        onTabChange={handleTabChange} 
+      <TenderTabNavigation
+        sections={sections}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
       />
 
-      {sections.map((section) => (
-        (activeTab === section.title || (activeTab === '' && section === sections[0])) && (
-          <motion.div
-            key={section.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-          >
-            {renderSection(section)}
-          </motion.div>
-        )
-      ))}
+      {sections.map(
+        section =>
+          (activeTab === section.title ||
+            (activeTab === '' && section === sections[0])) && (
+            <motion.div
+              key={section.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderSection(section)}
+            </motion.div>
+          )
+      )}
 
-      <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h4 className="text-gray-500 text-sm font-medium mb-2">資料來源</h4>
+      <div className="rounded-lg bg-white p-4 shadow-sm">
+        <h4 className="mb-2 text-sm font-medium text-gray-500">資料來源</h4>
         <div className="space-y-1">
           <div className="flex items-center text-sm text-gray-600">
-            <a 
-              href="https://web.pcc.gov.tw/pis/" 
-              target="_blank" 
+            <a
+              href="https://web.pcc.gov.tw/pis/"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
@@ -135,9 +145,9 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
             </a>
           </div>
           <div className="flex items-center text-sm text-gray-600">
-            <a 
-              href="https://pcc.g0v.ronny.tw/" 
-              target="_blank" 
+            <a
+              href="https://pcc.g0v.ronny.tw/"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >

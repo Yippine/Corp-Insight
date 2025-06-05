@@ -1,7 +1,11 @@
 import { CompanyData } from './types';
 import { parseTwcnHtml } from './parser';
 import { formatDetailData } from './utils';
-import { determineSearchType, formatSearchData, formatCompanyResults } from './utils';
+import {
+  determineSearchType,
+  formatSearchData,
+  formatCompanyResults,
+} from './utils';
 import { getCachedApiData, setCachedApiData } from '../mongodbUtils';
 
 // 集合名稱和 TTL 設定
@@ -10,7 +14,10 @@ const PCC_API_CACHE_COLLECTION = 'pcc_api_cache'; // 用於 fetchTenderInfo
 const TWINCN_API_CACHE_COLLECTION = 'twincn_api_cache'; // 用於 fetchListedCompany
 const CACHE_TTL_SECONDS = 24 * 60 * 60; // 24 小時
 
-export async function fetchCompanySearch(query: string, page: number = 1): Promise<{
+export async function fetchCompanySearch(
+  query: string,
+  page: number = 1
+): Promise<{
   companies: CompanyData[];
   totalPages: number;
 }> {
@@ -24,19 +31,22 @@ export async function fetchCompanySearch(query: string, page: number = 1): Promi
       if (!response || !response.data) {
         throw new Error('找不到符合的公司！');
       }
-      
+
       response.data.統一編號 = query; // 確保 taxId 存在
       const company = formatSearchData(response.data);
       const tenderInfo = await fetchTenderInfo(company.taxId); // fetchTenderInfo 也會使用快取
-      
+
       return {
-        companies: [{
-          ...company,
-          tenderCount: tenderInfo.count,
-        }],
-        totalPages: 1 // taxId 搜尋通常只有一頁
+        companies: [
+          {
+            ...company,
+            tenderCount: tenderInfo.count,
+          },
+        ],
+        totalPages: 1, // taxId 搜尋通常只有一頁
       };
-    } else { // name or chairman
+    } else {
+      // name or chairman
       let response = await fetchSearchData('name', query, page);
       let formattedResults = await formatCompanyResults('name', response);
 
@@ -51,16 +61,22 @@ export async function fetchCompanySearch(query: string, page: number = 1): Promi
 
       return {
         companies: formattedResults,
-        totalPages: Math.ceil((response.found || 0) / 10) || 1
+        totalPages: Math.ceil((response.found || 0) / 10) || 1,
       };
     }
   } catch (error) {
     console.error('搜尋失敗：', error);
-    throw error instanceof Error ? error : new Error('搜尋過程發生錯誤，請稍後再試。');
+    throw error instanceof Error
+      ? error
+      : new Error('搜尋過程發生錯誤，請稍後再試。');
   }
 }
 
-async function fetchSearchData(type: 'taxId' | 'name' | 'chairman', query: string, page: number = 1): Promise<any> {
+async function fetchSearchData(
+  type: 'taxId' | 'name' | 'chairman',
+  query: string,
+  page: number = 1
+): Promise<any> {
   const baseUrl = 'https://company.g0v.ronny.tw/api';
   let apiUrl: string;
   switch (type) {
@@ -78,7 +94,10 @@ async function fetchSearchData(type: 'taxId' | 'name' | 'chairman', query: strin
   }
   const apiKey = apiUrl;
 
-  const cachedData = await getCachedApiData<any>(G0V_COMPANY_API_CACHE_COLLECTION, apiKey);
+  const cachedData = await getCachedApiData<any>(
+    G0V_COMPANY_API_CACHE_COLLECTION,
+    apiKey
+  );
   if (cachedData) {
     return cachedData;
   }
@@ -87,17 +106,22 @@ async function fetchSearchData(type: 'taxId' | 'name' | 'chairman', query: strin
     const response = await fetch(apiKey, {
       // next: { revalidate: 3600 }, // Next.js revalidate 由我們的快取機制取代
       headers: {
-        'Accept': 'application/json'
-      }
+        Accept: 'application/json',
+      },
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     if (data) {
-      await setCachedApiData(G0V_COMPANY_API_CACHE_COLLECTION, apiKey, data, CACHE_TTL_SECONDS);
+      await setCachedApiData(
+        G0V_COMPANY_API_CACHE_COLLECTION,
+        apiKey,
+        data,
+        CACHE_TTL_SECONDS
+      );
     }
     return data;
   } catch (error) {
@@ -106,26 +130,39 @@ async function fetchSearchData(type: 'taxId' | 'name' | 'chairman', query: strin
   }
 }
 
-export async function fetchCompanyDetail(taxId: string): Promise<CompanyData | null> {
+export async function fetchCompanyDetail(
+  taxId: string
+): Promise<CompanyData | null> {
   const g0vApiUrl = `https://company.g0v.ronny.tw/api/show/${taxId}`;
   const apiKeyG0v = g0vApiUrl;
 
   try {
     // 1. 獲取 G0V 公司基本資料 (快取或 API)
-    let basicDataResponse = await getCachedApiData<any>(G0V_COMPANY_API_CACHE_COLLECTION, apiKeyG0v);
+    let basicDataResponse = await getCachedApiData<any>(
+      G0V_COMPANY_API_CACHE_COLLECTION,
+      apiKeyG0v
+    );
     if (!basicDataResponse) {
-      const fetchRes = await fetch(g0vApiUrl, { /* headers: { 'Accept': 'application/json' } */ });
-      if (!fetchRes.ok) throw new Error(`G0V API error for basic data: ${fetchRes.status}`);
+      const fetchRes = await fetch(g0vApiUrl, {
+        /* headers: { 'Accept': 'application/json' } */
+      });
+      if (!fetchRes.ok)
+        throw new Error(`G0V API error for basic data: ${fetchRes.status}`);
       basicDataResponse = await fetchRes.json();
       if (basicDataResponse) {
-        await setCachedApiData(G0V_COMPANY_API_CACHE_COLLECTION, apiKeyG0v, basicDataResponse, CACHE_TTL_SECONDS);
+        await setCachedApiData(
+          G0V_COMPANY_API_CACHE_COLLECTION,
+          apiKeyG0v,
+          basicDataResponse,
+          CACHE_TTL_SECONDS
+        );
       }
     }
     const basicData = basicDataResponse?.data || {};
 
     // 2. 獲取上市公司資料 (fetchListedCompany 內部會處理自己的快取)
     const listedData = await fetchListedCompany(taxId);
-    
+
     const companyRawData = {
       ...basicData,
       ...(listedData || {}), // Ensure listedData is an object
@@ -142,14 +179,18 @@ async function fetchListedCompany(taxId: string) {
   // URL 構造與原邏輯保持一致，代理 API 路徑
   let internalApiUrl: string;
   if (typeof window === 'undefined') {
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+    const baseUrl =
+      process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
     internalApiUrl = `${baseUrl}/api/company/twincn?no=${taxId}`;
   } else {
     internalApiUrl = `/api/company/twincn?no=${taxId}`;
   }
   const apiKey = `twincn_${taxId}`; // 快取鍵使用統編，因為代理 API 的 URL 可能因環境而異
 
-  const cachedData = await getCachedApiData<string>(TWINCN_API_CACHE_COLLECTION, apiKey);
+  const cachedData = await getCachedApiData<string>(
+    TWINCN_API_CACHE_COLLECTION,
+    apiKey
+  );
   if (cachedData) {
     return parseTwcnHtml(cachedData); // 解析快取的 HTML
   }
@@ -158,15 +199,20 @@ async function fetchListedCompany(taxId: string) {
     const response = await fetch(internalApiUrl, {
       // next: { revalidate: 86400 } // 由 MongoDB 快取取代
     });
-    
+
     if (!response.ok) {
       console.error(`上市公司資料請求失敗，狀態碼：${response.status}`);
       return { data: {} }; // 維持原有錯誤處理返回結構
     }
-    
+
     const html = await response.text();
     if (html) {
-      await setCachedApiData(TWINCN_API_CACHE_COLLECTION, apiKey, html, CACHE_TTL_SECONDS);
+      await setCachedApiData(
+        TWINCN_API_CACHE_COLLECTION,
+        apiKey,
+        html,
+        CACHE_TTL_SECONDS
+      );
     }
     return parseTwcnHtml(html);
   } catch (error) {
@@ -175,11 +221,16 @@ async function fetchListedCompany(taxId: string) {
   }
 }
 
-export async function fetchTenderInfo(taxId: string): Promise<{ count: number; }> {
+export async function fetchTenderInfo(
+  taxId: string
+): Promise<{ count: number }> {
   const apiUrl = `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}`;
   const apiKey = apiUrl;
 
-  const cachedData = await getCachedApiData<any>(PCC_API_CACHE_COLLECTION, apiKey);
+  const cachedData = await getCachedApiData<any>(
+    PCC_API_CACHE_COLLECTION,
+    apiKey
+  );
   if (cachedData) {
     return { count: cachedData.total_records || 0 };
   }
@@ -188,14 +239,19 @@ export async function fetchTenderInfo(taxId: string): Promise<{ count: number; }
     const response = await fetch(apiKey, {
       // next: { revalidate: 86400 } // 由 MongoDB 快取取代
     });
-    
+
     if (!response.ok) {
       throw new Error(`標案查詢失敗：狀態碼 ${response.status}`);
     }
-    
+
     const data = await response.json();
     if (data) {
-      await setCachedApiData(PCC_API_CACHE_COLLECTION, apiKey, data, CACHE_TTL_SECONDS);
+      await setCachedApiData(
+        PCC_API_CACHE_COLLECTION,
+        apiKey,
+        data,
+        CACHE_TTL_SECONDS
+      );
     }
     return { count: data.total_records || 0 };
   } catch (error) {

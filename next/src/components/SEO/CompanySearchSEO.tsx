@@ -8,14 +8,13 @@ type CompanySearchSEOProps = {
 };
 
 export function generateCompanySearchMetadata({
-  title = '企業資訊查詢',
   description = '輸入公司名稱、統編、負責人或關鍵字，立即獲取完整企業資訊',
   query,
 }: CompanySearchSEOProps): Metadata {
-  const metaTitle = query 
+  const metaTitle = query
     ? dynamicTitles.companySearchResult(query)
     : staticTitles.companySearch;
-  
+
   const metaDescription = query
     ? `查看 ${query} 的企業資訊搜尋結果，包含公司基本資料、資本額、統一編號、負責人等詳細資訊。`
     : description;
@@ -27,8 +26,8 @@ export function generateCompanySearchMetadata({
       title: metaTitle,
       description: metaDescription,
       type: 'website',
-      url: query 
-        ? `https://opendata.leopilot.com/company/search?q=${encodeURIComponent(query)}` 
+      url: query
+        ? `https://opendata.leopilot.com/company/search?q=${encodeURIComponent(query)}`
         : 'https://opendata.leopilot.com/company/search',
     },
     twitter: {
@@ -48,7 +47,7 @@ export function CompanySearchStructuredData({ query }: { query?: string }) {
     description: query
       ? `查看 ${query} 的企業資訊搜尋結果，包含公司基本資料、資本額、統一編號、負責人等詳細資訊。`
       : '輸入公司名稱、統編、負責人或關鍵字，立即獲取完整企業資訊',
-    url: query 
+    url: query
       ? `https://opendata.leopilot.com/company/search?q=${encodeURIComponent(query)}`
       : 'https://opendata.leopilot.com/company/search',
   };

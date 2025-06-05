@@ -25,7 +25,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#ffffff'
+  themeColor: '#ffffff',
 };
 
 // 禁用全局佈局的動態渲染，加速初始載入
@@ -34,22 +34,18 @@ export const dynamic = 'force-static';
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="zh-TW" suppressHydrationWarning>
       <head>
         {/* Google tag (gtag.js) - 使用afterInteractive策略，確保頁面可互動後再載入 */}
-        <Script 
+        <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-PDSWJD7GMN"
           strategy="afterInteractive"
           defer
         />
-        <Script 
-          id="google-analytics"
-          strategy="afterInteractive"
-          defer
-        >
+        <Script id="google-analytics" strategy="afterInteractive" defer>
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -63,11 +59,11 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://company.g0v.ronny.tw" />
       </head>
       <body suppressHydrationWarning>
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="flex min-h-screen flex-col bg-gray-50">
           <LoadingProvider>
             <Header />
-            <main className="flex-1 flex items-center">
-              <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
+            <main className="flex flex-1 items-center">
+              <section className="mx-auto w-full max-w-7xl overflow-y-auto px-4 py-8 sm:px-6 lg:px-8">
                 {children}
               </section>
             </main>
@@ -76,5 +72,5 @@ export default function RootLayout({
         </div>
       </body>
     </html>
-  )
+  );
 }

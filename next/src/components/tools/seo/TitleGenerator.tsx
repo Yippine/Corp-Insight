@@ -14,20 +14,48 @@ export default function TitleGenerator() {
   const [isLoading, setIsLoading] = useState(false);
 
   const industryOptions = [
-    '電子商務', '科技', '健康醫療', '教育', '金融', '房地產', 
-    '旅遊', '食品餐飲', '美容時尚', '家居園藝', '藝術娛樂', '運動健身'
+    '電子商務',
+    '科技',
+    '健康醫療',
+    '教育',
+    '金融',
+    '房地產',
+    '旅遊',
+    '食品餐飲',
+    '美容時尚',
+    '家居園藝',
+    '藝術娛樂',
+    '運動健身',
   ];
-  
+
   const audienceOptions = [
-    '專業人士', '學生', '父母', '年輕人', '銀髮族', '企業決策者', 
-    '技術愛好者', '健康意識高的人', '購物愛好者', '投資者'
+    '專業人士',
+    '學生',
+    '父母',
+    '年輕人',
+    '銀髮族',
+    '企業決策者',
+    '技術愛好者',
+    '健康意識高的人',
+    '購物愛好者',
+    '投資者',
   ];
-  
+
   const lengthOptions = ['簡短', '中等', '詳細'];
-  
+
   const emotionOptions = [
-    '好奇', '驚訝', '信任', '喜悅', '急迫', '恐懼', '憂慮', 
-    '安心', '成就感', '獨特', '專業', '親切'
+    '好奇',
+    '驚訝',
+    '信任',
+    '喜悅',
+    '急迫',
+    '恐懼',
+    '憂慮',
+    '安心',
+    '成就感',
+    '獨特',
+    '專業',
+    '親切',
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +67,7 @@ export default function TitleGenerator() {
     }
 
     setIsLoading(true);
-    
+
     try {
       // 模擬API調用
       setTimeout(() => {
@@ -56,7 +84,7 @@ export default function TitleGenerator() {
           `${length === '簡短' ? '' : '深度分析：'}${keyword}如何革新${industry || '您的行業'}${length === '詳細' ? '並創造新價值' : ''}`,
           `${emotion || '實用'}的${keyword}秘訣：${audience || '專業人士'}的必備工具箱`,
         ];
-        
+
         setTitles(generatedTitles);
         setIsLoading(false);
       }, 1500);
@@ -74,7 +102,7 @@ export default function TitleGenerator() {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+        <h3 className="mb-2 text-xl font-semibold text-gray-800">
           SEO 標題生成器
         </h3>
         <p className="text-gray-600">
@@ -83,34 +111,34 @@ export default function TitleGenerator() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 mb-6">
+      <form onSubmit={handleSubmit} className="mb-6 space-y-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               主要關鍵詞 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               placeholder="例如：SEO優化、社群行銷、內容創作"
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
+              onChange={e => setKeyword(e.target.value)}
               required
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 行業領域
               </label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full rounded-lg border border-gray-300 bg-white p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
+                onChange={e => setIndustry(e.target.value)}
               >
                 <option value="">請選擇行業領域</option>
-                {industryOptions.map((option) => (
+                {industryOptions.map(option => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -119,16 +147,16 @@ export default function TitleGenerator() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 目標受眾
               </label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full rounded-lg border border-gray-300 bg-white p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 value={audience}
-                onChange={(e) => setAudience(e.target.value)}
+                onChange={e => setAudience(e.target.value)}
               >
                 <option value="">請選擇目標受眾</option>
-                {audienceOptions.map((option) => (
+                {audienceOptions.map(option => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -137,19 +165,19 @@ export default function TitleGenerator() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 標題長度
               </label>
               <div className="flex space-x-2">
-                {lengthOptions.map((option) => (
+                {lengthOptions.map(option => (
                   <button
                     key={option}
                     type="button"
-                    className={`flex-1 px-4 py-2 rounded-md border ${
+                    className={`flex-1 rounded-md border px-4 py-2 ${
                       length === option
-                        ? 'bg-blue-50 border-blue-300 text-blue-700'
+                        ? 'border-blue-300 bg-blue-50 text-blue-700'
                         : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                     onClick={() => setLength(option)}
@@ -161,16 +189,16 @@ export default function TitleGenerator() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 情感觸發
               </label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full rounded-lg border border-gray-300 bg-white p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 value={emotion}
-                onChange={(e) => setEmotion(e.target.value)}
+                onChange={e => setEmotion(e.target.value)}
               >
                 <option value="">請選擇情感觸發</option>
-                {emotionOptions.map((option) => (
+                {emotionOptions.map(option => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -185,16 +213,16 @@ export default function TitleGenerator() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium transition-all ${
+            className={`flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium text-white transition-all ${
               isLoading
-                ? 'bg-gray-400 cursor-not-allowed'
+                ? 'cursor-not-allowed bg-gray-400'
                 : 'bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-lg'
             }`}
             disabled={isLoading}
           >
             {isLoading ? (
               <>
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                 <span>生成中...</span>
               </>
             ) : (
@@ -211,10 +239,10 @@ export default function TitleGenerator() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100"
+          className="mt-8 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6"
         >
-          <div className="flex items-center mb-4">
-            <Type className="h-5 w-5 text-blue-600 mr-2" />
+          <div className="mb-4 flex items-center">
+            <Type className="mr-2 h-5 w-5 text-blue-600" />
             <h4 className="text-lg font-medium text-blue-800">標題建議</h4>
           </div>
 
@@ -222,12 +250,12 @@ export default function TitleGenerator() {
             {titles.map((title, index) => (
               <div
                 key={index}
-                className="p-3 bg-white rounded-lg border border-blue-100 flex justify-between items-center hover:shadow-sm transition-all"
+                className="flex items-center justify-between rounded-lg border border-blue-100 bg-white p-3 transition-all hover:shadow-sm"
               >
-                <p className="text-gray-800 flex-1">{title}</p>
+                <p className="flex-1 text-gray-800">{title}</p>
                 <button
                   onClick={() => copyToClipboard(title)}
-                  className="ml-2 p-2 text-blue-600 hover:bg-blue-50 rounded-md"
+                  className="ml-2 rounded-md p-2 text-blue-600 hover:bg-blue-50"
                 >
                   複製
                 </button>

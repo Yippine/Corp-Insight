@@ -28,7 +28,9 @@ export default function LoanCalculator() {
     const totalMonths = parseInt(years) * 12;
 
     // 計算每月還款金額
-    const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+    const monthlyPayment =
+      (principal * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths))) /
+      (Math.pow(1 + monthlyRate, totalMonths) - 1);
 
     // 計算還款明細
     let remainingBalance = principal;
@@ -44,7 +46,7 @@ export default function LoanCalculator() {
         payment: monthlyPayment,
         principal: principalPayment,
         interest,
-        remainingBalance: Math.max(0, remainingBalance)
+        remainingBalance: Math.max(0, remainingBalance),
       });
     }
 
@@ -55,12 +57,12 @@ export default function LoanCalculator() {
       monthlyPayment,
       totalPayment,
       totalInterest,
-      schedule
+      schedule,
     });
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <Instructions
         what="貸款比較計算器幫助您了解貸款的還款計畫和總成本。"
         why="在申請貸款前，了解每月還款金額和總利息支出可以幫助做出更好的財務決策。"
@@ -68,26 +70,26 @@ export default function LoanCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             貸款金額 (NT$)
           </label>
           <input
             type="number"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={e => setAmount(e.target.value)}
             min="0"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             年利率 (%)
           </label>
           <input
             type="number"
             value={rate}
-            onChange={(e) => setRate(e.target.value)}
+            onChange={e => setRate(e.target.value)}
             min="0"
             step="0.1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -95,13 +97,13 @@ export default function LoanCalculator() {
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             貸款期間 (年)
           </label>
           <input
             type="number"
             value={years}
-            onChange={(e) => setYears(e.target.value)}
+            onChange={e => setYears(e.target.value)}
             min="1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
@@ -109,53 +111,77 @@ export default function LoanCalculator() {
 
         <button
           onClick={calculateLoan}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           計算貸款
         </button>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-6">
+          <div className="space-y-6 rounded-lg bg-gray-50 p-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-base text-gray-500">每月還款</p>
                 <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.monthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  NT${' '}
+                  {result.monthlyPayment.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </p>
               </div>
               <div>
                 <p className="text-base text-gray-500">總還款金額</p>
                 <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.totalPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  NT${' '}
+                  {result.totalPayment.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </p>
               </div>
               <div className="col-span-2">
                 <p className="text-base text-gray-500">總利息支出</p>
                 <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  NT${' '}
+                  {result.totalInterest.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </p>
               </div>
             </div>
 
             <div>
-              <h4 className="text-base font-medium text-gray-700 mb-3">還款明細</h4>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {result.schedule.map((month, index) => (
-                  index % 12 === 0 && (
-                    <div key={month.month} className="grid grid-cols-4 text-base">
-                      <div>第 {month.month / 12} 年</div>
-                      <div className="text-right">
-                        NT$ {month.payment.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              <h4 className="mb-3 text-base font-medium text-gray-700">
+                還款明細
+              </h4>
+              <div className="max-h-60 space-y-2 overflow-y-auto">
+                {result.schedule.map(
+                  (month, index) =>
+                    index % 12 === 0 && (
+                      <div
+                        key={month.month}
+                        className="grid grid-cols-4 text-base"
+                      >
+                        <div>第 {month.month / 12} 年</div>
+                        <div className="text-right">
+                          NT${' '}
+                          {month.payment.toLocaleString(undefined, {
+                            maximumFractionDigits: 0,
+                          })}
+                        </div>
+                        <div className="text-right text-green-600">
+                          本金:{' '}
+                          {month.principal.toLocaleString(undefined, {
+                            maximumFractionDigits: 0,
+                          })}
+                        </div>
+                        <div className="text-right text-blue-600">
+                          利息:{' '}
+                          {month.interest.toLocaleString(undefined, {
+                            maximumFractionDigits: 0,
+                          })}
+                        </div>
                       </div>
-                      <div className="text-right text-green-600">
-                        本金: {month.principal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                      </div>
-                      <div className="text-right text-blue-600">
-                        利息: {month.interest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                      </div>
-                    </div>
-                  )
-                ))}
+                    )
+                )}
               </div>
             </div>
           </div>

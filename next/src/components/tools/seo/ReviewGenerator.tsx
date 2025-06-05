@@ -23,7 +23,9 @@ export default function ReviewGenerator() {
   const generatePrompt = (isOptimizing: boolean) => {
     if (isOptimizing && !result?.content) return '';
 
-    const selectedCategory = productCategories.find(c => c.id === category)?.name;
+    const selectedCategory = productCategories.find(
+      c => c.id === category
+    )?.name;
     const selectedType = reviewTypes.find(t => t.id === reviewType)?.name;
 
     const basePrompt = `你是一位專業的產品評價撰寫專家。
@@ -66,17 +68,17 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
     if (result) {
       setResult({
         ...result,
-        isOptimizing: true
+        isOptimizing: true,
       });
     }
 
     try {
       const prompt = generatePrompt(isOptimizing);
-      
-      await streamGenerateContent(prompt, (text) => {
+
+      await streamGenerateContent(prompt, text => {
         setResult({
           content: text,
-          isOptimizing: false
+          isOptimizing: false,
         });
       });
     } catch (error) {
@@ -87,7 +89,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <Instructions
         what="AI 評價生成器幫助您生成真實感的產品評價。"
         why="真實的使用者評價可以增加產品可信度，提升轉換率。"
@@ -97,25 +99,25 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               產品名稱 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={productName}
-              onChange={(e) => setProductName(e.target.value)}
+              onChange={e => setProductName(e.target.value)}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：智能手錶 Apple Watch Ultra 2"
             />
           </div>
 
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               產品特點 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={features}
-              onChange={(e) => setFeatures(e.target.value)}
+              onChange={e => setFeatures(e.target.value)}
               rows={3}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：24 小時心率監測、50 米防水、無線充電、智能通知"
@@ -123,12 +125,12 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
           </div>
 
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               使用場景（選填）
             </label>
             <textarea
               value={usageScenario}
-              onChange={(e) => setUsageScenario(e.target.value)}
+              onChange={e => setUsageScenario(e.target.value)}
               rows={2}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：運動健身、日常通勤、游泳"
@@ -137,15 +139,15 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-base font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-base font-medium text-gray-700">
                 產品類別
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={e => setCategory(e.target.value)}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                {productCategories.map((option) => (
+                {productCategories.map(option => (
                   <option key={option.id} value={option.id}>
                     {option.name}
                   </option>
@@ -154,15 +156,15 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
             </div>
 
             <div>
-              <label className="block text-base font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-base font-medium text-gray-700">
                 評價類型
               </label>
               <select
                 value={reviewType}
-                onChange={(e) => setReviewType(e.target.value)}
+                onChange={e => setReviewType(e.target.value)}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                {reviewTypes.map((option) => (
+                {reviewTypes.map(option => (
                   <option key={option.id} value={option.id}>
                     {option.name}
                   </option>
@@ -176,7 +178,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
           <button
             onClick={() => handleGenerate(false)}
             disabled={isGenerating || !productName.trim() || !features.trim()}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isGenerating && !result?.isOptimizing ? (
               <ButtonLoading text="生成中..." />
@@ -187,8 +189,10 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
           <button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !result || !productName.trim() || !features.trim()}
-            className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            disabled={
+              isGenerating || !result || !productName.trim() || !features.trim()
+            }
+            className={`flex-1 rounded-md border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
               result
                 ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
                 : 'border-gray-300 text-gray-400'
@@ -203,8 +207,8 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
         </div>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-xl font-medium text-gray-900 mb-4">對話結果</h3>
+          <div className="rounded-lg bg-gray-50 p-6">
+            <h3 className="mb-4 text-xl font-medium text-gray-900">對話結果</h3>
             <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
               {result.content}
             </div>

@@ -29,12 +29,12 @@ export default function YieldCalculator() {
       yield: yieldRate,
       defectRate: defectRate,
       totalCost: totalCost,
-      lossCost: lossCost
+      lossCost: lossCost,
     });
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <Instructions
         what="良率計算器用於計算生產過程中的良品率和相關成本。"
         why="良率分析可以幫助識別生產問題，評估品質改善成效，並計算不良品造成的損失。"
@@ -42,39 +42,39 @@ export default function YieldCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             總生產量 (件)
           </label>
           <input
             type="number"
             value={totalQuantity}
-            onChange={(e) => setTotalQuantity(e.target.value)}
+            onChange={e => setTotalQuantity(e.target.value)}
             min="1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             不良品數量 (件)
           </label>
           <input
             type="number"
             value={defectQuantity}
-            onChange={(e) => setDefectQuantity(e.target.value)}
+            onChange={e => setDefectQuantity(e.target.value)}
             min="0"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             單件成本 (NT$)
           </label>
           <input
             type="number"
             value={unitCost}
-            onChange={(e) => setUnitCost(e.target.value)}
+            onChange={e => setUnitCost(e.target.value)}
             min="0"
             step="0.1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -83,13 +83,13 @@ export default function YieldCalculator() {
 
         <button
           onClick={calculateYield}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           計算良率與損失
         </button>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
             <h3 className="text-xl font-medium text-gray-900">計算結果</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>

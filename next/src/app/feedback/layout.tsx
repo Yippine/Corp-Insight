@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function FeedbackLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return <>{children}</>;
 }

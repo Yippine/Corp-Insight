@@ -10,7 +10,7 @@ export async function getToolsDataFromAPI(): Promise<Tools[]> {
     // 並行獲取 AI 工具和基礎工具
     const [aiToolsResponse, baseToolsResponse] = await Promise.all([
       fetch('/api/aitool'),
-      fetch('/api/aitool/base-tools')
+      fetch('/api/aitool/base-tools'),
     ]);
 
     let allTools: Tools[] = [];
@@ -21,7 +21,7 @@ export async function getToolsDataFromAPI(): Promise<Tools[]> {
       const aiTools: Tools[] = aiToolsFromAPI
         .filter((tool: DBToolDocument) => tool.isAITool !== false) // 只取 AI 工具
         .map((tool: DBToolDocument) => {
-          let currentTags = tool.tags || [];
+          const currentTags = tool.tags || [];
           // 確保 AI 工具有 'AI' 標籤
           if (!currentTags.includes('AI')) {
             currentTags.push('AI');
@@ -31,7 +31,9 @@ export async function getToolsDataFromAPI(): Promise<Tools[]> {
             id: tool.id,
             name: tool.name,
             description: tool.description,
-            iconName: (tool.icon in iconMap ? tool.icon : 'Zap') as keyof typeof iconMap,
+            iconName: (tool.icon in iconMap
+              ? tool.icon
+              : 'Zap') as keyof typeof iconMap,
             componentId: 'PromptToolTemplate',
             tags: currentTags,
             category: tool.category || 'AI 工具',
@@ -51,7 +53,9 @@ export async function getToolsDataFromAPI(): Promise<Tools[]> {
         id: tool.id,
         name: tool.name,
         description: tool.description,
-        iconName: (tool.iconName in iconMap ? tool.iconName : 'Zap') as keyof typeof iconMap,
+        iconName: (tool.iconName in iconMap
+          ? tool.iconName
+          : 'Zap') as keyof typeof iconMap,
         componentId: tool.componentId,
         tags: tool.tags || ['工具'],
         category: tool.category,
@@ -61,8 +65,8 @@ export async function getToolsDataFromAPI(): Promise<Tools[]> {
     }
 
     // 去除重複工具
-    const uniqueTools = allTools.filter((tool, index, self) => 
-      index === self.findIndex((t) => t.id === tool.id)
+    const uniqueTools = allTools.filter(
+      (tool, index, self) => index === self.findIndex(t => t.id === tool.id)
     );
 
     return uniqueTools;
@@ -75,7 +79,9 @@ export async function getToolsDataFromAPI(): Promise<Tools[]> {
 // 根據 ID 獲取特定工具
 export async function getToolById(toolId: string): Promise<Tools | null> {
   try {
-    const response = await fetch(`/api/aitool?id=${encodeURIComponent(toolId)}`);
+    const response = await fetch(
+      `/api/aitool?id=${encodeURIComponent(toolId)}`
+    );
     if (response.ok) {
       const { data: tool } = await response.json();
       if (tool) {
@@ -90,7 +96,10 @@ export async function getToolById(toolId: string): Promise<Tools | null> {
 }
 
 // 檢查搜尋結果是否存在
-export async function hasToolSearchResults(query?: string, tag?: string): Promise<boolean> {
+export async function hasToolSearchResults(
+  query?: string,
+  tag?: string
+): Promise<boolean> {
   if (!query && !tag) {
     return true; // 沒有查詢條件時返回 true
   }
@@ -99,7 +108,7 @@ export async function hasToolSearchResults(query?: string, tag?: string): Promis
     const searchParams = new URLSearchParams();
     if (query) searchParams.append('q', query);
     if (tag) searchParams.append('tag', tag);
-    
+
     const response = await fetch(`/api/aitool?${searchParams.toString()}`);
     if (response.ok) {
       const { data } = await response.json();
@@ -113,10 +122,12 @@ export async function hasToolSearchResults(query?: string, tag?: string): Promis
 }
 
 // 轉換 AIToolDocument 到 Tools 格式的輔助函數
-export function convertAIToolDocumentToTools(aiTools: DBToolDocument[]): Tools[] {
+export function convertAIToolDocumentToTools(
+  aiTools: DBToolDocument[]
+): Tools[] {
   return aiTools.map(tool => {
-    let currentTags = tool.tags || [];
-    
+    const currentTags = tool.tags || [];
+
     // 根據工具類型決定是否添加 'AI' 標籤
     const isAITool = tool.isAITool !== false && tool.renderType !== 'component';
     if (isAITool && !currentTags.includes('AI')) {
@@ -124,14 +135,15 @@ export function convertAIToolDocumentToTools(aiTools: DBToolDocument[]): Tools[]
     }
 
     // 確保 icon 存在於 iconMap 中，否則使用 'Zap'
-    const iconName = (tool.icon in iconMap) ? tool.icon : 'Zap';
+    const iconName = tool.icon in iconMap ? tool.icon : 'Zap';
 
     return {
       id: tool.id,
       name: tool.name,
       description: tool.description,
       iconName: iconName as keyof typeof iconMap,
-      componentId: tool.componentId || (isAITool ? 'PromptToolTemplate' : undefined),
+      componentId:
+        tool.componentId || (isAITool ? 'PromptToolTemplate' : undefined),
       tags: currentTags,
       category: tool.category,
       subCategory: tool.subCategory,
@@ -145,25 +157,24 @@ export function convertAIToolDocumentToTools(aiTools: DBToolDocument[]): Tools[]
 // 生成標籤統計
 export function getTagStatistics(tools: Tools[]): TagStats {
   const tagCounts: Record<string, number> = {};
-  
+
   tools.forEach(tool => {
     tool.tags.forEach(tag => {
       tagCounts[tag] = (tagCounts[tag] || 0) + 1;
     });
   });
 
-  const sortedTags = Object.entries(tagCounts)
-    .sort(([, a], [, b]) => b - a);
+  const sortedTags = Object.entries(tagCounts).sort(([, a], [, b]) => b - a);
 
   // 合併標籤邏輯
   const mergedTags = [...sortedTags];
-  
+
   // 確保'全部'標籤總是排在最前
   mergedTags.unshift(['全部', tools.length]);
 
   return {
     allTags: sortedTags.map(([tag, count]) => ({ tag, count })),
-    mergedTags: mergedTags.map(([tag, count]) => ({ tag, count }))
+    mergedTags: mergedTags.map(([tag, count]) => ({ tag, count })),
   };
 }
 
@@ -179,8 +190,8 @@ const colorPalettes = [
     shadow: 'shadow-indigo-300/20',
     gradient: {
       from: 'from-indigo-300 bg-opacity-85',
-      to: 'to-indigo-400'
-    }
+      to: 'to-indigo-400',
+    },
   },
   {
     primary: 'bg-purple-500 bg-opacity-90',
@@ -192,8 +203,8 @@ const colorPalettes = [
     shadow: 'shadow-purple-500/10',
     gradient: {
       from: 'from-purple-500 bg-opacity-90',
-      to: 'to-fuchsia-500'
-    }
+      to: 'to-fuchsia-500',
+    },
   },
   {
     primary: 'bg-pink-500 bg-opacity-85',
@@ -205,8 +216,8 @@ const colorPalettes = [
     shadow: 'shadow-pink-500/10',
     gradient: {
       from: 'from-pink-500 bg-opacity-85',
-      to: 'to-rose-500'
-    }
+      to: 'to-rose-500',
+    },
   },
   {
     primary: 'bg-rose-400 bg-opacity-85',
@@ -218,8 +229,8 @@ const colorPalettes = [
     shadow: 'shadow-rose-400/20',
     gradient: {
       from: 'from-rose-400 bg-opacity-85',
-      to: 'to-rose-300'
-    }
+      to: 'to-rose-300',
+    },
   },
   {
     primary: 'bg-amber-500 bg-opacity-75',
@@ -231,8 +242,8 @@ const colorPalettes = [
     shadow: 'shadow-amber-500/10',
     gradient: {
       from: 'from-amber-500 bg-opacity-85',
-      to: 'to-yellow-500'
-    }
+      to: 'to-yellow-500',
+    },
   },
   {
     primary: 'bg-emerald-500 bg-opacity-85',
@@ -244,8 +255,8 @@ const colorPalettes = [
     shadow: 'shadow-emerald-500/10',
     gradient: {
       from: 'from-emerald-500 bg-opacity-85',
-      to: 'to-green-500'
-    }
+      to: 'to-green-500',
+    },
   },
   {
     primary: 'bg-sky-400 bg-opacity-85',
@@ -257,9 +268,9 @@ const colorPalettes = [
     shadow: 'shadow-sky-400/20',
     gradient: {
       from: 'from-sky-400 bg-opacity-85',
-      to: 'to-sky-500'
-    }
-  }
+      to: 'to-sky-500',
+    },
+  },
 ];
 
 // 生成標籤主題
@@ -270,10 +281,10 @@ export function generateTagThemes(tools: Tools[]): Record<string, ColorTheme> {
   tagStats.mergedTags.forEach((tagStat, index) => {
     const tag = tagStat.tag;
     const palette = colorPalettes[index % colorPalettes.length];
-    
+
     themes[tag] = {
       ...palette,
-      name: tag
+      name: tag,
     };
   });
 

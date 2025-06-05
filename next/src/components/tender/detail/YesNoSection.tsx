@@ -9,12 +9,14 @@ interface YesNoSectionProps {
 }
 
 export default function YesNoSection({ section }: YesNoSectionProps) {
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const toggleGroup = (groupKey: string) => {
     setExpandedGroups(prev => ({
       ...prev,
-      [groupKey]: !prev[groupKey]
+      [groupKey]: !prev[groupKey],
     }));
   };
 
@@ -62,24 +64,30 @@ export default function YesNoSection({ section }: YesNoSectionProps) {
           {depth > 0 && (
             <button
               onClick={() => toggleGroup(groupKey)}
-              className="flex items-center text-gray-800 hover:text-blue-600 font-medium"
+              className="flex items-center font-medium text-gray-800 hover:text-blue-600"
             >
               {isExpanded ? (
-                <ChevronDown className="h-4 w-4 mr-1" />
+                <ChevronDown className="mr-1 h-4 w-4" />
               ) : (
-                <ChevronRight className="h-4 w-4 mr-1" />
+                <ChevronRight className="mr-1 h-4 w-4" />
               )}
               {field.label}
             </button>
           )}
 
           {depth === 0 && (
-            <div className="text-lg font-medium text-gray-800 mb-2">{field.label}</div>
+            <div className="mb-2 text-lg font-medium text-gray-800">
+              {field.label}
+            </div>
           )}
-          
+
           {(isExpanded || depth === 0) && (
-            <div className={`${depth > 0 ? 'mt-2 space-y-2 border-l-2 border-gray-200 pl-4' : ''}`}>
-              {field.children.map((child) => renderRegularField(child, depth + 1))}
+            <div
+              className={`${depth > 0 ? 'mt-2 space-y-2 border-l-2 border-gray-200 pl-4' : ''}`}
+            >
+              {field.children.map(child =>
+                renderRegularField(child, depth + 1)
+              )}
             </div>
           )}
         </div>
@@ -93,7 +101,7 @@ export default function YesNoSection({ section }: YesNoSectionProps) {
       <div key={field.label} className={`py-2 ${depth > 0 ? 'ml-4' : ''}`}>
         <div className="grid grid-cols-3 gap-4">
           <div className="text-gray-600">{field.label}</div>
-          <div className="col-span-2 break-words whitespace-pre-wrap">
+          <div className="col-span-2 whitespace-pre-wrap break-words">
             {Array.isArray(field.value) ? field.value.join(', ') : field.value}
           </div>
         </div>
@@ -106,9 +114,9 @@ export default function YesNoSection({ section }: YesNoSectionProps) {
     return (
       <div key={field.label} className="flex items-start gap-2 py-2">
         {isYes ? (
-          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+          <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
         ) : (
-          <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+          <XCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
         )}
         <span className="text-gray-800">{field.label}</span>
       </div>
@@ -116,11 +124,11 @@ export default function YesNoSection({ section }: YesNoSectionProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="rounded-lg bg-white p-6 shadow-sm">
       {/* 「是」欄位 */}
       {yesFields.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">符合條件</h3>
+          <h3 className="mb-4 text-lg font-medium text-gray-800">符合條件</h3>
           <div className="space-y-2">
             {yesFields.map(field => renderYesNoField(field, true))}
           </div>
@@ -130,7 +138,7 @@ export default function YesNoSection({ section }: YesNoSectionProps) {
       {/* 「否」欄位 */}
       {noFields.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">不符合條件</h3>
+          <h3 className="mb-4 text-lg font-medium text-gray-800">不符合條件</h3>
           <div className="space-y-2">
             {noFields.map(field => renderYesNoField(field, false))}
           </div>

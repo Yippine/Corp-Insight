@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import Instructions from '../Instructions';
-import { productCategories, targetAudiences } from '../../../config/geminiOptions';
+import {
+  productCategories,
+  targetAudiences,
+} from '../../../config/geminiOptions';
 import { streamGenerateContent } from '../../../lib/gemini';
 import { ButtonLoading } from '../../common/loading/LoadingTypes';
 
@@ -24,7 +27,9 @@ export default function FeatureGenerator() {
   const generatePrompt = (isOptimizing: boolean) => {
     if (isOptimizing && !result?.content) return '';
 
-    const selectedCategory = productCategories.find(c => c.id === category)?.name;
+    const selectedCategory = productCategories.find(
+      c => c.id === category
+    )?.name;
     const selectedAudience = targetAudiences.find(a => a.id === audience)?.name;
 
     const basePrompt = `你是一位專業的產品功能描述專家。
@@ -67,23 +72,24 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
   };
 
   const handleGenerate = async (isOptimizing: boolean = false) => {
-    if (!productName.trim() || !targetProblem.trim() || !uniquePoints.trim()) return;
+    if (!productName.trim() || !targetProblem.trim() || !uniquePoints.trim())
+      return;
 
     setIsGenerating(true);
     if (result) {
       setResult({
         ...result,
-        isOptimizing: true
+        isOptimizing: true,
       });
     }
 
     try {
       const prompt = generatePrompt(isOptimizing);
-      
-      await streamGenerateContent(prompt, (text) => {
+
+      await streamGenerateContent(prompt, text => {
         setResult({
           content: text,
-          isOptimizing: false
+          isOptimizing: false,
         });
       });
     } catch (error) {
@@ -94,7 +100,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <Instructions
         what="AI 功能生成器幫助您撰寫專業的產品功能描述。"
         why="優質的功能描述可以突出產品價值，提高轉換率。"
@@ -104,25 +110,25 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               產品名稱 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={productName}
-              onChange={(e) => setProductName(e.target.value)}
+              onChange={e => setProductName(e.target.value)}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：AI 智能助理"
             />
           </div>
 
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               目標問題 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={targetProblem}
-              onChange={(e) => setTargetProblem(e.target.value)}
+              onChange={e => setTargetProblem(e.target.value)}
               rows={2}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：使用者需要更高效的工作流程自動化解決方案"
@@ -130,12 +136,12 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
           </div>
 
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               獨特賣點 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={uniquePoints}
-              onChange={(e) => setUniquePoints(e.target.value)}
+              onChange={e => setUniquePoints(e.target.value)}
               rows={3}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：整合多種 AI 模型、支援自然語言互動、可自訂工作流程"
@@ -143,12 +149,12 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
           </div>
 
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-base font-medium text-gray-700">
               技術規格（選填）
             </label>
             <textarea
               value={techSpecs}
-              onChange={(e) => setTechSpecs(e.target.value)}
+              onChange={e => setTechSpecs(e.target.value)}
               rows={2}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="例如：支援 o1-preivew、每秒處理 100 筆請求、API 整合支援"
@@ -157,15 +163,15 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-base font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-base font-medium text-gray-700">
                 產品類別
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={e => setCategory(e.target.value)}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                {productCategories.map((option) => (
+                {productCategories.map(option => (
                   <option key={option.id} value={option.id}>
                     {option.name}
                   </option>
@@ -174,15 +180,15 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
             </div>
 
             <div>
-              <label className="block text-base font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-base font-medium text-gray-700">
                 目標受眾
               </label>
               <select
                 value={audience}
-                onChange={(e) => setAudience(e.target.value)}
+                onChange={e => setAudience(e.target.value)}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                {targetAudiences.map((option) => (
+                {targetAudiences.map(option => (
                   <option key={option.id} value={option.id}>
                     {option.name}
                   </option>
@@ -195,8 +201,13 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
         <div className="flex space-x-4">
           <button
             onClick={() => handleGenerate(false)}
-            disabled={isGenerating || !productName.trim() || !targetProblem.trim() || !uniquePoints.trim()}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={
+              isGenerating ||
+              !productName.trim() ||
+              !targetProblem.trim() ||
+              !uniquePoints.trim()
+            }
+            className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isGenerating && !result?.isOptimizing ? (
               <ButtonLoading text="生成中..." />
@@ -207,8 +218,14 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
           <button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !result || !productName.trim() || !targetProblem.trim() || !uniquePoints.trim()}
-            className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            disabled={
+              isGenerating ||
+              !result ||
+              !productName.trim() ||
+              !targetProblem.trim() ||
+              !uniquePoints.trim()
+            }
+            className={`flex-1 rounded-md border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
               result
                 ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
                 : 'border-gray-300 text-gray-400'
@@ -223,8 +240,8 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
         </div>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-xl font-medium text-gray-900 mb-4">對話結果</h3>
+          <div className="rounded-lg bg-gray-50 p-6">
+            <h3 className="mb-4 text-xl font-medium text-gray-900">對話結果</h3>
             <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
               {result.content}
             </div>

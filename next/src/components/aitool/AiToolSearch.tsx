@@ -42,7 +42,7 @@ const preloadToolComponents = async () => {
     import('@/components/tools/computer/AIInfrastructureCostCalculator'),
     import('@/components/tools/computer/GPUMemoryCalculator'),
   ];
-  
+
   // 使用 Promise.all 並行請求所有模組，但我們不需要等待它們全部完成
   Promise.all(imports).catch(() => {
     // 忽略任何錯誤，這只是預載
@@ -54,46 +54,58 @@ interface AiToolSearchProps {
   initialTag: string;
 }
 
-export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchProps) {
+export default function AiToolSearch({
+  initialQuery,
+  initialTag,
+}: AiToolSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { startLoading } = useLoading();
 
-  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || initialQuery);
-  const [selectedTag, setSelectedTag] = useState(() => searchParams.get('tag') || initialTag);
-  const [hoveredTool, setHoveredTool] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get('q') || initialQuery
+  );
+  const [selectedTag, setSelectedTag] = useState<string>(
+    () => searchParams.get('tag') || initialTag
+  );
   const [tools, setTools] = useState<Tools[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [categoryThemes, setCategoryThemes] = useState<Record<string, ColorTheme>>({});
-  const [fullTagThemes, setFullTagThemes] = useState<Record<string, ColorTheme>>({});
+  const [categoryThemes, setCategoryThemes] = useState<
+    Record<string, ColorTheme>
+  >({});
+  const [fullTagThemes, setFullTagThemes] = useState<
+    Record<string, ColorTheme>
+  >({});
 
   // 從 API 載入工具資料
   useEffect(() => {
     const loadToolsData = async () => {
       try {
         setIsLoading(true);
-        
+
         // 並行載入工具資料和主題
-        const [toolsResponse, categoryThemesData, fullTagThemesData] = await Promise.all([
-          fetch('/api/aitool'),
-          getCategoryThemes(),
-          getFullTagThemes()
-        ]);
+        const [toolsResponse, categoryThemesData, fullTagThemesData] =
+          await Promise.all([
+            fetch('/api/aitool'),
+            getCategoryThemes(),
+            getFullTagThemes(),
+          ]);
 
         if (!toolsResponse.ok) {
           throw new Error('Failed to fetch tools');
         }
 
         const { data: allToolsFromAPI } = await toolsResponse.json();
-        
+
         // 轉換工具格式
         const allTools: Tools[] = allToolsFromAPI.map((tool: any) => {
-          let currentTags = tool.tags || [];
-          
+          const currentTags = tool.tags || [];
+
           // 檢查是否為 AI 工具
-          const isAITool = tool.isAITool !== false && tool.renderType !== 'component';
-          
+          const isAITool =
+            tool.isAITool !== false && tool.renderType !== 'component';
+
           // 確保 AI 工具有 'AI' 標籤
           if (isAITool && !currentTags.includes('AI')) {
             currentTags.push('AI');
@@ -104,7 +116,9 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
             name: tool.name,
             description: tool.description,
             iconName: tool.icon in iconMap ? tool.icon : 'Zap',
-            componentId: tool.componentId || (isAITool ? 'PromptToolTemplate' : tool.componentId),
+            componentId:
+              tool.componentId ||
+              (isAITool ? 'PromptToolTemplate' : tool.componentId),
             tags: currentTags,
             category: tool.category,
             subCategory: tool.subCategory,
@@ -155,33 +169,36 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
     } else {
       params.delete('tag');
     }
-    
+
     const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
-    
-    if (newUrl !== `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`) {
+
+    if (
+      newUrl !==
+      `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
+    ) {
       router.replace(newUrl, { scroll: false });
     }
-
   }, [searchQuery, selectedTag, router, pathname, searchParams]);
 
   const filteredTools = useCallback(() => {
     if (!tools.length) return [];
-    
+
     let filtered = [...tools];
     const currentQueryFromUrl = (searchParams.get('q') || '').toLowerCase();
     const currentTagFromUrl = searchParams.get('tag') || '';
 
     if (currentQueryFromUrl) {
-      filtered = filtered.filter(t => 
-        t.name.toLowerCase().includes(currentQueryFromUrl) || 
-        t.description.toLowerCase().includes(currentQueryFromUrl)
+      filtered = filtered.filter(
+        t =>
+          t.name.toLowerCase().includes(currentQueryFromUrl) ||
+          t.description.toLowerCase().includes(currentQueryFromUrl)
       );
     }
 
     if (currentTagFromUrl && currentTagFromUrl !== '全部') {
       filtered = filtered.filter(t => t.tags.includes(currentTagFromUrl));
     }
-    
+
     return sortToolsBySelectedTag(filtered, currentTagFromUrl);
   }, [searchParams, tools]);
 
@@ -222,7 +239,7 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+      <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
         <div className="flex items-center justify-center py-12">
           <InlineLoading />
         </div>
@@ -233,38 +250,38 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
   const filtered = filteredTools();
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
+    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+      <div className="mb-6 flex items-center justify-between">
         <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             placeholder="搜尋工具..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex items-center ml-4 px-4 py-2 bg-gray-50 rounded-lg">
-          <ListFilter className="h-5 w-5 text-gray-500 mr-2" />
-          <span className="text-gray-600 font-medium">
+        <div className="ml-4 flex items-center rounded-lg bg-gray-50 px-4 py-2">
+          <ListFilter className="mr-2 h-5 w-5 text-gray-500" />
+          <span className="font-medium text-gray-600">
             {filtered.length} 個工具
           </span>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-6 flex flex-wrap gap-2">
         {Object.entries(categoryThemes).map(([tag, theme]) => (
           <motion.button
             key={tag}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleTagSelect(tag)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              selectedTag === tag || (!selectedTag && tag === '全部') 
-                ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}` 
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+              selectedTag === tag || (!selectedTag && tag === '全部')
+                ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
                 : `${theme.secondary} ${theme.text} ${theme.hover}`
             }`}
           >
@@ -283,12 +300,12 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {filtered.map((tool) => {
+            {filtered.map(tool => {
               const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
               const isAITool = tool.componentId === 'PromptToolTemplate';
-              
+
               return (
                 <motion.div
                   key={tool.id}
@@ -296,45 +313,47 @@ export default function AiToolSearch({ initialQuery, initialTag }: AiToolSearchP
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  whileHover={{ 
+                  whileHover={{
                     scale: 1.02,
-                    transition: { duration: 0.2 }
+                    transition: { duration: 0.2 },
                   }}
-                  className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                  className="group cursor-pointer rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg"
                   onClick={() => handleToolClick(tool.id)}
-                  onMouseEnter={() => setHoveredTool(tool.id)}
-                  onMouseLeave={() => setHoveredTool(null)}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-lg ${isAITool ? 'bg-gradient-to-br from-purple-100 to-pink-100' : 'bg-blue-50'} group-hover:scale-110 transition-transform duration-300`}>
-                      <IconComponent className={`h-6 w-6 ${isAITool ? 'text-purple-600' : 'text-blue-600'}`} />
+                  <div className="mb-4 flex items-start justify-between">
+                    <div
+                      className={`rounded-lg p-3 ${isAITool ? 'bg-gradient-to-br from-purple-100 to-pink-100' : 'bg-blue-50'} transition-transform duration-300 group-hover:scale-110`}
+                    >
+                      <IconComponent
+                        className={`h-6 w-6 ${isAITool ? 'text-purple-600' : 'text-blue-600'}`}
+                      />
                     </div>
                   </div>
-                  
-                  <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">
+
+                  <h3 className="mb-2 font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-600">
                     {tool.name}
                   </h3>
-                  
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+
+                  <p className="mb-4 line-clamp-2 text-sm text-gray-600">
                     {tool.description}
                   </p>
-                  
+
                   <div className="flex flex-wrap gap-1">
-                    {tool.tags.slice(0, 3).map((tag) => {
+                    {tool.tags.slice(0, 3).map(tag => {
                       const tagTheme = fullTagThemes[tag];
                       if (!tagTheme) return null;
-                      
+
                       return (
                         <span
                           key={tag}
-                          className={`px-2 py-1 text-xs rounded-full ${tagTheme.secondary} ${tagTheme.text}`}
+                          className={`rounded-full px-2 py-1 text-xs ${tagTheme.secondary} ${tagTheme.text}`}
                         >
                           {tag}
                         </span>
                       );
                     })}
                     {tool.tags.length > 3 && (
-                      <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+                      <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
                         +{tool.tags.length - 3}
                       </span>
                     )}

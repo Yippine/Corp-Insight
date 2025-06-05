@@ -1,11 +1,11 @@
-import { constitutions } from "../data/tcm";
+import { constitutions } from '../data/tcm';
 
 export function formatConstitutionTitle(ids: string[]): string {
   const MAX_MAIN = 2;
   const SPECIAL_CASES: Record<string, string> = {
     'blood-stasis+qi-stagnation': '氣滯血瘀型',
     'damp-heat+phlegm-dampness': '痰濕化熱型',
-    'yang-deficiency+yin-deficiency': '陰陽兩虛型'
+    'yang-deficiency+yin-deficiency': '陰陽兩虛型',
   };
 
   const specialKey = ids.sort().join('+');
@@ -15,7 +15,7 @@ export function formatConstitutionTitle(ids: string[]): string {
 
   const main = ids.slice(0, MAX_MAIN);
   const overflow = ids.length - MAX_MAIN;
-  
+
   const names = main.map(id => {
     const constitution = constitutions.find(c => c.id === id)!;
     return constitution.name;

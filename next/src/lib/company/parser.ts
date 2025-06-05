@@ -12,24 +12,24 @@ export interface ListedCompanyData {
     傳真: string;
     EMail: string;
     網址: string;
-    
+
     // 管理階層
     董事長: string;
     總經理: string;
     發言人: string;
     發言人職稱: string;
     代理發言人: string;
-    
+
     // 重要日期
     成立日期: string;
     上市日期: string;
-    
+
     // 股票資訊
     普通股每股面額: string;
     實收資本額: string;
     私募股數: string;
     特別股: string;
-    
+
     // 其他資訊
     股票過戶機構: string;
     過戶電話: string;
@@ -37,7 +37,7 @@ export interface ListedCompanyData {
     簽證會計師事務所: string;
     簽證會計師1: string;
     簽證會計師2: string;
-  }
+  };
 }
 
 /**
@@ -109,8 +109,8 @@ export const parseTwcnHtml = (html: string): ListedCompanyData => {
       過戶地址: cleanText(getFieldValue('過戶地址')),
       簽證會計師事務所: cleanText(getFieldValue('簽證會計師事務所')),
       簽證會計師1: cleanText(getFieldValue('簽證會計師1')),
-      簽證會計師2: cleanText(getFieldValue('簽證會計師2'))
-    }
+      簽證會計師2: cleanText(getFieldValue('簽證會計師2')),
+    },
   };
 
   return data;

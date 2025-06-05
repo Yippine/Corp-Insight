@@ -10,27 +10,28 @@ export default function Loading() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isFirstRender = useRef(true);
-  
+
   // 當頁面 Loading 組件掛載時，通知全局 Loading 上下文
   useEffect(() => {
     // 標記已不是第一次渲染
     if (isFirstRender.current) {
       isFirstRender.current = false;
     }
-    
+
     // 通知全局上下文開始加載
     startLoading();
-    
+
     // 檢測為同路由不同參數的導航
-    const isOnlySearchParamsChanged = pathname?.includes('/feedback') && searchParams?.has('type');
-    
+    const isOnlySearchParamsChanged =
+      pathname?.includes('/feedback') && searchParams?.has('type');
+
     // 如果是特殊情況，如僅搜索參數變化，使用更短的超時
     if (isOnlySearchParamsChanged) {
       setTimeout(() => {
         checkAndStopLoading();
       }, 150);
     }
-    
+
     return () => {
       // 組件卸載時停止加載狀態
       setTimeout(() => {

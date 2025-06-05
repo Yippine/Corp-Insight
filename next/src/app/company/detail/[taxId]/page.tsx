@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import CompanyDetailContent from '@/components/company/CompanyDetailContent';
 import { fetchCompanyDetail } from '@/lib/company/api';
-import { generateCompanyDetailMetadata, CompanyDetailStructuredData } from '@/components/SEO/CompanyDetailSEO';
+import {
+  generateCompanyDetailMetadata,
+  CompanyDetailStructuredData,
+} from '@/components/SEO/CompanyDetailSEO';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,25 +32,30 @@ const getCompanyData = cache(async (taxId: string) => {
 });
 
 // SEO 動態元數據
-export async function generateMetadata({ params }: CompanyDetailPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: CompanyDetailPageProps): Promise<Metadata> {
   const { taxId } = params;
   const companyData = await getCompanyData(taxId);
-  
+
   // 使用專用的SEO元數據生成函數
   return generateCompanyDetailMetadata(companyData);
 }
 
-export default async function CompanyDetailPage({ params, searchParams }: CompanyDetailPageProps) {
+export default async function CompanyDetailPage({
+  params,
+  searchParams,
+}: CompanyDetailPageProps) {
   const { taxId } = params;
   const { tab = 'basic' } = searchParams;
-  
+
   // 使用相同的獲取函數
   const companyData = await getCompanyData(taxId);
-  
+
   if (!companyData) {
     notFound();
   }
-  
+
   // 傳遞頁籤名稱而非圖標組件，添加風險評估頁籤
   const tabs = [
     { id: 'basic', name: '基本資料', icon: 'Building2' },
@@ -56,13 +64,13 @@ export default async function CompanyDetailPage({ params, searchParams }: Compan
     { id: 'tenders', name: '標案資料', icon: 'FileText' },
     { id: 'risk', name: '風險評估', icon: 'AlertTriangle' },
   ];
-  
+
   return (
     <>
       <CompanyDetailStructuredData companyData={companyData} />
-      
-      <CompanyDetailContent 
-        companyData={companyData} 
+
+      <CompanyDetailContent
+        companyData={companyData}
         activeTab={tab}
         tabs={tabs}
       />

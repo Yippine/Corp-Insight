@@ -11,7 +11,7 @@ const baseTools = [
     componentId: 'TitleGenerator',
     tags: ['工具', 'SEO'],
     category: 'SEO',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'description-generator',
@@ -21,7 +21,7 @@ const baseTools = [
     componentId: 'DescriptionGenerator',
     tags: ['工具', 'SEO'],
     category: 'SEO',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'keyword-generator',
@@ -31,7 +31,7 @@ const baseTools = [
     componentId: 'KeywordGenerator',
     tags: ['工具', 'SEO'],
     category: 'SEO',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'faq-generator',
@@ -41,7 +41,7 @@ const baseTools = [
     componentId: 'FaqGenerator',
     tags: ['工具', 'SEO'],
     category: 'SEO',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'review-generator',
@@ -51,7 +51,7 @@ const baseTools = [
     componentId: 'ReviewGenerator',
     tags: ['工具', 'SEO'],
     category: 'SEO',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'feature-generator',
@@ -61,7 +61,7 @@ const baseTools = [
     componentId: 'FeatureGenerator',
     tags: ['工具', 'SEO'],
     category: 'SEO',
-    isAITool: false
+    isAITool: false,
   },
 
   // 健康工具
@@ -73,7 +73,7 @@ const baseTools = [
     componentId: 'TCMCheck',
     tags: ['工具', '健康'],
     category: '健康',
-    isAITool: false
+    isAITool: false,
   },
 
   // 電腦工具
@@ -85,7 +85,7 @@ const baseTools = [
     componentId: 'ServerSpecCalculator',
     tags: ['工具', '電腦'],
     category: '電腦',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'workload-scalability-calculator',
@@ -95,7 +95,7 @@ const baseTools = [
     componentId: 'WorkloadScalabilityCalculator',
     tags: ['工具', '電腦'],
     category: '電腦',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'model-performance-calculator',
@@ -105,7 +105,7 @@ const baseTools = [
     componentId: 'ModelPerformanceCalculator',
     tags: ['工具', '電腦'],
     category: '電腦',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'ai-infrastructure-cost-calculator',
@@ -115,7 +115,7 @@ const baseTools = [
     componentId: 'AIInfrastructureCostCalculator',
     tags: ['工具', '電腦'],
     category: '電腦',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'gpu-memory-calculator',
@@ -125,7 +125,7 @@ const baseTools = [
     componentId: 'GPUMemoryCalculator',
     tags: ['工具', '電腦'],
     category: '電腦',
-    isAITool: false
+    isAITool: false,
   },
 
   // 金融工具
@@ -137,7 +137,7 @@ const baseTools = [
     componentId: 'ROICalculator',
     tags: ['工具', '金融'],
     category: '金融',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'deposit-calculator',
@@ -147,7 +147,7 @@ const baseTools = [
     componentId: 'DepositCalculator',
     tags: ['工具', '金融'],
     category: '金融',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'loan-calculator',
@@ -157,7 +157,7 @@ const baseTools = [
     componentId: 'LoanCalculator',
     tags: ['工具', '金融'],
     category: '金融',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'currency-converter',
@@ -167,7 +167,7 @@ const baseTools = [
     componentId: 'CurrencyConverter',
     tags: ['工具', '金融'],
     category: '金融',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'compound-interest-calculator',
@@ -177,7 +177,7 @@ const baseTools = [
     componentId: 'CompoundInterestCalculator',
     tags: ['工具', '金融'],
     category: '金融',
-    isAITool: false
+    isAITool: false,
   },
 
   // 製造業工具
@@ -189,7 +189,7 @@ const baseTools = [
     componentId: 'PackagingCalculator',
     tags: ['工具', '製造'],
     category: '製造',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'yield-calculator',
@@ -199,7 +199,7 @@ const baseTools = [
     componentId: 'YieldCalculator',
     tags: ['工具', '製造'],
     category: '製造',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'oee-calculator',
@@ -209,7 +209,7 @@ const baseTools = [
     componentId: 'OEECalculator',
     tags: ['工具', '製造'],
     category: '製造',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'metal-weight-calculator',
@@ -219,7 +219,7 @@ const baseTools = [
     componentId: 'MetalWeightCalculator',
     tags: ['工具', '製造'],
     category: '製造',
-    isAITool: false
+    isAITool: false,
   },
   {
     id: 'manufacturing-calculator',
@@ -229,8 +229,8 @@ const baseTools = [
     componentId: 'ManufacturingCalculator',
     tags: ['工具', '製造'],
     category: '製造',
-    isAITool: false
-  }
+    isAITool: false,
+  },
 ];
 
 // GET - 獲取所有基礎工具
@@ -244,32 +244,30 @@ export async function GET(request: NextRequest) {
 
     // 如果有分類參數，篩選特定分類的工具
     if (category) {
-      filteredTools = filteredTools.filter(tool => 
-        tool.category?.toLowerCase() === category.toLowerCase()
+      filteredTools = filteredTools.filter(
+        tool => tool.category?.toLowerCase() === category.toLowerCase()
       );
     }
 
     // 如果有標籤參數，篩選包含該標籤的工具
     if (tag) {
-      filteredTools = filteredTools.filter(tool => 
-        tool.tags.includes(tag)
-      );
+      filteredTools = filteredTools.filter(tool => tool.tags.includes(tag));
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       data: filteredTools,
       count: filteredTools.length,
-      categories: ['SEO', '健康', '電腦', '金融', '製造']
+      categories: ['SEO', '健康', '電腦', '金融', '製造'],
     });
   } catch (error) {
     console.error('Error in GET /api/aitool/base-tools:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch base tools' 
+      {
+        success: false,
+        error: 'Failed to fetch base tools',
       },
       { status: 500 }
     );
   }
-} 
+}

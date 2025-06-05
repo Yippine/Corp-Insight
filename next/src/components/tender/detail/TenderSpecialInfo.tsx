@@ -1,25 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { Section, TenderRecord, FieldValue } from '../../../hooks/useTenderDetail';
+import { Section, FieldValue } from '../../../hooks/useTenderDetail';
 import CommitteeCard from '../detail-components/CommitteeCard';
 import ComplaintUnitCard from '../detail-components/ComplaintUnitCard';
 
 interface TenderSpecialInfoProps {
   section: Section;
-  targetRecord: TenderRecord | null;
 }
 
-export default function TenderSpecialInfo({ section, targetRecord }: TenderSpecialInfoProps) {
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
-
-  const toggleGroup = (groupKey: string) => {
-    setExpandedGroups(prev => ({
-      ...prev,
-      [groupKey]: !prev[groupKey]
-    }));
-  };
-
+export default function TenderSpecialInfo({ section }: TenderSpecialInfoProps) {
   // 處理評選委員資料
   const findCommitteeMembers = (): any[] => {
     const committeeField = section.fields.find(f => f.label === '評選委員');
@@ -27,10 +16,12 @@ export default function TenderSpecialInfo({ section, targetRecord }: TenderSpeci
 
     return committeeField.children.map(child => {
       const name = child.children?.find(f => f.label === '姓名')?.value || '';
-      const expertise = child.children?.find(f => f.label === '專家學者')?.value === '是';
+      const expertise =
+        child.children?.find(f => f.label === '專家學者')?.value === '是';
       const field = child.children?.find(f => f.label === '職業')?.value || '';
-      const experience = child.children?.find(f => f.label === '專家學者專長')?.value || '';
-      
+      const experience =
+        child.children?.find(f => f.label === '專家學者專長')?.value || '';
+
       return { name, expertise, field, experience };
     });
   };
@@ -43,9 +34,10 @@ export default function TenderSpecialInfo({ section, targetRecord }: TenderSpeci
     return complaintField.children.map(child => {
       const name = child.children?.find(f => f.label === '名稱')?.value || '';
       const phone = child.children?.find(f => f.label === '電話')?.value || '';
-      const address = child.children?.find(f => f.label === '地址')?.value || '';
+      const address =
+        child.children?.find(f => f.label === '地址')?.value || '';
       const fax = child.children?.find(f => f.label === '傳真')?.value || '';
-      
+
       return { name, phone, address, fax };
     });
   };
@@ -59,18 +51,21 @@ export default function TenderSpecialInfo({ section, targetRecord }: TenderSpeci
     return (
       <div className="space-y-4">
         {generalFields.map(field => {
-          if (!field.value && (!field.children || field.children.length === 0)) return null;
-          
+          if (!field.value && (!field.children || field.children.length === 0))
+            return null;
+
           return (
             <div key={field.label} className="border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-2">{field.label}</h3>
-              
+              <h3 className="mb-2 text-lg font-medium text-gray-800">
+                {field.label}
+              </h3>
+
               {field.value && (
                 <div className="text-gray-600">{field.value}</div>
               )}
-              
+
               {field.children && field.children.length > 0 && (
-                <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="mt-2 grid grid-cols-1 gap-4 lg:grid-cols-2">
                   {field.children.map(child => renderChildField(child))}
                 </div>
               )}
@@ -83,17 +78,16 @@ export default function TenderSpecialInfo({ section, targetRecord }: TenderSpeci
 
   // 子欄位渲染
   const renderChildField = (field: FieldValue) => {
-    if (!field.value && (!field.children || field.children.length === 0)) return null;
+    if (!field.value && (!field.children || field.children.length === 0))
+      return null;
 
     return (
       <div key={field.label} className="border-b border-gray-100 pb-2">
         <div className="text-sm font-medium text-gray-700">{field.label}</div>
-        {field.value && (
-          <div className="text-gray-600">{field.value}</div>
-        )}
-        
+        {field.value && <div className="text-gray-600">{field.value}</div>}
+
         {field.children && field.children.length > 0 && (
-          <div className="mt-1 ml-4">
+          <div className="ml-4 mt-1">
             {field.children.map(child => renderChildField(child))}
           </div>
         )}
@@ -105,12 +99,12 @@ export default function TenderSpecialInfo({ section, targetRecord }: TenderSpeci
   const complaintUnits = findComplaintUnits();
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="rounded-lg bg-white p-6 shadow-sm">
       {/* 評選委員 */}
       {committeeMembers.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">評選委員</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <h3 className="mb-4 text-lg font-medium text-gray-800">評選委員</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {committeeMembers.map((member, index) => (
               <CommitteeCard key={index} member={member} />
             ))}
@@ -121,8 +115,10 @@ export default function TenderSpecialInfo({ section, targetRecord }: TenderSpeci
       {/* 檢舉受理單位 */}
       {complaintUnits.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">檢舉受理單位</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h3 className="mb-4 text-lg font-medium text-gray-800">
+            檢舉受理單位
+          </h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {complaintUnits.map((unit, index) => (
               <ComplaintUnitCard key={index} unit={unit} />
             ))}

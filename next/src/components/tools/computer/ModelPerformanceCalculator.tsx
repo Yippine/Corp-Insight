@@ -16,22 +16,22 @@ const architectures: ModelArchitecture[] = [
     name: 'Transformer',
     baseMemory: 1.2,
     computeMultiplier: 1.5,
-    latencyBase: 100
+    latencyBase: 100,
   },
   {
     id: 'cnn',
     name: 'CNN',
     baseMemory: 1.0,
     computeMultiplier: 1.2,
-    latencyBase: 50
+    latencyBase: 50,
   },
   {
     id: 'rnn',
     name: 'RNN',
     baseMemory: 0.8,
     computeMultiplier: 1.3,
-    latencyBase: 75
-  }
+    latencyBase: 75,
+  },
 ];
 
 interface CalculationResult {
@@ -59,13 +59,15 @@ export default function ModelPerformanceCalculator() {
     const memoryUsage = selectedArch.baseMemory * size * (bits / 32) * batch;
 
     // 計算效率 (TFLOPS)
-    const computeEfficiency = size * selectedArch.computeMultiplier * (32 / bits);
+    const computeEfficiency =
+      size * selectedArch.computeMultiplier * (32 / bits);
 
     // 功耗估算 (W)
     const powerConsumption = computeEfficiency * 100 + 50;
 
     // 推理延遲 (ms)
-    const inferenceLatency = selectedArch.latencyBase * size * (batch / 32) * (bits / 8);
+    const inferenceLatency =
+      selectedArch.latencyBase * size * (batch / 32) * (bits / 8);
 
     // 吞吐量 (samples/sec)
     const throughput = (1000 / inferenceLatency) * batch;
@@ -75,12 +77,12 @@ export default function ModelPerformanceCalculator() {
       computeEfficiency,
       powerConsumption,
       inferenceLatency,
-      throughput
+      throughput,
     });
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <Instructions
         what="模型效能計算器幫助您預測 AI 模型的資源消耗和性能表現。"
         why="了解模型的資源需求和性能特徵對於優化部署策略至關重要。"
@@ -88,15 +90,15 @@ export default function ModelPerformanceCalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             模型架構
           </label>
           <select
             value={architecture}
-            onChange={(e) => setArchitecture(e.target.value)}
+            onChange={e => setArchitecture(e.target.value)}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           >
-            {architectures.map((arch) => (
+            {architectures.map(arch => (
               <option key={arch.id} value={arch.id}>
                 {arch.name}
               </option>
@@ -105,13 +107,13 @@ export default function ModelPerformanceCalculator() {
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             模型大小 (GB)
           </label>
           <input
             type="number"
             value={modelSize}
-            onChange={(e) => setModelSize(e.target.value)}
+            onChange={e => setModelSize(e.target.value)}
             min="0.1"
             step="0.1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -119,25 +121,25 @@ export default function ModelPerformanceCalculator() {
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             批次大小
           </label>
           <input
             type="number"
             value={batchSize}
-            onChange={(e) => setBatchSize(e.target.value)}
+            onChange={e => setBatchSize(e.target.value)}
             min="1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             量化位數
           </label>
           <select
             value={quantization}
-            onChange={(e) => setQuantization(e.target.value)}
+            onChange={e => setQuantization(e.target.value)}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           >
             <option value="32">FP32</option>
@@ -149,13 +151,13 @@ export default function ModelPerformanceCalculator() {
 
         <button
           onClick={calculatePerformance}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           計算效能
         </button>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
             <h3 className="text-xl font-medium text-gray-900">效能預測結果</h3>
             <div className="grid grid-cols-1 gap-4">
               <div>

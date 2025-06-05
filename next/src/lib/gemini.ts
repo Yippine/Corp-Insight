@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(
+  process.env.NEXT_PUBLIC_GEMINI_API_KEY || ''
+);
 
 async function logTokenUsage(result: any) {
   const response = await result.response;
@@ -8,9 +10,9 @@ async function logTokenUsage(result: any) {
   const tokenUsage = {
     inputTokens: response.usageMetadata?.promptTokenCount || 0,
     outputTokens: response.usageMetadata?.candidatesTokenCount || 0,
-    totalTokens: response.usageMetadata?.totalTokenCount || 0
+    totalTokens: response.usageMetadata?.totalTokenCount || 0,
   };
-  
+
   console.log(`Gemini API Token Usage: ${JSON.stringify(tokenUsage, null, 2)}`);
 }
 
@@ -21,15 +23,15 @@ export async function streamGenerateContent(
   shouldLogTokens: boolean = false
 ) {
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
       // generationConfig: {
       //   maxOutputTokens: maxTokens
       // }
     });
 
     const result = await model.generateContentStream(prompt);
-    
+
     if (shouldLogTokens) await logTokenUsage(result);
 
     let fullText = '';
@@ -39,7 +41,7 @@ export async function streamGenerateContent(
       fullText += chunkText;
       onStream(fullText);
     }
-    
+
     return fullText;
   } catch (error) {
     console.error('Gemini API error:', error);

@@ -6,41 +6,54 @@ import { getCachedApiData, setCachedApiData } from '../mongodbUtils';
 const PCC_API_CACHE_COLLECTION = 'pcc_api_cache';
 const CACHE_TTL_SECONDS = 24 * 60 * 60;
 
-export async function fetchTenderSearch(query: string, searchType: SearchType, page: number = 1): Promise<{
+export async function fetchTenderSearch(
+  query: string,
+  searchType: SearchType,
+  page: number = 1
+): Promise<{
   results: TenderSearchResult[];
   totalPages: number;
 }> {
   try {
     const data = await fetchSearchData(searchType, query, page);
-    
+
     if (!data || !data.records || data.records.length === 0) {
       throw new Error('找不到符合的標案！');
     }
-    
+
     const results = formatResults(data, searchType, query);
-    
+
     return {
       results,
-      totalPages: data.total_pages || 1
+      totalPages: data.total_pages || 1,
     };
   } catch (error) {
     console.error('搜尋失敗：', error);
-    throw error instanceof Error ? error : new Error('搜尋過程發生錯誤，請稍後再試。');
+    throw error instanceof Error
+      ? error
+      : new Error('搜尋過程發生錯誤，請稍後再試。');
   }
 }
 
-async function fetchSearchData(type: SearchType, query: string, page: number = 1): Promise<any> {
+async function fetchSearchData(
+  type: SearchType,
+  query: string,
+  page: number = 1
+): Promise<any> {
   const baseUrl = 'https://pcc.g0v.ronny.tw/api';
   const endpoints = {
     tender: `${baseUrl}/searchbytitle?query=${encodeURIComponent(query)}&page=${page}`,
-    company: /^\d{8}$/.test(query) 
+    company: /^\d{8}$/.test(query)
       ? `${baseUrl}/searchbycompanyid?query=${encodeURIComponent(query)}&page=${page}`
-      : `${baseUrl}/searchbycompanyname?query=${encodeURIComponent(query)}&page=${page}`
+      : `${baseUrl}/searchbycompanyname?query=${encodeURIComponent(query)}&page=${page}`,
   };
 
   const apiKey = endpoints[type];
 
-  const cachedData = await getCachedApiData<any>(PCC_API_CACHE_COLLECTION, apiKey);
+  const cachedData = await getCachedApiData<any>(
+    PCC_API_CACHE_COLLECTION,
+    apiKey
+  );
   if (cachedData) {
     return cachedData;
   }
@@ -49,18 +62,23 @@ async function fetchSearchData(type: SearchType, query: string, page: number = 1
     const response = await fetch(apiKey, {
       mode: 'cors',
       headers: {
-        'Accept': 'application/json'
-      }
+        Accept: 'application/json',
+      },
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
     }
-    
+
     const data = await response.json();
 
     if (data) {
-      await setCachedApiData(PCC_API_CACHE_COLLECTION, apiKey, data, CACHE_TTL_SECONDS);
+      await setCachedApiData(
+        PCC_API_CACHE_COLLECTION,
+        apiKey,
+        data,
+        CACHE_TTL_SECONDS
+      );
     }
 
     return data;
@@ -70,12 +88,17 @@ async function fetchSearchData(type: SearchType, query: string, page: number = 1
   }
 }
 
-function formatResults(data: any, searchType: SearchType, query: string): TenderSearchResult[] {
+function formatResults(
+  data: any,
+  searchType: SearchType,
+  query: string
+): TenderSearchResult[] {
   return data.records.map((record: any, index: number) => {
-    const label = searchType === 'company' 
-      ? getCompanyLabel(record, query)
-      : getTenderLabel(record.brief.type);
-    
+    const label =
+      searchType === 'company'
+        ? getCompanyLabel(record, query)
+        : getTenderLabel(record.brief.type);
+
     return {
       uniqueId: `${index}-${record.job_number || 'unknown'}`,
       tenderId: `${record.unit_id}_${record.job_number}`,

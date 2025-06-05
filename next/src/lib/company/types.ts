@@ -16,8 +16,17 @@ export interface CompanyData {
   website?: string;
   revenue?: string;
   shareholding?: string;
-  directors?: { name: string; title: string; shares: string; representative?: string | [number, string] }[];
-  managers?: { 序號: string; 姓名: string; 到職日期: { year: number; month: number; day: number } }[];
+  directors?: {
+    name: string;
+    title: string;
+    shares: string;
+    representative?: string | [number, string];
+  }[];
+  managers?: {
+    序號: string;
+    姓名: string;
+    到職日期: { year: number; month: number; day: number };
+  }[];
   tenders?: string[];
   englishName?: string;
   companyType?: string;
@@ -50,7 +59,7 @@ export interface CompanyData {
     certifiedPublicAccountantFirm: string;
     certifiedPublicAccountant1: string;
     certifiedPublicAccountant2: string;
-  }
+  };
 }
 
 export interface CompanyResponse {
@@ -70,9 +79,13 @@ export interface CompanyResponse {
   '實收資本額(元)'?: number | string;
   核准設立日期?: { year: number; month: number; day: number };
   最後核准變更日期?: { year: number; month: number; day: number };
-  '董監事名單'?: { 姓名: string; 職稱: string; 出資額?: number | string; }[];
+  董監事名單?: { 姓名: string; 職稱: string; 出資額?: number | string }[];
   股權狀況?: string;
-  經理人名單?: { 序號: string; 姓名: string; 到職日期: { year: number; month: number; day: number } }[];
+  經理人名單?: {
+    序號: string;
+    姓名: string;
+    到職日期: { year: number; month: number; day: number };
+  }[];
   章程所訂外文公司名稱?: string;
   組織別名稱?: string;
   登記機關?: string;

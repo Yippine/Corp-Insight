@@ -24,7 +24,9 @@ interface PromptToolTemplateProps {
   config: PromptToolConfig;
 }
 
-export default function PromptToolTemplate({ config }: PromptToolTemplateProps) {
+export default function PromptToolTemplate({
+  config,
+}: PromptToolTemplateProps) {
   const [userInput, setUserInput] = useState('');
   const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +45,10 @@ export default function PromptToolTemplate({ config }: PromptToolTemplateProps) 
   // 當有結果出現時，滾動到結果部分
   useEffect(() => {
     if (result && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      resultRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
     }
   }, [result]);
 
@@ -67,7 +72,7 @@ ${config.name} 處理了您的請求，結果如下：
 3. 進一步行動步驟...
 
 希望這對您有所幫助！`;
-        
+
         setResult(simulatedResponse);
         setIsLoading(false);
       }, 1500);
@@ -82,7 +87,9 @@ ${config.name} 處理了您的請求，結果如下：
   const renderHeader = () => (
     <div className="mb-6">
       <div className="mb-2 flex items-center">
-        <h3 className="text-xl font-semibold text-gray-800">{config.instructions.what}</h3>
+        <h3 className="text-xl font-semibold text-gray-800">
+          {config.instructions.what}
+        </h3>
       </div>
       <p className="text-gray-600">{config.instructions.why}</p>
     </div>
@@ -93,19 +100,19 @@ ${config.name} 處理了您的請求，結果如下：
     <div className="space-y-4">
       <textarea
         ref={textareaRef}
-        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[120px] transition-all"
+        className="min-h-[120px] w-full rounded-lg border border-gray-300 p-4 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500"
         placeholder={config.placeholder}
         value={userInput}
-        onChange={(e) => setUserInput(e.target.value)}
+        onChange={e => setUserInput(e.target.value)}
         disabled={isLoading}
       />
       <div className="flex justify-end">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium transition-all ${
-            isLoading 
-              ? 'bg-gray-400 cursor-not-allowed' 
+          className={`flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium text-white transition-all ${
+            isLoading
+              ? 'cursor-not-allowed bg-gray-400'
               : 'bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-lg'
           }`}
           onClick={handleSubmit}
@@ -113,7 +120,7 @@ ${config.name} 處理了您的請求，結果如下：
         >
           {isLoading ? (
             <>
-              <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
               <span>處理中...</span>
             </>
           ) : (
@@ -130,22 +137,22 @@ ${config.name} 處理了您的請求，結果如下：
   // 結果部分
   const renderResult = () => {
     if (!result && !isLoading) return null;
-    
+
     return (
       <motion.div
         ref={resultRef}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100"
+        className="mt-8 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6"
       >
-        <div className="flex items-center mb-4">
-          <Wand2 className="h-5 w-5 text-blue-500 mr-2" />
+        <div className="mb-4 flex items-center">
+          <Wand2 className="mr-2 h-5 w-5 text-blue-500" />
           <h4 className="text-lg font-medium text-blue-800">AI 助理結果</h4>
         </div>
-        
+
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin h-8 w-8 border-3 border-blue-500 border-t-transparent rounded-full"></div>
+            <div className="border-3 h-8 w-8 animate-spin rounded-full border-blue-500 border-t-transparent"></div>
             <span className="ml-3 text-blue-800">AI 思考中...</span>
           </div>
         ) : (

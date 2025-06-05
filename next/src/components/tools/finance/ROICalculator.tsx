@@ -21,17 +21,18 @@ export default function ROICalculator() {
 
     const netReturn = finalValue - initialInvestment;
     const roi = (netReturn / initialInvestment) * 100;
-    const annualizedRoi = (Math.pow((finalValue / initialInvestment), 1/period) - 1) * 100;
+    const annualizedRoi =
+      (Math.pow(finalValue / initialInvestment, 1 / period) - 1) * 100;
 
     setResult({
       roi,
       annualizedRoi,
-      netReturn
+      netReturn,
     });
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <Instructions
         what="投資報酬率(ROI)計算器用於評估投資的效益。"
         why="ROI可以幫助比較不同投資選項的獲利能力，是投資決策的重要參考指標。"
@@ -39,39 +40,39 @@ export default function ROICalculator() {
       />
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             投資金額 (NT$)
           </label>
           <input
             type="number"
             value={investment}
-            onChange={(e) => setInvestment(e.target.value)}
+            onChange={e => setInvestment(e.target.value)}
             min="0"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             最終價值 (NT$)
           </label>
           <input
             type="number"
             value={returns}
-            onChange={(e) => setReturns(e.target.value)}
+            onChange={e => setReturns(e.target.value)}
             min="0"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-base font-medium text-gray-700">
             投資期間 (年)
           </label>
           <input
             type="number"
             value={years}
-            onChange={(e) => setYears(e.target.value)}
+            onChange={e => setYears(e.target.value)}
             min="0.1"
             step="0.1"
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -80,13 +81,13 @@ export default function ROICalculator() {
 
         <button
           onClick={calculateROI}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           計算ROI
         </button>
 
         {result && (
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-base text-gray-500">總報酬率</p>
@@ -103,7 +104,10 @@ export default function ROICalculator() {
               <div className="col-span-2">
                 <p className="text-base text-gray-500">淨收益</p>
                 <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.netReturn.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  NT${' '}
+                  {result.netReturn.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </p>
               </div>
             </div>

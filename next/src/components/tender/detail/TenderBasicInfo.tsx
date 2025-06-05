@@ -9,12 +9,14 @@ interface TenderBasicInfoProps {
 }
 
 export default function TenderBasicInfo({ section }: TenderBasicInfoProps) {
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const toggleGroup = (groupKey: string) => {
     setExpandedGroups(prev => ({
       ...prev,
-      [groupKey]: !prev[groupKey]
+      [groupKey]: !prev[groupKey],
     }));
   };
 
@@ -27,19 +29,19 @@ export default function TenderBasicInfo({ section }: TenderBasicInfoProps) {
         <div key={field.label} className={`my-2 ${depth > 0 ? 'ml-4' : ''}`}>
           <button
             onClick={() => toggleGroup(groupKey)}
-            className="flex items-center text-gray-800 hover:text-blue-600 font-medium"
+            className="flex items-center font-medium text-gray-800 hover:text-blue-600"
           >
             {isExpanded ? (
-              <ChevronDown className="h-4 w-4 mr-1" />
+              <ChevronDown className="mr-1 h-4 w-4" />
             ) : (
-              <ChevronRight className="h-4 w-4 mr-1" />
+              <ChevronRight className="mr-1 h-4 w-4" />
             )}
             {field.label}
           </button>
-          
+
           {isExpanded && (
             <div className="mt-2 space-y-2 border-l-2 border-gray-200 pl-4">
-              {field.children.map((child) => renderFieldValue(child, depth + 1))}
+              {field.children.map(child => renderFieldValue(child, depth + 1))}
             </div>
           )}
         </div>
@@ -53,7 +55,7 @@ export default function TenderBasicInfo({ section }: TenderBasicInfoProps) {
       <div key={field.label} className={`py-2 ${depth > 0 ? 'ml-4' : ''}`}>
         <div className="grid grid-cols-3 gap-4">
           <div className="text-gray-600">{field.label}</div>
-          <div className="col-span-2 break-words whitespace-pre-wrap">
+          <div className="col-span-2 whitespace-pre-wrap break-words">
             {Array.isArray(field.value) ? field.value.join(', ') : field.value}
           </div>
         </div>
@@ -67,9 +69,9 @@ export default function TenderBasicInfo({ section }: TenderBasicInfoProps) {
   );
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="rounded-lg bg-white p-6 shadow-sm">
       <div className="space-y-2">
-        {nonEmptyFields.map((field) => renderFieldValue(field))}
+        {nonEmptyFields.map(field => renderFieldValue(field))}
       </div>
     </div>
   );
