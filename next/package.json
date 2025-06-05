@@ -38,7 +38,7 @@
 
     "// === MongoDB AI Tools 備份與還原 ===": "",
     "db:backup": "sh ./scripts/backup-ai-tools.sh",
-    "db:restore": "node scripts/restore-ai-tools-win.js",
+    "db:restore": "node scripts/restore-ai-tools.js",
     "db:list": "node scripts/analyze-backups.js",
     
     "// === 快速啟動指令 (推薦使用) ===": "",
