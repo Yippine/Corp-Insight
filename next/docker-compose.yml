@@ -4,7 +4,7 @@ services:
   # MongoDB 資料庫服務
   mongodb:
     image: mongo:7.0
-    container_name: business-magnifier-mongo
+    container_name: mongo
     restart: unless-stopped
     ports:
       - "27017:27017"
@@ -29,7 +29,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.dev
-    container_name: business-magnifier-app-dev
+    container_name: app-dev
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -56,7 +56,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    container_name: business-magnifier-app-prod
+    container_name: app
     restart: unless-stopped
     ports:
       - "3001:3000"  # 使用不同埠號避免衝突
@@ -77,7 +77,7 @@ services:
   # MongoDB Express (資料庫管理介面，開發環境使用)
   mongo-express:
     image: mongo-express:latest
-    container_name: business-magnifier-mongo-express
+    container_name: mongo-express
     restart: unless-stopped
     ports:
       - "8081:8081"
@@ -105,4 +105,4 @@ volumes:
 # 網路
 networks:
   business-magnifier-network:
-    driver: bridge 
+    driver: bridge

@@ -15,7 +15,7 @@
     "docker:dev": "docker-compose --profile dev up -d",
     "docker:dev:build": "docker-compose --profile dev up --build -d",
     "docker:dev:logs": "docker-compose logs -f app-dev",
-    "docker:dev:shell": "docker exec -it business-magnifier-app-dev sh",
+    "docker:dev:shell": "docker exec -it app-dev sh",
     "// === Docker 基礎服務指令 ===": "",
     "docker:mongo": "docker-compose up mongodb -d",
     "docker:tools": "docker-compose --profile tools up -d",
@@ -27,9 +27,14 @@
     "// === Docker 管理指令 ===": "",
     "docker:down": "docker-compose down",
     "docker:down:volumes": "docker-compose down -v",
+    "docker:force-stop": "docker-compose down --remove-orphans && docker stop app-dev mongo mongo-express 2>nul || echo \"Containers stopped\"",
+    "docker:cleanup": "docker container prune -f && docker network prune -f",
     "docker:logs": "docker-compose logs -f",
     "docker:ps": "docker-compose ps",
     "docker:restart": "docker-compose restart",
+    "docker:restart:app": "docker-compose restart app-dev",
+    "docker:restart:mongo": "docker-compose restart mongodb",
+    "docker:restart:mongo-express": "docker-compose restart mongo-express",
     "// === 資料庫相關指令 ===": "",
     "db:connect": "mongosh mongodb://localhost:27017/business-magnifier",
     "db:connect-docker": "mongosh mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin",
@@ -40,7 +45,7 @@
     "// === 快速啟動指令 (推薦使用) ===": "",
     "start:dev": "npm run docker:full-dev",
     "start:prod": "npm run docker:full-prod",
-    "stop": "npm run docker:down"
+    "stop": "npm run docker:force-stop && npm run docker:cleanup"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
