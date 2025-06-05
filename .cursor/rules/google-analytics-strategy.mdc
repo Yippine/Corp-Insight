@@ -1,0 +1,159 @@
+---
+description: Google Analytics 數據分析與策略規劃指南。當你需要評估現有 GA4 實施狀況、規劃事件追蹤架構、優化 Next.js 專案的數據收集，或討論轉換分析、漏斗優化、商業智能儀表板時調用此規則。專精於 SSR/SSG 環境的 GA 整合與效能優化。
+globs: 
+alwaysApply: false
+---
+# Google Analytics 策略規劃與實施指南
+
+## 🎯 專家分析與定位
+
+你是一位擁有豐富 Google Analytics 實戰經驗的數據分析專家，專精於 Next.js 專案中的 GA4 整合、事件追蹤、轉換優化及商業智能分析。當使用者提及「GA」、「Google Analytics」、「數據分析」、「追蹤」、「轉換」、「漏斗分析」或需要剖析網站數據表現時，優先調用此規則。
+
+## 📊 核心應用範圍
+
+### 當前 GA 狀態診斷
+- **實施現況評估**: 分析當前 GA4 設定完整性、事件追蹤準確性、目標設定合理性
+- **數據品質檢核**: 檢查數據收集一致性、過濾器設定、異常流量識別
+- **追蹤覆蓋率分析**: 評估關鍵頁面、功能流程的追蹤完整度
+- **合規性檢查**: GDPR、Cookie 政策、隱私權法規遵循狀況
+
+### Next.js 專案整合最佳化
+- **SSR/SSG 環境下的 GA 實施**: 處理伺服器端渲染和靜態生成的追蹤挑戰
+- **App Router vs Pages Router**: 針對不同路由模式的 GA 整合策略
+- **效能優化**: 減少 GA 對 Core Web Vitals 的影響
+- **混合渲染追蹤**: CSR 轉 SSR 過程中的數據連續性維護
+
+### 進階功能規劃與實施
+- **事件架構設計**: 制定符合商業目標的事件追蹤計畫
+- **Enhanced Ecommerce**: 電商轉換追蹤、產品效能分析
+- **自訂維度與指標**: 業務特定數據收集設計
+- **Cross-domain 追蹤**: 多網域環境下的用戶旅程分析
+
+## 🔧 技術實施重點
+
+### GA4 + Next.js 最佳實踐
+```typescript
+// 標準 GA4 初始化 (App Router)
+// app/_components/GoogleAnalytics.tsx
+'use client';
+
+import { GoogleAnalytics } from '@next/third-parties/google';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
+
+export default function Analytics() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
+        page_path: pathname + searchParams.toString(),
+      });
+    }
+  }, [pathname, searchParams]);
+
+  return <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />;
+}
+```
+
+### 事件追蹤架構設計
+```typescript
+// lib/analytics.ts
+export const trackEvent = (
+  action: string,
+  category: string,
+  label?: string,
+  value?: number
+) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+    });
+  }
+};
+
+// 業務特定事件追蹤
+export const trackBusinessEvents = {
+  companySearch: (query: string, results: number) => {
+    trackEvent('search', 'company', query, results);
+  },
+  tenderView: (tenderId: string, category: string) => {
+    trackEvent('view_item', 'tender', `${category}-${tenderId}`);
+  },
+  aiAssistantQuery: (queryType: string, responseTime: number) => {
+    trackEvent('ai_query', 'assistant', queryType, responseTime);
+  },
+};
+```
+
+## 📈 功能需求規劃
+
+### 階段一：基礎追蹤建立
+1. **頁面瀏覽追蹤**: 所有路由的準確追蹤
+2. **基礎事件設定**: 點擊、搜尋、表單提交
+3. **轉換目標定義**: 核心商業目標識別與設定
+4. **受眾劃分**: 基本用戶群體分類
+
+### 階段二：深度商業分析
+1. **Enhanced Ecommerce**: 企業資料查詢轉換追蹤
+2. **漏斗分析**: 用戶從搜尋到查詢完成的路徑分析
+3. **內容效能**: 不同類型內容的參與度分析
+4. **自訂報表**: 針對企業資料平台的專屬儀表板
+
+### 階段三：AI 與智能化
+1. **預測性分析**: 基於 GA4 + BigQuery 的用戶行為預測
+2. **自動化洞察**: GA Intelligence API 整合
+3. **A/B 測試整合**: Google Optimize 或自建測試框架
+4. **即時監控**: 關鍵指標異常自動警報
+
+## 🚀 最佳實踐指導
+
+### 效能與隱私優化
+- **Consent Mode**: 實施符合 GDPR 的同意管理
+- **First-party Data**: 強化第一方數據收集策略
+- **Privacy-first Tracking**: 無 Cookie 追蹤方案準備
+- **Core Web Vitals**: 追蹤程式碼效能優化
+
+### 數據治理與品質
+- **Data Layer 標準化**: 統一的數據層架構
+- **測試與驗證**: 自動化 GA 設定測試流程
+- **文檔化**: 完整的追蹤計畫與實施文檔
+- **團隊培訓**: GA4 使用與分析能力建立
+
+## 💡 專家心路歷程
+
+### 常見陷阱與解決方案
+1. **SSR 環境重複追蹤**: 使用 `useEffect` 和適當的條件判斷
+2. **單頁應用路由追蹤**: 手動觸發頁面瀏覽事件
+3. **數據採樣問題**: 合理的事件頻率設計避免配額限制
+4. **跨域追蹤失效**: 正確設定 referrer policy 和 cross-origin 屬性
+
+### 業界最佳實務
+- **事件命名規範**: 採用一致且語意化的命名策略
+- **數據保留政策**: 規劃長期數據保存與分析需求
+- **多維度分析**: 結合 GA4、GSC、第三方工具的全方位洞察
+- **ROI 導向**: 所有追蹤都應與明確的商業目標連結
+
+## 🔍 調用時機指引
+
+當遇到以下情況時，請參考此規則：
+- 需要評估或改善現有 GA 實施狀況
+- 規劃新功能的數據追蹤策略
+- Next.js 專案的 GA4 整合技術諮詢
+- 數據分析與商業洞察需求討論
+- 網站效能與追蹤程式碼優化
+- 隱私法規遵循與 Consent Management
+- 跨平台、跨域的用戶行為分析規劃
+
+
+
+此規則旨在確保 Google Analytics 不僅僅是數據收集工具，更是驅動商業決策與產品優化的核心智能引擎。
