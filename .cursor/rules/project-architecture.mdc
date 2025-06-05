@@ -1,598 +1,462 @@
 ---
-description: **描述**: Business Magnifier 專案架構規則，涵蓋 CSR 轉 SSR/SSG 漸進式重構策略、Next.js 14 技術棧、PostgreSQL 資料庫設計、Netlify 部署架構、SEO 優化配置和開發規範。專注於企業資料查詢平台的現代化架構遷移。  **觸發條件**:  - 專案架構設計和技術選型 - CSR 轉 SSR/SSG 重構策略 - Next.js App Router 和混合渲染 - 目錄結構和檔案組織 - PostgreSQL 資料庫設計 - Netlify 部署和環境配置 - SEO 優化和效能提升 - 漸進式遷移規劃 - 專案特定的開發規範  **關鍵詞**: `專案架構`, `CSR轉SSR`, `Next.js重構`, `漸進式遷移`, `技術棧`, `目錄結構`, `SEO優化`, `部署架構`, `資料庫設計`, `開發規範`
+description: Business Magnifier 專案整體架構指南。查詢關於本專案技術棧(Next.js 14, PostgreSQL)、CSR 到 SSR/SSG 的重構策略、目錄結構、資料庫設計、Netlify 部署、SEO 配置，或特定開發規範時調用此規則。
 globs: 
 alwaysApply: false
 ---
 # Business Magnifier 專案架構規則
 
 ## 專案概述
-Business Magnifier 是一個 SEO 優化的企業資訊查詢平台，正在進行從 CSR (Client-Side Rendering) 到 SSR/SSG (Server-Side Rendering/Static Site Generation) 的架構重構，採用現代化的 Next.js 技術棧實現漸進式混合渲染策略。
+Business Magnifier 是一個企業資訊查詢平台，現已完成從 CSR (Client-Side Rendering) 到 SSR/SSG (Server-Side Rendering/Static Site Generation) 的架構重構。採用 Next.js 14 + MongoDB 技術棧，實現 SEO 優化的企業與政府標案查詢服務。
+
+## 🎯 專案當前狀態 (2025年6月)
+- ✅ **主要開發分支**: `next` (積極開發中)
+- ✅ **資料遷移完成**: AI 工具資料已全部遷移至 MongoDB
+- ✅ **Docker 環境**: 完整的容器化開發與部署環境
+- ✅ **資料備份機制**: 自動化備份與還原系統
+- ✅ **程式碼品質**: ESLint + Prettier 整合
+- ✅ **SEO 優化**: 混合渲染策略實現
 
 ## 技術棧架構
 
-### 主要技術 (next/) - 重構中的新專案
-- **框架**: Next.js 14.1.0 + React 18.2.0
-- **語言**: TypeScript 5.8.2
-- **樣式**: Tailwind CSS 3.4.1
-- **動畫**: Framer Motion 11.18.2
-- **資料庫**: MongoDB (本地開發) + Mongoose ODM
-- **容器化**: Docker + Docker Compose
+### 主要技術 (next/) - 現役專案
+- **前端框架**: Next.js 14.1.0 + React 18.2.0 + TypeScript 5.8.2
+- **樣式系統**: Tailwind CSS 3.4.1 + Framer Motion 11.18.2
+- **資料庫**: MongoDB 7.0 + Mongoose ODM 8.0.3
+- **容器化**: Docker + Docker Compose (多環境配置)
 - **AI 整合**: Google Generative AI 0.24.1
 - **地圖服務**: Google Maps API (@react-google-maps/api 2.20.6)
-- **圖表**: Chart.js 4.4.8 + React Chart.js 2 (5.3.0)
-- **圖示**: Lucide React 0.479.0
-- **部署**: Netlify + @netlify/plugin-nextjs 4.41.3
-- **其他工具**: 
-  - JWT 身份驗證 (jsonwebtoken 9.0.2)
-  - 郵件服務 (nodemailer 7.0.3)
-  - 檔案上傳 (react-dropzone 14.3.8)
-  - 結構化資料 (react-schemaorg 2.0.0)
-  - 網頁爬取 (cheerio 1.0.0)
+- **視覺化**: Chart.js 4.4.8 + React Chart.js 2 (5.3.0)
+- **圖示系統**: Lucide React 0.479.0
+- **部署平台**: Netlify + 自架 Docker 環境
+- **開發工具**: 
+  - 程式碼品質: ESLint + Prettier + TypeScript
+  - 身份驗證: JWT (jsonwebtoken 9.0.2)
+  - 郵件服務: nodemailer 7.0.3
+  - 檔案處理: react-dropzone 14.3.8
+  - SEO 優化: react-schemaorg 2.0.0
+  - 網頁爬取: cheerio 1.0.0
 
-### 舊版技術 (legacy/) - 重構前的專案
-- **框架**: Vite 5.4.14 + React 18.3.1
+### 舊版技術 (legacy/) - 即將淘汰
+- **框架**: Vite 5.4.14 + React 18.3.1 (保留作為參考)
 - **路由**: React Router DOM 6.29.0
-- **資料庫**: Google Cloud Firestore 7.11.0
-- **狀態管理**: 基於 React Hooks
-- **SEO**: React Helmet Async 2.0.4
-- **其他**: 與主版本類似的 UI 框架
+- **資料庫**: Google Cloud Firestore 7.11.0 (已遷移至 MongoDB)
+- **SEO**: React Helmet Async 2.0.4 (已升級至 Next.js 原生支援)
 
-## 目錄結構規範
+## 專案目錄結構
 
-### 根目錄結構
+### 根目錄架構
 ```
 Business Magnifier/
-├── next/                    # 主要 Next.js 應用程式 (重構中)
-├── legacy/                  # Vite 舊版本 (將逐步淘汰)
-├── .cursor/                 # Cursor AI 配置
-│   └── rules/              # AI 助手規則文件
-├── docker/                  # Docker 配置檔案
-│   ├── docker-compose.yml  # 服務編排
-│   ├── mongodb/            # MongoDB 配置
-│   └── app/                # 應用程式 Dockerfile
-├── .gitignore              # Git 忽略檔案
-├── .cursorignore           # Cursor AI 忽略檔案
-└── .cursorindexingignore   # Cursor 索引忽略檔案
+├── next/                      # 🎯 主要 Next.js 應用程式 (v0.1.0)
+├── legacy/                    # 🗄️ Vite 舊版專案 (即將淘汰)
+├── .cursor/                   # 🤖 Cursor AI 配置與規則
+│   └── rules/                 # AI 助手開發規則庫
+├── .gitignore                 # Git 版本控制忽略設定
+├── .cursorignore              # Cursor AI 忽略檔案
+└── .cursorindexingignore      # Cursor 索引忽略設定
 ```
 
-### Next.js 應用結構 (next/)
+### Next.js 核心應用結構 (next/)
 ```
 next/
-├── src/                    # 原始碼目錄
-│   ├── app/               # App Router 頁面
-│   │   ├── api/           # API 路由
-│   │   │   ├── company/   # 企業相關 API
-│   │   │   └── feedback/  # 回饋相關 API
-│   │   ├── company/       # 企業查詢頁面
-│   │   ├── tender/        # 標案查詢頁面
-│   │   ├── aitool/        # AI 工具頁面
-│   │   ├── faq/           # 常見問題頁面
-│   │   ├── privacy/       # 隱私政策頁面
-│   │   ├── feedback/      # 回饋頁面
-│   │   ├── layout.tsx     # 根版面配置
-│   │   ├── page.tsx       # 首頁 (重定向到 /company/search)
-│   │   ├── loading.tsx    # 全域載入組件
-│   │   └── globals.css    # 全域樣式
-│   ├── components/        # React 元件
-│   ├── lib/              # 工具函式庫
-│   │   ├── database/     # MongoDB 連線和模型
-│   │   ├── aitool/       # AI 工具相關邏輯
-│   │   ├── company/      # 企業資料處理
-│   │   └── tender/       # 標案資料處理
-│   ├── hooks/            # 自定義 React Hooks
-│   ├── types/            # TypeScript 型別定義
-│   ├── utils/            # 通用工具函式
-│   ├── data/             # 靜態資料
-│   └── config/           # 配置檔案
-├── public/               # 靜態資源
-├── .next/               # Next.js 建置輸出
-├── package.json         # 專案依賴
-├── tsconfig.json        # TypeScript 配置
-├── tailwind.config.js   # Tailwind 配置
-├── next.config.js       # Next.js 配置 (開發環境)
-├── next.config.prod.js  # Next.js 生產環境配置
-├── middleware.ts        # Next.js 中介軟體 (CORS 配置)
-├── netlify.toml         # Netlify 部署配置
-├── build-prod.sh        # 生產環境建置腳本
-├── Dockerfile           # 應用程式容器化配置
-└── README.md           # 專案說明文件
+├── src/                       # 📁 應用程式原始碼
+│   ├── app/                   # 🚀 Next.js App Router (主要路由)
+│   │   ├── api/               # 🔌 RESTful API 路由
+│   │   │   ├── company/       # 企業資料 API
+│   │   │   ├── aitool/        # AI 工具 API
+│   │   │   ├── tender/        # 標案資料 API
+│   │   │   ├── feedback/      # 使用者回饋 API
+│   │   │   └── health/        # 系統健康檢查 API
+│   │   ├── company/           # 🏢 企業查詢功能頁面
+│   │   │   ├── search/        # 企業搜尋頁面
+│   │   │   └── [id]/         # 企業詳情頁面
+│   │   ├── tender/            # 📋 政府標案查詢頁面
+│   │   ├── aitool/            # 🤖 AI 工具功能頁面
+│   │   │   ├── search/        # AI 工具搜尋
+│   │   │   └── detail/        # AI 工具詳情
+│   │   ├── faq/               # ❓ 常見問題頁面
+│   │   ├── privacy/           # 🔒 隱私政策頁面
+│   │   ├── feedback/          # 💬 使用者回饋頁面
+│   │   ├── layout.tsx         # 🎨 根版面配置
+│   │   ├── page.tsx           # 🏠 首頁 (重定向邏輯)
+│   │   ├── loading.tsx        # ⏳ 全域載入組件
+│   │   └── globals.css        # 🎨 全域樣式定義
+│   ├── components/            # 🧩 React 元件庫
+│   │   ├── ui/                # 基礎 UI 元件
+│   │   ├── layout/            # 版面配置元件
+│   │   ├── business/          # 企業相關元件
+│   │   ├── charts/            # 視覺化圖表元件
+│   │   ├── forms/             # 表單處理元件
+│   │   ├── seo/               # SEO 優化元件
+│   │   └── common/            # 通用功能元件
+│   ├── lib/                   # 🔧 核心函式庫
+│   │   ├── database/          # 🗄️ MongoDB 連線與模型
+│   │   │   ├── connection.ts  # 資料庫連線管理
+│   │   │   └── models/        # Mongoose 資料模型
+│   │   ├── aitool/            # 🤖 AI 工具相關邏輯
+│   │   ├── company/           # 🏢 企業資料處理
+│   │   └── tender/            # 📋 標案資料處理
+│   ├── hooks/                 # 🎣 自定義 React Hooks
+│   ├── types/                 # 📝 TypeScript 型別定義
+│   ├── utils/                 # 🛠️ 通用工具函式
+│   ├── data/                  # 📊 靜態資料檔案
+│   └── config/                # ⚙️ 應用程式配置
+├── public/                    # 🌐 靜態資源目錄
+├── scripts/                   # 📜 資料庫管理腳本
+│   ├── backup-ai-tools.sh     # AI 工具備份腳本
+│   ├── restore-ai-tools.js    # 資料還原腳本
+│   └── analyze-backups.js     # 備份分析工具
+├── db/                        # 🗄️ 資料庫相關檔案
+│   └── backups/               # 資料備份儲存目錄
+├── docker-compose.yml         # 🐳 Docker 服務編排
+├── package.json               # 📦 專案依賴與腳本
+├── tsconfig.json              # 📝 TypeScript 編譯配置
+├── tailwind.config.js         # 🎨 Tailwind CSS 配置
+├── next.config.js             # ⚙️ Next.js 開發環境配置
+├── next.config.prod.js        # 🚀 Next.js 生產環境配置
+├── middleware.ts              # 🛡️ Next.js 中介軟體 (CORS 配置)
+├── netlify.toml               # 🌐 Netlify 部署配置
+├── build-prod.sh              # 🔨 生產環境建置腳本
+├── Dockerfile                 # 🐳 Docker 容器化配置
+└── README.md                  # 📖 專案說明文件
 ```
 
-## 開發規範
+## 開發指令與工作流程
 
-### 檔案命名慣例
-- **元件**: PascalCase (e.g., `BusinessCard.tsx`)
-- **頁面**: kebab-case (e.g., `page.tsx`, `layout.tsx`)
-- **API 路由**: kebab-case (e.g., `route.ts`)
-- **工具函式**: camelCase (e.g., `formatBusinessData.ts`)
-- **型別定義**: PascalCase (e.g., `BusinessTypes.ts`)
-- **常數**: UPPER_SNAKE_CASE (e.g., `API_ENDPOINTS.ts`)
-- **MongoDB 模型**: PascalCase (e.g., `Company.ts`, `AITool.ts`)
+### NPM 腳本組織架構
+```json
+{
+  "scripts": {
+    "// === 核心開發指令 ===": "",
+    "dev": "next dev",
+    "build": "next build", 
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write . && eslint --fix .",
+    
+    "// === Docker 環境管理 ===": "",
+    "start:dev": "npm run docker:full-dev",     // 🚀 推薦開發啟動
+    "start:prod": "npm run docker:full-prod",   // 🚀 推薦生產啟動  
+    "stop": "npm run docker:force-stop && npm run docker:cleanup",
+    
+    "// === 資料庫管理 ===": "",
+    "db:backup": "sh ./scripts/backup-ai-tools.sh",
+    "db:restore": "node scripts/restore-ai-tools.js",
+    "db:list": "node scripts/analyze-backups.js",
+    "db:connect": "mongosh mongodb://localhost:27017/business-magnifier",
+    "db:connect-docker": "mongosh mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin"
+  }
+}
+```
 
-### 元件組織原則
+## 檔案命名與組織規範
+
+### 命名慣例
+- **React 元件**: `PascalCase` (e.g., `BusinessCard.tsx`, `AIToolSearch.tsx`)
+- **頁面檔案**: `kebab-case` (e.g., `page.tsx`, `layout.tsx`, `loading.tsx`)
+- **API 路由**: `kebab-case` + `route.ts` (e.g., `route.ts`)
+- **工具函式**: `camelCase` (e.g., `formatBusinessData.ts`, `parseAIToolCategory.ts`)
+- **型別定義**: `PascalCase` + `Types.ts` (e.g., `BusinessTypes.ts`, `AIToolTypes.ts`)
+- **常數檔案**: `UPPER_SNAKE_CASE` (e.g., `API_ENDPOINTS.ts`, `DATABASE_CONFIG.ts`)
+- **MongoDB 模型**: `PascalCase` (e.g., `Company.ts`, `AITool.ts`, `Tender.ts`)
+- **Hook 函式**: `use` + `PascalCase` (e.g., `useBusinessSearch.ts`, `useAIToolFilter.ts`)
+
+### 元件組織策略
 ```
 components/
-├── ui/                  # 基礎 UI 元件
-├── layout/             # 版面配置元件
-├── business/           # 企業相關元件
-├── charts/             # 圖表元件
-├── forms/              # 表單元件
-├── seo/                # SEO 相關元件
-└── common/             # 通用元件
+├── ui/                        # 🎨 基礎 UI 元件 (按鈕、輸入框、卡片等)
+├── layout/                    # 📐 版面配置元件 (導航、頁尾、側邊欄)
+├── business/                  # 🏢 企業功能相關元件
+├── aitool/                    # 🤖 AI 工具功能元件
+├── tender/                    # 📋 標案功能元件
+├── charts/                    # 📊 資料視覺化圖表元件
+├── forms/                     # 📝 表單處理元件
+├── seo/                       # 🔍 SEO 優化元件
+└── common/                    # 🔧 通用功能元件
 ```
 
-### App Router 結構
+## 資料庫設計與管理
+
+### MongoDB 集合架構
+```typescript
+// 企業資料集合
+interface Company {
+  _id: ObjectId;
+  name: string;              // 企業名稱
+  taxId: string;             // 統一編號
+  industry: string;          // 行業分類
+  address: string;           // 企業地址
+  coordinates?: [number, number]; // GPS 座標
+  revenue?: CompanyRevenue[]; // 營收資料
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// AI 工具集合 (100+ 工具)
+interface AITool {
+  _id: ObjectId;
+  name: string;              // 工具名稱
+  description: string;       // 工具描述
+  category: string;          // 工具分類
+  tags: string[];           // 標籤系統
+  url: string;              // 工具連結
+  popularity: number;        // 熱門度分數
+  usageCount: number;        // 使用次數統計
+  isActive: boolean;         // 是否啟用
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 政府標案集合
+interface Tender {
+  _id: ObjectId;
+  title: string;             // 標案標題
+  agency: string;            // 主辦機關
+  budget: number;            // 預算金額
+  deadline: Date;            // 截止日期
+  category: string;          // 標案分類
+  status: 'active' | 'closed' | 'awarded'; // 標案狀態
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 使用者回饋集合
+interface UserFeedback {
+  _id: ObjectId;
+  type: 'bug' | 'feature' | 'improvement'; // 回饋類型
+  content: string;           // 回饋內容
+  userAgent?: string;        // 使用者代理
+  url?: string;              // 回饋頁面
+  createdAt: Date;
+}
 ```
-app/
-├── page.tsx            # 首頁 (重定向到企業搜尋)
-├── layout.tsx          # 根版面配置
-├── loading.tsx         # 全域載入狀態
-├── globals.css         # 全域樣式
-├── company/            # 企業相關頁面
-│   ├── search/         # 企業搜尋頁面
-│   └── [id]/          # 企業詳情頁面
-├── tender/             # 標案相關頁面
-├── aitool/             # AI 工具頁面
-├── api/                # API 路由
-│   ├── company/        # 企業 API
-│   ├── aitool/         # AI 工具 API
-│   └── feedback/       # 回饋 API
-├── faq/                # 常見問題
-├── privacy/            # 隱私政策
-└── feedback/           # 使用者回饋
+
+### 資料庫備份與還原機制
+```bash
+# 自動化備份流程
+./scripts/backup-ai-tools.sh
+# 產生格式: ai_tools_backup_YYYYMMDD_HHMMSS.json
+
+# 一鍵資料還原
+node scripts/restore-ai-tools.js [backup-filename]
+# 不指定檔名則使用最新備份
+
+# 備份檔案分析
+node scripts/analyze-backups.js
+# 列出所有備份檔案與統計資訊
 ```
 
-## 漸進式 SEO 重構策略
+## Docker 容器化架構
 
-### 渲染策略選擇
-根據 SEO 優化指南，採用混合渲染策略：
-
-1. **SSG (靜態生成)**：
-   - 首頁與核心靜態頁面
-   - 熱門企業/標案頁面
-   - FAQ、隱私政策等內容頁面
-
-2. **ISR (增量靜態再生)**：
-   - 中等熱度的企業/標案詳情頁
-   - 定期更新的資訊頁面
-
-3. **SSR (伺服器端渲染)**：
-   - 搜尋結果頁面
-   - 需要實時資料的頁面
-   - 低流量但 SEO 重要的詳情頁
-
-4. **CSR (客戶端渲染)**：
-   - 複雜互動組件
-   - 使用者特定功能
-   - 非 SEO 關鍵的高互動功能
-
-### Next.js 配置優化
-- **性能優化**: SWC 壓縮、圖片優化、CSS 優化
-- **SEO 配置**: 永久重定向、安全標頭、緩存控制
-- **CORS 配置**: 支援跨域請求
-- **建置優化**: 移除 console、ETag 生成、Gzip 壓縮
-
-## 資料庫設計原則
-
-### MongoDB 本地開發架構
-使用本地 MongoDB 作為主要資料庫，配合 Mongoose ODM：
-
-#### 開發環境配置
+### 開發環境配置 (docker-compose.yml)
 ```yaml
-# docker-compose.yml
-version: '3.8'
 services:
+  # MongoDB 資料庫服務
   mongodb:
     image: mongo:7.0
     container_name: business-magnifier-mongo
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: business-magnifier
+    ports:
+      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-      - ./docker/mongodb/init:/docker-entrypoint-initdb.d
     networks:
       - business-magnifier-network
 
-  app:
-    build: 
-      context: ./next
-      dockerfile: Dockerfile
-    container_name: business-magnifier-app
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
+  # MongoDB 管理介面 (可選)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: business-magnifier-mongo-express
     environment:
-      - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
-      - NODE_ENV=development
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password@mongodb:27017/
+    ports:
+      - "8081:8081"
     depends_on:
       - mongodb
-    networks:
-      - business-magnifier-network
+    profiles: ["tools"]
 
-volumes:
-  mongodb_data:
-
-networks:
-  business-magnifier-network:
-    driver: bridge
+  # Next.js 應用程式 (開發環境)
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: business-magnifier-app-dev
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb
+    profiles: ["dev"]
 ```
 
-#### 核心 Collections 設計
+### Docker 部署策略
+- **開發環境**: `npm run start:dev` (MongoDB + App + 管理介面)
+- **生產環境**: `npm run start:prod` (最佳化建置)
+- **服務管理**: 完整的啟動、停止、重啟、清理指令
 
-**1. Companies Collection**
+## SEO 優化與渲染策略
+
+### 混合渲染架構選擇
+1. **SSG (靜態生成)**: 
+   - 首頁與核心靜態頁面
+   - 熱門企業/AI 工具/標案頁面
+   - FAQ、隱私政策等內容頁面
+
+2. **ISR (增量靜態再生)**:
+   - 中等熱度的詳情頁面
+   - 定期更新的資訊頁面
+
+3. **SSR (伺服器端渲染)**:
+   - 搜尋結果頁面
+   - 需要實時資料的頁面
+   - 動態內容頁面
+
+4. **CSR (客戶端渲染)**:
+   - 複雜互動組件
+   - 使用者特定功能
+
+### Next.js 配置最佳化
 ```javascript
-{
-  _id: ObjectId,
-  taxId: String,           // 統一編號 (唯一索引)
-  name: String,            // 公司名稱
-  fullName: String,        // 完整公司名稱
-  englishName: String,     // 英文名稱
-  status: String,          // 公司狀況
-  chairman: String,        // 負責人
-  industry: String,        // 行業別
-  address: String,         // 地址
-  establishedDate: Date,   // 成立日期
-  lastChanged: Date,       // 最後異動日期
-  
-  // 財務資訊 (巢狀物件)
-  financial: {
-    totalCapital: String,
-    paidInCapital: String,
-    employees: String,
-    revenue: String
+// next.config.js (開發環境)
+const nextConfig = {
+  experimental: {
+    appDir: true,
   },
-  
-  // 聯絡資訊
-  contact: {
-    phone: String,
-    email: String,
-    website: String,
-    fax: String
+  images: {
+    domains: ['localhost'],
+    unoptimized: process.env.NODE_ENV === 'development',
   },
-  
-  // 上市公司財報資訊 (可選)
-  financialReport: {
-    marketType: String,     // 市場別
-    code: String,          // 代號
-    abbreviation: String,   // 簡稱
-    englishAbbreviation: String,
-    listingDate: String,   // 上市日期
-    // ... 其他財報欄位
-  },
-  
-  // 董監事資訊
-  directors: [{
-    name: String,
-    title: String,
-    shares: String,
-    representative: String
-  }],
-  
-  // 經理人資訊
-  managers: [{
-    序號: String,
-    姓名: String,
-    到職日期: Date
-  }],
-  
-  // 營業項目 (二維陣列)
-  businessScope: [[String]],
-  
-  // 關聯標案數量
-  tenderCount: Number,
-  
-  // 快取和索引
-  searchKeywords: [String], // 搜尋關鍵字陣列
-  lastUpdated: Date,        // 最後更新時間
-  createdAt: Date,
-  updatedAt: Date
-}
+  // 其他開發配置...
+};
+
+// next.config.prod.js (生產環境)
+const prodConfig = {
+  output: 'standalone',
+  compress: true,
+  swcMinify: true,
+  // SEO 與效能優化配置...
+};
 ```
 
-**2. Tenders Collection**
-```javascript
-{
-  _id: ObjectId,
-  title: String,           // 標案標題
-  description: String,     // 標案描述
-  publishDate: Date,       // 公告日期
-  deadline: Date,          // 截止日期
-  budget: Number,          // 預算金額
-  
-  // 關聯企業資訊
-  company: {
-    taxId: String,         // 企業統一編號
-    name: String,          // 企業名稱
-    _id: ObjectId          // 企業 _id 參考
-  },
-  
-  // 標案詳細資訊
-  details: {
-    category: String,      // 標案類別
-    location: String,      // 執行地點
-    duration: String,      // 執行期間
-    requirements: String   // 需求規格
-  },
-  
-  // 投標資訊
-  bidding: {
-    method: String,        // 招標方式
-    openingDate: Date,     // 開標日期
-    awardDate: Date,       // 決標日期
-    winner: String         // 得標廠商
-  },
-  
-  // 搜尋和索引
-  searchKeywords: [String],
-  status: String,          // 標案狀態
-  createdAt: Date,
-  updatedAt: Date
-}
+## API 設計規範
+
+### RESTful API 架構
+```
+/api/
+├── company/
+│   ├── search              # GET: 企業搜尋
+│   └── [id]               # GET: 企業詳情
+├── aitool/
+│   ├── search             # GET: AI 工具搜尋  
+│   ├── categories         # GET: 工具分類列表
+│   └── [id]              # GET: 工具詳情
+├── tender/
+│   ├── search             # GET: 標案搜尋
+│   └── [id]              # GET: 標案詳情
+├── feedback/
+│   └── submit             # POST: 提交回饋
+└── health                 # GET: 系統健康檢查
 ```
 
-**3. AITools Collection**
-```javascript
-{
-  _id: ObjectId,
-  id: String,              // 工具唯一識別碼
-  name: String,            // 工具名稱
-  description: String,     // 工具描述
-  category: String,        // 工具分類
-  tags: [String],          // 標籤陣列
-  
-  // 工具配置
-  config: {
-    icon: String,          // 圖示名稱
-    placeholder: String,   // 輸入提示
-    instructions: {
-      what: String,
-      why: String,
-      how: String
-    },
-    promptTemplate: {
-      prefix: String,
-      suffix: String
-    }
-  },
-  
-  // 使用統計
-  usage: {
-    totalUses: Number,
-    lastUsed: Date,
-    popularityScore: Number
-  },
-  
-  // RAG 向量支援 (未來擴展)
-  embedding: [Number],     // 向量表示
-  
-  // 版本控制
-  version: String,
-  isActive: Boolean,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-**4. UserFeedback Collection**
-```javascript
-{
-  _id: ObjectId,
-  type: String,            // 回饋類型
-  content: String,         // 回饋內容
-  rating: Number,          // 評分
-  
-  // 關聯資訊
-  relatedEntity: {
-    type: String,          // 'company', 'tender', 'aitool'
-    id: String,            // 相關實體 ID
-    name: String           // 相關實體名稱
-  },
-  
-  // 使用者資訊 (匿名)
-  userInfo: {
-    sessionId: String,
-    userAgent: String,
-    ip: String
-  },
-  
-  // 處理狀態
-  status: String,          // 'pending', 'reviewed', 'resolved'
-  adminNotes: String,      // 管理員備註
-  
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### 索引策略
-```javascript
-// Companies Collection 索引
-db.companies.createIndex({ "taxId": 1 }, { unique: true })
-db.companies.createIndex({ "name": "text", "fullName": "text" })
-db.companies.createIndex({ "searchKeywords": 1 })
-db.companies.createIndex({ "lastUpdated": 1 })
-
-// Tenders Collection 索引
-db.tenders.createIndex({ "title": "text", "description": "text" })
-db.tenders.createIndex({ "company.taxId": 1 })
-db.tenders.createIndex({ "publishDate": -1 })
-db.tenders.createIndex({ "searchKeywords": 1 })
-
-// AITools Collection 索引
-db.aitools.createIndex({ "id": 1 }, { unique: true })
-db.aitools.createIndex({ "category": 1, "isActive": 1 })
-db.aitools.createIndex({ "tags": 1 })
-db.aitools.createIndex({ "usage.popularityScore": -1 })
-```
-
-## 容器化部署架構
-
-### Docker 配置
-
-#### 應用程式 Dockerfile
-```dockerfile
-# next/Dockerfile
-FROM node:18-alpine AS base
-
-# 安裝依賴
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-# 建置應用程式
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
-
-# 生產環境映像
-FROM base AS runner
-WORKDIR /app
-ENV NODE_ENV production
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-EXPOSE 3000
-ENV PORT 3000
-
-CMD ["node", "server.js"]
-```
-
-### 開發環境
-
-#### 本地開發設定
-```bash
-# 啟動 MongoDB 容器
-docker-compose up mongodb -d
-
-# 本地開發模式
-npm run dev
-```
-
-#### 完整容器化開發
-```bash
-# 啟動所有服務
-docker-compose up -d
-
-# 查看日誌
-docker-compose logs -f
-
-# 停止服務
-docker-compose down
-```
-
-### 生產環境
-- **主機平台**: Netlify (前端) + 自架 MongoDB 容器
-- **建置工具**: @netlify/plugin-nextjs
-- **資料庫**: MongoDB Docker 容器
-- **CDN**: Netlify CDN
-- **域名**: insight.leopilot.com
-- **SSL**: 自動 HTTPS
-
-### 漸進式遷移部署
-- **新舊系統並行**: 使用 Nginx 代理分流
-- **逐步遷移**: 按頁面類型逐步切換到 Next.js
-- **最終目標**: 完全遷移至 Next.js，淘汰 legacy 專案
-
-## SEO 優化配置
-
-### 核心 SEO 功能
-- **結構化資料**: JSON-LD 格式 (使用 react-schemaorg)
-- **動態 meta 標籤**: 每頁自定義 title、description
-- **Open Graph**: 社交媒體分享優化
-- **Twitter Cards**: Twitter 分享優化
-- **Canonical URLs**: 避免重複內容問題
-- **網站地圖**: 自動生成 sitemap.xml
-- **Robots.txt**: 搜尋引擎爬取指引
-
-### 效能優化
-- **Core Web Vitals**: LCP、FID、CLS 優化
-- **圖片優化**: Next.js Image 組件
-- **程式碼分割**: 動態導入和懶載入
-- **快取策略**: 靜態資源和 API 快取
-- **壓縮**: Gzip 和 Brotli 壓縮
-
-## 安全性考量
-
-### 環境變數管理
-- **開發環境**: `.env.local` 存放敏感資訊
-- **生產環境**: Netlify 環境變數配置
-- **容器環境**: Docker Compose 環境變數
-- **資料庫**: `MONGODB_URI` 本地連線字串
-- **API 金鑰**: Google AI、Maps API 金鑰保護
-
-### API 安全
-- **身份驗證**: JWT Token 驗證
-- **CORS 配置**: 中介軟體控制跨域存取
-- **Rate Limiting**: API 請求頻率限制
-- **輸入驗證**: 資料清理和驗證
-- **安全標頭**: XSS 保護、內容類型檢查
-
-### 中介軟體配置
+### API 回應格式標準
 ```typescript
-// middleware.ts - CORS 和安全配置
-export function middleware(request: NextRequest) {
-  // CORS 配置
-  // 安全標頭設置
-  // 預檢請求處理
+interface APIResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+  };
 }
 ```
 
-## 遷移時程規劃
+## 效能監控與最佳化
 
-### 第一階段：核心頁面遷移 (進行中)
-- [x] 企業搜尋和詳情頁面
-- [x] 基礎 API 路由
-- [x] SEO 基礎配置
+### 已實現優化策略
+- ✅ **MongoDB 索引優化**: 針對搜尋欄位建立複合索引
+- ✅ **Next.js 圖片優化**: 自動 WebP 轉換與大小調整
+- ✅ **程式碼分割**: 動態載入與懶載入實現
+- ✅ **Docker 多階段建置**: 減少生產映像大小
+- ✅ **快取策略**: Browser + CDN + Database 多層快取
+- ✅ **Core Web Vitals**: FCP, LCP, CLS 指標優化
 
-### 第二階段：資料庫遷移 (規劃中)
-- [ ] 本地 MongoDB 環境建置
-- [ ] Docker Compose 配置
-- [ ] 資料模型設計和實作
-- [ ] API 路由重構 (移除 Prisma，改用 Mongoose)
-- [ ] 資料遷移腳本
+### 監控工具整合
+- **資料庫**: MongoDB Compass + Mongo Express
+- **應用程式**: Next.js 內建分析 + 自定義指標
+- **容器**: Docker 日誌系統 + 健康檢查機制
 
-### 第三階段：功能完善
-- [ ] 標案查詢功能
-- [ ] AI 工具整合和資料庫存儲
-- [ ] 進階 SEO 優化
+## 開發工作流程
 
-### 第四階段：完全切換
-- [ ] 所有頁面遷移完成
-- [ ] Legacy 專案淘汰
-- [ ] 效能和 SEO 最終優化
+### Git 分支策略
+- **`next`**: 主要開發分支 (預設)
+- **`main`**: 穩定發布分支 
+- **`feature/*`**: 功能開發分支
+- **`hotfix/*`**: 緊急修復分支
 
-## 開發工具與流程
+### Commit 訊息規範
+```
+[type] Subject line
 
-### 程式碼品質
-- **ESLint**: 程式碼風格檢查
-- **TypeScript**: 型別安全
-- **Prettier**: 程式碼格式化 (建議配置)
+類型:
+- feat: 新功能
+- fix: 錯誤修復
+- docs: 文檔更新
+- style: 格式調整  
+- refactor: 程式碼重構
+- test: 測試相關
+- chore: 其他維護
 
-### 建置和部署
-- **開發建置**: `npm run dev`
-- **容器建置**: `docker-compose up --build`
-- **生產建置**: `build-prod.sh` 腳本
-- **自動部署**: Netlify Git 整合
-- **環境分離**: 開發/生產配置分離
+範例:
+[feat] Add AI tool search functionality
+[fix] Resolve MongoDB connection timeout issue
+[docs] Update README with latest deployment guide
+```
 
-### 監控和分析
-- **Google Search Console**: SEO 效果監控
-- **Google Analytics**: 流量分析 (建議配置)
-- **Core Web Vitals**: 效能指標追蹤
-- **錯誤監控**: 建議整合 Sentry 或類似服務
-- **MongoDB 監控**: 本地 MongoDB 效能監控工具
+### 程式碼品質保證
+```bash
+# 自動格式化與 Lint 檢查
+npm run format:fix    # Prettier + ESLint 自動修復
+npm run lint          # ESLint 檢查
+npm run build         # TypeScript 編譯檢查
+```
+
+## 未來發展路線圖
+
+### 短期目標 (1-2 個月)
+- 🎯 完善 AI 工具分類系統
+- 📊 增強視覺化圖表功能
+- 🔍 改進搜尋演算法精準度
+- 📱 行動端體驗優化
+
+### 中期目標 (3-6 個月)  
+- 🤖 整合更多 AI 服務
+- 📈 建立資料分析儀表板
+- 🌐 多語言支援 (i18n)
+- 🔐 進階使用者權限系統
+
+### 長期目標 (6-12 個月)
+- 🏗️ 微服務架構遷移
+- 📊 大數據分析平台
+- 🤖 智能推薦系統
+- 🌍 國際化擴展
+
+---
+
+## 總結
+
+Business Magnifier 專案現已建立完整的現代化架構，採用 Next.js 14 + MongoDB 技術棧，實現高效能、SEO 優化的企業資訊查詢平台。透過 Docker 容器化與自動化工具，提供穩定的開發與部署環境。專案持續積極開發中，主要專注於功能擴展與使用者體驗優化。

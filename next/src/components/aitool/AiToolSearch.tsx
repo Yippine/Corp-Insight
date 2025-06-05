@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Search } from 'lucide-react';
-import { getCategoryThemes, getFullTagThemes } from '@/lib/aitool/apiHelpers';
+import { getCategoryThemes, getFullTagThemes, getToolsDataFromAPI } from '@/lib/aitool/apiHelpers';
 import { iconMap } from '@/lib/aitool/iconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import { sortToolsBySelectedTag } from '@/lib/aitool/toolSorter';
@@ -85,50 +85,14 @@ export default function AiToolSearch({
         setIsLoading(true);
 
         // 並行載入工具資料和主題
-        const [toolsResponse, categoryThemesData, fullTagThemesData] =
+        const [toolsData, categoryThemesData, fullTagThemesData] =
           await Promise.all([
-            fetch('/api/aitool'),
+            getToolsDataFromAPI(), // 使用統一的 API 函數
             getCategoryThemes(),
             getFullTagThemes(),
           ]);
 
-        if (!toolsResponse.ok) {
-          throw new Error('Failed to fetch tools');
-        }
-
-        const { data: allToolsFromAPI } = await toolsResponse.json();
-
-        // 轉換工具格式
-        const allTools: Tools[] = allToolsFromAPI.map((tool: any) => {
-          const currentTags = tool.tags || [];
-
-          // 檢查是否為 AI 工具
-          const isAITool =
-            tool.isAITool !== false && tool.renderType !== 'component';
-
-          // 確保 AI 工具有 'AI' 標籤
-          if (isAITool && !currentTags.includes('AI')) {
-            currentTags.push('AI');
-          }
-
-          return {
-            id: tool.id,
-            name: tool.name,
-            description: tool.description,
-            iconName: tool.icon in iconMap ? tool.icon : 'Zap',
-            componentId:
-              tool.componentId ||
-              (isAITool ? 'PromptToolTemplate' : tool.componentId),
-            tags: currentTags,
-            category: tool.category,
-            subCategory: tool.subCategory,
-            instructions: tool.instructions,
-            placeholder: tool.placeholder,
-            promptTemplate: tool.promptTemplate,
-          };
-        });
-
-        setTools(allTools);
+        setTools(toolsData);
         setCategoryThemes(categoryThemesData);
         setFullTagThemes(fullTagThemesData);
       } catch (error) {

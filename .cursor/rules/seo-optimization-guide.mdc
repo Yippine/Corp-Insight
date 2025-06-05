@@ -1,5 +1,5 @@
 ---
-description: **描述**: 專業 CSR 轉 SSR 架構遷移 SEO 優化實施指南，涵蓋 Next.js 漸進式混合渲染策略、企業級專案架構設計、Nginx 代理配置、Google Search Console 監控、結構化數據實現、關鍵字策略應用和完整時程規劃。提供從問題診斷到最終部署的系統性解決方案。  **觸發條件**:  - CSR/SPA 架構轉 SSR/SSG 遷移需求 - Next.js 專案架構設計與 SEO 優化 - 漸進式網站遷移策略規劃 - 企業資料/標案資料網站 SEO 改善 - 新舊系統並行運行與 Nginx 配置 - Google Search Console 設置與監控 - 結構化數據標記與元標籤優化 - 網站地圖生成與索引策略 - 關鍵字研究與內容優化策略 - Core Web Vitals 效能優化  **關鍵詞**: `CSR轉SSR`, `Next.js架構遷移`, `漸進式混合渲染`, `SEO優化`, `結構化數據`, `Google Search Console`, `Nginx代理配置`, `網站地圖`, `關鍵字策略`, `效能優化`, `企業資料SEO`, `架構設計`
+description: SEO 優化實施指南，特別針對 CSR 轉 SSR/SSG。當你需要 Next.js 的 SEO 策略、結構化數據、網站地圖、GSC 監控、Nginx 配置、關鍵字策略或提升 Core Web Vitals 時調用。適用於企業資料網站的 SEO 改善。
 globs: 
 alwaysApply: false
 ---

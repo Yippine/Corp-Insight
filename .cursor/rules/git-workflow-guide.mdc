@@ -1,5 +1,5 @@
 ---
-description: **描述**: 簡化實用的 Git 工作流程規範，專注於 Yippine 專案的 commit message 格式、智能分支判斷和自動化上版流程。提供 AI 輔助上版功能，根據當前分支和異動檔案內容智能決定推送目標。  **觸發條件**:  - 需要執行 Git 上版流程 - Commit message 格式規範問題   - 智能分支推送判斷 - AI 輔助自動化上版 - 異動檔案分析和範疇判斷 - 當前分支狀態檢查  **關鍵詞**: `Git上版`, `commit message`, `智能推送`, `分支判斷`, `自動化流程`, `範疇標籤`, `AI輔助上版`, `next分支`, `main分支`
+description: Git 工作流程與版本控制指南。用於查詢本專案的 commit message 格式、分支策略(如推送至 next 或 main 分支)、自動化部署流程，或需要 AI 輔助判斷如何根據異動檔案和分支進行推送時調用。
 globs: 
 alwaysApply: false
 ---

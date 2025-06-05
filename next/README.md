@@ -1,334 +1,345 @@
 # Business Magnifier - Next.js 版本
 
-企業資訊查詢平台的現代化重構版本，採用 Next.js 14 + MongoDB 本地開發架構。
+企業資訊查詢平台的現代化重構版本，採用 Next.js 14 + MongoDB 架構，實現 SEO 優化的企業與標案查詢服務。
 
-## 🚀 技術棧
+## 🚀 專案特色
 
-- **框架**: Next.js 14.1.0 + React 18.2.0
-- **語言**: TypeScript 5.8.2
-- **樣式**: Tailwind CSS 3.4.1
-- **資料庫**: MongoDB (本地) + Mongoose ODM
+- **🔍 企業資訊查詢**: 整合多元企業資料源，提供詳細企業資訊
+- **📋 政府標案查詢**: 完整的政府標案資料庫與搜尋功能  
+- **🤖 AI 工具集成**: 超過 5000+ AI 工具，協助企業智能化決策
+- **📊 視覺化圖表**: 企業營收、標案趨勢等數據視覺化分析
+- **🗺️ 地理位置服務**: Google Maps 整合，企業地理分布查詢
+- **📱 響應式設計**: 完美支援桌面端與行動裝置
+- **⚡ 效能優化**: SSR/SSG 混合渲染，Core Web Vitals 最佳化
+- **🔒 資料安全**: JWT 身份驗證，安全的資料傳輸
+
+## 🏗️ 技術棧
+
+### 核心框架
+- **前端框架**: Next.js 14.1.0 + React 18.2.0 + TypeScript 5.8.2
+- **樣式系統**: Tailwind CSS 3.4.1 + Framer Motion 11.18.2
+- **資料庫**: MongoDB 7.0 + Mongoose ODM 8.0.3
 - **容器化**: Docker + Docker Compose
-- **動畫**: Framer Motion 11.18.2
-- **AI 整合**: Google Generative AI
-- **部署**: Netlify
 
-## 📦 安裝與設定
+### 整合服務
+- **AI 服務**: Google Generative AI 0.24.1
+- **地圖服務**: Google Maps API (@react-google-maps/api 2.20.6)
+- **圖表系統**: Chart.js 4.4.8 + React Chart.js 2
+- **圖示系統**: Lucide React 0.479.0
 
-### 1. 安裝依賴套件
+### 開發工具
+- **程式碼品質**: ESLint + Prettier + TypeScript
+- **版本控制**: Git (主要開發分支: `next`)
+- **部署平台**: Netlify + 自架 Docker 環境
+- **監控工具**: MongoDB 管理介面 + Docker 日誌系統
 
+## 📦 快速開始
+
+### 環境需求
+- Node.js 18+ 
+- Docker & Docker Compose
+- Git
+
+### 1. 複製專案
 ```bash
-npm install
+git clone <repository-url>
+cd "3 - Business Magnifier"
 ```
 
 ### 2. 環境變數設定
-
-建立 `.env.local` 檔案：
+建立 `next/.env.local` 檔案：
 
 ```env
-# MongoDB 本地資料庫連線
-MONGODB_URI=mongodb://localhost:27017/business-magnifier
+# MongoDB 連線 (Docker 環境)
+MONGODB_URI=mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
 
-# 如果使用 Docker MongoDB
-# MONGODB_URI=mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
-
-# Google AI API
+# Google 服務 API
 GOOGLE_AI_API_KEY=your_google_ai_api_key_here
-
-# Google Maps API
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 
-# JWT 密鑰
+# 身份驗證
 JWT_SECRET=your_jwt_secret_key_here
+
+# 應用程式設定
+NODE_ENV=development
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# 外部 API 服務
+NEXT_PUBLIC_G0V_COMPANY_API=https://company.g0v.ronny.tw/api
+NEXT_PUBLIC_G0V_TENDER_API=https://pcc.g0v.ronny.tw/api
 
 # 郵件服務 (可選)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
-
-# Next.js 環境
-NODE_ENV=development
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# 外部 API
-NEXT_PUBLIC_G0V_COMPANY_API=https://company.g0v.ronny.tw/api
-NEXT_PUBLIC_G0V_TENDER_API=https://pcc.g0v.ronny.tw/api
 ```
 
-### 3. MongoDB 設定
-
-#### 方式一：本地安裝 MongoDB
-
-1. 下載並安裝 [MongoDB Community Server](https://www.mongodb.com/try/download/community)
-2. 啟動 MongoDB 服務：
-   ```bash
-   # Windows
-   net start MongoDB
-   
-   # macOS (使用 Homebrew)
-   brew services start mongodb-community
-   
-   # Linux (使用 systemd)
-   sudo systemctl start mongod
-   ```
-3. 資料庫會自動建立，預設連線：`mongodb://localhost:27017/business-magnifier`
-
-#### 方式二：使用 Docker (推薦)
-
-1. 確保已安裝 Docker 和 Docker Compose
-2. 啟動 MongoDB 容器：
-   ```bash
-   # 僅啟動 MongoDB
-   docker-compose up mongodb -d
-   
-   # 啟動 MongoDB + 管理介面
-   docker-compose --profile tools up -d
-   ```
-3. MongoDB 管理介面：http://localhost:8081 (mongo-express)
-4. 連線字串：`mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin`
-
-### 4. 資料遷移
-
-執行 AI 工具資料遷移：
-
+### 3. 一鍵啟動開發環境
 ```bash
-# 遷移 promptTools.ts 中的 AI 工具到 MongoDB
-npm run migrate:aitools
+cd next
 
-# 或手動執行
-npx ts-node src/lib/database/migration/migrateAITools.ts
+# 安裝依賴
+npm install
+
+# 啟動完整開發環境 (MongoDB + Next.js + 管理介面)
+npm run start:dev
 ```
 
-## 🛠️ 開發指令
+### 4. 訪問應用程式
+- **主應用程式**: http://localhost:3000
+- **MongoDB 管理介面**: http://localhost:8081 
+- **API 健康檢查**: http://localhost:3000/api/health
 
-### 本地開發
+## 🛠️ 開發指令總覽
 
+### 核心開發指令
 ```bash
-# 開發模式 (需要先啟動 MongoDB)
+# 本地開發模式
 npm run dev
 
-# 建置專案
+# 建置生產版本
 npm run build
 
 # 生產模式預覽
 npm run start
 
-# 程式碼檢查
+# 程式碼檢查與格式化
 npm run lint
-
-# 資料遷移
-npm run migrate:aitools
+npm run format
+npm run format:fix
 ```
 
-### Docker 開發
-
+### Docker 環境管理
 ```bash
-# 啟動 MongoDB 服務
-docker-compose up mongodb -d
+# 🚀 快速啟動 (推薦)
+npm run start:dev      # 啟動開發環境 (MongoDB + App + 管理介面)
+npm run start:prod     # 啟動生產環境
+npm run stop           # 停止所有服務並清理
 
-# 啟動 MongoDB + 管理介面
-docker-compose --profile tools up -d
+# 🐳 詳細 Docker 指令
+npm run docker:mongo            # 僅啟動 MongoDB
+npm run docker:tools           # 啟動 MongoDB + 管理介面
+npm run docker:full-dev        # 完整開發環境
+npm run docker:full-prod       # 完整生產環境
 
-# 啟動完整應用程式 (包含 Next.js 容器)
-docker-compose --profile full-stack up -d
-
-# 查看服務狀態
-docker-compose ps
-
-# 查看日誌
-docker-compose logs -f mongodb
-
-# 停止所有服務
-docker-compose down
-
-# 清理資料 (注意：會刪除所有資料)
-docker-compose down -v
+# 📊 監控與管理
+npm run docker:ps              # 查看服務狀態
+npm run docker:logs            # 查看所有服務日誌
+npm run docker:restart         # 重啟服務
+npm run docker:down            # 停止服務
+npm run docker:cleanup         # 清理 Docker 資源
 ```
 
-## 📁 專案結構
+### 資料庫管理
+```bash
+# 🗄️ 連線資料庫
+npm run db:connect             # 本地 MongoDB 連線
+npm run db:connect-docker      # Docker MongoDB 連線
+
+# 💾 資料備份與還原
+npm run db:backup              # 備份 AI 工具資料
+npm run db:restore             # 還原最新備份
+npm run db:list                # 查看備份檔案列表
+```
+
+## 📁 專案架構
 
 ```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API 路由
-│   ├── company/           # 企業查詢頁面
-│   ├── tender/            # 標案查詢頁面
-│   ├── aitool/            # AI 工具頁面
-│   └── ...
-├── components/            # React 元件
-├── lib/                   # 工具函式庫
-│   ├── database/          # MongoDB 相關
-│   │   ├── connection.ts  # 資料庫連線
-│   │   ├── models/        # Mongoose 模型
-│   │   └── migration/     # 資料遷移腳本
-│   ├── aitool/            # AI 工具邏輯
-│   ├── company/           # 企業資料處理
-│   └── tender/            # 標案資料處理
-├── types/                 # TypeScript 型別
-└── utils/                 # 通用工具
+Business Magnifier/
+├── next/                      # 🎯 主要 Next.js 應用程式
+│   ├── src/
+│   │   ├── app/              # App Router 頁面與 API
+│   │   │   ├── company/      # 企業查詢功能
+│   │   │   ├── tender/       # 標案查詢功能  
+│   │   │   ├── aitool/       # AI 工具功能
+│   │   │   ├── api/          # 後端 API 路由
+│   │   │   └── ...
+│   │   ├── components/       # React 元件庫
+│   │   ├── lib/              # 工具函式與資料庫連線
+│   │   ├── hooks/            # 自定義 React Hooks
+│   │   ├── types/            # TypeScript 型別定義
+│   │   └── utils/            # 通用工具函式
+│   ├── public/               # 靜態資源
+│   ├── scripts/              # 資料庫管理腳本
+│   ├── db/backups/           # 資料庫備份檔案
+│   └── docker-compose.yml    # Docker 服務編排
+├── legacy/                    # 🗄️ 舊版 Vite 專案 (即將淘汰)
+└── .cursor/rules/             # 🤖 AI 輔助開發規則
 ```
 
 ## 🗄️ 資料庫架構
 
-### Collections
+### MongoDB Collections
+- **`companies`** - 企業基本資料與詳細資訊
+- **`aitools`** - AI 工具定義與使用統計 (100+ 工具)
+- **`tenders`** - 政府標案資料與查詢記錄  
+- **`userfeedback`** - 使用者回饋與建議
 
-1. **companies** - 企業資料
-2. **tenders** - 標案資料  
-3. **aitools** - AI 工具定義
-4. **userfeedback** - 使用者回饋
-
-### 主要模型
-
-- `Company` - 企業模型，支援完整的企業資訊
-- `AITool` - AI 工具模型，包含使用統計和熱門度
-- `Tender` - 標案模型 (規劃中)
-- `UserFeedback` - 回饋模型 (規劃中)
-
-### 資料庫管理
-
-```bash
-# 連線到 MongoDB (本地)
-mongosh mongodb://localhost:27017/business-magnifier
-
-# 連線到 Docker MongoDB
-mongosh mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
-
-# 查看集合
-show collections
-
-# 查看企業資料
-db.companies.find().limit(5)
-
-# 查看 AI 工具
-db.aitools.find().limit(5)
-```
-
-## 🔄 資料遷移指南
-
-### AI 工具遷移
-
-將 `promptTools.ts` 中的 5960 行 AI 工具定義遷移到 MongoDB：
-
+### 主要資料模型
 ```typescript
-import { runFullMigration } from './src/lib/database/migration/migrateAITools';
+// 企業模型
+interface Company {
+  id: string;
+  name: string;
+  taxId: string;
+  industry: string;
+  address: string;
+  coordinates?: [number, number];
+  revenue?: CompanyRevenue[];
+  // ... 更多欄位
+}
 
-// 執行完整遷移流程
-await runFullMigration();
+// AI 工具模型  
+interface AITool {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  tags: string[];
+  url: string;
+  popularity: number;
+  usageCount: number;
+  // ... 更多欄位
+}
 ```
 
-遷移包含：
-- ✅ 資料格式轉換
-- ✅ 分類自動推斷  
-- ✅ 索引建立
-- ✅ 驗證檢查
-- ✅ 熱門度初始化
+## 🚀 部署方案
 
-## 🐳 Docker 部署
+### Netlify 部署 (推薦)
+1. 連接 GitHub 儲存庫至 Netlify
+2. 設定建置指令: `cd next && npm run build`
+3. 配置環境變數 (需要外部 MongoDB 服務)
+4. 自動部署至 CDN
 
-### 開發環境
-
+### Docker 自架部署
 ```bash
-# 建立並啟動所有服務
-docker-compose up -d
-
-# 僅啟動資料庫
-docker-compose up mongodb -d
-
-# 啟動資料庫 + 管理介面
-docker-compose --profile tools up -d
-```
-
-### 生產環境
-
-```bash
-# 建置應用程式映像
-docker build -t business-magnifier:latest .
+# 建置生產映像
+docker build -t business-magnifier:latest ./next
 
 # 啟動生產環境
-docker-compose --profile full-stack up -d
+npm run start:prod
+
+# 配置 Nginx 反向代理 (可選)
+# 設定 SSL 憑證 (可選)
 ```
 
-### 服務端點
-
-- **Next.js 應用程式**: http://localhost:3000
-- **MongoDB**: localhost:27017
-- **Mongo Express 管理介面**: http://localhost:8081
-
-## 🚀 部署
-
-### Netlify 部署
-
-1. 連接 GitHub 儲存庫
-2. 設定建置指令：`npm run build`
-3. 設定環境變數 (不包含 MONGODB_URI，需要外部 MongoDB)
-4. 自動部署
-
-### 自架伺服器部署
-
-1. 部署 MongoDB 容器
-2. 設定 Next.js 應用程式
-3. 配置反向代理 (Nginx)
-4. 設定 SSL 憑證
-
 ### 環境變數 (生產環境)
-
 ```env
-MONGODB_URI=mongodb://your-production-mongodb-host:27017/business-magnifier
+NODE_ENV=production
+MONGODB_URI=mongodb://your-production-host:27017/business-magnifier
 GOOGLE_AI_API_KEY=...
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...
 JWT_SECRET=...
-NODE_ENV=production
 ```
 
-## 📊 效能優化
+## 📊 效能與 SEO 優化
 
-- ✅ MongoDB 索引優化
-- ✅ Next.js 圖片優化
-- ✅ 程式碼分割
-- ✅ 靜態生成 (SSG)
-- ✅ 增量靜態再生 (ISR)
-- ✅ Docker 多階段建置
+### 🎯 已實現優化
+- ✅ **渲染策略**: SSR/SSG/ISR 混合渲染
+- ✅ **程式碼分割**: 自動代碼分割與懶載入
+- ✅ **圖片優化**: Next.js Image 組件優化  
+- ✅ **快取策略**: 多層級快取機制
+- ✅ **資料庫索引**: MongoDB 查詢效能優化
+- ✅ **Docker 優化**: 多階段建置，減少映像大小
 
-## 🔍 SEO 優化
+### 📈 SEO 功能
+- ✅ **動態 Meta 標籤**: 基於內容的 SEO 標籤
+- ✅ **結構化資料**: JSON-LD 格式的豐富摘要
+- ✅ **網站地圖**: 自動產生 sitemap.xml
+- ✅ **Open Graph**: 社群媒體分享優化
+- ✅ **Core Web Vitals**: 載入效能最佳化
 
-- ✅ 動態 meta 標籤
-- ✅ 結構化資料 (JSON-LD)
-- ✅ 網站地圖自動生成
-- ✅ Open Graph 支援
-- ✅ Core Web Vitals 優化
+## 🔧 開發工具整合
 
-## 🛠️ 開發工具
-
-### 資料庫管理
-
+### 資料庫管理工具
 - **Mongo Express**: http://localhost:8081 (Docker 環境)
-- **MongoDB Compass**: 圖形化管理工具
+- **MongoDB Compass**: 圖形化管理工具 (可選安裝)
 - **mongosh**: 命令列工具
 
-### 監控和除錯
-
+### 程式碼品質工具
 ```bash
-# 查看 MongoDB 日誌
-docker-compose logs -f mongodb
+# 程式碼格式化
+npm run format
 
-# 查看應用程式日誌
-docker-compose logs -f app
+# ESLint 檢查與修復
+npm run lint
+npm run format:fix
 
-# 進入 MongoDB 容器
-docker exec -it business-magnifier-mongo mongosh
-
-# 檢查資料庫健康狀態
-curl http://localhost:3000/api/health
+# TypeScript 型別檢查
+npx tsc --noEmit
 ```
 
-## 🤝 貢獻指南
+### 監控與除錯
+```bash
+# Docker 服務監控
+npm run docker:logs            # 查看所有服務日誌
+npm run docker:ps              # 查看服務狀態
 
-1. Fork 專案
-2. 建立功能分支
-3. 提交變更
-4. 發起 Pull Request
+# 特定服務日誌
+docker-compose logs -f mongodb        # MongoDB 日誌
+docker-compose logs -f app-dev         # 應用程式日誌
 
-## 📄 授權
+# 進入容器除錯
+docker exec -it business-magnifier-mongo mongosh
+```
 
-MIT License
+## 🎉 最新功能亮點
+
+### 🤖 AI 工具整合 (新)
+- 超過 100+ AI 工具資料庫
+- 智能分類與標籤系統
+- 熱門度排序與使用統計
+- 一鍵查詢與收藏功能
+
+### 📊 視覺化分析 (增強)
+- 企業營收趨勢圖表
+- 標案分佈地理視覺化
+- 行業競爭力分析圖表
+- 互動式資料儀表板
+
+### 🔄 資料管理系統 (全新)
+- 自動化資料備份機制
+- 一鍵資料還原功能
+- 資料庫健康監控
+- 智能快取管理
+
+## 🤝 開發貢獻
+
+### 開發流程
+1. Fork 專案並切換到 `next` 分支
+2. 建立功能分支: `git checkout -b feature/your-feature`
+3. 開發並測試功能
+4. 提交變更: 遵循 [Conventional Commits](https://conventionalcommits.org/)
+5. 發起 Pull Request 至 `next` 分支
+
+### Commit 訊息格式
+```
+[type] Subject line
+
+- feat: 新功能
+- fix: 錯誤修復  
+- docs: 文檔更新
+- style: 格式調整
+- refactor: 程式碼重構
+- test: 測試相關
+- chore: 其他維護
+```
+
+## 📞 支援與回饋
+
+- **問題回報**: GitHub Issues
+- **功能建議**: 應用程式內回饋功能
+- **技術支援**: 開發團隊聯繫方式
+- **文檔更新**: 持續更新專案文檔
+
+## 📄 授權條款
+
+MIT License - 詳見 LICENSE 檔案
+
+---
+
+**⭐ 如果這個專案對你有幫助，請給我們一個 Star！**
+
+> **💡 專案狀態**: 積極開發中 (主要分支: `next`)  
+> **🔄 最後更新**: 2025年6月 | **版本**: v0.1.0

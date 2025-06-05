@@ -7,69 +7,46 @@ import type { Tools, ColorTheme, TagStats } from './types';
 // 從 API 獲取所有工具資料
 export async function getToolsDataFromAPI(): Promise<Tools[]> {
   try {
-    // 並行獲取 AI 工具和基礎工具
-    const [aiToolsResponse, baseToolsResponse] = await Promise.all([
-      fetch('/api/aitool'),
-      fetch('/api/aitool/base-tools'),
-    ]);
+    // 統一從 MongoDB 獲取所有工具（AI 工具 + 基礎工具）
+    const response = await fetch('/api/aitool');
 
-    let allTools: Tools[] = [];
-
-    // 處理 AI 工具
-    if (aiToolsResponse.ok) {
-      const { data: aiToolsFromAPI } = await aiToolsResponse.json();
-      const aiTools: Tools[] = aiToolsFromAPI
-        .filter((tool: DBToolDocument) => tool.isAITool !== false) // 只取 AI 工具
-        .map((tool: DBToolDocument) => {
-          const currentTags = tool.tags || [];
-          // 確保 AI 工具有 'AI' 標籤
-          if (!currentTags.includes('AI')) {
-            currentTags.push('AI');
-          }
-
-          return {
-            id: tool.id,
-            name: tool.name,
-            description: tool.description,
-            iconName: (tool.icon in iconMap
-              ? tool.icon
-              : 'Zap') as keyof typeof iconMap,
-            componentId: 'PromptToolTemplate',
-            tags: currentTags,
-            category: tool.category || 'AI 工具',
-            subCategory: tool.subCategory,
-            instructions: tool.instructions,
-            placeholder: tool.placeholder,
-            promptTemplate: tool.promptTemplate,
-          };
-        });
-      allTools = [...allTools, ...aiTools];
+    if (!response.ok) {
+      throw new Error('Failed to fetch tools from MongoDB');
     }
 
-    // 處理基礎工具
-    if (baseToolsResponse.ok) {
-      const { data: baseTools } = await baseToolsResponse.json();
-      const formattedBaseTools: Tools[] = baseTools.map((tool: any) => ({
+    const { data: allToolsFromAPI } = await response.json();
+    
+    // 轉換為前端使用的格式
+    const allTools: Tools[] = allToolsFromAPI.map((tool: DBToolDocument) => {
+      const currentTags = tool.tags || [];
+
+      // 檢查是否為 AI 工具
+      const isAITool = tool.isAITool !== false && tool.renderType !== 'component';
+
+      // 確保 AI 工具有 'AI' 標籤
+      if (isAITool && !currentTags.includes('AI')) {
+        currentTags.push('AI');
+      }
+
+      // 確保 icon 存在於 iconMap 中，否則使用 'Zap'
+      const iconName = tool.icon in iconMap ? tool.icon : 'Zap';
+
+      return {
         id: tool.id,
         name: tool.name,
         description: tool.description,
-        iconName: (tool.iconName in iconMap
-          ? tool.iconName
-          : 'Zap') as keyof typeof iconMap,
-        componentId: tool.componentId,
-        tags: tool.tags || ['工具'],
-        category: tool.category,
+        iconName: iconName as keyof typeof iconMap,
+        componentId: tool.componentId || (isAITool ? 'PromptToolTemplate' : undefined),
+        tags: currentTags,
+        category: tool.category || 'AI 工具',
         subCategory: tool.subCategory,
-      }));
-      allTools = [...allTools, ...formattedBaseTools];
-    }
+        instructions: tool.instructions,
+        placeholder: tool.placeholder,
+        promptTemplate: tool.promptTemplate,
+      };
+    });
 
-    // 去除重複工具
-    const uniqueTools = allTools.filter(
-      (tool, index, self) => index === self.findIndex(t => t.id === tool.id)
-    );
-
-    return uniqueTools;
+    return allTools;
   } catch (error) {
     console.error('Error fetching tools data from API:', error);
     return [];
