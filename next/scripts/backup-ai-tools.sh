@@ -4,7 +4,7 @@
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo "正在備份 AI Tools 資料..."
-docker exec business-magnifier-mongo mongoexport \
+docker exec mongo mongoexport \
   --host=localhost:27017 \
   --db=business-magnifier \
   --collection=ai_tools \

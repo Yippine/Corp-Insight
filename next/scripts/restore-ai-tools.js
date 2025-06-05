@@ -53,9 +53,9 @@ async function findLatestBackup() {
 async function checkDockerContainer() {
   try {
     const { stdout } = await execAsync(
-      'docker ps --filter "name=business-magnifier-mongo" --format "{{.Names}}"'
+      'docker ps --filter "name=mongo" --format "{{.Names}}"'
     );
-    if (!stdout.trim().includes('business-magnifier-mongo')) {
+    if (!stdout.trim().includes('mongo')) {
       throw new Error('MongoDB 容器未運行！請先啟動 Docker 服務。');
     }
     console.log(colorize('✅ Docker 容器檢查通過', 'green'));
@@ -66,7 +66,7 @@ async function checkDockerContainer() {
 
 async function copyFileToContainer(sourceFile, targetPath) {
   try {
-    const command = `docker cp "${sourceFile}" business-magnifier-mongo:${targetPath}`;
+    const command = `docker cp "${sourceFile}" mongo:${targetPath}`;
     console.log(
       colorize(`📋 複製檔案到容器：${path.basename(sourceFile)}`, 'blue')
     );
@@ -83,7 +83,7 @@ async function restoreData(containerFilePath) {
 
     // 使用更簡化的 mongoimport 指令
     const command = [
-      'docker exec business-magnifier-mongo',
+      'docker exec mongo',
       'bash -c',
       `"mongoimport`,
       `--host=localhost:27017`,
@@ -120,7 +120,7 @@ async function restoreData(containerFilePath) {
 async function cleanupTempFile(containerFilePath) {
   try {
     await execAsync(
-      `docker exec business-magnifier-mongo rm -f ${containerFilePath}`
+      `docker exec mongo rm -f ${containerFilePath}`
     );
     console.log(colorize('🧹 臨時檔案清理完成', 'blue'));
   } catch (error) {

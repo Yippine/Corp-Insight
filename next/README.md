@@ -281,7 +281,7 @@ docker-compose logs -f mongodb        # MongoDB 日誌
 docker-compose logs -f app-dev         # 應用程式日誌
 
 # 進入容器除錯
-docker exec -it business-magnifier-mongo mongosh
+docker exec -it mongo mongosh
 ```
 
 ## 🎉 最新功能亮點
