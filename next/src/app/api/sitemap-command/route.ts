@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
 import path from 'path';
 
 // 允許執行的指令白名單
@@ -37,8 +36,20 @@ async function executeNpmCommand(command: string): Promise<CommandResult> {
     const isWindows = process.platform === 'win32';
     const npmCommand = isWindows ? 'npm.cmd' : 'npm';
     
-    // 設置工作目錄為 next 項目根目錄
-    const cwd = process.cwd();
+    // 確保工作目錄為 next 項目根目錄
+    // 這是關鍵修復：確保與終端機執行環境一致
+    const projectRoot = path.resolve(process.cwd());
+    let cwd = projectRoot;
+    
+    // 如果當前目錄不是 next 目錄，嘗試找到 next 目錄
+    if (!projectRoot.endsWith('next')) {
+      const nextDir = path.join(projectRoot, 'next');
+      if (require('fs').existsSync(path.join(nextDir, 'package.json'))) {
+        cwd = nextDir;
+      }
+    }
+    
+    console.log(`🎯 執行目錄: ${cwd}`);
     
     const child = spawn(npmCommand, ['run', command], {
       cwd,
@@ -100,29 +111,6 @@ async function executeNpmCommand(command: string): Promise<CommandResult> {
 }
 
 /**
- * 清除緩存文件
- */
-async function clearCacheFiles(): Promise<void> {
-  try {
-    const cacheFiles = [
-      '.sitemap-status.json',
-      '.sitemap-monitor.pid'
-    ];
-    
-    for (const file of cacheFiles) {
-      const filePath = path.join(process.cwd(), file);
-      try {
-        await fs.unlink(filePath);
-      } catch (error) {
-        // 文件不存在，忽略錯誤
-      }
-    }
-  } catch (error) {
-    console.warn('清除緩存文件時發生錯誤:', error);
-  }
-}
-
-/**
  * POST /api/sitemap-command
  * 執行 sitemap 相關指令
  */
@@ -139,12 +127,7 @@ export async function POST(request: NextRequest) {
 
     console.log(`🚀 執行指令：npm run ${command}`);
     
-    // 如果是清除緩存指令，先清除文件
-    if (command === 'sitemap:clear-cache') {
-      await clearCacheFiles();
-    }
-    
-    // 執行指令
+    // 執行指令 - 統一通過 npm scripts 調用 sitemap-monitor.js
     const result = await executeNpmCommand(command);
     
     // 格式化輸出

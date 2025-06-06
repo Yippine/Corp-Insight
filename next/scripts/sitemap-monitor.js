@@ -13,6 +13,8 @@ const path = require('path');
 const CONFIG = {
   baseUrl: process.env.SITEMAP_BASE_URL || 'http://localhost:3000',
   storageFile: path.join(process.cwd(), '.sitemap-status.json'),
+  pidFile: path.join(process.cwd(), '.sitemap-monitor.pid'),
+  lockFile: path.join(process.cwd(), '.sitemap-monitor.lock'),
   interval: 5 * 60 * 1000, // 5 分鐘
   timeout: 10000, // 10 秒超時
   sitemaps: [
@@ -25,7 +27,7 @@ const CONFIG = {
   ]
 };
 
-let monitorProcess = null;
+let monitorInterval = null;
 
 /**
  * 測試單個 sitemap
@@ -146,83 +148,208 @@ function loadStatus() {
 }
 
 /**
- * 啟動監控（Web 友好版本）
+ * 檢查是否已在監控
  */
-async function startMonitor() {
-  const pidFile = path.join(process.cwd(), '.sitemap-monitor.pid');
-  
-  // 檢查是否已經在運行
-  if (fs.existsSync(pidFile)) {
-    try {
-      const pid = parseInt(fs.readFileSync(pidFile, 'utf8'));
-      // 在 Windows 環境下，簡單檢查 PID 可能不可靠，先清理舊的 PID 文件
-      console.log('⚠️ 檢測到已存在的 PID 文件，正在清理...');
-      fs.unlinkSync(pidFile);
-    } catch (error) {
-      // PID 文件損壞，直接刪除
-      if (fs.existsSync(pidFile)) {
-        fs.unlinkSync(pidFile);
-      }
-    }
+function isMonitorRunning() {
+  if (!fs.existsSync(CONFIG.pidFile)) {
+    return { running: false };
   }
   
-  console.log('🚀 啟動 Sitemap 監控系統');
+  try {
+    const pidData = JSON.parse(fs.readFileSync(CONFIG.pidFile, 'utf8'));
+    return {
+      running: true,
+      info: pidData
+    };
+  } catch (error) {
+    // PID 文件損壞，清除它
+    fs.unlinkSync(CONFIG.pidFile);
+    return { running: false };
+  }
+}
+
+/**
+ * 監控執行函數
+ */
+async function runMonitorCycle() {
+  try {
+    console.log(`\n🔄 [${new Date().toLocaleString()}] 執行定期檢測`);
+    await testAllSitemaps();
+    
+    // 更新 PID 文件的最後檢查時間
+    if (fs.existsSync(CONFIG.pidFile)) {
+      const monitorStatus = JSON.parse(fs.readFileSync(CONFIG.pidFile, 'utf8'));
+      monitorStatus.lastCheck = new Date().toISOString();
+      fs.writeFileSync(CONFIG.pidFile, JSON.stringify(monitorStatus, null, 2));
+    }
+    
+  } catch (error) {
+    console.error('❌ 監控週期執行失敗:', error.message);
+  }
+}
+
+/**
+ * 啟動監控系統 (背景模式)
+ */
+async function startMonitor() {
+  const monitorStatus = isMonitorRunning();
+  
+  if (monitorStatus.running) {
+    console.log('⚠️ 監控系統已在運行中');
+    console.log(`📅 啟動時間: ${new Date(monitorStatus.info.startTime).toLocaleString()}`);
+    console.log(`🔄 檢測間隔: ${monitorStatus.info.interval / 60000} 分鐘`);
+    console.log('💡 如需重啟，請先執行停止指令');
+    return;
+  }
+  
+  console.log('🚀 啟動 Sitemap 監控系統 (背景模式)');
   console.log(`📅 檢測間隔: ${CONFIG.interval / 60000} 分鐘`);
   console.log(`🌐 目標 URL: ${CONFIG.baseUrl}`);
-  console.log('');
   
-  // 立即執行一次測試
-  console.log('🔍 執行初始檢測...');
-  await testAllSitemaps();
-  
-  // 創建監控狀態文件
-  const monitorStatus = {
+  // 使用 child_process.fork 啟動背景進程
+  const { fork } = require('child_process');
+  const child = fork(__filename, ['--daemon'], {
+    detached: true,
+    stdio: 'ignore',
+    cwd: process.cwd()
+  });
+
+  // 脫離父進程
+  child.unref();
+
+  // 創建 PID 文件
+  const pidData = {
     status: 'running',
     startTime: new Date().toISOString(),
-    pid: process.pid,
+    pid: child.pid,
     interval: CONFIG.interval,
-    lastCheck: new Date().toISOString()
+    lastCheck: new Date().toISOString(),
+    mode: 'background'
   };
   
   try {
-    fs.writeFileSync(pidFile, JSON.stringify(monitorStatus, null, 2));
+    fs.writeFileSync(CONFIG.pidFile, JSON.stringify(pidData, null, 2));
     console.log('✅ 監控狀態已保存');
   } catch (error) {
     console.warn('⚠️ 無法保存監控狀態文件');
+    return;
   }
+
+  console.log(`📍 背景進程 PID: ${child.pid}`);
+  console.log('✅ 監控系統已啟動！背景進程正在運行');
+  console.log(`⏰ 每 ${CONFIG.interval / 60000} 分鐘自動檢測一次`);
+  console.log('🔧 查看狀態：npm run sitemap:status');
+  console.log('🛑 停止監控：npm run sitemap:stop');
   
-  // 對於 Web API 調用，只執行一次測試並返回結果
-  // 實際的持續監控需要通過系統級定時任務實現（如 cron）
-  console.log('');
-  console.log('📋 監控系統配置完成！');
-  console.log('💡 提示：在生產環境中，建議使用 cron 定時任務來實現持續監控');
-  console.log('💡 範例：在 crontab 中添加：');
-  console.log('   */5 * * * * cd /path/to/project && npm run sitemap:test');
-  console.log('');
-  console.log('🔧 立即測試指令：npm run sitemap:test');
-  console.log('🔍 檢查狀態指令：npm run sitemap:status');
+  // 立即退出主進程，釋放終端
+  process.exit(0);
+}
+
+/**
+ * 背景監控進程主函數
+ */
+async function runDaemon() {
+  console.log('🚀 Sitemap 監控背景進程啟動');
+  console.log(`📅 檢測間隔: ${CONFIG.interval / 60000} 分鐘`);
+  console.log(`🌐 目標 URL: ${CONFIG.baseUrl}`);
+  console.log(`📍 進程 PID: ${process.pid}\n`);
+  
+  // 立即執行一次檢測
+  await runMonitorCycle();
+  
+  // 啟動定時器
+  monitorInterval = setInterval(() => {
+    runMonitorCycle();
+  }, CONFIG.interval);
+  
+  // 優雅關閉處理
+  process.on('SIGINT', () => {
+    console.log('\n🛑 收到停止信號 (SIGINT)，正在關閉監控...');
+    cleanup();
+    process.exit(0);
+  });
+  
+  process.on('SIGTERM', () => {
+    console.log('\n🛑 收到終止信號 (SIGTERM)，正在關閉監控...');
+    cleanup();
+    process.exit(0);
+  });
+  
+  process.on('exit', () => {
+    cleanup();
+  });
+  
+  console.log('💡 背景監控程序已啟動，每 5 分鐘自動檢測一次');
+  console.log('🔧 可通過 npm run sitemap:stop 停止監控\n');
+}
+
+/**
+ * 清理資源
+ */
+function cleanup() {
+  if (monitorInterval) {
+    clearInterval(monitorInterval);
+    monitorInterval = null;
+    console.log('✅ 定時器已停止');
+  }
 }
 
 /**
  * 停止監控
  */
 function stopMonitor() {
-  const pidFile = path.join(process.cwd(), '.sitemap-monitor.pid');
+  const monitorStatus = isMonitorRunning();
+  
+  if (!monitorStatus.running) {
+    console.log('ℹ️ 監控系統未在運行');
+    return;
+  }
+  
+  console.log('🛑 正在停止 Sitemap 監控系統...');
   
   try {
-    if (fs.existsSync(pidFile)) {
-      // 清除監控狀態文件
-      fs.unlinkSync(pidFile);
-      console.log('🛑 監控配置已清除');
-      console.log('💡 注意：這只是清除了監控狀態文件');
-      console.log('💡 如果使用了系統級定時任務（如 cron），請手動停止');
-    } else {
-      console.log('⚠️ 沒有找到監控配置文件');
+    // 嘗試發送停止信號給監控進程
+    if (monitorStatus.info.pid) {
+      try {
+        // 先嘗試優雅關閉
+        process.kill(monitorStatus.info.pid, 'SIGTERM');
+        console.log(`🛑 已發送停止信號給進程 ${monitorStatus.info.pid}`);
+        
+        // 等待一段時間後檢查進程是否還在運行
+        setTimeout(() => {
+          try {
+            // 檢查進程是否還存在
+            process.kill(monitorStatus.info.pid, 0);
+            // 如果進程還在，強制終止
+            console.log('⚠️ 進程仍在運行，執行強制終止...');
+            process.kill(monitorStatus.info.pid, 'SIGKILL');
+            console.log('🔨 已強制終止進程');
+          } catch (error) {
+            // 進程已經停止
+            console.log('✅ 進程已正常停止');
+          }
+        }, 2000);
+        
+      } catch (error) {
+        console.log('⚠️ 進程可能已經停止');
+      }
     }
+    
+    // 清除監控狀態文件
+    if (fs.existsSync(CONFIG.pidFile)) {
+      fs.unlinkSync(CONFIG.pidFile);
+      console.log('✅ 監控配置已清除');
+    }
+    
+    console.log('🏁 監控系統已停止');
+    
   } catch (error) {
-    console.log('⚠️ 監控程序可能已經停止');
-    if (fs.existsSync(pidFile)) {
-      fs.unlinkSync(pidFile);
+    console.error('❌ 停止監控失敗:', error.message);
+    
+    // 強制清除狀態文件
+    if (fs.existsSync(CONFIG.pidFile)) {
+      fs.unlinkSync(CONFIG.pidFile);
+      console.log('🧹 已強制清除監控狀態文件');
     }
   }
 }
@@ -231,39 +358,39 @@ function stopMonitor() {
  * 查看監控狀態
  */
 function getMonitorStatus() {
-  const pidFile = path.join(process.cwd(), '.sitemap-monitor.pid');
+  const monitorStatus = isMonitorRunning();
   const statusData = loadStatus();
   
   console.log('📊 Sitemap 監控狀態\n');
   
   // 檢查監控程序狀態
-  if (fs.existsSync(pidFile)) {
-    try {
-      const pidData = fs.readFileSync(pidFile, 'utf8');
-      const monitorInfo = JSON.parse(pidData);
-      console.log(`🟢 監控程序: 已配置`);
-      console.log(`📅 啟動時間: ${new Date(monitorInfo.startTime).toLocaleString()}`);
-      console.log(`🔄 檢測間隔: ${monitorInfo.interval / 60000} 分鐘`);
-    } catch (error) {
-      // 舊版本的 PID 文件格式
-      console.log(`🟢 監控程序: 運行中`);
+  if (monitorStatus.running) {
+    console.log(`🟢 監控程序: 運行中`);
+    console.log(`📅 啟動時間: ${new Date(monitorStatus.info.startTime).toLocaleString()}`);
+    console.log(`🔄 檢測間隔: ${monitorStatus.info.interval / 60000} 分鐘`);
+    console.log(`📍 進程 PID: ${monitorStatus.info.pid}`);
+    if (monitorStatus.info.lastCheck) {
+      console.log(`⏰ 最後檢測: ${new Date(monitorStatus.info.lastCheck).toLocaleString()}`);
     }
   } else {
-    console.log('🔴 監控程序: 未配置');
+    console.log('🔴 監控程序: 未運行');
   }
+  
+  console.log('\n' + '='.repeat(50));
   
   // 顯示最後檢測結果
   if (statusData) {
-    console.log(`📅 最後更新: ${statusData.lastUpdate}`);
+    console.log(`📅 數據更新時間: ${statusData.lastUpdate}`);
     console.log(`⏱️ 數據時間戳: ${new Date(statusData.timestamp).toLocaleString()}\n`);
     
-    console.log('📋 詳細狀態:');
+    console.log('📋 Sitemap 詳細狀態:');
     Object.values(statusData.statusMap).forEach(item => {
       const emoji = item.status === 'success' ? '✅' : item.status === 'warning' ? '⚠️' : '❌';
       console.log(`${emoji} ${item.name}: ${item.statusText}`);
     });
   } else {
-    console.log('⚠️ 尚無檢測數據');
+    console.log('⚠️ 尚無檢測數據，請先執行測試');
+    console.log('💡 執行指令：npm run sitemap:test');
   }
 }
 
@@ -272,22 +399,52 @@ function getMonitorStatus() {
  */
 function clearCache() {
   try {
-    if (fs.existsSync(CONFIG.storageFile)) {
-      fs.unlinkSync(CONFIG.storageFile);
-      console.log('🗑️ 緩存已清除');
+    const cacheFiles = [
+      { file: CONFIG.storageFile, name: '狀態緩存' },
+      { file: CONFIG.pidFile, name: '監控配置' },
+      { file: CONFIG.lockFile, name: '鎖定文件' }
+    ];
+    
+    let clearedCount = 0;
+    
+    cacheFiles.forEach(({ file, name }) => {
+      if (fs.existsSync(file)) {
+        try {
+          fs.unlinkSync(file);
+          console.log(`🗑️ 已清除：${name} (${path.basename(file)})`);
+          clearedCount++;
+        } catch (error) {
+          console.warn(`⚠️ 清除 ${name} 失敗:`, error.message);
+        }
+      }
+    });
+    
+    if (clearedCount > 0) {
+      console.log(`✅ 成功清除 ${clearedCount} 個緩存文件`);
+      console.log('💡 所有緩存和監控狀態已重置');
     } else {
-      console.log('⚠️ 沒有找到緩存文件');
+      console.log('ℹ️ 沒有找到需要清除的緩存文件');
+      console.log('💡 系統已是乾淨狀態');
     }
+    
   } catch (error) {
     console.error('❌ 清除緩存失敗:', error.message);
   }
 }
 
 /**
- * 主程序
+ * 主函數
  */
 async function main() {
-  const command = process.argv[2];
+  const args = process.argv.slice(2);
+  
+  // 檢查是否為背景進程模式
+  if (args.includes('--daemon')) {
+    await runDaemon();
+    return;
+  }
+  
+  const command = args[0];
   
   switch (command) {
     case 'test':
@@ -306,46 +463,18 @@ async function main() {
       clearCache();
       break;
     default:
-      console.log(`
-🗺️ Sitemap 監控工具
-
-使用方法:
-  node sitemap-monitor.js <command>
-
-可用命令:
-  test         測試所有 sitemap (單次)
-  monitor      配置監控系統 (執行初始檢測)
-  stop         停止監控
-  status       查看監控狀態
-  clear-cache  清除緩存
-
-範例:
-  node sitemap-monitor.js test
-  node sitemap-monitor.js monitor
-  node sitemap-monitor.js status
-      `);
+      console.log('📋 Sitemap 監控系統\n');
+      console.log('使用方法:');
+      console.log('  npm run sitemap:test        - 執行單次檢測');
+      console.log('  npm run sitemap:monitor     - 啟動背景監控');
+      console.log('  npm run sitemap:stop        - 停止監控');
+      console.log('  npm run sitemap:status      - 查看監控狀態');
+      console.log('  npm run sitemap:clear-cache - 清除所有緩存');
       break;
   }
 }
 
-// 處理程序退出
-process.on('SIGINT', () => {
-  console.log('\n🛑 收到退出信號，正在停止監控...');
-  if (monitorProcess) {
-    clearInterval(monitorProcess);
-  }
-  process.exit(0);
-});
-
-// 如果直接執行此文件
+// 當直接執行此腳本時運行主函數
 if (require.main === module) {
   main().catch(console.error);
 }
-
-module.exports = {
-  testAllSitemaps,
-  startMonitor,
-  stopMonitor,
-  getMonitorStatus,
-  clearCache
-};

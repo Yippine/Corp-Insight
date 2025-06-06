@@ -6,21 +6,10 @@
       "url": "/robots.txt",
       "description": "搜索引擎爬蟲指令",
       "status": "success",
-      "statusText": "✅ 正常 (44ms)",
-      "responseTime": 44,
+      "statusText": "✅ 正常 (36ms)",
+      "responseTime": 36,
       "contentLength": 705,
-      "lastChecked": "2025-06-06T02:15:16.654Z"
-    },
-    "index": {
-      "id": "index",
-      "name": "Sitemap Index",
-      "url": "/sitemap-index.xml",
-      "description": "管理所有 sitemap 索引",
-      "status": "success",
-      "statusText": "✅ 正常 (56ms)",
-      "responseTime": 56,
-      "contentLength": 663,
-      "lastChecked": "2025-06-06T02:15:16.659Z"
+      "lastChecked": "2025-06-06T07:21:09.212Z"
     },
     "main": {
       "id": "main",
@@ -28,10 +17,21 @@
       "url": "/sitemap.xml",
       "description": "靜態頁面 + 動態內容",
       "status": "success",
-      "statusText": "✅ 正常 (106ms)",
-      "responseTime": 106,
+      "statusText": "✅ 正常 (42ms)",
+      "responseTime": 42,
       "contentLength": 1762,
-      "lastChecked": "2025-06-06T02:15:16.662Z"
+      "lastChecked": "2025-06-06T07:21:09.216Z"
+    },
+    "index": {
+      "id": "index",
+      "name": "Sitemap Index",
+      "url": "/sitemap-index.xml",
+      "description": "管理所有 sitemap 索引",
+      "status": "success",
+      "statusText": "✅ 正常 (46ms)",
+      "responseTime": 46,
+      "contentLength": 663,
+      "lastChecked": "2025-06-06T07:21:09.221Z"
     },
     "tenders": {
       "id": "tenders",
@@ -39,10 +39,10 @@
       "url": "/sitemap-tenders.xml",
       "description": "標案詳情頁面",
       "status": "success",
-      "statusText": "✅ 正常 (58ms)",
-      "responseTime": 58,
+      "statusText": "✅ 正常 (49ms)",
+      "responseTime": 49,
       "contentLength": 107,
-      "lastChecked": "2025-06-06T02:15:16.663Z"
+      "lastChecked": "2025-06-06T07:21:09.224Z"
     },
     "companies": {
       "id": "companies",
@@ -50,10 +50,10 @@
       "url": "/sitemap-companies.xml",
       "description": "企業詳情頁面",
       "status": "success",
-      "statusText": "✅ 正常 (61ms)",
-      "responseTime": 61,
+      "statusText": "✅ 正常 (51ms)",
+      "responseTime": 51,
       "contentLength": 107,
-      "lastChecked": "2025-06-06T02:15:16.666Z"
+      "lastChecked": "2025-06-06T07:21:09.226Z"
     },
     "aitools": {
       "id": "aitools",
@@ -61,12 +61,12 @@
       "url": "/sitemap-aitools.xml",
       "description": "AI 工具詳情頁面",
       "status": "success",
-      "statusText": "✅ 正常 (61ms)",
-      "responseTime": 61,
+      "statusText": "✅ 正常 (51ms)",
+      "responseTime": 51,
       "contentLength": 107,
-      "lastChecked": "2025-06-06T02:15:16.669Z"
+      "lastChecked": "2025-06-06T07:21:09.227Z"
     }
   },
-  "timestamp": 1749176116669,
-  "lastUpdate": "2025-06-06T02:15:16.669Z"
+  "timestamp": 1749194469227,
+  "lastUpdate": "2025-06-06T07:21:09.227Z"
 }
