@@ -79,6 +79,34 @@ export default function SitemapStatusCard({
     return date.toLocaleDateString('zh-TW');
   };
 
+  // 取得資料狀態的樣式
+  const getDataStatusStyles = (dataStatus?: string) => {
+    switch (dataStatus) {
+      case 'empty':
+        return { color: 'text-red-600', bg: 'bg-red-100', label: '無資料' };
+      case 'low':
+        return { color: 'text-orange-600', bg: 'bg-orange-100', label: '資料不足' };
+      case 'normal':
+        return { color: 'text-blue-600', bg: 'bg-blue-100', label: '有資料' };
+      case 'good':
+        return { color: 'text-green-600', bg: 'bg-green-100', label: '資料良好' };
+      case 'excellent':
+        return { color: 'text-emerald-600', bg: 'bg-emerald-100', label: '資料充足' };
+      default:
+        return { color: 'text-gray-600', bg: 'bg-gray-100', label: '未知' };
+    }
+  };
+
+  // 計算進度百分比
+  const getProgressPercentage = () => {
+    if (!item.dataCount || !item.expectedTarget) return 0;
+    return Math.min((item.dataCount / item.expectedTarget) * 100, 100);
+  };
+
+  const dataStatusStyles = getDataStatusStyles(item.dataStatus);
+  const progressPercentage = getProgressPercentage();
+  const hasBusinessLogic = ['companies', 'tenders', 'aitools'].includes(item.id);
+
   return (
     <div className={`
       group relative overflow-hidden rounded-xl border-2 p-6 transition-all duration-300 ease-out
@@ -109,6 +137,13 @@ export default function SitemapStatusCard({
               </p>
             </div>
           </div>
+          
+          {/* 資料狀態標籤 */}
+          {hasBusinessLogic && item.dataStatus && (
+            <div className={`px-3 py-1 rounded-full text-sm font-medium ${dataStatusStyles.bg} ${dataStatusStyles.color}`}>
+              {dataStatusStyles.label}
+            </div>
+          )}
         </div>
 
         {/* 狀態資訊 */}
@@ -121,6 +156,41 @@ export default function SitemapStatusCard({
             </span>
           </div>
 
+          {/* 資料量信息 - 只針對有業務邏輯的 sitemap */}
+          {hasBusinessLogic && typeof item.dataCount === 'number' && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-base font-medium text-gray-600">資料量</span>
+                <span className="text-base font-medium text-gray-700">
+                  {item.dataCount.toLocaleString()} 筆
+                </span>
+              </div>
+              
+              {/* 進度條 */}
+              {item.expectedTarget && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>進度</span>
+                    <span>{progressPercentage.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all duration-500 ${
+                        progressPercentage >= 100 ? 'bg-green-500' :
+                        progressPercentage >= 50 ? 'bg-yellow-500' : 'bg-blue-500'
+                      }`}
+                      style={{ width: `${Math.max(progressPercentage, 2)}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>最少: {item.expectedMin?.toLocaleString()}</span>
+                    <span>目標: {item.expectedTarget?.toLocaleString()}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* URL */}
           <div className="flex items-center justify-between">
             <span className="text-base font-medium text-gray-600">路徑</span>
@@ -129,7 +199,7 @@ export default function SitemapStatusCard({
             </code>
           </div>
 
-          {/* 額外資訊 */}
+          {/* 技術資訊 */}
           {(item.responseTime || item.contentLength) && (
             <div className="pt-2 border-t border-gray-200/50">
               <div className="grid grid-cols-2 gap-3 text-sm">

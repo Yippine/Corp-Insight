@@ -10,6 +10,7 @@ export default function SitemapManager() {
     statusList,
     stats,
     isLoading,
+    isInitialized,
     testSingleSitemap,
     testAllSitemaps,
     resetStatus
@@ -68,7 +69,7 @@ export default function SitemapManager() {
     }
   };
 
-  // 執行 npm 指令
+  // 執行 npm 指令 - 加入自動刷新機制
   const executeNpmCommand = async (command: string, description: string) => {
     setIsRunningCommand(true);
     setCommandOutput(`🚀 正在執行：${description}\n\n指令：npm run ${command}\n\n⏳ 請稍候...\n`);
@@ -87,10 +88,15 @@ export default function SitemapManager() {
       if (response.ok && result.success) {
         setCommandOutput(result.output);
         
-        // 如果是測試指令，保持終端機輸出可見，不重載頁面
-        if (command === 'sitemap:test') {
-          console.log('✅ 測試完成，結果已顯示在上方終端機中');
-        }
+        // 🎯 關鍵改進：所有命令執行後都自動刷新狀態
+        console.log('✅ 命令執行完成，正在刷新狀態...');
+        
+        // 短暫延遲後刷新，確保服務器端狀態已更新
+        setTimeout(async () => {
+          await testAllSitemaps();
+          console.log('🔄 狀態刷新完成');
+        }, 1000);
+        
       } else {
         const errorMessage = result.error || result.details || '未知錯誤';
         setCommandOutput(prev => prev + `❌ 執行失敗：${errorMessage}\n\n💡 請檢查服務器日誌或在終端機中手動執行：npm run ${command}`);
@@ -108,6 +114,7 @@ export default function SitemapManager() {
       <SitemapStatsDashboard
         stats={stats}
         isLoading={isLoading}
+        isInitialized={isInitialized}
         onTestAll={testAllSitemaps}
         onReset={resetStatus}
       />
@@ -115,9 +122,30 @@ export default function SitemapManager() {
       {/* 狀態卡片網格 */}
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">📋 詳細狀態監控</h2>
-          <div className="text-sm text-gray-500">
-            共 {statusList.length} 個項目
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">📋 詳細狀態監控</h2>
+            <p className="text-sm text-gray-600 mt-1">每個 Sitemap 的深度分析與資料量統計</p>
+          </div>
+          <div className="text-sm text-gray-500 flex items-center space-x-4">
+            <span>共 {statusList.length} 個項目</span>
+            {!isInitialized && (
+              <div className="flex items-center space-x-2">
+                <svg className="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-blue-600">初始化中...</span>
+              </div>
+            )}
+            {isInitialized && isLoading && (
+              <div className="flex items-center space-x-2">
+                <svg className="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-blue-600">更新中...</span>
+              </div>
+            )}
           </div>
         </div>
         
@@ -298,10 +326,10 @@ export default function SitemapManager() {
           </div>
         </div>
 
-        {/* 更新頻率設定 - 重新設計為對齊的 2x2 網格 */}
+        {/* 更新頻率設定 - 加入業務邏輯里程碑 */}
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-200 p-8">
           <h2 className="text-2xl font-bold text-green-900 mb-8 flex items-center">
-            ⏰ 更新頻率與自動化管理
+            ⏰ 更新頻率與業務里程碑
           </h2>
           
           {/* 2x2 網格佈局，確保完美對齊 */}
@@ -348,17 +376,26 @@ export default function SitemapManager() {
                   <span className="font-medium text-gray-700">企業搜尋結果</span>
                   <span className="text-green-600 font-medium">daily (每日更新)</span>
                 </div>
-                <div className="bg-green-100 p-3 rounded-lg border-l-4 border-green-500">
+                <div className="bg-blue-100 p-3 rounded-lg border-l-4 border-blue-500">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-green-800">資料規模</span>
-                    <span className="text-green-700 font-medium">50,000 個企業頁面</span>
+                    <span className="font-medium text-blue-800">里程碑 1</span>
+                    <span className="text-blue-700 font-medium">1,000+ 企業</span>
                   </div>
+                  <p className="text-sm text-blue-600 mt-1">基礎資料庫建立</p>
+                </div>
+                <div className="bg-yellow-100 p-3 rounded-lg border-l-4 border-yellow-500">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-yellow-800">里程碑 2</span>
+                    <span className="text-yellow-700 font-medium">10,000+ 企業</span>
+                  </div>
+                  <p className="text-sm text-yellow-600 mt-1">達到最低運營標準</p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-lg border-l-4 border-green-500">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-green-800">緩存時間</span>
-                    <span className="text-green-700 font-medium">2 小時</span>
+                    <span className="font-medium text-green-800">里程碑 3</span>
+                    <span className="text-green-700 font-medium">50,000+ 企業</span>
                   </div>
+                  <p className="text-sm text-green-600 mt-1">達到目標資料規模</p>
                 </div>
               </div>
             </div>
@@ -377,17 +414,26 @@ export default function SitemapManager() {
                   <span className="font-medium text-gray-700">標案搜尋結果</span>
                   <span className="text-green-600 font-medium">weekly (每週更新)</span>
                 </div>
-                <div className="bg-green-100 p-3 rounded-lg border-l-4 border-green-500">
+                <div className="bg-blue-100 p-3 rounded-lg border-l-4 border-blue-500">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-green-800">資料規模</span>
-                    <span className="text-green-700 font-medium">25,000 個標案頁面</span>
+                    <span className="font-medium text-blue-800">里程碑 1</span>
+                    <span className="text-blue-700 font-medium">500+ 標案</span>
                   </div>
+                  <p className="text-sm text-blue-600 mt-1">基礎標案資料庫</p>
+                </div>
+                <div className="bg-yellow-100 p-3 rounded-lg border-l-4 border-yellow-500">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-yellow-800">里程碑 2</span>
+                    <span className="text-yellow-700 font-medium">5,000+ 標案</span>
+                  </div>
+                  <p className="text-sm text-yellow-600 mt-1">達到最低運營標準</p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-lg border-l-4 border-green-500">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-green-800">緩存時間</span>
-                    <span className="text-green-700 font-medium">4 小時</span>
+                    <span className="font-medium text-green-800">里程碑 3</span>
+                    <span className="text-green-700 font-medium">25,000+ 標案</span>
                   </div>
+                  <p className="text-sm text-green-600 mt-1">達到目標資料規模</p>
                 </div>
               </div>
             </div>
@@ -405,17 +451,26 @@ export default function SitemapManager() {
                   <span className="font-medium text-gray-700">AI 工具搜尋結果</span>
                   <span className="text-green-600 font-medium">daily (每日更新)</span>
                 </div>
-                <div className="bg-green-100 p-3 rounded-lg border-l-4 border-green-500">
+                <div className="bg-blue-100 p-3 rounded-lg border-l-4 border-blue-500">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-green-800">資料規模</span>
-                    <span className="text-green-700 font-medium">5,000 個工具頁面</span>
+                    <span className="font-medium text-blue-800">里程碑 1</span>
+                    <span className="text-blue-700 font-medium">100+ 工具</span>
                   </div>
+                  <p className="text-sm text-blue-600 mt-1">基礎工具資料庫</p>
+                </div>
+                <div className="bg-yellow-100 p-3 rounded-lg border-l-4 border-yellow-500">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-yellow-800">里程碑 2</span>
+                    <span className="text-yellow-700 font-medium">1,000+ 工具</span>
+                  </div>
+                  <p className="text-sm text-yellow-600 mt-1">達到最低運營標準</p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-lg border-l-4 border-green-500">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-green-800">緩存時間</span>
-                    <span className="text-green-700 font-medium">3 小時</span>
+                    <span className="font-medium text-green-800">里程碑 3</span>
+                    <span className="text-green-700 font-medium">5,000+ 工具</span>
                   </div>
+                  <p className="text-sm text-green-600 mt-1">達到目標資料規模</p>
                 </div>
               </div>
             </div>
