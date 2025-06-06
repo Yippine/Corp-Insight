@@ -128,3 +128,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Sitemap status files (ignore in any location)
+**/.sitemap-status.json
+**/.sitemap-monitor.pid
+**/.sitemap-monitor.lock

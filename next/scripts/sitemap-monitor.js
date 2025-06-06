@@ -12,10 +12,11 @@ const path = require('path');
 // 配置
 const CONFIG = {
   baseUrl: process.env.SITEMAP_BASE_URL || 'http://localhost:3000',
-  storageFile: path.join(process.cwd(), '.sitemap-status.json'),
-  pidFile: path.join(process.cwd(), '.sitemap-monitor.pid'),
-  lockFile: path.join(process.cwd(), '.sitemap-monitor.lock'),
-  interval: 5 * 60 * 1000, // 5 分鐘
+  storageFile: path.join(__dirname, '..', '.sitemap-status.json'),
+  pidFile: path.join(__dirname, '..', '.sitemap-monitor.pid'),
+  lockFile: path.join(__dirname, '..', '.sitemap-monitor.lock'),
+  interval: 24 * 60 * 60 * 1000, // 每日執行
+  cronSchedule: '0 6 * * *', // 每天早上 6:00 (台灣時間)
   timeout: 10000, // 10 秒超時
   sitemaps: [
     { id: 'main', name: '主要 Sitemap', url: '/sitemap.xml', description: '靜態頁面 + 動態內容' },
@@ -197,13 +198,13 @@ async function startMonitor() {
   if (monitorStatus.running) {
     console.log('⚠️ 監控系統已在運行中');
     console.log(`📅 啟動時間: ${new Date(monitorStatus.info.startTime).toLocaleString()}`);
-    console.log(`🔄 檢測間隔: ${monitorStatus.info.interval / 60000} 分鐘`);
+    console.log('🔄 檢測間隔: 每日');
     console.log('💡 如需重啟，請先執行停止指令');
     return;
   }
   
   console.log('🚀 啟動 Sitemap 監控系統 (背景模式)');
-  console.log(`📅 檢測間隔: ${CONFIG.interval / 60000} 分鐘`);
+  console.log('📅 執行時間: 每天早上 6:00 (台灣時間)');
   console.log(`🌐 目標 URL: ${CONFIG.baseUrl}`);
   
   // 使用 child_process.fork 啟動背景進程
@@ -237,7 +238,6 @@ async function startMonitor() {
 
   console.log(`📍 背景進程 PID: ${child.pid}`);
   console.log('✅ 監控系統已啟動！背景進程正在運行');
-  console.log(`⏰ 每 ${CONFIG.interval / 60000} 分鐘自動檢測一次`);
   console.log('🔧 查看狀態：npm run sitemap:status');
   console.log('🛑 停止監控：npm run sitemap:stop');
   
@@ -250,7 +250,8 @@ async function startMonitor() {
  */
 async function runDaemon() {
   console.log('🚀 Sitemap 監控背景進程啟動');
-  console.log(`📅 檢測間隔: ${CONFIG.interval / 60000} 分鐘`);
+  console.log('🔄 檢測間隔: 每日');
+  console.log('📅 執行時間: 每天早上 6:00 (台灣時間)');
   console.log(`🌐 目標 URL: ${CONFIG.baseUrl}`);
   console.log(`📍 進程 PID: ${process.pid}\n`);
   
@@ -279,7 +280,7 @@ async function runDaemon() {
     cleanup();
   });
   
-  console.log('💡 背景監控程序已啟動，每 5 分鐘自動檢測一次');
+  console.log('💡 背景監控程序已啟動，將定期執行檢測');
   console.log('🔧 可通過 npm run sitemap:stop 停止監控\n');
 }
 
@@ -469,7 +470,7 @@ async function main() {
       console.log('  npm run sitemap:monitor     - 啟動背景監控');
       console.log('  npm run sitemap:stop        - 停止監控');
       console.log('  npm run sitemap:status      - 查看監控狀態');
-      console.log('  npm run sitemap:clear-cache - 清除所有緩存');
+      console.log('  npm run sitemap:clear - 清除所有緩存');
       break;
   }
 }

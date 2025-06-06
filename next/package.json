@@ -59,7 +59,7 @@
     "sitemap:monitor": "node scripts/sitemap-monitor.js monitor",
     "sitemap:stop": "node scripts/sitemap-monitor.js stop",
     "sitemap:status": "node scripts/sitemap-monitor.js status",
-    "sitemap:clear-cache": "node scripts/sitemap-monitor.js clear-cache",
+    "sitemap:clear": "node scripts/sitemap-monitor.js clear-cache",
     "// === 健康檢查指令 ===": "",
     "health:check": "node scripts/healthcheck.js"
   },

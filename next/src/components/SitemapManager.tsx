@@ -450,7 +450,7 @@ npm run sitemap:stop
 npm run sitemap:status
 
 # 清除緩存
-npm run sitemap:clear-cache`}
+npm run sitemap:clear`}
                 </pre>
               </div>
             </div>
@@ -526,7 +526,7 @@ npm run sitemap:clear-cache`}
                 🛑 停止
               </button>
               <button
-                onClick={() => executeNpmCommand('sitemap:clear-cache', '清除所有緩存')}
+                onClick={() => executeNpmCommand('sitemap:clear', '清除所有緩存')}
                 disabled={isRunningCommand}
                 className="px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:bg-gray-400 transition-all duration-200 text-base font-semibold flex items-center justify-center hover:shadow-lg hover:scale-105 md:col-span-1 col-span-2"
               >

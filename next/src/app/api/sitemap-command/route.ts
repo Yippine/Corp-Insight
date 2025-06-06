@@ -8,7 +8,7 @@ const ALLOWED_COMMANDS = [
   'sitemap:status', 
   'sitemap:monitor',
   'sitemap:stop',
-  'sitemap:clear-cache'
+  'sitemap:clear'
 ];
 
 interface CommandResult {
