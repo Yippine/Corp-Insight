@@ -59,7 +59,7 @@ services:
     container_name: app
     restart: unless-stopped
     ports:
-      - "3001:3000"  # 使用不同埠號避免衝突
+      - "3000:3000"
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
       - NODE_ENV=production
