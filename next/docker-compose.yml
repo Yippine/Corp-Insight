@@ -96,6 +96,12 @@ services:
       - business-magnifier-network
     profiles:
       - tools  # 管理工具 profile
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 # 資料卷
 volumes:
