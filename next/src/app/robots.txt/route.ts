@@ -1,4 +1,12 @@
-User-agent: *
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  // 根據環境決定基礎 URL
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://insight.leopilot.com'
+    : 'http://localhost:3000';
+
+  const robotsContent = `User-agent: *
 Allow: /
 
 # 企業搜尋和詳情頁面 - 高優先級
@@ -30,12 +38,21 @@ Disallow: /_next/
 Disallow: /next.config.js
 Disallow: /.well-known/
 
-# 測試和調試頁面
+# 管理和測試頁面
+Disallow: /admin/
 Disallow: /test-dedup/
 
-# 網站地圖位置（開發環境將使用 localhost:3000）
-Sitemap: http://localhost:3000/sitemap-index.xml
-Sitemap: http://localhost:3000/sitemap.xml
+# 網站地圖位置
+Sitemap: ${baseUrl}/sitemap-index.xml
+Sitemap: ${baseUrl}/sitemap.xml
 
 # 爬蟲友好設定
-Crawl-delay: 1
+Crawl-delay: 1`;
+
+  return new NextResponse(robotsContent, {
+    headers: {
+      'Content-Type': 'text/plain',
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+    },
+  });
+}

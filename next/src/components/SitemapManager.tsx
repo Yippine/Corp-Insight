@@ -47,10 +47,91 @@ export default function SitemapManager() {
     window.open(url, '_blank');
   };
 
-  // 驗證 XML 格式
-  const validateXML = () => {
+  // 驗證內容格式 (XML 或 robots.txt)
+  const validateContent = () => {
     if (!sitemapData) return;
     
+    // 檢測是否為 robots.txt
+    if (selectedSitemap.includes('robots.txt')) {
+      validateRobotsTxt();
+    } else {
+      validateXML();
+    }
+  };
+
+  // 驗證 robots.txt 格式
+  const validateRobotsTxt = () => {
+    const lines = sitemapData.trim().split('\n');
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    let userAgentCount = 0;
+    let sitemapCount = 0;
+    let allowCount = 0;
+    let disallowCount = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      // 跳過空行和註釋
+      if (!line || line.startsWith('#')) continue;
+      
+      if (line.toLowerCase().startsWith('user-agent:')) {
+        userAgentCount++;
+      } else if (line.toLowerCase().startsWith('sitemap:')) {
+        sitemapCount++;
+        const sitemapUrl = line.split(':', 2)[1].trim();
+        if (!sitemapUrl.startsWith('http')) {
+          warnings.push(`第 ${i + 1} 行：Sitemap URL 建議使用完整的 HTTP/HTTPS 路徑`);
+        }
+      } else if (line.toLowerCase().startsWith('allow:')) {
+        allowCount++;
+      } else if (line.toLowerCase().startsWith('disallow:')) {
+        disallowCount++;
+      } else if (line.toLowerCase().startsWith('crawl-delay:')) {
+        const delay = line.split(':', 2)[1].trim();
+        if (isNaN(Number(delay))) {
+          errors.push(`第 ${i + 1} 行：Crawl-delay 值必須是數字`);
+        }
+      } else if (line.includes(':')) {
+        // 可能是其他有效指令，暫不報錯
+      } else {
+        warnings.push(`第 ${i + 1} 行：未識別的指令格式 "${line}"`);
+      }
+    }
+
+    // 基本驗證
+    if (userAgentCount === 0) {
+      errors.push('缺少 User-agent 指令');
+    }
+    
+    if (sitemapCount === 0) {
+      warnings.push('建議添加 Sitemap 指令');
+    }
+
+    // 生成報告
+    let report = '';
+    if (errors.length === 0) {
+      report += '✅ robots.txt 格式驗證通過！\n\n';
+    } else {
+      report += '❌ 發現格式錯誤：\n' + errors.join('\n') + '\n\n';
+    }
+
+    report += `📊 統計信息：\n`;
+    report += `- User-agent: ${userAgentCount} 個\n`;
+    report += `- Allow: ${allowCount} 個\n`;
+    report += `- Disallow: ${disallowCount} 個\n`;
+    report += `- Sitemap: ${sitemapCount} 個\n`;
+    report += `- 總行數: ${lines.length} 行\n`;
+
+    if (warnings.length > 0) {
+      report += `\n⚠️ 建議改進：\n` + warnings.join('\n');
+    }
+
+    alert(report);
+  };
+
+  // 驗證 XML 格式
+  const validateXML = () => {
     try {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(sitemapData, 'text/xml');
@@ -180,10 +261,10 @@ export default function SitemapManager() {
               
               <div className="flex space-x-2">
                 <button
-                  onClick={validateXML}
+                  onClick={validateContent}
                   className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
                 >
-                  ✅ 驗證 XML
+                  ✅ 驗證格式
                 </button>
                 <button
                   onClick={() => selectedSitemap && openInNewWindow(selectedSitemap)}

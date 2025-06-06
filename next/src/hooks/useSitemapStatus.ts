@@ -208,7 +208,7 @@ export function useSitemapStatus() {
 
               if (response.ok) {
                 // 分析內容並判斷狀態
-                const { dataCount, dataStatus, statusText } = analyzeXmlContent(text, id);
+                const { dataCount, dataStatus, statusText } = analyzeContent(text, id);
                 
                 // 根據資料狀態決定整體狀態
                 let overallStatus: 'success' | 'warning' | 'error';
@@ -347,6 +347,76 @@ export function useSitemapStatus() {
     });
   }, [saveToCache]);
 
+  // 分析內容並計算資料量 (支援 XML 和 robots.txt)
+  const analyzeContent = (text: string, id: string): { dataCount: number; dataStatus: string; statusText: string } => {
+    // 🎯 robots.txt 特殊處理
+    if (id === 'robots') {
+      return analyzeRobotsTxt(text);
+    }
+    
+    // XML 檔案處理
+    return analyzeXmlContent(text, id);
+  };
+
+  // 分析 robots.txt 內容
+  const analyzeRobotsTxt = (text: string): { dataCount: number; dataStatus: string; statusText: string } => {
+    try {
+      const lines = text.trim().split('\n');
+      const errors: string[] = [];
+      let userAgentCount = 0;
+      let sitemapCount = 0;
+      let allowCount = 0;
+      let disallowCount = 0;
+
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        
+        // 跳過空行和註釋
+        if (!trimmedLine || trimmedLine.startsWith('#')) continue;
+        
+        const lowerLine = trimmedLine.toLowerCase();
+        if (lowerLine.startsWith('user-agent:')) {
+          userAgentCount++;
+        } else if (lowerLine.startsWith('sitemap:')) {
+          sitemapCount++;
+        } else if (lowerLine.startsWith('allow:')) {
+          allowCount++;
+        } else if (lowerLine.startsWith('disallow:')) {
+          disallowCount++;
+        } else if (lowerLine.startsWith('crawl-delay:')) {
+          const delay = trimmedLine.split(':', 2)[1].trim();
+          if (isNaN(Number(delay))) {
+            errors.push('Crawl-delay 值格式錯誤');
+          }
+        }
+      }
+
+      // 基本驗證
+      if (userAgentCount === 0) {
+        errors.push('缺少 User-agent 指令');
+      }
+
+      if (errors.length > 0) {
+        return { 
+          dataCount: 0, 
+          dataStatus: 'empty', 
+          statusText: `❌ 格式錯誤：${errors[0]}` 
+        };
+      }
+
+      // 計算總指令數
+      const totalDirectives = userAgentCount + allowCount + disallowCount + sitemapCount;
+      
+      return { 
+        dataCount: totalDirectives, 
+        dataStatus: 'normal', 
+        statusText: `✅ 格式正確 (${totalDirectives} 個指令)` 
+      };
+    } catch (error) {
+      return { dataCount: 0, dataStatus: 'empty', statusText: '❌ 解析失敗' };
+    }
+  };
+
   // 分析 XML 內容並計算資料量
   const analyzeXmlContent = (text: string, id: string): { dataCount: number; dataStatus: string; statusText: string } => {
     try {
@@ -419,7 +489,7 @@ export function useSitemapStatus() {
 
       if (response.ok) {
         // 分析內容並判斷狀態
-        const { dataCount, dataStatus, statusText } = analyzeXmlContent(text, id);
+        const { dataCount, dataStatus, statusText } = analyzeContent(text, id);
         
         // 根據資料狀態決定整體狀態
         let overallStatus: 'success' | 'warning' | 'error';
