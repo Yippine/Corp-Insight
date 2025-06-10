@@ -365,10 +365,10 @@ interface AIToolSearchResponse {
 類型:
 - feat: 新功能 (AI 工具搜尋功能)
 - fix: 錯誤修復 (修復 MongoDB 連線問題)
-- docs: 文檔更新 (更新 README)
+- docs: 說明或規格文件（md、mdc 等副檔名）
 - style: 格式調整 (Prettier 格式化)
 - refactor: 程式碼重構 (重構搜尋邏輯)
-- chore: 其他維護 (更新依賴套件)
+- chore: 設定檔案異動 (配置更新、依賴管理)
 
 範例:
 [feat] Add AI tool search with category filtering

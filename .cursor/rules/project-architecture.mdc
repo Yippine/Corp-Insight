@@ -1,5 +1,5 @@
 ---
-description: Business Magnifier 專案整體架構指南。查詢關於本專案技術棧(Next.js 14, PostgreSQL)、CSR 到 SSR/SSG 的重構策略、目錄結構、資料庫設計、Netlify 部署、SEO 配置，或特定開發規範時調用此規則。
+description: Business Magnifier 專案整體架構指南。查詢關於本專案技術棧(Next.js 14, MongoDB)、CSR 到 SSR/SSG 的重構策略、目錄結構、資料庫設計、Netlify 部署、SEO 配置，或特定開發規範時調用此規則。
 globs: 
 alwaysApply: false
 ---
