@@ -4,11 +4,12 @@
  */
 
 // 網站及各功能區塊基礎名稱
-export const SITE_TITLE = '企業放大鏡™';
+export const SITE_TITLE = '企業放大鏡™ × 企業洞察平台™';
 export const ENGLISH_TITLE = `Business Magnifier`;
 export const COMPANY_TITLE = `企業資訊查詢`;
 export const TENDER_TITLE = `標案資訊查詢`;
 export const AI_TOOL_TITLE = `AI 助理生產力`;
+export const ADMIN_TITLE = `開發管理平台`;
 export const FAQ_TITLE = `常見問題`;
 export const PRIVACY_TITLE = `資料來源聲明`;
 export const FEEDBACK_TITLE = `意見回饋`;
@@ -29,6 +30,10 @@ export const staticTitles = {
   // AI工具相關頁面
   aiToolSearch: `${AI_TOOL_TITLE} | ${SITE_TITLE}`, // 預設AI工具搜尋頁標題
   aiToolNotFound: `查無此 AI 助理 | ${AI_TOOL_TITLE} | ${SITE_TITLE}`, // AI工具詳情頁找不到對應工具
+
+  // 管理中心相關頁面
+  adminDashboard: `${ADMIN_TITLE} | ${SITE_TITLE}`, // 管理中心首頁
+  adminSitemapTest: `Sitemap | ${ADMIN_TITLE} | ${SITE_TITLE}`, // Sitemap 管理頁面
 
   // 其他頁面
   faq: `${FAQ_TITLE} | ${SITE_TITLE}`,
@@ -80,6 +85,12 @@ export const dynamicTitles = {
   // AI工具詳情
   aiToolDetail: (toolName: string) =>
     `${toolName} | ${AI_TOOL_TITLE} | ${SITE_TITLE}`,
+
+  // 管理中心動態標題
+  adminPageDetail: (pageName: string) =>
+    `${pageName} | ${ADMIN_TITLE} | ${SITE_TITLE}`,
+  adminToolDetail: (toolName: string, pageName?: string) =>
+    `${toolName}${pageName ? ` - ${pageName}` : ''} | ${ADMIN_TITLE} | ${SITE_TITLE}`,
 };
 
 // 為了向後兼容，提供一個生成標題的輔助函數

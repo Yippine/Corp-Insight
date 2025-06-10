@@ -1,5 +1,13 @@
+import { Metadata } from 'next';
 import HeroSection from '@/components/HeroSection';
 import SitemapManager from '@/components/SitemapManager';
+import { staticTitles } from '@/config/pageTitles';
+
+export const metadata: Metadata = {
+  title: staticTitles.adminSitemapTest,
+  description: '監控、測試和管理網站地圖配置，確保搜索引擎優化設定完美運作。',
+  robots: 'noindex, nofollow', // 管理頁面不需要被索引
+};
 
 export default function SitemapTestPage() {
   return (
@@ -17,9 +25,3 @@ export default function SitemapTestPage() {
     </div>
   );
 }
-
-export const metadata = {
-  title: 'Sitemap 管理中心 | Business Magnifier',
-  description: '監控、測試和管理網站地圖配置，確保搜索引擎優化設定完美運作。',
-  robots: 'noindex, nofollow', // 管理頁面不需要被索引
-};
