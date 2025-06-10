@@ -1,0 +1,409 @@
+---
+description: MongoDB 資料庫架構設計指南。當你需要查詢 MongoDB Collections 結構、資料模型定義、索引配置、資料庫連線設定，或進行資料庫相關開發時調用此規則。涵蓋企業資料、標案資料、AI工具等核心業務集合的完整設計規範。
+globs: 
+alwaysApply: false
+---
+# Business Magnifier MongoDB 架構設計指南
+
+## 🎯 專案概述
+
+Business Magnifier 是一個企業資料分析平台，使用 MongoDB 作為主要資料庫。本指南詳細說明專案中需要建置的所有 MongoDB Collections，包括其用途、資料結構和索引配置。
+
+## 📊 資料庫架構
+
+**資料庫名稱**: `business-magnifier`  
+**MongoDB 連線字串**: `mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin`
+
+## 🗂️ Collections 清單與詳細說明
+
+### 1. 核心業務資料 Collections
+
+#### 1.1 `companies` - 企業資料集合
+**用途**: 儲存台灣企業的基本資料、財務資訊、董監事資料等完整企業檔案
+
+**主要欄位結構**:
+```javascript
+{
+  _id: ObjectId,
+  taxId: String,           // 統一編號 (唯一識別)
+  name: String,            // 企業名稱
+  fullName: String,        // 企業全名
+  englishName: String,     // 英文名稱
+  status: String,          // 企業狀態 (核准設立/撤銷/廢止等)
+  chairman: String,        // 負責人
+  industry: String,        // 行業別
+  address: String,         // 地址
+  establishedDate: Date,   // 設立日期
+  
+  // 財務資訊
+  financial: {
+    totalCapital: String,
+    paidInCapital: String,
+    employees: String,
+    revenue: String
+  },
+  
+  // 聯絡資訊
+  contact: {
+    phone: String,
+    email: String,
+    website: String,
+    fax: String
+  },
+  
+  // 上市公司財報資訊
+  financialReport: { ... },
+  
+  // 董監事資訊
+  directors: [{ name, title, shares, representative }],
+  
+  // 經理人資訊
+  managers: [{ 序號, 姓名, 到職日期 }],
+  
+  // 營業項目
+  businessScope: [[String]],
+  
+  // 關聯標案數量
+  tenderCount: Number,
+  
+  // 搜尋關鍵字
+  searchKeywords: [String],
+  
+  // 時間戳
+  createdAt: Date,
+  updatedAt: Date,
+  lastUpdated: Date
+}
+```
+
+**索引配置**:
+- `taxId_unique`: 統一編號唯一索引
+- `text_search`: 企業名稱全文搜尋索引
+- `industry_1`: 行業別索引
+- `establishedDate_-1`: 設立日期降序索引
+
+#### 1.2 `tenders` - 政府標案資料集合
+**用途**: 儲存政府採購網的標案資料，用於 sitemap 生成和標案查詢
+
+**主要欄位結構**:
+```javascript
+{
+  _id: String,             // 標案唯一識別碼 (unit_id_job_number 格式)
+  unitId: String,          // 機關代碼
+  jobNumber: String,       // 標案編號
+  title: String,           // 標案標題
+  unitName: String,        // 機關名稱
+  status: String,          // 標案狀態 (active/open/published/closed)
+  tenderValue: Number,     // 標案金額
+  publishDate: Date,       // 發布日期
+  deadline: Date,          // 截止日期
+  
+  // 標案詳細資訊
+  detail: {
+    type: String,          // 標案類型
+    description: String,   // 標案說明
+    requirements: String,  // 需求規格
+    evaluation: String     // 評選方式
+  },
+  
+  // 相關企業
+  companies: [{
+    taxId: String,
+    name: String,
+    role: String           // 得標廠商/投標廠商
+  }],
+  
+  // 時間戳
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+**索引配置**:
+- `id_index`: 主鍵索引
+- `status_index`: 狀態索引
+- `tenderValue_-1`: 標案金額降序索引
+- `publishDate_-1`: 發布日期降序索引
+
+#### 1.3 `ai_tools` - AI 工具資料集合
+**用途**: 儲存 AI 工具和提示詞模板，支援工具分類和使用統計
+
+**主要欄位結構**:
+```javascript
+{
+  _id: ObjectId,
+  id: String,              // 工具唯一識別碼
+  name: String,            // 工具名稱
+  description: String,     // 工具描述
+  category: String,        // 分類 (提示詞/AI工具/SEO/健康等)
+  tags: [String],          // 標籤
+  
+  // 工具配置
+  config: {
+    icon: String,          // 圖示
+    placeholder: String,   // 輸入提示
+    instructions: {        // 使用說明
+      what: String,
+      why: String,
+      how: String
+    },
+    promptTemplate: {      // 提示詞模板
+      prefix: String,
+      suffix: String
+    },
+    renderConfig: {        // 渲染配置
+      componentId: String,
+      renderType: String,  // 'prompt' | 'component'
+      isAITool: Boolean
+    }
+  },
+  
+  // 使用統計
+  usage: {
+    totalUses: Number,
+    lastUsed: Date,
+    popularityScore: Number
+  },
+  
+  // 版本控制
+  version: String,
+  isActive: Boolean,
+  
+  // 時間戳
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+**索引配置**:
+- `id_unique`: 工具 ID 唯一索引
+- `category_active`: 分類和啟用狀態複合索引
+- `tags_1_isActive_1`: 標籤和啟用狀態複合索引
+
+### 2. API 快取 Collections
+
+#### 2.1 `pcc_api_cache` - 政府採購網 API 快取
+**用途**: 快取政府採購網 API 回應，減少外部 API 呼叫，提升效能
+
+**資料結構**:
+```javascript
+{
+  _id: ObjectId,
+  api_key: String,         // API 請求的唯一鍵值 (通常是完整 URL)
+  data: Mixed,             // 快取的 API 回應資料
+  fetched_at: Date,        // 資料擷取時間
+  expires_at: Date,        // 過期時間 (TTL: 24小時)
+}
+```
+
+**使用場景**:
+- 標案搜尋 API (`/api/searchbycompanyid`, `/api/searchbytitle`)
+- 標案詳細資料 API (`/api/tender`)
+- 企業標案查詢 API
+
+**索引配置**:
+- `api_key_unique`: API 鍵值唯一索引
+- `expires_at_ttl`: TTL 索引，自動清理過期資料
+
+### 3. 系統管理 Collections
+
+#### 3.1 `api_logs` - API 訪問日誌
+**用途**: 記錄 API 訪問紀錄，用於監控和分析
+
+**資料結構**:
+```javascript
+{
+  _id: ObjectId,
+  endpoint: String,        // API 端點
+  method: String,          // HTTP 方法
+  params: Object,          // 請求參數
+  response_time: Number,   // 回應時間 (ms)
+  status_code: Number,     // HTTP 狀態碼
+  ip_address: String,      // 客戶端 IP
+  user_agent: String,      // 使用者代理
+  timestamp: Date,         // 時間戳
+  error_message: String    // 錯誤訊息 (如有)
+}
+```
+
+#### 3.2 `search_analytics` - 搜尋分析資料
+**用途**: 記錄使用者搜尋行為，用於改善搜尋體驗和 SEO
+
+**資料結構**:
+```javascript
+{
+  _id: ObjectId,
+  search_type: String,     // 搜尋類型 (company/tender/aitool)
+  query: String,           // 搜尋關鍵字
+  filters: Object,         // 篩選條件
+  results_count: Number,   // 結果數量
+  click_through: Boolean,  // 是否點擊結果
+  session_id: String,      // 使用者 session
+  timestamp: Date,         // 搜尋時間
+  response_time: Number    // 搜尋回應時間
+}
+```
+
+## 🛠️ 資料庫連線與設定
+
+### 環境配置
+```javascript
+// .env.local
+MONGODB_URI=mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
+
+// 生產環境
+MONGODB_URI=mongodb://admin:password@mongodb.example.com:27017/business-magnifier?authSource=admin&ssl=true
+```
+
+### Mongoose 連線設定
+```javascript
+// lib/database/connection.ts
+import mongoose from 'mongoose';
+
+const MONGODB_URI = process.env.MONGODB_URI!;
+
+if (!MONGODB_URI) {
+  throw new Error('請在 .env.local 中定義 MONGODB_URI');
+}
+
+let cached = (global as any).mongoose;
+
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
+
+export async function connectToDatabase() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    };
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts);
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
+  return cached.conn;
+}
+```
+
+### 資料模型範例
+```javascript
+// lib/database/models/Company.ts
+import mongoose from 'mongoose';
+
+const CompanySchema = new mongoose.Schema({
+  taxId: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  fullName: String,
+  englishName: String,
+  status: String,
+  chairman: String,
+  industry: String,
+  address: String,
+  establishedDate: Date,
+  financial: {
+    totalCapital: String,
+    paidInCapital: String,
+    employees: String,
+    revenue: String
+  },
+  contact: {
+    phone: String,
+    email: String,
+    website: String,
+    fax: String
+  },
+  searchKeywords: [String],
+  tenderCount: { type: Number, default: 0 }
+}, {
+  timestamps: true,
+  collection: 'companies'
+});
+
+// 建立索引
+CompanySchema.index({ taxId: 1 }, { unique: true });
+CompanySchema.index({ name: 'text', fullName: 'text' });
+CompanySchema.index({ industry: 1 });
+CompanySchema.index({ establishedDate: -1 });
+
+export default mongoose.models.Company || mongoose.model('Company', CompanySchema);
+```
+
+## 🚀 資料庫管理腳本
+
+### 備份和還原
+```bash
+#!/bin/bash
+# scripts/backup-mongodb.sh
+
+# 建立備份目錄
+BACKUP_DIR="./db/backups/$(date +%Y%m%d_%H%M%S)"
+mkdir -p $BACKUP_DIR
+
+# 執行備份
+mongodump --uri="mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin" --out=$BACKUP_DIR
+
+echo "備份完成: $BACKUP_DIR"
+```
+
+### 資料初始化
+```javascript
+// scripts/init-collections.js
+const { MongoClient } = require('mongodb');
+
+async function initializeCollections() {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  
+  try {
+    await client.connect();
+    const db = client.db('business-magnifier');
+    
+    // 建立集合和索引
+    await db.collection('companies').createIndex({ taxId: 1 }, { unique: true });
+    await db.collection('companies').createIndex({ name: "text", fullName: "text" });
+    await db.collection('ai_tools').createIndex({ id: 1 }, { unique: true });
+    await db.collection('pcc_api_cache').createIndex({ expires_at: 1 }, { expireAfterSeconds: 0 });
+    
+    console.log('Collections 初始化完成');
+  } finally {
+    await client.close();
+  }
+}
+
+initializeCollections();
+```
+
+## 💡 專家心得
+
+### 設計原則
+1. **資料正規化**: 適度正規化，避免過度正規化影響查詢效能
+2. **索引策略**: 基於查詢模式建立索引，避免建立過多索引
+3. **TTL 管理**: 使用 TTL 索引自動清理過期的快取資料
+4. **備份策略**: 定期備份重要資料，測試還原流程
+
+### 效能優化建議
+1. **查詢優化**: 使用 `explain()` 分析查詢計畫
+2. **分頁處理**: 大量資料使用遊標分頁而非 skip/limit
+3. **聚合管道**: 複雜查詢使用聚合框架
+4. **連線池**: 適當設定連線池大小
+
+### 安全性考量
+1. **認證機制**: 啟用 MongoDB 認證
+2. **網路安全**: 限制網路存取，使用 SSL/TLS
+3. **權限控制**: 實施最小權限原則
+
+
+4. **資料加密**: 敏感資料進行加密儲存

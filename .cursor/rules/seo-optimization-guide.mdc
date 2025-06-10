@@ -537,7 +537,306 @@ export default function CompanyLogo({ company }) {
     - 建立性能監測系統
     - SEO指標跟踪
 
-## 七、Google Search Console使用與監控
+## 七、Sitemap 分層架構設計與管理
+
+### 🗺️ Sitemap 階層架構圖
+
+```
+Business Magnifier SEO 架構
+│
+├── 🤖 robots.txt (搜尋引擎爬蟲指令)
+│
+└── 🗂️ sitemap-index.xml (主索引 - 管理所有子 sitemap)
+    │
+    ├── 📄 sitemap.xml (靜態頁面 + 動態熱門內容)
+    │   ├── 首頁 (priority: 1.0)
+    │   ├── 搜尋頁面 (priority: 0.9)
+    │   ├── 靜態功能頁面 (priority: 0.6-0.8)
+    │   ├── 熱門企業頁面 (1,000個, priority: 0.8)
+    │   ├── 重要標案頁面 (500個, priority: 0.7)
+    │   └── 熱門 AI 工具 (100個, priority: 0.6)
+    │
+    ├── 🏢 sitemap-companies.xml (企業專屬)
+    │   └── 企業詳情頁面 (50,000個, priority: 0.8)
+    │
+    ├── 📋 sitemap-tenders.xml (標案專屬)
+    │   └── 標案詳情頁面 (25,000個, priority: 0.7)
+    │
+    └── 🤖 sitemap-aitools.xml (AI工具專屬)
+        └── AI工具詳情頁面 (5,000個, priority: 0.6)
+```
+
+### 🗂️ 各 Sitemap 檔案詳細配置
+
+#### 1. 🤖 `robots.txt` - 搜尋引擎爬蟲指令
+**檔案路徑**: `/robots.txt`  
+**更新頻率**: 手動更新  
+**快取時間**: 1小時
+
+```
+# robots.txt 配置範例
+User-agent: *
+
+# 允許路徑
+Allow: /
+Allow: /company/
+Allow: /tender/
+Allow: /aitool/
+Allow: /faq
+Allow: /privacy
+Allow: /feedback
+
+# 禁止路徑
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /.well-known/
+
+# Sitemap 指向
+Sitemap: https://yourdomain.com/sitemap-index.xml
+Sitemap: https://yourdomain.com/sitemap.xml
+```
+
+#### 2. 🗂️ `sitemap-index.xml` - 主索引檔案
+**檔案路徑**: `/sitemap-index.xml`  
+**更新頻率**: 每日更新  
+**快取時間**: 1小時
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://yourdomain.com/sitemap.xml</loc>
+    <lastmod>2024-01-15T10:00:00Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://yourdomain.com/sitemap-companies.xml</loc>
+    <lastmod>2024-01-15T10:00:00Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://yourdomain.com/sitemap-tenders.xml</loc>
+    <lastmod>2024-01-15T10:00:00Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://yourdomain.com/sitemap-aitools.xml</loc>
+    <lastmod>2024-01-15T10:00:00Z</lastmod>
+  </sitemap>
+</sitemapindex>
+```
+
+#### 3. 📄 `sitemap.xml` - 主要內容 Sitemap
+**內容包含**:
+
+**靜態功能頁面** (9個):
+| 頁面 | URL | 優先級 | 更新頻率 | 用途 |
+|------|-----|--------|----------|------|
+| 首頁 | `/` | 1.0 | 每日 | 網站入口，最高優先級 |
+| 企業搜尋 | `/company/search` | 0.9 | 每小時 | 企業搜尋功能頁 |
+| 標案搜尋 | `/tender/search` | 0.9 | 每小時 | 標案搜尋功能頁 |
+| AI工具首頁 | `/aitool` | 0.8 | 每日 | AI工具展示頁 |
+| AI工具搜尋 | `/aitool/search` | 0.8 | 每日 | AI工具搜尋頁 |
+| 常見問題 | `/faq` | 0.7 | 每月 | 使用者支援 |
+| 隱私政策 | `/privacy` | 0.7 | 每月 | 法律合規 |
+| 意見回饋 | `/feedback` | 0.6 | 每月 | 用戶回饋收集 |
+| 回饋成功頁 | `/feedback/success` | 0.3 | 每年 | 確認頁面 |
+
+**動態熱門內容**:
+- **熱門企業頁面** (最多1,000個): 基於搜尋頻率排序
+- **重要標案頁面** (最多500個): 基於標案金額排序  
+- **熱門AI工具頁面** (最多100個): 基於使用次數排序
+
+#### 4. Next.js API 路由實現
+
+```typescript
+// /app/sitemap.xml/route.ts
+import { NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/database/connection';
+import Company from '@/lib/database/models/Company';
+import Tender from '@/lib/database/models/Tender';
+import AITool from '@/lib/database/models/AITool';
+
+export async function GET() {
+  try {
+    await connectToDatabase();
+
+    // 靜態頁面
+    const staticPages = [
+      { url: '/', priority: 1.0, changefreq: 'daily' },
+      { url: '/company/search', priority: 0.9, changefreq: 'hourly' },
+      { url: '/tender/search', priority: 0.9, changefreq: 'hourly' },
+      { url: '/aitool', priority: 0.8, changefreq: 'daily' },
+      { url: '/aitool/search', priority: 0.8, changefreq: 'daily' },
+      { url: '/faq', priority: 0.7, changefreq: 'monthly' },
+      { url: '/privacy', priority: 0.7, changefreq: 'monthly' },
+      { url: '/feedback', priority: 0.6, changefreq: 'monthly' },
+      { url: '/feedback/success', priority: 0.3, changefreq: 'yearly' }
+    ];
+
+    // 熱門企業頁面 (1000個)
+    const popularCompanies = await Company.find({ isActive: true })
+      .sort({ searchCount: -1 })
+      .limit(1000)
+      .select('taxId updatedAt');
+
+    // 重要標案頁面 (500個)
+    const importantTenders = await Tender.find({ 
+      status: { $in: ['active', 'open', 'published'] }
+    })
+      .sort({ tenderValue: -1 })
+      .limit(500)
+      .select('_id updatedAt');
+
+    // 熱門AI工具 (100個)
+    const popularAITools = await AITool.find({ isActive: true })
+      .sort({ 'usage.totalUses': -1 })
+      .limit(100)
+      .select('id updatedAt');
+
+    // 生成 XML
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com';
+    const now = new Date().toISOString();
+
+    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+
+    // 靜態頁面
+    staticPages.forEach(page => {
+      sitemap += `
+  <url>
+    <loc>${baseUrl}${page.url}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>`;
+    });
+
+    // 熱門企業
+    popularCompanies.forEach(company => {
+      sitemap += `
+  <url>
+    <loc>${baseUrl}/company/detail/${company.taxId}</loc>
+    <lastmod>${company.updatedAt.toISOString()}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+    });
+
+    // 重要標案
+    importantTenders.forEach(tender => {
+      sitemap += `
+  <url>
+    <loc>${baseUrl}/tender/detail/${tender._id}</loc>
+    <lastmod>${tender.updatedAt.toISOString()}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+    });
+
+    // 熱門AI工具
+    popularAITools.forEach(tool => {
+      sitemap += `
+  <url>
+    <loc>${baseUrl}/aitool/detail/${tool.id}</loc>
+    <lastmod>${tool.updatedAt.toISOString()}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+    });
+
+    sitemap += '\n</urlset>';
+
+    return new NextResponse(sitemap, {
+      headers: {
+        'Content-Type': 'application/xml',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600'
+      }
+    });
+
+  } catch (error) {
+    console.error('Sitemap 生成失敗:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
+}
+```
+
+### 🚀 Sitemap 管理系統
+
+#### Web 管理介面
+```typescript
+// /app/admin/sitemap/page.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+
+interface SitemapStats {
+  totalUrls: number;
+  lastGenerated: string;
+  companies: number;
+  tenders: number;
+  aitools: number;
+}
+
+export default function SitemapManagement() {
+  const [stats, setStats] = useState<SitemapStats | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const regenerateSitemap = async (type: string) => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch(`/api/admin/sitemap/regenerate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type })
+      });
+      
+      if (response.ok) {
+        // 重新載入統計數據
+        loadStats();
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="sitemap-management">
+      <h1>Sitemap 管理中心</h1>
+      
+      {stats && (
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>總 URL 數量</h3>
+            <p>{stats.totalUrls.toLocaleString()}</p>
+          </div>
+          <div className="stat-card">
+            <h3>企業頁面</h3>
+            <p>{stats.companies.toLocaleString()}</p>
+          </div>
+          <div className="stat-card">
+            <h3>標案頁面</h3>
+            <p>{stats.tenders.toLocaleString()}</p>
+          </div>
+          <div className="stat-card">
+            <h3>AI工具頁面</h3>
+            <p>{stats.aitools.toLocaleString()}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="action-buttons">
+        <button 
+          onClick={() => regenerateSitemap('all')}
+          disabled={isGenerating}
+        >
+          {isGenerating ? '生成中...' : '重新生成所有 Sitemap'}
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+## 八、Google Search Console使用與監控
 
 ### 初期設置與驗證
 
@@ -550,8 +849,9 @@ export default function CompanyLogo({ company }) {
     ```
     
 2. **提交網站地圖**
-    - 在Search Console提交`sitemap.xml`
-    - 監控網站地圖索引狀態
+    - 在Search Console提交`sitemap-index.xml`
+    - 監控各子網站地圖索引狀態
+    - 設置自動重新提交機制
 
 ### 持續監測與優化
 
