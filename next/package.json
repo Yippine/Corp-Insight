@@ -41,6 +41,8 @@
     "// === 資料庫相關指令 ===": "",
     "db:connect": "mongosh mongodb://localhost:27017/business-magnifier",
     "db:connect-docker": "mongosh mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin",
+    "db:init": "node scripts/init-mongodb-collections.js",
+    "db:setup": "bash scripts/start-mongodb.sh",
     "// === MongoDB AI Tools 備份與還原 ===": "",
     "db:backup": "sh ./scripts/backup-ai-tools.sh",
     "db:restore": "node scripts/restore-ai-tools.js",
