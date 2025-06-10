@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import PrivacyContent from './PrivacyContent';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: '資料來源聲明 - Business Magnifier',
   description: 'Business Magnifier 資料來源聲明，包含台灣公司資料、政府電子採購網、標案瀏覽等公開資訊來源說明。',

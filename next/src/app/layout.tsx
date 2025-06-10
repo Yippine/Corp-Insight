@@ -31,9 +31,6 @@ export const viewport: Viewport = {
   themeColor: '#ffffff',
 };
 
-// 禁用全局佈局的動態渲染，加速初始載入
-export const dynamic = 'force-static';
-
 export default function RootLayout({
   children,
 }: {

@@ -152,17 +152,16 @@ export default async function CompanySearchPage({
         {/* 靜態內容永遠快速顯示 */}
         <StaticHero />
 
-        {/* 搜索表單 */}
-        <CompanySearchForm
-          initialQuery={decodedQuery}
-          disableAutoRedirect={disableAutoRedirect}
-          isSingleResult={isSingleResult}
-        />
-
-        {/* 搜索結果 */}
+        {/* 搜索表單和結果 */}
         <Suspense fallback={<InlineLoading />}>
-          {renderSearchResults()}
+          <CompanySearchForm
+            initialQuery={decodedQuery}
+            disableAutoRedirect={disableAutoRedirect}
+            isSingleResult={isSingleResult}
+          />
         </Suspense>
+        
+        {renderSearchResults()}
 
         {/* 未搜索時顯示功能介紹 */}
         {!decodedQuery && <FeatureSection />}

@@ -56,12 +56,13 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      args:
+        - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
     container_name: app-prod
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
       - NODE_ENV=production
       - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY:-}
       - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}

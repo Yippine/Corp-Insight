@@ -9,18 +9,24 @@ WORKDIR /app
 
 # 安裝依賴階段
 FROM base AS deps
+WORKDIR /app
 # 複製 package 檔案
 COPY package.json package-lock.json* ./
 # 安裝依賴 (使用 npm ci 確保一致性)
+# 只有當 package.json 或 package-lock.json 變更時，Docker 才會重新執行此步驟
 RUN npm ci
 
 # 建置階段
 FROM base AS builder
 WORKDIR /app
-# 複製依賴
+# 從依賴階段複製 node_modules
 COPY --from=deps /app/node_modules ./node_modules
 # 複製原始碼
 COPY . .
+
+# 接收建置時傳入的環境變數
+ARG MONGODB_URI
+ENV MONGODB_URI=$MONGODB_URI
 
 # 設定建置環境變數
 ENV NEXT_TELEMETRY_DISABLED 1

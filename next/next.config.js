@@ -36,6 +36,7 @@ const nextConfig = {
     ];
   },
   experimental: {
+    missingSuspenseWithCSRBailout: false, // 繞過 useSearchParams 的建置錯誤
     optimizeCss: process.env.NODE_ENV === 'production', // 只在生產環境優化 CSS
     scrollRestoration: true, // 允許頁面滾動位置保存
     optimisticClientCache: true, // 啟用樂觀客戶端緩存
@@ -45,7 +46,6 @@ const nextConfig = {
     },
     forceSwcTransforms: true, // 強制使用SWC轉換
     swcPlugins: [], // 支持SWC插件
-    appDir: true,
   },
   // 添加 CORS 配置
   async headers() {
@@ -104,62 +104,14 @@ const nextConfig = {
     GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
   },
   webpack: (config, { isServer }) => {
-    // 處理伺服器端 MongoDB 相關模組
-    if (isServer) {
-      config.externals.push({
-        'utf-8-validate': 'commonjs utf-8-validate',
-        bufferutil: 'commonjs bufferutil',
-        mongodb: 'commonjs mongodb',
-        mongoose: 'commonjs mongoose',
-      });
-    } else {
-      // 客戶端 fallback 配置 - 解決 MongoDB 驅動程式的 Node.js 模組問題
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        dns: false,
-        tls: false,
-        crypto: false,
-        stream: false,
-        url: false,
-        zlib: false,
-        http: false,
-        https: false,
-        assert: false,
-        os: false,
-        path: false,
-        querystring: false,
-        util: false,
-        buffer: false,
-        events: false,
-        child_process: false,
-        cluster: false,
-        dgram: false,
-        module: false,
-        perf_hooks: false,
-        readline: false,
-        repl: false,
-        worker_threads: false,
-        inspector: false,
-        'mongodb-client-encryption': false,
-      };
-
-      // 忽略 MongoDB 相關模組在客戶端的載入
-      config.externals = config.externals || [];
+    // 讓 webpack 忽略這些只在伺服器端使用的模組
+    if (!isServer) {
       config.externals.push({
         mongodb: 'mongodb',
         mongoose: 'mongoose',
-        'mongodb-client-encryption': 'mongodb-client-encryption',
+        'utf-8-validate': 'utf-8-validate',
+        bufferutil: 'bufferutil',
       });
-
-      // 添加 IgnorePlugin 來忽略特定模組
-      const webpack = require('webpack');
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^(mongodb|mongoose|mongodb-client-encryption)$/,
-        })
-      );
     }
 
     return config;

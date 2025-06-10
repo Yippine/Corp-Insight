@@ -176,49 +176,66 @@ export async function fetchCompanyDetail(
 }
 
 async function fetchListedCompany(taxId: string) {
-  // URL 構造與原邏輯保持一致，代理 API 路徑
-  let internalApiUrl: string;
-  if (typeof window === 'undefined') {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-    internalApiUrl = `${baseUrl}/api/company/twincn?no=${taxId}`;
-  } else {
-    internalApiUrl = `/api/company/twincn?no=${taxId}`;
-  }
-  const apiKey = `twincn_${taxId}`; // 快取鍵使用統編，因為代理 API 的 URL 可能因環境而異
-
-  const cachedData = await getCachedApiData<string>(
-    TWINCN_API_CACHE_COLLECTION,
-    apiKey
-  );
-  if (cachedData) {
-    return parseTwcnHtml(cachedData); // 解析快取的 HTML
-  }
-
   try {
-    const response = await fetch(internalApiUrl, {
-      // next: { revalidate: 86400 } // 由 MongoDB 快取取代
-    });
-
-    if (!response.ok) {
-      console.error(`上市公司資料請求失敗，狀態碼：${response.status}`);
-      return { data: {} }; // 維持原有錯誤處理返回結構
-    }
-
-    const html = await response.text();
-    if (html) {
-      await setCachedApiData(
-        TWINCN_API_CACHE_COLLECTION,
-        apiKey,
-        html,
-        CACHE_TTL_SECONDS
-      );
-    }
+    const html = await fetchTwincnHtml(taxId);
     return parseTwcnHtml(html);
   } catch (error) {
     console.error('獲取上市公司資料失敗：', error);
-    return { data: {} }; // 維持原有錯誤處理返回結構
+    // 維持原有錯誤處理返回結構，以確保即使此部分失敗，基本資料仍可顯示
+    return { data: {} };
   }
+}
+
+/**
+ * 從 twincn 獲取公司 HTML 資料的核心邏輯
+ * @param taxId 公司統一編號
+ * @returns 包含公司資訊的 HTML 字串
+ */
+export async function fetchTwincnHtml(taxId: string): Promise<string> {
+  const apiKey = `twincn_${taxId}`; // 使用 taxId 構造唯一的快取鍵
+
+  // 1. 嘗試從 MongoDB 快取獲取 HTML 資料
+  const cachedHtml = await getCachedApiData<string>(
+    TWINCN_API_CACHE_COLLECTION,
+    apiKey
+  );
+  if (cachedHtml) {
+    return cachedHtml;
+  }
+
+  // 2. 若快取未命中，則向台灣企業網發送請求
+  const externalApiUrl = `https://p.twincn.com/item.aspx?no=${taxId}`;
+  const response = await fetch(externalApiUrl, {
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      Accept:
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+      Referer: 'https://p.twincn.com/',
+      Origin: 'https://p.twincn.com',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `台灣企業網請求失敗：${response.status} ${response.statusText}`
+    );
+  }
+
+  const html = await response.text();
+
+  // 3. 將獲取的 HTML 存入 MongoDB 快取
+  if (html) {
+    await setCachedApiData(
+      TWINCN_API_CACHE_COLLECTION,
+      apiKey,
+      html,
+      CACHE_TTL_SECONDS
+    );
+  }
+
+  return html;
 }
 
 export async function fetchTenderInfo(

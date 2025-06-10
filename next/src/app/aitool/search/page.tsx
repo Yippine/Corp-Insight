@@ -10,6 +10,8 @@ import AiToolSearch from '@/components/aitool/AiToolSearch';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { hasToolSearchResults } from '@/lib/aitool/apiHelpers';
 
+export const dynamic = 'force-dynamic';
+
 interface AiToolSearchPageProps {
   searchParams?: {
     q?: string;

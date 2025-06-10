@@ -13,6 +13,8 @@ import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
 import { cache } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 interface TenderSearchPageProps {
   searchParams?: SearchParams;
 }

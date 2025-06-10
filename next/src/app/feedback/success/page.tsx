@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 const REDIRECT_DELAY_SECONDS = 10;
 
 export default function FeedbackSuccessPage() {
