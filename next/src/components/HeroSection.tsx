@@ -5,6 +5,7 @@ interface HeroSectionProps {
   highlightText?: string;
   description: string;
   highlightColor?: string;
+  customPadding?: string;
 }
 
 export default function HeroSection({
@@ -12,10 +13,11 @@ export default function HeroSection({
   highlightText,
   description,
   highlightColor = 'text-blue-600',
+  customPadding = 'py-12',
 }: HeroSectionProps) {
   return (
     <div className="space-y-8">
-      <div className="space-y-4 py-12 text-center">
+      <div className={`space-y-4 ${customPadding} text-center`}>
         <h1 className="text-5xl font-extrabold text-gray-900 sm:text-6xl sm:tracking-tight lg:text-6xl">
           {title}
           {highlightText && (

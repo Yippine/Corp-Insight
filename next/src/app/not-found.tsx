@@ -7,7 +7,7 @@ import HeroSection from '@/components/HeroSection';
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-full flex-col items-center justify-center gap-4 py-24 text-center">
+    <div className="flex min-h-full flex-col items-center justify-center gap-4 pt-24 text-center">
       <motion.div
         initial={{ opacity: 0, y: -50, scale: 0.8 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -22,7 +22,7 @@ export default function NotFound() {
           aria-hidden="true"
           className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 blur-3xl"
         ></div>
-        <h1 className="relative bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-[200px] font-extrabold tracking-tighter text-transparent">
+        <h1 className="relative bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-[7rem] font-extrabold tracking-tighter text-transparent leading-none">
           404
         </h1>
       </motion.div>
@@ -38,6 +38,7 @@ export default function NotFound() {
           highlightText="頁面迷路了"
           description="您想找的頁面似乎不在這裡，別擔心，讓我們帶您回到正軌。"
           highlightColor="text-indigo-600"
+          customPadding="py-4"
         />
       </motion.div>
 
