@@ -31,6 +31,7 @@
     "docker:prod:rebuild": "docker-compose --profile prod down && docker-compose --profile prod build --no-cache && docker-compose --profile prod up -d",
     "docker:force-stop": "docker-compose down --remove-orphans && docker stop app-dev app-prod mongo mongo-express 2>nul || echo \"Containers stopped\"",
     "docker:cleanup": "docker container prune -f && docker network prune -f",
+    "docker:purge": "docker-compose down -v --remove-orphans && docker system prune -a -f",
     "docker:logs": "docker-compose logs -f",
     "docker:ps": "docker-compose ps",
     "docker:restart": "docker-compose restart",
