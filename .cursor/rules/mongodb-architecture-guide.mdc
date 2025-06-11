@@ -1,587 +1,145 @@
 ---
-description: MongoDB 資料庫架構設計指南。當你需要查詢 MongoDB Collections 結構、資料模型定義、索引配置、資料庫連線設定，或進行資料庫相關開發時調用此規則。涵蓋企業資料、標案資料、AI工具等核心業務集合的完整設計規範。
+description: MongoDB 開發與管理指南。當你需要了解本專案的 MongoDB 開發流程、初始化腳本 (`db:init`) 的使用、新增 Collection 的標準作業程序 (SOP)、或進行資料庫故障排除時調用此規則。此指南以 `scripts/init-mongodb-collections.js` 為唯一真實來源，專注於開發規範而非靜態的結構細節。
 globs: 
 alwaysApply: false
 ---
-# Business Magnifier MongoDB 完整架構與管理指南
+# Business Magnifier MongoDB 架構與開發指南
 
-## 🎯 專案概述
+## 🎯 核心理念
 
-Business Magnifier 是一個企業資料分析平台，使用 MongoDB 作為主要資料庫。本指南涵蓋完整的 MongoDB 架構設計、管理操作、故障排除等所有相關知識。
+本指南旨在提供一個清晰、高效的 MongoDB 開發與管理框架。我們將 **`scripts/init-mongodb-collections.js`** 檔案作為資料庫結構的 **唯一真實來源 (Single Source of Truth)**。
 
-## 📊 資料庫架構
-
-**資料庫名稱**: `business-magnifier`  
-**MongoDB 連線字串**: `mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin`
-
-## 🗂️ 完整 Collections 清單（9個）
-
-### 1. 核心業務資料 Collections
-
-#### 1.1 `companies` - 企業資料集合
-**用途**: 儲存台灣企業的基本資料、財務資訊、董監事資料等完整企業檔案
-
-**主要欄位結構**:
-```javascript
-{
-  _id: ObjectId,
-  taxId: String,           // 統一編號 (唯一識別)
-  name: String,            // 企業名稱
-  fullName: String,        // 企業全名
-  englishName: String,     // 英文名稱
-  status: String,          // 企業狀態 (核准設立/撤銷/廢止等)
-  chairman: String,        // 負責人
-  industry: String,        // 行業別
-  address: String,         // 地址
-  establishedDate: Date,   // 設立日期
-  
-  // 財務資訊
-  financial: {
-    totalCapital: String,
-    paidInCapital: String,
-    employees: String,
-    revenue: String
-  },
-  
-  // 聯絡資訊
-  contact: {
-    phone: String,
-    email: String,
-    website: String,
-    fax: String
-  },
-  
-  // 上市公司財報資訊
-  financialReport: Object,
-  
-  // 董監事資訊
-  directors: [{ name: String, title: String, shares: String, representative: String }],
-  
-  // 經理人資訊
-  managers: [{ 序號: String, 姓名: String, 到職日期: Date }],
-  
-  // 營業項目
-  businessScope: [[String]],
-  
-  // 關聯標案數量
-  tenderCount: Number,
-  
-  // 搜尋關鍵字
-  searchKeywords: [String],
-  
-  // Sitemap 相關
-  sitemapIndexed: Boolean,
-  sitemapUrl: String,
-  
-  // 時間戳
-  createdAt: Date,
-  updatedAt: Date,
-  lastUpdated: Date
-}
-```
-
-**索引配置**:
-- `{ taxId: 1 }` - 統一編號唯一索引 (unique: true)
-- `{ name: "text", fullName: "text" }` - 企業名稱全文搜尋索引
-- `{ industry: 1 }` - 行業別索引
-- `{ establishedDate: -1 }` - 設立日期降序索引
-- `{ searchKeywords: 1 }` - 搜尋關鍵字索引
-- `{ tenderCount: -1 }` - 標案數量降序索引
-
-#### 1.2 `tenders` - 政府標案資料集合
-**用途**: 儲存政府採購網的標案資料，用於 sitemap 生成和標案查詢
-
-**主要欄位結構**:
-```javascript
-{
-  _id: String,             // 標案唯一識別碼 (unit_id_job_number 格式)
-  unitId: String,          // 機關代碼
-  jobNumber: String,       // 標案編號
-  title: String,           // 標案標題
-  unitName: String,        // 機關名稱
-  status: String,          // 標案狀態 (active/open/published/closed)
-  tenderValue: Number,     // 標案金額
-  publishDate: Date,       // 發布日期
-  deadline: Date,          // 截止日期
-  
-  // 標案詳細資訊
-  detail: {
-    type: String,          // 標案類型
-    description: String,   // 標案說明
-    requirements: String,  // 需求規格
-    evaluation: String     // 評選方式
-  },
-  
-  // 相關企業
-  companies: [{
-    taxId: String,
-    name: String,
-    role: String           // 得標廠商/投標廠商
-  }],
-  
-  // Sitemap 相關
-  sitemapIndexed: Boolean,
-  sitemapUrl: String,
-  
-  // 時間戳
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-**索引配置**:
-- `{ _id: 1 }` - 主鍵索引
-- `{ status: 1 }` - 狀態索引
-- `{ tenderValue: -1 }` - 標案金額降序索引
-- `{ publishDate: -1 }` - 發布日期降序索引
-- `{ unitId: 1 }` - 機關代碼索引
-- `{ jobNumber: 1 }` - 標案編號索引
-- `{ title: "text" }` - 標案標題全文搜尋索引
-
-#### 1.3 `ai_tools` - AI 工具資料集合
-**用途**: 儲存 AI 工具和提示詞模板，支援工具分類和使用統計
-
-**主要欄位結構**:
-```javascript
-{
-  _id: ObjectId,
-  id: String,              // 工具唯一識別碼
-  name: String,            // 工具名稱
-  description: String,     // 工具描述
-  category: String,        // 分類 (提示詞/AI工具/SEO/健康等)
-  tags: [String],          // 標籤
-  
-  // 工具配置
-  config: {
-    icon: String,          // 圖示
-    placeholder: String,   // 輸入提示
-    instructions: {        // 使用說明
-      what: String,
-      why: String,
-      how: String
-    },
-    promptTemplate: {      // 提示詞模板
-      prefix: String,
-      suffix: String
-    },
-    renderConfig: {        // 渲染配置
-      componentId: String,
-      renderType: String,  // 'prompt' | 'component'
-      isAITool: Boolean
-    }
-  },
-  
-  // 使用統計
-  usage: {
-    totalUses: Number,
-    lastUsed: Date,
-    popularityScore: Number
-  },
-  
-  // 版本控制
-  version: String,
-  isActive: Boolean,
-  
-  // 時間戳
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-**索引配置**:
-- `{ id: 1 }` - 工具 ID 唯一索引 (unique: true)
-- `{ category: 1, isActive: 1 }` - 分類和啟用狀態複合索引
-- `{ tags: 1, isActive: 1 }` - 標籤和啟用狀態複合索引
-- `{ "usage.popularityScore": -1 }` - 使用熱度排序索引
-- `{ name: "text", description: "text" }` - 工具名稱和描述全文搜尋索引
-
-### 2. API 快取 Collections
-
-#### 2.1 `pcc_api_cache` - 政府採購網 API 快取
-**用途**: 快取政府採購網 API 回應，減少外部 API 呼叫，提升效能
-
-**資料結構**:
-```javascript
-{
-  _id: ObjectId,
-  api_key: String,         // API 請求的唯一鍵值 (通常是完整 URL)
-  data: Mixed,             // 快取的 API 回應資料
-  fetched_at: Date,        // 資料擷取時間
-  expires_at: Date,        // 過期時間 (TTL: 24小時)
-  request_count: Number,   // 請求次數統計
-  last_access: Date        // 最後存取時間
-}
-```
-
-**索引配置**:
-- `{ api_key: 1 }` - API 鍵值唯一索引 (unique: true)
-- `{ expires_at: 1 }` - TTL 索引，自動清理過期資料 (expireAfterSeconds: 0)
-- `{ fetched_at: -1 }` - 資料擷取時間降序索引
-
-#### 2.2 `g0v_company_api_cache` - G0V 企業資料 API 快取
-**用途**: 快取 G0V 企業資料 API 回應，用於標案相關企業資訊
-
-**資料結構**:
-```javascript
-{
-  _id: ObjectId,
-  api_key: String,         // API 請求的唯一鍵值
-  company_id: String,      // 企業識別碼
-  data: Mixed,             // 快取的企業資料
-  fetched_at: Date,        // 資料擷取時間
-  expires_at: Date,        // 過期時間 (TTL: 48小時)
-  data_source: String,     // 資料來源標識
-  last_access: Date        // 最後存取時間
-}
-```
-
-**索引配置**:
-- `{ api_key: 1 }` - API 鍵值唯一索引 (unique: true)
-- `{ company_id: 1 }` - 企業識別碼索引
-- `{ expires_at: 1 }` - TTL 索引 (expireAfterSeconds: 0)
-- `{ fetched_at: -1 }` - 擷取時間降序索引
-
-#### 2.3 `twincn_api_cache` - 台灣企業網 API 快取
-**用途**: 快取台灣企業網股務資訊 API 回應
-
-**資料結構**:
-```javascript
-{
-  _id: ObjectId,
-  api_key: String,         // API 請求的唯一鍵值
-  company_taxid: String,   // 企業統一編號
-  data: Mixed,             // 快取的股務資訊
-  fetched_at: Date,        // 資料擷取時間
-  expires_at: Date,        // 過期時間 (TTL: 72小時)
-  data_type: String,       // 資料類型 (stock_info/financial_report)
-  last_access: Date        // 最後存取時間
-}
-```
-
-**索引配置**:
-- `{ api_key: 1 }` - API 鍵值唯一索引 (unique: true)
-- `{ company_taxid: 1 }` - 企業統一編號索引
-- `{ expires_at: 1 }` - TTL 索引 (expireAfterSeconds: 0)
-- `{ data_type: 1 }` - 資料類型索引
-
-### 3. 系統日誌 Collections
-
-#### 3.1 `email_verification_log` - Email 驗證日誌
-**用途**: 記錄 Email 驗證碼發送和驗證過程
-
-**資料結構**:
-```javascript
-{
-  _id: ObjectId,
-  email: String,           // 收件人 Email
-  verification_code: String, // 驗證碼
-  purpose: String,         // 驗證目的 (signup/reset_password/change_email)
-  status: String,          // 狀態 (sent/verified/expired/failed)
-  attempts: Number,        // 嘗試次數
-  ip_address: String,      // 請求來源 IP
-  user_agent: String,      // 使用者代理
-  sent_at: Date,           // 發送時間
-  verified_at: Date,       // 驗證時間
-  expires_at: Date,        // 過期時間 (TTL: 30分鐘)
-  created_at: Date,        // 建立時間
-  updated_at: Date         // 更新時間
-}
-```
-
-**索引配置**:
-- `{ email: 1, verification_code: 1 }` - Email 和驗證碼複合索引
-- `{ expires_at: 1 }` - TTL 索引 (expireAfterSeconds: 0)
-- `{ status: 1 }` - 狀態索引
-- `{ created_at: -1 }` - 建立時間降序索引
-
-#### 3.2 `feedback_submissions_log` - 意見回饋提交日誌
-**用途**: 記錄使用者意見回饋提交紀錄
-
-**資料結構**:
-```javascript
-{
-  _id: ObjectId,
-  user_id: String,         // 使用者 ID (可選)
-  email: String,           // 聯絡 Email
-  name: String,            // 使用者姓名
-  subject: String,         // 主題
-  message: String,         // 意見內容
-  category: String,        // 分類 (bug/feature/general/complaint)
-  priority: String,        // 優先級 (low/medium/high/urgent)
-  status: String,          // 狀態 (new/in_progress/resolved/closed)
-  tags: [String],          // 標籤
-  attachments: [{          // 附件
-    filename: String,
-    url: String,
-    size: Number
-  }],
-  ip_address: String,      // 提交來源 IP
-  user_agent: String,      // 使用者代理
-  response: {              // 回覆資訊
-    admin_id: String,
-    response_message: String,
-    response_at: Date
-  },
-  created_at: Date,        // 提交時間
-  updated_at: Date         // 更新時間
-}
-```
-
-**索引配置**:
-- `{ status: 1 }` - 狀態索引
-- `{ category: 1 }` - 分類索引
-- `{ priority: 1 }` - 優先級索引
-- `{ email: 1 }` - Email 索引
-- `{ created_at: -1 }` - 提交時間降序索引
-- `{ tags: 1 }` - 標籤索引
-
-## 🛠️ 資料庫連線與設定
-
-### 環境配置
-```javascript
-// .env.local
-MONGODB_URI=mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
-
-// 生產環境
-MONGODB_URI=mongodb://admin:password@mongodb.example.com:27017/business-magnifier?authSource=admin&ssl=true
-```
-
-### 連線設定 (Connection.ts)
-```javascript
-import mongoose from 'mongoose';
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin';
-
-const connection = { isConnected: 0 };
-
-export async function connectToDatabase() {
-  if (connection.isConnected) {
-    return mongoose;
-  }
-
-  try {
-    const db = await mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 10000,
-      family: 4,
-      retryWrites: true,
-      w: 'majority',
-    });
-
-    connection.isConnected = db.connections[0].readyState;
-    console.log('✅ MongoDB 連線成功');
-    return db;
-  } catch (error) {
-    console.error('❌ MongoDB 連線失敗:', error);
-    throw error;
-  }
-}
-```
-
-## 🚀 MongoDB Collections 初始化與管理
-
-### 快速重建指令
-
-**一鍵重建所有 Collections：**
-```bash
-# 在 next 目錄下執行
-npm run db:setup
-```
-
-**僅初始化 Collections（不重啟容器）：**
-```bash
-npm run db:init
-```
-
-**分步執行：**
-```bash
-# 1. 啟動 MongoDB 容器
-npm run docker:mongo
-
-# 2. 等待 MongoDB 完全啟動（30-60秒）
-docker logs mongo
-
-# 3. 初始化 Collections
-npm run db:init
-```
-
-### 驗證 Collections 建立狀況
-
-**使用 MongoDB Shell 檢查：**
-```bash
-# 連接到 MongoDB
-npm run db:connect-docker
-
-# 在 MongoDB Shell 中執行
-use business-magnifier
-show collections
-db.companies.getIndexes()
-```
-
-**使用 MongoDB Express 管理介面：**
-```bash
-# 啟動管理介面
-npm run docker:tools
-
-# 瀏覽器訪問: http://localhost:8081
-```
-
-**使用應用程式 API 檢查：**
-```bash
-# 啟動應用程式
-npm run dev
-
-# 檢查 API 端點
-curl http://localhost:3000/api/health
-```
-
-## 🔧 故障排除指南
-
-### 常見問題與解決方法
-
-#### 1. Docker 服務未啟動
-```
-❌ Docker 服務未運行
-💡 請啟動 Docker Desktop
-```
-**解決方法：** 啟動 Docker Desktop 並等待其完全載入
-
-#### 2. MongoDB 連線失敗
-```
-❌ MongoDB 連線失敗: ECONNREFUSED
-```
-**解決方法：**
-- 確認 MongoDB 容器正在運行：`docker ps | grep mongo`
-- 等待更長時間讓 MongoDB 完全啟動
-- 檢查埠口 27017 是否被占用
-
-#### 3. 認證失敗
-```
-❌ Authentication failed
-```
-**解決方法：**
-- 確認使用正確的連線字串
-- 檢查 `docker-compose.yml` 中的認證設定
-- 重新建立 MongoDB 容器
-
-#### 4. 索引建立衝突
-```
-⚠️ 索引已存在但配置不同，嘗試重建中...
-```
-**解決方法：** 腳本會自動處理索引衝突，重建不相容的索引
-
-### 重置整個 MongoDB 環境
-
-如果遇到嚴重問題，可以完全重置：
-
-```bash
-# 停止所有服務
-npm run stop
-
-# 清理 Docker 資源
-npm run docker:cleanup
-
-# 移除 MongoDB 資料卷
-docker volume rm next_mongodb_data
-
-# 重新啟動
-npm run db:setup
-```
-
-## 💡 效能優化與最佳實踐
-
-### 索引優化策略
-1. **查詢導向索引**：基於實際查詢模式建立索引
-2. **複合索引順序**：高選擇性欄位在前
-3. **TTL 索引**：自動清理過期資料
-4. **全文搜索**：適當使用文字索引
-
-### 快取管理
-1. **分層快取**：不同 API 使用不同的過期時間
-2. **快取預熱**：關鍵資料預先載入
-3. **快取更新**：資料變更時主動更新快取
-4. **快取監控**：追蹤快取命中率
-
-### 效能監控
-```bash
-# 資料庫統計
-mongosh "mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin" --eval "db.stats()"
-
-# 索引使用狀況
-db.companies.aggregate([{$indexStats: {}}])
-
-# 查詢效能分析
-db.companies.find({taxId: "12345678"}).explain("executionStats")
-```
-
-## 📊 備份與還原
-
-### 自動備份
-```bash
-# 完整資料庫備份
-mongodump --uri="mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin" --out=./backup/$(date +%Y%m%d_%H%M%S)
-
-# 特定 Collection 備份
-mongodump --uri="mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin" --collection=ai_tools --out=./backup/ai_tools_$(date +%Y%m%d_%H%M%S)
-```
-
-### 還原資料
-```bash
-# 完整還原
-mongorestore --uri="mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin" ./backup/20240610_143000/business-magnifier/
-
-# 特定 Collection 還原
-mongorestore --uri="mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin" --collection=ai_tools ./backup/ai_tools_20240610_143000/business-magnifier/ai_tools.bson
-```
-
-## 📋 連線資訊
-
-- **連線字串：** `mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin`
-- **資料庫名稱：** `business-magnifier`
-- **使用者名稱：** `admin`
-- **密碼：** `password`
-- **管理介面：** http://localhost:8081 (需先執行 `npm run docker:tools`)
-
-## 🎯 開發指南
-
-### 新增 Collection
-1. 在此規則文件中定義 Collection 結構
-2. 更新 `scripts/init-mongodb-collections.js` 
-3. 建立對應的 Mongoose 模型
-4. 執行 `npm run db:init` 重新初始化
-
-### 修改索引
-1. 更新此規則文件中的索引配置
-2. 修改初始化腳本
-3. 重新執行初始化（會自動處理索引變更）
-
-### 資料遷移
-1. 建立遷移腳本
-2. 在測試環境驗證
-3. 執行生產環境遷移
-4. 驗證資料完整性
+**請勿在此文件手動添加 Collection 或索引的詳細欄位**。所有結構性變更都應在上述腳本中完成，以確保程式碼與文件的一致性。本指南專注於闡述 **設計原則**、**開發流程** 與 **標準作業程序 (SOP)**。
 
 ---
 
-## 💡 專家建議
+## 🛠️ 資料庫連線與設定
 
-### 設計原則
-1. **資料正規化**：適度正規化，避免過度正規化影響查詢效能
-2. **索引策略**：基於查詢模式建立索引，避免建立過多索引
-3. **TTL 管理**：使用 TTL 索引自動清理過期的快取資料
-4. **備份策略**：定期備份重要資料，測試還原流程
+- **主要設定檔**: `.env.local`
+- **連線字串變數**: `MONGODB_URI`
+- **開發環境連線字串**: `mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin`
+- **資料庫名稱**: `business-magnifier`
 
-### 安全性考量
-1. **認證機制**：啟用 MongoDB 認證
-2. **網路安全**：限制網路存取，使用 SSL/TLS 
-3. **權限控制**：實施最小權限原則
-4. **資料加密**：敏感資料進行加密儲存
+---
 
-### 監控與維護
-1. **效能監控**：定期檢查查詢效能
-2. **容量規劃**：監控資料增長趨勢
-3. **日誌分析**：分析系統日誌發現潛在問題
-4. **定期維護**：執行資料庫優化和清理作業
+## 🏗️ 資料庫架構設計
+
+我們的資料庫 `business-magnifier` 圍繞三大核心概念進行組織，以確保可擴展性與維護性。
+
+#### 1. 核心業務資料 (Core Business Data)
+- **用途**: 存放專案的核心價值資料，如企業、標案等。
+- **包含**: `companies`, `tenders`, `ai_tools`
+- **設計原則**: 結構清晰，索引優化，支援業務邏輯的複雜查詢。
+
+#### 2. API 快取 (API Caches)
+- **用途**: 快取外部 API 回應，降低延遲、減少 API 請求成本。
+- **包含**: `pcc_api_cache`, `g0v_company_api_cache`, `twincn_api_cache`
+- **設計原則**: 使用 TTL (Time-To-Live) 索引自動清理過期文件，確保資料新鮮度。
+
+#### 3. 系統日誌 (System Logs)
+- **用途**: 記錄應用程式的關鍵事件，便於追蹤、偵錯和分析。
+- **包含**: `email_verification_log`, `feedback_submissions_log`
+- **設計原則**: 針對常見查詢（如狀態、時間）建立索引，並可選用 TTL 清理舊日誌。
+
+---
+
+## ⚙️ 開發工作流程 (SOP)
+
+### 1. 首次初始化資料庫
+若要從零開始建立開發環境（包含啟動 Docker 容器與初始化所有 Collections），請執行：
+```bash
+npm run db:setup
+```
+此指令會自動執行 `start-mongodb.sh` 腳本，完成所有必要設定。
+
+### 2. 新增 Collection
+若要為專案新增一個 Collection，請遵循以下步驟：
+
+1.  **開啟腳本**: 前往 `next/scripts/init-mongodb-collections.js`。
+2.  **定義結構**: 在 `COLLECTIONS_CONFIG` 物件中，新增一個新的 Collection 定義，包含 `description` 和 `indexes`。
+    ```javascript
+    // next/scripts/init-mongodb-collections.js
+
+    const COLLECTIONS_CONFIG = {
+      // ... existing collections
+      new_collection_name: {
+        description: '這是一個新 Collection 的簡短描述',
+        indexes: [
+          { keys: { fieldToIndex: 1 }, options: { name: 'index_name_1' } },
+          { keys: { anotherField: -1 }, options: { unique: true, name: 'unique_index_name' } }
+        ]
+      }
+    };
+    ```
+3.  **執行初始化**: 儲存檔案後，在終端機執行 `npm run db:init`，腳本將會自動建立新的 Collection 及其索引。
+
+### 3. 修改索引
+若要修改現有 Collection 的索引：
+
+1.  **定位腳本**: 同樣在 `next/scripts/init-mongodb-collections.js` 中。
+2.  **修改定義**: 找到對應 Collection 的 `indexes` 陣列，直接修改、新增或刪除其中的索引設定。
+3.  **重新執行初始化**: 執行 `npm run db:init`。腳本會智能地比對變更：
+    - 如果索引設定不同，它會自動**刪除舊索引並建立新索引**。
+    - 如果索引不存在，則會直接建立。
+
+---
+
+## 📜 NPM 指令稿使用指南
+
+以下是 `package.json` 中最核心的資料庫相關指令，已為您分類整理：
+
+| 分類 | 指令 | 功能描述 |
+| :--- | :--- | :--- |
+| 🚀 **一鍵啟動** | `npm run db:setup` | **(推薦)** 啟動 MongoDB 容器並執行初始化腳本，從無到有建立好資料庫。 |
+| 🔄 **手動初始化**| `npm run db:init` | 僅執行 `init-mongodb-collections.js` 腳本，用於建立或更新 Collections 與索引。 |
+| 🔗 **連線互動** | `npm run db:connect-docker` | 使用 `mongosh` 連接到 Docker 中的 MongoDB 實例，方便手動查詢與管理。 |
+| 🗄️ **備份/還原**| `npm run db:backup` | 執行備份腳本 (目前針對 `ai_tools`)。 |
+| | `npm run db:restore` | 執行還原腳本 (目前針對 `ai_tools`)。 |
+| 🐳 **Docker管理**| `npm run docker:mongo` | 僅啟動 MongoDB 服務。 |
+| | `npm run docker:restart:mongo` | 重新啟動 MongoDB 容器。 |
+
+---
+
+## 🔍 故障排除
+
+遇到 MongoDB 連線或操作問題時，請依循以下步驟檢查：
+
+1.  **確認 Docker 服務**
+    - **問題**: 終端機出現 `Cannot connect to the Docker daemon` 錯誤。
+    - **解決**: 請先**啟動 Docker Desktop**。
+
+2.  **確認 MongoDB 容器狀態**
+    - **問題**: 連線被拒絕 (ECONNREFUSED) 或超時。
+    - **指令**: `docker ps` 或 `npm run docker:ps`
+    - **解決**:
+        - 如果看不到 `mongo` 或 `mongodb` 容器，請執行 `npm run docker:mongo` 啟動它。
+        - 如果容器狀態不是 `Up` 或 `running`，請用 `npm run docker:restart:mongo` 重新啟動。
+
+3.  **檢查日誌**
+    - **問題**: 容器無法正常啟動。
+    - **指令**: `docker logs mongo` (或容器名稱)
+    - **解決**: 根據日誌中的錯誤訊息（如埠口衝突、設定錯誤）進行排查。
+
+4.  **終極重置**
+    - **問題**: 如果上述方法都無效，可以考慮完全重置資料庫環境。
+    - **警告**: 這會刪除所有本地資料！
+    - **指令**: 
+        ```bash
+        # 1. 停止並移除容器與網路
+        npm run stop
+        
+        # 2. 移除 MongoDB 資料卷 (最關鍵的一步)
+        docker volume rm next_mongodb_data
+        
+        # 3. 重新建立所有服務
+        npm run db:setup
+        ```
+
+---
+
+## 💡 最佳實踐
+
+- **單一真實來源**: 始終透過 `init-mongodb-collections.js` 管理資料庫結構。
+- **原子化操作**: 腳本會自動處理索引的更新，避免手動操作資料庫。
+- **TTL 索引**: 對於快取和部分日誌集合，善用 `expireAfterSeconds` 選項自動清理資料。
+- **定期備份**: 在生產環境中，應建立定期執行的 `mongodump` 備份策略。
