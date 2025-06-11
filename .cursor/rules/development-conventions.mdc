@@ -3,338 +3,185 @@ description: Next.js 專案開發規範。用於查詢本專案的目錄結構�
 globs: 
 alwaysApply: false
 ---
-# Next.js 專案開發慣例與架構思路
+# Next.js 專案開發規範
 
-## 專案定位與核心理念
+## 1. 專案概覽
 
-Business Magnifier 專案採用 Next.js 14 App Router 架構，專注於 SEO 優化的企業資料查詢平台。開發慣例強調**架構一致性**和**既有實現複刻**原則，確保新功能開發時能參照現有頁面的實現方式，維持專案的整體性和可維護性。
+- **定位**: 採用 Next.js 14 App Router 的 SEO 優化企業資料查詢平台。
+- **核心原則**:
+    - **架構一致性**: 維護統一的專案結構與設計模式。
+    - **既有實現複刻**: 新功能開發需參照現有相似功能的實現，確保風格一致。
+- **技術棧與現況**:
+    - **主分支**: `next`
+    - **資料庫**: MongoDB
+    - **開發環境**: Docker
+    - **程式碼品質**: ESLint + Prettier
 
-### 🎯 專案現況 (2025年6月)
-- ✅ **主分支**: `next` (積極開發中，所有新功能基於此分支)
-- ✅ **資料遷移**: AI 工具資料已完全遷移至 MongoDB (100+ 工具)
-- ✅ **容器化**: Docker 完整開發與部署環境
-- ✅ **資料管理**: 自動化備份還原系統
-- ✅ **程式碼品質**: ESLint + Prettier 整合工作流程
+---
 
-## 目錄結構與組織原則
+## 2. 目錄結構
 
-### 根目錄架構思路
+### 2.1 根目錄結構
+`next/` 為主要開發目錄，`legacy/` 為舊版參考。
 ```
-Business Magnifier/
-├── next/                    # 🎯 主要 Next.js 應用程式 (v0.1.0)
-├── legacy/                  # 🗄️ Vite 舊版本 (已完成功能遷移)
-└── .cursor/                 # 🤖 AI 助手配置與規則
+Business-Magnifier/
+├── next/      # 主要 Next.js 應用
+├── legacy/    # 舊版 Vite 應用 (參考用)
+└── .cursor/   # AI 助手配置
 ```
 
-**核心思路**: 資料遷移已完成，`next/` 為主要開發環境，`legacy/` 僅保留作為功能參考。
-
-### Next.js 專案內部組織 (next/)
-
-#### 1. 源碼目錄結構 (src/)
+### 2.2 `src` 目錄結構
+採功能職責分層設計，確保程式碼職責清晰。
 ```
 src/
-├── app/                    # App Router 頁面與 API
-├── components/             # React 元件庫 (UI + 業務元件)
-├── lib/                   # 核心工具函式庫 (資料庫、API 封裝)
-├── hooks/                 # 自定義 React Hooks (業務邏輯)
-├── types/                 # TypeScript 型別定義 (完整型別系統)
-├── utils/                 # 通用工具函式 (純函式工具)
-├── data/                  # 靜態資料與配置
-└── config/                # 應用程式配置 (環境、常數)
+├── app/         # App Router 頁面與 API 路由
+├── components/  # React 元件 (UI, 業務邏輯)
+├── lib/         # 核心函式庫 (資料庫, API 封裝, 業務邏輯)
+├── hooks/       # 自定義 React Hooks
+├── types/       # TypeScript 型別定義
+├── utils/       # 通用工具函式
+├── data/        # 靜態資料與配置
+└── config/      # 應用程式配置
 ```
 
-**組織思路**: 按功能職責分層，確保程式碼職責清晰且易於維護。每個目錄都有明確的責任範圍。
-
-#### 2. App Router 頁面架構 (src/app/)
+### 2.3 `app` 目錄與路由結構
+採功能模組化組織，各功能 (如 `company`, `tender`, `aitool`) 自成模組。
 ```
 app/
-├── page.tsx               # 🏠 首頁 (重定向到企業搜尋)
-├── layout.tsx             # 🎨 根版面配置 (全域導航、SEO)
-├── loading.tsx            # ⏳ 全域載入狀態
-├── globals.css            # 🎨 全域樣式 (Tailwind + 自定義)
-├── company/               # 🏢 企業查詢功能模組
-│   ├── search/           # 企業搜尋頁面 (SSR)
-│   └── [id]/            # 企業詳情頁面 (ISR)
-├── tender/                # 📋 標案查詢功能模組
-│   ├── search/           # 標案搜尋頁面 (SSR) 
-│   └── [id]/            # 標案詳情頁面 (ISR)
-├── aitool/                # 🤖 AI 工具功能模組 (新增)
-│   ├── search/           # AI 工具搜尋頁面 (SSR)
-│   └── detail/           # AI 工具詳情頁面 (SSG)
-├── api/                   # 🔌 API 路由
-│   ├── company/          # 企業相關 API (G0V 整合)
-│   ├── aitool/           # AI 工具 API (MongoDB 驅動)
-│   ├── tender/           # 標案相關 API
-│   ├── feedback/         # 使用者回饋 API
-│   └── health/           # 系統健康檢查 API
-├── faq/                   # ❓ 常見問題頁面 (SSG)
-├── privacy/               # 🔒 隱私政策頁面 (SSG)
-└── feedback/              # 💬 使用者回饋頁面 (CSR)
+├── page.tsx          # 首頁 (重定向)
+├── layout.tsx        # 根版面
+├── loading.tsx       # 全域載入狀態
+├── globals.css       # 全域樣式
+├── company/          # 企業查詢模組
+│   ├── search/       #   - 搜尋頁 (SSR)
+│   └── [id]/         #   - 詳情頁 (ISR)
+├── tender/           # 標案查詢模組
+│   ├── search/       #   - 搜尋頁 (SSR)
+│   └── [id]/         #   - 詳情頁 (ISR)
+├── aitool/           # AI 工具模組
+│   ├── search/       #   - 搜尋頁 (SSR)
+│   └── detail/       #   - 詳情頁 (SSG)
+├── api/              # API 路由
+├── faq/              # 常見問題頁面 (SSG)
+└── feedback/         # 使用者回饋頁面 (CSR)
 ```
 
-**路由思路**: 採用功能模組化組織，每個主要功能 (company, tender, aitool) 獨立成模組，便於維護和擴展。新增的 AI 工具模組完全整合至架構中。
+---
 
-## 頁面與路由定義慣例
+## 3. 路由與渲染策略
 
-### 1. 頁面檔案命名規範
-- **頁面入口**: `page.tsx` (App Router 標準)
-- **版面配置**: `layout.tsx` (共享版面)
-- **載入狀態**: `loading.tsx` (載入中顯示)
-- **錯誤處理**: `error.tsx` (錯誤邊界)
-- **未找到**: `not-found.tsx` (404 頁面)
+### 3.1 頁面檔案慣例
+- **頁面**: `page.tsx`
+- **版面**: `layout.tsx`
+- **載入**: `loading.tsx`
+- **錯誤**: `error.tsx`
+- **404**: `not-found.tsx`
 
-### 2. 路由結構設計思路
+### 3.2 路由結構
+- **靜態路由**: `/company/search`, `/aitool/search`, `/faq`
+- **動態路由**: `/company/[id]`, `/tender/[id]`, `/aitool/detail/[id]`
 
-#### 靜態路由範例
-```
-/                          # 首頁 (重定向至 /company/search)
-/company/search            # 企業搜尋頁面 (主要功能)
-/tender/search             # 標案搜尋頁面
-/aitool                    # AI 工具主頁 (100+ 工具)
-/aitool/search             # AI 工具搜尋頁面
-/faq                       # 常見問題 (SEO 優化)
-/privacy                   # 隱私政策 (法規遵循)
-/feedback                  # 使用者回饋 (使用者體驗)
-```
+### 3.3 渲染策略
+- **SSG (靜態生成)**: 內容不常變動的頁面 (FAQ, 隱私政策, AI 工具詳情頁)。
+- **ISR (增量靜態再生)**: 熱門但需定期更新的頁面 (企業/標案詳情頁)。
+- **SSR (伺服器端渲染)**: 需要即時資料的頁面 (搜尋結果頁)。
+- **CSR (客戶端渲染)**: 高度互動的元件 (回饋表單, 複雜圖表)。
 
-#### 動態路由範例
-```
-/company/[id]              # 企業詳情頁面 (統編作為 ID)
-/tender/[id]               # 標案詳情頁面
-/aitool/detail/[id]        # AI 工具詳情頁面 (新增)
-```
+---
 
-**設計思路**: URL 結構清晰且 SEO 友善，符合使用者直覺和搜尋引擎偏好。AI 工具路由遵循既有模式。
+## 4. API 設計規範
 
-### 3. 渲染策略選擇原則
-
-根據頁面特性選擇適當的渲染方式：
-
-- **SSG (靜態生成)**: 
-  - 首頁、FAQ、隱私政策等靜態內容
-  - AI 工具詳情頁面 (利用預建成千上萬工具頁面)
-- **ISR (增量靜態再生)**: 
-  - 熱門企業/標案詳情頁 (24小時更新週期)
-  - 熱門 AI 工具頁面
-- **SSR (伺服器端渲染)**: 
-  - 搜尋結果頁、實時資料頁面
-  - AI 工具搜尋頁面 (即時搜尋結果)
-- **CSR (客戶端渲染)**: 
-  - 高互動性組件、使用者特定功能
-  - 複雜的資料視覺化元件
-
-**選擇思路**: 優先考慮 SEO 需求，其次考慮效能和使用者體驗。AI 工具因數量龐大，特別適合 SSG 策略。
-
-## API 路由定義慣例
-
-### 1. API 目錄結構 (src/app/api/)
+### 4.1 API 路由結構 (`src/app/api/`)
+API 路由依功能模組劃分，保持結構清晰。
 ```
 api/
 ├── company/
-│   ├── route.ts           # GET /api/company (企業列表)
-│   ├── [id]/
-│   │   └── route.ts       # GET /api/company/[id] (企業詳情)
-│   └── search/
-│       └── route.ts       # POST /api/company/search (企業搜尋)
-├── aitool/                # 🤖 AI 工具 API (新增)
-│   ├── route.ts           # GET /api/aitool (工具列表)
-│   ├── search/
-│   │   └── route.ts       # POST /api/aitool/search (工具搜尋)
-│   ├── categories/
-│   │   └── route.ts       # GET /api/aitool/categories (分類列表)
-│   └── [id]/
-│       └── route.ts       # GET /api/aitool/[id] (工具詳情)
-├── tender/
-│   ├── route.ts           # GET /api/tender (標案列表)
-│   └── [id]/
-│       └── route.ts       # GET /api/tender/[id] (標案詳情)
-├── feedback/
-│   └── route.ts           # POST /api/feedback (提交回饋)
-└── health/
-    └── route.ts           # GET /api/health (系統健康檢查)
+│   ├── route.ts           # GET /api/company
+│   └── [id]/route.ts      # GET /api/company/[id]
+├── aitool/
+│   ├── route.ts           # GET /api/aitool
+│   ├── search/route.ts    # POST /api/aitool/search
+│   └── [id]/route.ts      # GET /api/aitool/[id]
+├── feedback/route.ts      # POST /api/feedback
+└── health/route.ts        # GET /api/health
 ```
 
-### 2. API 設計思路
-
-#### RESTful 原則
-- **GET**: 資料查詢 (企業、AI 工具、標案資料)
-- **POST**: 資料建立或複雜查詢 (搜尋、回饋提交)
-- **PUT/PATCH**: 資料更新 (管理功能)
-- **DELETE**: 資料刪除 (管理功能)
-
-#### 回應格式統一
+### 4.2 API 設計原則
+- **RESTful**: 使用標準 HTTP 方法 (GET, POST, PUT/PATCH, DELETE)。
+- **統一回應格式**: API 回應需遵循標準的成功與失敗結構，便於前端處理。
 ```typescript
-// 成功回應格式
+// 成功回應
 interface APIResponse<T> {
   success: true;
   data: T;
   message?: string;
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-  };
+  pagination?: object;
 }
 
-// 錯誤回應格式
+// 錯誤回應
 interface APIError {
   success: false;
   error: string;
   code?: string;
-  details?: any;
 }
 ```
 
-**設計思路**: 統一的 API 介面設計，便於前端處理和錯誤管理。AI 工具 API 遵循相同的設計模式。
+---
 
-## 元件組織與複用原則
+## 5. 元件架構
 
-### 1. 元件目錄結構 (src/components/)
+### 5.1 元件目錄結構 (`src/components/`)
 ```
 components/
-├── ui/                    # 🎨 基礎 UI 元件 (Button, Input, Modal 等)
-├── layout/                # 📐 版面配置元件 (Header, Footer, Sidebar)
-├── business/              # 🏢 企業相關元件 (BusinessCard, BusinessList)
-├── aitool/                # 🤖 AI 工具相關元件 (新增)
-│   ├── AIToolCard.tsx     # AI 工具卡片
-│   ├── AIToolList.tsx     # AI 工具列表
-│   ├── CategoryFilter.tsx # 分類篩選器
-│   └── SearchForm.tsx     # 工具搜尋表單
-├── tender/                # 📋 標案相關元件
-├── charts/                # 📊 圖表元件 (BarChart, PieChart)
-├── forms/                 # 📝 表單元件 (SearchForm, FeedbackForm)
-├── seo/                   # 🔍 SEO 相關元件 (MetaTags, StructuredData)
-└── common/                # 🔧 通用元件 (Loading, ErrorBoundary)
+├── ui/         # 基礎 UI 元件 (Button, Input)，無業務邏輯
+├── layout/     # 版面配置元件 (Header, Footer)
+├── business/   # 企業業務相關元件
+├── aitool/     # AI 工具業務相關元件 (AIToolCard)
+├── common/     # 通用功能元件 (Loading, ErrorBoundary)
+└── seo/        # SEO 專用元件 (MetaTags, StructuredData)
 ```
 
-### 2. 元件設計思路
+### 5.2 元件設計與複用
+- **分層**: 基礎 UI 元件 → 業務元件 → 頁面專用元件。
+- **複刻原則**: 開發新功能時，優先複用或參考現有相似元件，以保持風格一致。
+    - **範例**: `AIToolCard` 參考 `BusinessCard` 設計；`AIToolList` 參考 `BusinessList`。
 
-#### 複用性原則
-- **基礎元件**: 高度可複用，無業務邏輯 (Button, Input, Card)
-- **業務元件**: 特定功能，可在相似場景複用 (SearchForm, DataCard)
-- **頁面元件**: 特定頁面專用，不強求複用 (Homepage, SpecificPageLayout)
+---
 
-#### 既有實現複刻原則
-新功能開發時，優先參照現有相似功能的實現方式：
-- **AI 工具卡片**: 參照企業卡片 (BusinessCard) 的設計模式
-- **AI 工具搜尋**: 複用企業搜尋 (BusinessSearch) 的邏輯結構
-- **載入狀態**: 統一使用現有的 Loading 元件
-- **錯誤處理**: 統一使用現有的 ErrorBoundary 邏輯
+## 6. 資料與狀態管理
 
-**核心思路**: 保持設計一致性，降低學習成本，提高開發效率。AI 工具功能完全遵循既有的設計語言。
-
-## 資料管理與狀態處理
-
-### 1. 資料層組織 (src/lib/)
+### 6.1 資料層結構 (`src/lib/`)
+資料庫連線、Mongoose 模型與核心業務邏輯存放於此。
 ```
 lib/
-├── database/              # 🗄️ 資料庫連接與模型 (MongoDB + Mongoose)
-│   ├── connection.ts      # 資料庫連線管理
-│   └── models/           # Mongoose 資料模型
-│       ├── Company.ts     # 企業資料模型
-│       ├── AITool.ts      # AI 工具資料模型 (新增)
-│       ├── Tender.ts      # 標案資料模型
-│       └── UserFeedback.ts # 回饋資料模型
-├── aitool/                # 🤖 AI 工具業務邏輯 (新增)
-│   ├── search.ts          # AI 工具搜尋邏輯
-│   ├── categories.ts      # 分類管理邏輯
-│   └── analytics.ts       # 使用統計邏輯
-├── company/               # 🏢 企業業務邏輯
-├── tender/                # 📋 標案業務邏輯
-├── auth/                  # 🔐 身份驗證邏輯
-└── utils/                 # 🛠️ 工具函式
+├── db/
+│   ├── connection.ts   # 資料庫連線管理
+│   └── models/         # Mongoose 模型 (AITool, Company)
+├── aitool/             # AI 工具相關業務邏輯
+├── company/            # 企業相關業務邏輯
+└── tender/             # 標案相關業務邏輯
 ```
 
-### 2. 狀態管理思路
+### 6.2 狀態管理策略
+- **本地狀態**: React Hooks (`useState`, `useReducer`) 用於元件內部狀態。
+- **伺服器狀態**: SWR 或 React Query (推薦)，用於管理與快取 API 資料。
+- **全域狀態**: Context API，用於使用者設定、主題等跨元件共享的狀態。
 
-#### 本地狀態 (React Hooks)
+---
+
+## 7. 開發環境與品質保證
+
+### 7.1 Docker 開發流程
+使用 `docker-compose.yml` 管理開發環境 (Next.js, MongoDB)。
+- `npm run start:dev`: 一鍵啟動所有服務。
+- `npm run db:backup`: 備份資料庫。
+- `npm run stop`: 停止並清理環境。
+
+### 7.2 程式碼品質
+- **自動化**: 使用 Prettier 進行格式化，ESLint 進行程式碼風格與錯誤檢查。
+- **TypeScript**: 所有程式碼需有嚴格的型別定義，特別是 API 回應與資料模型。
 ```typescript
-// 搜尋狀態管理
-const useSearch = () => {
-  const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState({});
-  const [results, setResults] = useState([]);
-  // ...
-};
-
-// AI 工具特定狀態
-const useAIToolFilter = () => {
-  const [category, setCategory] = useState('');
-  const [tags, setTags] = useState([]);
-  // ...
-};
-```
-
-#### 伺服器狀態 (SWR/React Query)
-```typescript
-// 企業資料查詢
-const { data: company, error } = useSWR(
-  `/api/company/${id}`,
-  fetcher
-);
-
-// AI 工具資料查詢 (新增)
-const { data: aitools, error } = useSWR(
-  `/api/aitool/search?category=${category}`,
-  fetcher
-);
-```
-
-#### 全域狀態 (Context API)
-```typescript
-// 使用者偏好設定
-const UserPreferencesContext = createContext();
-
-// 搜尋歷史記錄  
-const SearchHistoryContext = createContext();
-```
-
-**管理思路**: 根據資料性質選擇合適的狀態管理方案，保持狀態邏輯清晰且可測試。
-
-## Docker 環境與開發工作流程
-
-### 1. 容器化開發環境
-```yaml
-# docker-compose.yml 架構
-services:
-  mongodb:          # 🗄️ 主要資料庫
-  mongo-express:    # 🌐 資料庫管理介面
-  app-dev:          # 🔧 開發環境應用程式
-  app-prod:         # 🚀 生產環境應用程式
-```
-
-### 2. 推薦開發工作流程
-```bash
-# 🚀 一鍵啟動開發環境
-npm run start:dev     # 啟動 MongoDB + Next.js + 管理介面
-
-# 📊 監控開發狀態
-npm run docker:ps     # 查看服務狀態
-npm run docker:logs   # 查看服務日誌
-
-# 🗄️ 資料庫管理
-npm run db:backup     # 備份 AI 工具資料
-npm run db:restore    # 還原資料庫
-
-# 🧹 開發結束清理
-npm run stop          # 停止所有服務並清理
-```
-
-**工作流程思路**: 一鍵式開發環境，最小化環境設置複雜度，專注於功能開發。
-
-## 程式碼品質與最佳實踐
-
-### 1. 程式碼格式化
-```bash
-# 自動格式化
-npm run format        # Prettier 格式化
-npm run format:fix    # Prettier + ESLint 自動修復
-npm run lint          # ESLint 檢查
-```
-
-### 2. TypeScript 型別規範
-```typescript
-// 完整型別定義
+// 範例: AI 工具資料模型型別
 interface AITool {
   id: string;
   name: string;
@@ -342,67 +189,24 @@ interface AITool {
   category: 'productivity' | 'creative' | 'analysis' | 'automation';
   tags: string[];
   url: string;
-  popularity: number;
-  usageCount: number;
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// API 回應型別
-interface AIToolSearchResponse {
-  success: boolean;
-  data: AITool[];
-  total: number;
-  pagination: PaginationInfo;
 }
 ```
-
-### 3. Git 提交規範
-```
-[type] Subject line
-
-類型:
-- feat: 新功能 (AI 工具搜尋功能)
-- fix: 錯誤修復 (修復 MongoDB 連線問題)
-- docs: 說明或規格文件（md、mdc 等副檔名）
-- style: 格式調整 (Prettier 格式化)
-- refactor: 程式碼重構 (重構搜尋邏輯)
-- chore: 設定檔案異動 (配置更新、依賴管理)
-
-範例:
-[feat] Add AI tool search with category filtering
-[fix] Resolve MongoDB timeout in Docker environment
-[docs] Update development guide with AI tool integration
-```
-
-**品質思路**: 自動化程式碼品質檢查，統一的開發規範，確保程式碼可維護性。
-
-## 既有實現複刻指導原則
-
-### 1. 新功能開發檢查清單
-- [ ] 參考相似既有功能的實現方式
-- [ ] 復用現有的元件設計模式
-- [ ] 遵循既有的 API 設計規範
-- [ ] 使用統一的錯誤處理機制
-- [ ] 應用相同的載入狀態設計
-- [ ] 保持 SEO 優化策略一致性
-
-### 2. AI 工具模組開發參照
-以 AI 工具功能為例，完全遵循企業查詢模組的實現模式：
-
-```typescript
-// 參照企業搜尋的實現方式
-// 原: company/search -> 新: aitool/search
-// 原: BusinessCard -> 新: AIToolCard  
-// 原: useBusinessSearch -> 新: useAIToolSearch
-// 原: /api/company/search -> 新: /api/aitool/search
-```
-
-**複刻思路**: 新功能不是從零開始，而是在既有架構基礎上的擴展和適配，確保整體專案的一致性和可維護性。
 
 ---
 
-## 總結
+## 8. 核心開發原則：既有實現複刻
 
-開發慣例的核心是**架構一致性**與**既有實現複刻**，通過標準化的目錄組織、統一的設計模式、完整的型別系統和自動化的品質檢查，確保 Business Magnifier 專案在快速發展的同時保持高品質和可維護性。每個新功能的開發都應該參照既有實現，在保持創新的同時維護專案的整體性。
+此為本專案最重要的原則，旨在確保架構一致性與開發效率。
+
+- **開發檢查清單**:
+    1.  **尋找參考**: 開發前，尋找並參考現有相似功能的實作。
+    2.  **設計複用**: 複用現有元件、Hooks 與 API 設計模式。
+    3.  **機制統一**: 遵循統一的錯誤處理與載入狀態機制。
+
+- **實踐範例 (以 AI 工具模組為例)**:
+    - **路由**: `aitool/search` 仿照 `company/search`。
+    - **元件**: `AIToolCard` 仿照 `BusinessCard`。
+    - **API**: `/api/aitool/search` 仿照 `/api/company/search` 的邏輯與結構。
+
+---
