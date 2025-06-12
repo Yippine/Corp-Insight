@@ -64,7 +64,9 @@
     "sitemap:status": "node scripts/sitemap-monitor.js status",
     "sitemap:clear": "node scripts/sitemap-monitor.js clear-cache",
     "// === 健康檢查指令 ===": "",
-    "health:check": "node scripts/healthcheck.js"
+    "health:check": "node scripts/healthcheck.js",
+    "// === 部署與版本更新指令 ===": "",
+    "deploy:prod": "bash scripts/deploy-prod.sh"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
