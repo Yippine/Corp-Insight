@@ -9,12 +9,12 @@ alwaysApply: false
 
 本指南的核心目標是記錄並指導開發團隊，如何將舊版 `legacy` 專案 (基於 Vite 的 SPA) 的功能，**全面遷移**至基於 Next.js 14 App Router 的新版 `next` 專案。
 
-此次重構旨在達成三大戰略目標：
+此次重構旨在達成三大戰略目標，其整體架構規劃請參閱 `project-architecture.mdc`：
 1.  **根本性解決 SEO 問題**: 透過伺服器端渲染 (SSR) 與靜態網站生成 (SSG)，解決舊專案因 SPA 架構導致的搜尋引擎索引效率不彰與排名不佳的問題。
-2.  **保留並提升前端體驗**: 在技術棧全面升級的同時，**必須**盡可能保持並優化 `legacy` 專案已有的前端樣式與使用者互動體驗，確保品牌視覺的一致性。
+2.  **保留並提升前端體驗**: 在技術棧全面升級的同時，**必須**盡可能保持並優化 `legacy` 專案已有的前端樣式與使用者互動體驗，確保品牌視覺的一致性。具體美學標準請參考 `ui-ux-aesthetic-guide.mdc`。
 3.  **現代化後端架構**: 全面採用 Next.js 提供的現代化後端能力 (如 Route Handlers, Server Actions)，建立一個更穩健、更全面、更易於維護的後端架構。
 
-所有新的開發都應圍繞此三大目標，並遵循本指南，以確保程式碼的一致性與 SEO 的最佳實踐。
+所有新的開發都應圍繞此三大目標，並遵循本指南與 `development-conventions.mdc` 中的 SOP，以確保程式碼的一致性與 SEO 的最佳實踐。
 
 ## 2. SEO 核心實踐與通用組件
 
@@ -23,7 +23,7 @@ alwaysApply: false
 ### Metadata (元數據) 管理
 
 - **職責**: 管理頁面的 `title`, `description`, `keywords`, `JSON-LD` 結構化資料等。
-- **實踐方針**:
+- **實踐方針**: 嚴格遵循 `development-conventions.mdc` 中「設定頁面元數據 (SEO)」的步驟。
     - **靜態頁面**: 對於內容固定的頁面 (如首頁、關於我們)，直接在對應的 `page.tsx` 中導出 `metadata` 物件來定義其元數據。
     - **動態頁面**:
         1.  在 `next/src/components/SEO/` 目錄下，遵循現有模式 (如 `CompanyDetailSEO.tsx`, `AiToolDetailSEO.tsx`) 建立或複用對應頁面類型的 SEO 組件。
@@ -36,7 +36,7 @@ alwaysApply: false
 - **實踐方針**:
     - GA 追蹤功能已透過根佈局檔案 `next/src/app/layout.tsx` 中的 `<GoogleAnalytics />` 組件 (`@/components/GoogleAnalytics.tsx`) 進行全域初始化。
     - **所有頁面自動包含 GA 追蹤**，無需手動添加。
-    - 若需新增特定事件追蹤，請參閱 GA 相關服務或工具函式，並在對應的互動組件中調用。
+    - 若需新增特定事件追蹤，請參閱 `google-analytics-strategy.mdc` 中的詳細策略與實作指南。
 
 ## 3. Sitemap 階層架構與管理
 

@@ -7,7 +7,7 @@ alwaysApply: false
 
 ## 🎯 核心理念
 
-本指南旨在提供一個清晰、高效的 MongoDB 開發與管理框架。我們將 **`scripts/init-mongodb-collections.js`** 檔案作為資料庫結構的 **唯一真實來源 (Single Source of Truth)**。
+本指南旨在提供一個清晰、高效的 MongoDB 開發與管理框架，是 `project-architecture.mdc` 中資料庫層的具體實施細則。我們將 **`scripts/init-mongodb-collections.js`** 檔案作為資料庫結構的 **唯一真實來源 (Single Source of Truth)**。
 
 **請勿在此文件手動添加 Collection 或索引的詳細欄位**。所有結構性變更都應在上述腳本中完成，以確保程式碼與文件的一致性。本指南專注於闡述 **設計原則**、**開發流程** 與 **標準作業程序 (SOP)**。
 
@@ -44,6 +44,8 @@ alwaysApply: false
 ---
 
 ## ⚙️ 開發工作流程 (SOP)
+
+所有資料庫相關的開發活動，都應遵循 `development-conventions.mdc` 中定義的完整SOP。本節僅摘錄與資料庫直接相關的部分。
 
 ### 1. 首次初始化資料庫
 若要從零開始建立開發環境（包含啟動 Docker 容器與初始化所有 Collections），請執行：

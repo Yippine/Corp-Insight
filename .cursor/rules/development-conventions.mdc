@@ -9,7 +9,7 @@ alwaysApply: false
 
 **此為本專案不可動搖的核心原則。** 所有新功能、新頁面、新組件的開發，無論由人類或 AI 執行，都**必須**以複製和調整現有相似功能的實現為基礎。此舉旨在確保專案在視覺風格、程式碼架構、使用者體驗和開發效率上的絕對一致性。
 
-**禁止重造輪子 (Do Not Reinvent the Wheel)。** 在撰寫任何新程式碼之前，首要任務是理解並複用已有的設計模式與通用組件。
+**禁止重造輪子 (Do Not Reinvent the Wheel)。** 在撰寫任何新程式碼之前，首要任務是理解並複用已有的設計模式與通用組件。整體架構請參考 `project-architecture.mdc`。
 
 
 ---
@@ -21,11 +21,11 @@ alwaysApply: false
 ### 1. 需求分析與參考定位 (Analyze & Locate)
 - **[ ] 尋找相似功能**：在 `src/app` 和 `src/components` 目錄下，尋找一個功能或頁面結構最相似的現有範例。
     - *範例：要開發「產品查詢」頁面，應優先參考 `app/company/search/` 的結構。*
-- **[ ] 確認渲染策略**：根據需求，參考現有範例決定頁面的渲染策略 (SSR, SSG, ISR, CSR)，並在 `page.tsx` 中正確設定。
+- **[ ] 確認渲染策略**：根據需求與 `project-architecture.mdc` 中定義的渲染模型，參考現有範例決定頁面的渲染策略 (SSR, SSG, ISR, CSR)，並在 `page.tsx` 中正確設定。
 
 ### 2. 結構與頁面設定 (Structure & Metadata)
 - **[ ] 複製與修改結構**：複製參考範例的目錄結構與檔案 (`page.tsx`, `layout.tsx` 等)。
-- **[ ] 設定頁面元數據 (SEO)**：
+- **[ ] 設定頁面元數據 (SEO)**：**必須**遵循 `seo-optimization-guide.mdc` 中的規範來設定。
     - **必須**從 `src/config/pageTitles.ts` 導入 `staticTitles` 或 `dynamicTitles` 來設定頁面 `title`。
     - **必須**為頁面提供精準的 `description` 和 `keywords`。
     - **禁止**在 `metadata` 中硬編碼任何標題字串。
@@ -45,16 +45,19 @@ alwaysApply: false
 - **[ ] 複用通用組件**：
     - **優先**使用 `src/components/ui/` 中的基礎 UI 組件 (如 `Button`, `Input`, `Card`)。
     - **優先**使用 `src/components/common/` 中的通用功能組件 (如 `Loading`, `ErrorMessage`)。
-- **[ ] 遵循設計風格**：新組件的視覺設計和 Tailwind CSS 用法，**必須**與參考範例保持視覺上的一致性。
+- **[ ] 遵循設計風格**：新組件的視覺設計和 Tailwind CSS 用法，**必須**符合 `ui-ux-aesthetic-guide.mdc` 的美學標準，並與參考範例保持視覺上的一致性。
 
 ### 4. 業務邏輯與資料處理 (Business Logic & Data)
-- **[ ] 複用業務邏輯**：如果新功能需要類似的後端資料處理，**應**優先使用或擴充 `src/lib/` 中對應模組的函式。
+- **[ ] 複用業務邏輯**：如果新功能需要類似的後端資料處理，**應**優先使用或擴充 `src/lib/` 中對應模組的函式。資料庫操作需遵循 `mongodb-architecture-guide.mdc`。
 - **[ ] 遵循 API 規範**：若需新增 API 端點，其請求/回應格式**必須**符合 `src/app/api/` 下的現有規範。
 
 ### 5. 分析與追蹤 (Analytics & Tracking)
 - **[ ] 整合 Google Analytics**：
     - 確保 `RootLayout` 中的 `GoogleAnalytics` 組件存在。
-    - 對於關鍵使用者互動（如表單提交、重要按鈕點擊），**必須**調用 `trackBusinessEvents` 或其他 GA 事件追蹤函式。
+    - 對於關鍵使用者互動（如表單提交、重要按鈕點擊），**必須**調用 `trackBusinessEvents` 或其他 GA 事件追蹤函式。詳細策略請參閱 `google-analytics-strategy.mdc`。
+
+### 6. 版本控制 (Version Control)
+- **[ ] 遵循 Git 工作流**: 所有開發過程中的暫存與最終提交，都**必須**嚴格遵循 `git-workflow-guide.mdc` 中定義的 `WIP` 和 `Release` 流程。
 
 
 ---
@@ -63,11 +66,11 @@ alwaysApply: false
 
 - **定位**: 採用 Next.js 14 App Router 的 SEO 優化企業資料查詢平台。
 - **核心原則**:
-    - **架構一致性**: 維護統一的專案結構與設計模式。
+    - **架構一致性**: 維護統一的專案結構與設計模式。參考 `project-architecture.mdc`。
     - **既有實現複刻**: 新功能開發需參照現有相似功能的實現，確保風格一致。
 - **技術棧與現況**:
     - **主分支**: `next`
-    - **資料庫**: MongoDB
+    - **資料庫**: MongoDB (見 `mongodb-architecture-guide.mdc`)
     - **開發環境**: Docker
     - **程式碼品質**: ESLint + Prettier
 
@@ -82,7 +85,7 @@ alwaysApply: false
 Business-Magnifier/
 ├── next/      # 主要 Next.js 應用 (開發重心)
 ├── legacy/    # 舊版 Vite 應用 (參考用)
-└── .cursor/   # AI 助手配置
+└── .cursor/   # AI 助手配置 (規則管理見 documentation-management.mdc)
 ```
 
 ### `src` 目錄結構
