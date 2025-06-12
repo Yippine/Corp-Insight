@@ -1,11 +1,65 @@
 ---
-description: Next.js 專案開發規範。用於查詢本專案的目錄結構、路由設計(含 App Router)、API 定義、組件組織、檔案命名慣例，或新功能如何參考現有實例。涉及架構一致性、SEO 整合與整體開發流程問題時調用。
+description: Next.js 專案開發與 AI 協作指南。當需要開發新頁面、新功能或修改現有功能時，必須強制調用此規則。本指南用於確保所有開發工作（無論由人類或 AI 完成）均遵循統一的架構、設計模式與開發流程。其核心是新功能開發SOP，涵蓋從參考既有實現、設定SEO/GA、到複用通用組件的全過程，旨在確保專案程式碼的高度一致性。
 globs: 
 alwaysApply: false
 ---
-# Next.js 專案開發規範
+# Next.js 專案開發與 AI 協作指南
 
-## 1. 專案概覽
+## 🚨 最高指導原則：複刻既有實現 (Replicate Existing Implementations)
+
+**此為本專案不可動搖的核心原則。** 所有新功能、新頁面、新組件的開發，無論由人類或 AI 執行，都**必須**以複製和調整現有相似功能的實現為基礎。此舉旨在確保專案在視覺風格、程式碼架構、使用者體驗和開發效率上的絕對一致性。
+
+**禁止重造輪子 (Do Not Reinvent the Wheel)。** 在撰寫任何新程式碼之前，首要任務是理解並複用已有的設計模式與通用組件。
+
+
+---
+
+## ⚙️ 新功能/頁面開發標準作業程序 (SOP)
+
+當接到一個新的開發需求時，**必須**嚴格遵循以下檢查清單 (Checklist)：
+
+### 1. 需求分析與參考定位 (Analyze & Locate)
+- **[ ] 尋找相似功能**：在 `src/app` 和 `src/components` 目錄下，尋找一個功能或頁面結構最相似的現有範例。
+    - *範例：要開發「產品查詢」頁面，應優先參考 `app/company/search/` 的結構。*
+- **[ ] 確認渲染策略**：根據需求，參考現有範例決定頁面的渲染策略 (SSR, SSG, ISR, CSR)，並在 `page.tsx` 中正確設定。
+
+### 2. 結構與頁面設定 (Structure & Metadata)
+- **[ ] 複製與修改結構**：複製參考範例的目錄結構與檔案 (`page.tsx`, `layout.tsx` 等)。
+- **[ ] 設定頁面元數據 (SEO)**：
+    - **必須**從 `src/config/pageTitles.ts` 導入 `staticTitles` 或 `dynamicTitles` 來設定頁面 `title`。
+    - **必須**為頁面提供精準的 `description` 和 `keywords`。
+    - **禁止**在 `metadata` 中硬編碼任何標題字串。
+    - *範例：*
+      ```typescript
+      import { staticTitles } from '@/config/pageTitles';
+      import type { Metadata } from 'next';
+
+      export const metadata: Metadata = {
+        title: staticTitles.faq,
+        description: '關於 Business Magnifier 的常見問題解答...',
+        keywords: ['常見問題', 'FAQ', '企業搜尋'],
+      };
+      ```
+
+### 3. 組件與樣式 (Component & Style)
+- **[ ] 複用通用組件**：
+    - **優先**使用 `src/components/ui/` 中的基礎 UI 組件 (如 `Button`, `Input`, `Card`)。
+    - **優先**使用 `src/components/common/` 中的通用功能組件 (如 `Loading`, `ErrorMessage`)。
+- **[ ] 遵循設計風格**：新組件的視覺設計和 Tailwind CSS 用法，**必須**與參考範例保持視覺上的一致性。
+
+### 4. 業務邏輯與資料處理 (Business Logic & Data)
+- **[ ] 複用業務邏輯**：如果新功能需要類似的後端資料處理，**應**優先使用或擴充 `src/lib/` 中對應模組的函式。
+- **[ ] 遵循 API 規範**：若需新增 API 端點，其請求/回應格式**必須**符合 `src/app/api/` 下的現有規範。
+
+### 5. 分析與追蹤 (Analytics & Tracking)
+- **[ ] 整合 Google Analytics**：
+    - 確保 `RootLayout` 中的 `GoogleAnalytics` 組件存在。
+    - 對於關鍵使用者互動（如表單提交、重要按鈕點擊），**必須**調用 `trackBusinessEvents` 或其他 GA 事件追蹤函式。
+
+
+---
+
+## 專案概覽
 
 - **定位**: 採用 Next.js 14 App Router 的 SEO 優化企業資料查詢平台。
 - **核心原則**:
@@ -17,20 +71,21 @@ alwaysApply: false
     - **開發環境**: Docker
     - **程式碼品質**: ESLint + Prettier
 
+
 ---
 
-## 2. 目錄結構
+## 目錄結構
 
-### 2.1 根目錄結構
-`next/` 為主要開發目錄，`legacy/` 為舊版參考。
+### 根目錄結構
+`next/` 為主要開發目錄，代表採用 Next.js 14 App Router 的新一代應用。`legacy/` 為舊版 Vite 應用，作為功能遷移與樣式參考的依據。
 ```
 Business-Magnifier/
-├── next/      # 主要 Next.js 應用
+├── next/      # 主要 Next.js 應用 (開發重心)
 ├── legacy/    # 舊版 Vite 應用 (參考用)
 └── .cursor/   # AI 助手配置
 ```
 
-### 2.2 `src` 目錄結構
+### `src` 目錄結構
 採功能職責分層設計，確保程式碼職責清晰。
 ```
 src/
@@ -44,31 +99,24 @@ src/
 └── config/      # 應用程式配置
 ```
 
-### 2.3 `app` 目錄與路由結構
+### `app` 目錄與路由結構
 採功能模組化組織，各功能 (如 `company`, `tender`, `aitool`) 自成模組。
 ```
 app/
-├── page.tsx          # 首頁 (重定向)
-├── layout.tsx        # 根版面
-├── loading.tsx       # 全域載入狀態
-├── globals.css       # 全域樣式
 ├── company/          # 企業查詢模組
 │   ├── search/       #   - 搜尋頁 (SSR)
 │   └── [id]/         #   - 詳情頁 (ISR)
 ├── tender/           # 標案查詢模組
-│   ├── search/       #   - 搜尋頁 (SSR)
-│   └── [id]/         #   - 詳情頁 (ISR)
 ├── aitool/           # AI 工具模組
-│   ├── search/       #   - 搜尋頁 (SSR)
-│   └── detail/       #   - 詳情頁 (SSG)
 ├── api/              # API 路由
 ├── faq/              # 常見問題頁面 (SSG)
 └── feedback/         # 使用者回饋頁面 (CSR)
 ```
 
+
 ---
 
-## 3. 路由與渲染策略
+## 路由與渲染策略
 
 ### 3.1 頁面檔案慣例
 - **頁面**: `page.tsx`
@@ -87,9 +135,10 @@ app/
 - **SSR (伺服器端渲染)**: 需要即時資料的頁面 (搜尋結果頁)。
 - **CSR (客戶端渲染)**: 高度互動的元件 (回饋表單, 複雜圖表)。
 
+
 ---
 
-## 4. API 設計規範
+## API 設計規範
 
 ### 4.1 API 路由結構 (`src/app/api/`)
 API 路由依功能模組劃分，保持結構清晰。
@@ -126,9 +175,10 @@ interface APIError {
 }
 ```
 
+
 ---
 
-## 5. 元件架構
+## 元件架構
 
 ### 5.1 元件目錄結構 (`src/components/`)
 ```
@@ -146,9 +196,10 @@ components/
 - **複刻原則**: 開發新功能時，優先複用或參考現有相似元件，以保持風格一致。
     - **範例**: `AIToolCard` 參考 `BusinessCard` 設計；`AIToolList` 參考 `BusinessList`。
 
+
 ---
 
-## 6. 資料與狀態管理
+## 資料與狀態管理
 
 ### 6.1 資料層結構 (`src/lib/`)
 資料庫連線、Mongoose 模型與核心業務邏輯存放於此。
@@ -167,9 +218,10 @@ lib/
 - **伺服器狀態**: SWR 或 React Query (推薦)，用於管理與快取 API 資料。
 - **全域狀態**: Context API，用於使用者設定、主題等跨元件共享的狀態。
 
+
 ---
 
-## 7. 開發環境與品質保證
+## 開發環境與品質保證
 
 ### 7.1 Docker 開發流程
 使用 `docker-compose.yml` 管理開發環境 (Next.js, MongoDB)。
@@ -193,20 +245,5 @@ interface AITool {
 }
 ```
 
----
-
-## 8. 核心開發原則：既有實現複刻
-
-此為本專案最重要的原則，旨在確保架構一致性與開發效率。
-
-- **開發檢查清單**:
-    1.  **尋找參考**: 開發前，尋找並參考現有相似功能的實作。
-    2.  **設計複用**: 複用現有元件、Hooks 與 API 設計模式。
-    3.  **機制統一**: 遵循統一的錯誤處理與載入狀態機制。
-
-- **實踐範例 (以 AI 工具模組為例)**:
-    - **路由**: `aitool/search` 仿照 `company/search`。
-    - **元件**: `AIToolCard` 仿照 `BusinessCard`。
-    - **API**: `/api/aitool/search` 仿照 `/api/company/search` 的邏輯與結構。
 
 ---

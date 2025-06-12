@@ -10,6 +10,28 @@ alwaysApply: false
 
 ## 核心管理原則
 
+### 🤖 AI 與 Rule 元數據協作模式 (重要)
+
+此為 AI 與使用者協作建立和維護 Cursor Rule 的核心模式，旨在釐清 AI 與使用者之間的職責，最大化開發效率。
+
+**核心限制**: AI **可以**讀取和修改 `.mdc` 檔案的 Markdown **內容**，但**無法**直接修改由 Cursor IDE 管理的檔案**元數據** (例如 `description`, `type`, `alwaysApply` 等)。
+
+因此，雙方需遵循以下優化後的協作流程：
+
+**AI 的職責 (生成內容與提供元數據建議):**
+1.  **直接生成規則檔案**: 當確認要建立新規則時，AI **應直接生成完整的 `.mdc` 檔案內容**並儲存，無需使用者預先建立空檔案。
+2.  **起草並提供 Description**: 在檔案建立完成後，AI **必須**根據下文的「Rule Description 撰寫規範」，草擬一份高品質的 `description`。
+3.  **提醒使用者更新**: AI 需將草擬好的 `description` **明確地展示給使用者**，並提醒使用者為此規則手動更新元數據。
+
+**使用者的職責 (審核與更新元數據):**
+1.  **審核內容**: 檢視 AI 生成的 `.mdc` 檔案內容是否符合預期。
+2.  **更新元數據**: 在 Cursor IDE 中，透過 `Ctrl+K` > `Edit User Rules...` 找到 AI 剛剛建立的規則。
+    *   將 `Type` 設為 **`Agent Requested`**。
+    *   將 AI 提供的 `description` 文字**貼入**對應的欄位。
+    *   根據需要設定 `Always Apply` 等其他元數據。
+
+透過此優化模式，我們能將檔案生成的任務完全自動化，僅需使用者進行最後的元數據設定，從而實現最高效的人機協作。
+
 ### 🔧 文件類型與職責劃分
 
 #### 📋 Cursor Rules (`.cursor/rules/*.mdc`)
@@ -52,12 +74,6 @@ Description 應簡潔清晰地傳達 Rule 的核心價值，格式如下：
 
 **標準格式範本**:
 `[功能名稱] [用途說明]。當你需要 [具體觸發情境] 時調用此規則，用於 [涵蓋範圍和具體功能]。[特殊情境或補充說明]。`
-
-### 🤖 建議建立 Cursor Rule
-當提議建立新規則時，AI 應提供核心 `metadata` 資訊，特別是 `description`，以便使用者在 Cursor IDE 中快速設定。
-
--   **核心流程**: AI 提出 `Rule Name` 及 `Description` -> 使用者在 IDE 中選擇 `Agent Requested` 類型並貼上描述 -> AI 建立對應的 `.mdc` 檔案內容。
--   **Description 格式**: 需遵循 `Rule Description 撰寫規範`，確保清晰傳達規則的價值與用途。
 
 ## Cursor Rule 內容架構框架
 

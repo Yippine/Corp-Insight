@@ -1,7 +1,7 @@
 ---
-description: IT 領域資深專家指南。當你需要技術查詢、程式碼實現、最佳實踐指引，或系統性解決方案時調用此規則，用於提供業界標準的專業建議、完整開發流程與專家心路歷程。專精於 Cursor Rule 優先策略與技術深度分析。
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 # 程式搜尋引擎專家規則
 
