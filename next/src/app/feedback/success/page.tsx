@@ -30,12 +30,12 @@ export default function FeedbackSuccessPage() {
   }, [secondsRemaining, router]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       <motion.div
-        initial={{ opacity: 0, scale: 0.8, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'backOut' }}
-        className="w-full max-w-lg rounded-2xl border border-white/30 bg-white/80 p-8 text-center shadow-2xl backdrop-blur-lg md:p-12"
+        className="mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-white/20 bg-white/50 p-8 text-center shadow-xl backdrop-blur-lg md:p-12"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -46,7 +46,7 @@ export default function FeedbackSuccessPage() {
             stiffness: 260,
             damping: 20,
           }}
-          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-2 border-green-500/30 bg-green-500/10"
+          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10"
         >
           <CheckCircle className="h-12 w-12 text-green-500" />
         </motion.div>
@@ -73,7 +73,7 @@ export default function FeedbackSuccessPage() {
           </Link>
           <button
             onClick={() => router.back()}
-            className="inline-flex w-full transform items-center justify-center rounded-xl border border-gray-300 bg-white px-8 py-3 text-base font-medium text-gray-700 shadow-sm transition-transform duration-150 hover:scale-105 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="inline-flex w-full transform items-center justify-center rounded-xl border border-gray-300 bg-transparent px-8 py-3 text-base font-medium text-gray-700 shadow-sm transition-transform duration-150 hover:scale-105 hover:bg-gray-100/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             返回上一頁
