@@ -33,6 +33,21 @@ const nextConfig = {
         destination: '/company/search',
         permanent: true, // 使用 308 永久重定向
       },
+      {
+        source: '/company',
+        destination: '/company/search',
+        permanent: true,
+      },
+      {
+        source: '/tender',
+        destination: '/tender/search',
+        permanent: true,
+      },
+      {
+        source: '/aitool',
+        destination: '/aitool/search',
+        permanent: true,
+      },
     ];
   },
   experimental: {

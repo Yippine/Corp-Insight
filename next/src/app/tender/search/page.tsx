@@ -10,7 +10,10 @@ import NoSearchResults from '@/components/common/NoSearchResults';
 import TenderSearchClientWrapper from '@/components/tender/TenderSearchClientWrapper';
 import TenderSearchTracker from '@/components/tender/TenderSearchTracker';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
-import { dynamicTitles, staticTitles } from '@/config/pageTitles';
+import {
+  generateTenderSearchMetadata,
+  TenderSearchStructuredData,
+} from '@/components/SEO/TenderSearchSEO';
 import { cache } from 'react';
 
 export const dynamic = 'force-dynamic';
@@ -77,54 +80,59 @@ export default async function TenderSearchPage({
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-full min-h-[calc(100vh-var(--header-height,80px)-var(--footer-height,80px))] w-full items-center justify-center">
-          <InlineLoading />
-        </div>
-      }
-    >
-      <TenderSearchClientWrapper>
-        {/* GA 搜尋結果追蹤 */}
-        {decodedQuery && (
-          <TenderSearchTracker 
-            query={decodedQuery} 
-            searchType={searchType}
-            totalResults={results.length} 
-            hasError={!!error} 
-          />
-        )}
-        
-        <div className="space-y-8">
-          <HeroSection
-            title="快速查詢"
-            highlightText="標案資訊"
-            description="輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊"
-            highlightColor="text-green-600"
-          />
+    <>
+      {/* SEO 數據標記 */}
+      <TenderSearchStructuredData query={decodedQuery} searchType={searchType} />
 
-          <TenderSearchForm
-            initialQuery={decodedQuery}
-            initialType={searchType}
-          />
+      <Suspense
+        fallback={
+          <div className="flex h-full min-h-[calc(100vh-var(--header-height,80px)-var(--footer-height,80px))] w-full items-center justify-center">
+            <InlineLoading />
+          </div>
+        }
+      >
+        <TenderSearchClientWrapper>
+          {/* GA 搜尋結果追蹤 */}
+          {decodedQuery && (
+            <TenderSearchTracker
+              query={decodedQuery}
+              searchType={searchType}
+              totalResults={results.length}
+              hasError={!!error}
+            />
+          )}
+          
+          <div className="space-y-8">
+            <HeroSection
+              title="快速查詢"
+              highlightText="標案資訊"
+              description="輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊"
+              highlightColor="text-green-600"
+            />
 
-          {decodedQuery &&
-            (error ? (
-              <NoSearchResults message={error} searchTerm={decodedQuery} />
-            ) : (
-              <TenderSearchResults
-                results={results}
-                totalPages={totalPages}
-                currentPage={page}
-                searchQuery={decodedQuery}
-                searchType={searchType}
-              />
-            ))}
+            <TenderSearchForm
+              initialQuery={decodedQuery}
+              initialType={searchType}
+            />
 
-          {!decodedQuery && <FeatureSection />}
-        </div>
-      </TenderSearchClientWrapper>
-    </Suspense>
+            {decodedQuery &&
+              (error ? (
+                <NoSearchResults message={error} searchTerm={decodedQuery} />
+              ) : (
+                <TenderSearchResults
+                  results={results}
+                  totalPages={totalPages}
+                  currentPage={page}
+                  searchQuery={decodedQuery}
+                  searchType={searchType}
+                />
+              ))}
+
+            {!decodedQuery && <FeatureSection />}
+          </div>
+        </TenderSearchClientWrapper>
+      </Suspense>
+    </>
   );
 }
 
@@ -135,34 +143,17 @@ export async function generateMetadata({
   searchParams?: SearchParams;
 }): Promise<Metadata> {
   const query = searchParams?.q || '';
-  const searchType = (searchParams?.type || 'tender') as 'company' | 'tender'; // 預設為 'tender'
+  const searchType = (searchParams?.type || 'tender') as 'company' | 'tender';
   const decodedQuery = decodeURIComponent(query);
-
-  // 如果沒有查詢詞，則使用預設標題
-  if (!decodedQuery) {
-    return {
-      title: staticTitles.tenderSearch,
-      description:
-        '輸入標案名稱、公司名稱、統編或關鍵字，立即獲取完整標案資訊。',
-    };
-  }
-
-  // 使用 getCachedTenderSearch 判斷搜尋結果
-  // 只獲取第一頁的數據，這對於標題生成已經足夠
-  const searchResults = await getCachedTenderSearch(
-    decodedQuery,
-    searchType,
-    1
-  );
-
-  // 根據結果決定使用哪個標題
+  
+  // 為了判斷是否有結果，我們需要執行一次搜尋
+  // 這會從快取中讀取，不會造成額外請求
+  const searchResults = await getCachedTenderSearch(decodedQuery, searchType, 1);
   const hasResults = searchResults.results.length > 0;
-  const title = hasResults
-    ? dynamicTitles.tenderSearchWithQueryAndType(decodedQuery, searchType)
-    : dynamicTitles.tenderSearchNoResult(decodedQuery, searchType);
-
-  return {
-    title,
-    description: `查看 ${decodedQuery} (${searchType === 'company' ? '廠商' : '標案'}) 的相關標案資訊、招標公告、得標資訊等完整資料。`,
-  };
+  
+  // 使用 SEO 組件生成元數據
+  return generateTenderSearchMetadata({
+    query: decodedQuery,
+    searchType,
+  });
 }

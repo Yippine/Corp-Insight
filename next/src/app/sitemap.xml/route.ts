@@ -19,28 +19,16 @@ export async function GET() {
   // 靜態頁面配置
   const staticPages: SitemapUrl[] = [
     {
-      url: `${baseUrl}/`,
-      lastModified: currentDate,
-      changeFreq: 'daily',
-      priority: 1.0,
-    },
-    {
       url: `${baseUrl}/company/search`,
       lastModified: currentDate,
       changeFreq: 'hourly',
-      priority: 0.9,
+      priority: 1.0,
     },
     {
       url: `${baseUrl}/tender/search`,
       lastModified: currentDate,
       changeFreq: 'hourly',
       priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/aitool`,
-      lastModified: currentDate,
-      changeFreq: 'daily',
-      priority: 0.8,
     },
     {
       url: `${baseUrl}/aitool/search`,
@@ -107,7 +95,7 @@ export async function GET() {
     popularCompanies.forEach((company: any) => {
       if (company.taxId) {
         dynamicPages.push({
-          url: `${baseUrl}/company/detail/${company.taxId}`,
+          url: `${baseUrl}/company/detail/${company.taxId}?tab=basic`,
           lastModified: company.updatedAt || currentDate,
           changeFreq: 'weekly',
           priority: 0.8,
@@ -119,7 +107,7 @@ export async function GET() {
     importantTenders.forEach((tender: any) => {
       if (tender._id) {
         dynamicPages.push({
-          url: `${baseUrl}/tender/detail/${tender._id}`,
+          url: `${baseUrl}/tender/detail/${tender._id}?tab=basic`,
           lastModified: tender.updatedAt || currentDate,
           changeFreq: 'monthly',
           priority: 0.7,
