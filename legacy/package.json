@@ -4,12 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "// === 本地開發指令 ===": "",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "start": "vite preview",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "generate-sitemap": "node scripts/generate-sitemap.js",
-    "start-cron": "node scripts/cron-jobs.js"
+    "format": "eslint . --fix",
+    "format:check": "eslint .",
+    "format:fix": "eslint . --fix"
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.11.0",
