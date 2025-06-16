@@ -26,7 +26,7 @@ const LineBotBanner = () => {
             </h2>
           </div>
           <p className="mb-4 text-green-100 md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
-            您的 24 小時隨身法規顧問，由 Bedrock Claude 3.5 Sonnet 強力驅動。
+            您的 24 小時隨身法規顧問，由 Claude 3.5 Sonnet 強力驅動。
           </p>
           <ul className="mb-6 list-inside list-disc space-y-1 text-left text-base text-green-100 sm:mx-auto sm:w-fit md:mx-0 md:w-auto [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
             <li>RAG 技術整合，資訊最新最準確</li>
