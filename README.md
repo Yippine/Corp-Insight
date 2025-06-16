@@ -2,6 +2,14 @@
 
 `Business Magnifier` 是一個先進的商業分析儀表板，旨在透過數據視覺化、AI 洞察和自動化工具，為企業決策者提供強大的支援。本專案採用現代化的技術棧，並擁有高度整合的開發與部署流程。
 
+<div align="center">
+  <a href="https://youtu.be/EMedbGk9KlI" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.youtube.com/vi/EMedbGk9KlI/maxresdefault.jpg" alt="產品功能展示影片" style="width:80%; border-radius:10px;">
+  </a>
+  <br/>
+  <sub>點擊圖片觀看產品功能展示影片 🚀</sub>
+</div>
+
 ## ✨ 核心功能（Key Features）
 
 - **📄 AI 驅動的內容生成**: 整合 Google Gemini AI，自動分析數據並生成報告與建議。
