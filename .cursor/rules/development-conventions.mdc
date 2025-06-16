@@ -69,7 +69,7 @@ alwaysApply: false
     - **架構一致性**: 維護統一的專案結構與設計模式。參考 `project-architecture.mdc`。
     - **既有實現複刻**: 新功能開發需參照現有相似功能的實現，確保風格一致。
 - **技術棧與現況**:
-    - **主分支**: `next`
+    - **主分支**: `main`
     - **資料庫**: MongoDB (見 `mongodb-architecture-guide.mdc`)
     - **開發環境**: Docker
     - **程式碼品質**: ESLint + Prettier

@@ -9,7 +9,7 @@ alwaysApply: false
 
 - **定位**: 採用 Next.js 14 App Router 的 SEO 優化企業資料查詢平台，已完成從 CSR 到 SSR/SSG 的架構重構。
 - **核心技術**: Next.js + MongoDB + Docker。
-- **主要分支**: `next`。
+- **主要分支**: `main`。
 - **延伸閱讀**:
     - 若要了解詳細的開發SOP，請參閱 `development-conventions.mdc`。
     - 若要了解 SEO 的具體實施策略，請參閱 `seo-optimization-guide.mdc`。
