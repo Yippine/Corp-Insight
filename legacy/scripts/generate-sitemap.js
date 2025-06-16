@@ -23,7 +23,7 @@ async function generateSitemap() {
   // const urls = [...baseUrls, ...visitedUrls];
 
   // 創建 sitemap
-  const stream = new SitemapStream({ hostname: 'https://insight.leopilot.com' });
+  const stream = new SitemapStream({ hostname: 'https://opendata.leopilot.com' });
   const data = Readable.from(urls).pipe(stream);
 
   // 寫入文件

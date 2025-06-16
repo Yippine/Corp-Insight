@@ -12,10 +12,10 @@ export default function SEOHead({
   title,
   description,
   canonicalUrl,
-  ogImage = 'https://insight.leopilot.com/og-image.jpg',
+  ogImage = 'https://opendata.leopilot.com/og-image.jpg',
   noindex = false
 }: SEOHeadProps) {
-  const siteUrl = 'https://insight.leopilot.com';
+  const siteUrl = 'https://opendata.leopilot.com';
   const fullUrl = canonicalUrl ? `${siteUrl}${canonicalUrl}` : undefined;
 
   return (
