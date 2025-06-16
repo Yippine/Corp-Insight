@@ -3,7 +3,7 @@
 set -e
 
 # --- 組態設定 ---
-TARGET_BRANCH="next"
+TARGET_BRANCH="main"
 
 # --- 輔助函式 ---
 # 使用 echo 搭配 -e 來解析顏色代碼
