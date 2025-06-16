@@ -13,6 +13,7 @@ import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
 import { useLoading } from '@/components/common/loading/LoadingProvider';
 import { trackBusinessEvents } from '../GoogleAnalytics';
+import LineBotBanner from './LineBotBanner';
 
 // 添加預載功能
 const preloadToolComponents = async () => {
@@ -228,120 +229,123 @@ export default function AiToolSearch({
   const filtered = filteredTools();
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="relative flex-1">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-5 w-5 text-gray-400" />
+    <>
+      <LineBotBanner />
+      <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="relative flex-1">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+              placeholder="搜尋工具..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
           </div>
-          <input
-            type="text"
-            className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-            placeholder="搜尋工具..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+          <div className="ml-4 flex items-center rounded-lg bg-gray-50 px-4 py-2">
+            <ListFilter className="mr-2 h-5 w-5 text-gray-500" />
+            <span className="font-medium text-gray-600">
+              {filtered.length} 個工具
+            </span>
+          </div>
+        </div>
+
+        <div className="mb-6 flex flex-wrap gap-2">
+          {Object.entries(categoryThemes).map(([tag, theme]) => (
+            <motion.button
+              key={tag}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleTagSelect(tag)}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                selectedTag === tag || (!selectedTag && tag === '全部')
+                  ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
+                  : `${theme.secondary} ${theme.text} ${theme.hover}`
+              }`}
+            >
+              {tag}
+            </motion.button>
+          ))}
+        </div>
+
+        {filtered.length === 0 ? (
+          <NoSearchResults
+            query={searchQuery}
+            tag={selectedTag}
+            onClear={() => {
+              setSearchQuery('');
+              setSelectedTag('');
+            }}
           />
-        </div>
-        <div className="ml-4 flex items-center rounded-lg bg-gray-50 px-4 py-2">
-          <ListFilter className="mr-2 h-5 w-5 text-gray-500" />
-          <span className="font-medium text-gray-600">
-            {filtered.length} 個工具
-          </span>
-        </div>
-      </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <AnimatePresence mode="popLayout">
+              {filtered.map(tool => {
+                const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
+                const isAITool = tool.componentId === 'PromptToolTemplate';
 
-      <div className="mb-6 flex flex-wrap gap-2">
-        {Object.entries(categoryThemes).map(([tag, theme]) => (
-          <motion.button
-            key={tag}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleTagSelect(tag)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
-              selectedTag === tag || (!selectedTag && tag === '全部')
-                ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
-                : `${theme.secondary} ${theme.text} ${theme.hover}`
-            }`}
-          >
-            {tag}
-          </motion.button>
-        ))}
-      </div>
-
-      {filtered.length === 0 ? (
-        <NoSearchResults
-          query={searchQuery}
-          tag={selectedTag}
-          onClear={() => {
-            setSearchQuery('');
-            setSelectedTag('');
-          }}
-        />
-      ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence mode="popLayout">
-            {filtered.map(tool => {
-              const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
-              const isAITool = tool.componentId === 'PromptToolTemplate';
-
-              return (
-                <motion.div
-                  key={tool.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  whileHover={{
-                    scale: 1.02,
-                    transition: { duration: 0.2 },
-                  }}
-                  className="group cursor-pointer rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg"
-                  onClick={() => handleToolClick(tool.id)}
-                >
-                  <div className="mb-4 flex items-start justify-between">
-                    <div
-                      className={`rounded-lg p-3 ${isAITool ? 'bg-gradient-to-br from-purple-100 to-pink-100' : 'bg-blue-50'} transition-transform duration-300 group-hover:scale-110`}
-                    >
-                      <IconComponent
-                        className={`h-6 w-6 ${isAITool ? 'text-purple-600' : 'text-blue-600'}`}
-                      />
+                return (
+                  <motion.div
+                    key={tool.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    whileHover={{
+                      scale: 1.02,
+                      transition: { duration: 0.2 },
+                    }}
+                    className="group cursor-pointer rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg"
+                    onClick={() => handleToolClick(tool.id)}
+                  >
+                    <div className="mb-4 flex items-start justify-between">
+                      <div
+                        className={`rounded-lg p-3 ${isAITool ? 'bg-gradient-to-br from-purple-100 to-pink-100' : 'bg-blue-50'} transition-transform duration-300 group-hover:scale-110`}
+                      >
+                        <IconComponent
+                          className={`h-6 w-6 ${isAITool ? 'text-purple-600' : 'text-blue-600'}`}
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <h3 className="mb-2 font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-600">
-                    {tool.name}
-                  </h3>
+                    <h3 className="mb-2 font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-600">
+                      {tool.name}
+                    </h3>
 
-                  <p className="mb-4 line-clamp-2 text-sm text-gray-600">
-                    {tool.description}
-                  </p>
+                    <p className="mb-4 line-clamp-2 text-sm text-gray-600">
+                      {tool.description}
+                    </p>
 
-                  <div className="flex flex-wrap gap-1">
-                    {tool.tags.slice(0, 3).map(tag => {
-                      const tagTheme = fullTagThemes[tag];
-                      if (!tagTheme) return null;
+                    <div className="flex flex-wrap gap-1">
+                      {tool.tags.slice(0, 3).map(tag => {
+                        const tagTheme = fullTagThemes[tag];
+                        if (!tagTheme) return null;
 
-                      return (
-                        <span
-                          key={tag}
-                          className={`rounded-full px-2 py-1 text-xs ${tagTheme.secondary} ${tagTheme.text}`}
-                        >
-                          {tag}
+                        return (
+                          <span
+                            key={tag}
+                            className={`rounded-full px-2 py-1 text-xs ${tagTheme.secondary} ${tagTheme.text}`}
+                          >
+                            {tag}
+                          </span>
+                        );
+                      })}
+                      {tool.tags.length > 3 && (
+                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
+                          +{tool.tags.length - 3}
                         </span>
-                      );
-                    })}
-                    {tool.tags.length > 3 && (
-                      <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
-                        +{tool.tags.length - 3}
-                      </span>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      )}
-    </div>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

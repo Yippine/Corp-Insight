@@ -8,6 +8,7 @@ import { categoryThemes, fullTagThemes } from '../../config/theme'
 import { useToolNavigation } from '../../hooks/useToolNavigation'
 import FeatureSection from '../FeatureSection'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
+import LineBotBanner from './LineBotBanner'
 
 export default function ToolSearch() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -70,6 +71,7 @@ export default function ToolSearch() {
 
   return (
     <div className="space-y-8">
+      <LineBotBanner />
       <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
         <div className="flex items-center justify-between mb-6">
           <div className="relative flex-1">
