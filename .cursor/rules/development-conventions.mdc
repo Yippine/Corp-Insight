@@ -226,6 +226,12 @@ lib/
 
 ## 開發環境與品質保證
 
+> **⚠️ 重要：環境變數管理 (`.env.local`)**
+> 由於安全限制，AI 無法直接讀取 `.env.local` 檔案的內容。若 AI 判斷需要新增環境變數，它會暫停操作，並明確告知需要新增的「鍵」與「值」。
+>
+> **開發者職責**: 請手動將 AI 提供的鍵值對加入到 `next/.env.local` 檔案。
+> **AI 職責**: **嚴禁**使用 `echo` 或其他指令直接建立或覆蓋 `.env.local` 檔案。
+
 ### 7.1 Docker 開發流程
 使用 `docker-compose.yml` 管理開發環境 (Next.js, MongoDB)。
 - `npm run start:dev`: 一鍵啟動所有服務。
@@ -250,3 +256,19 @@ interface AITool {
 
 
 ---
+
+## 開發人員維運控制台 (`/admin`) 開發規範
+
+專案包含一個位於 `/admin/*` 路徑下的內部維運控制台，開發此區域時必須遵循以下原則：
+
+### 8.1. 零 SEO 與追蹤
+- 所有 `/admin` 下的頁面 **禁止** 包含任何 `Google Analytics` 追蹤碼。
+- **禁止** 為 `/admin` 頁面產生 `Metadata` 物件。
+- 為此，`/admin` 路由群組應使用其專屬的 `layout.tsx`，該佈局不應繼承根佈局中的任何全域元件。
+
+### 8.2. 功能導向 UI
+- UI 設計應以功能性為最高優先，避免使用面向終端使用者的行銷元件 (如 `HeroSection`)。
+
+### 8.3. 安全性優先
+- 嚴禁將高風險 (`docker:*`, `deploy:*` 等) 的 `npm scripts` 介面化。
+- 所有後端 API 必須通過 Secret Token 進行權限驗證。
