@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
 import { Buffer } from 'buffer'; // Needed for file buffer
-import { logFeedbackSubmission } from '@/lib/mongodbUtils'; // 導入
+import Feedback from '@/lib/database/models/Feedback'; // 導入新的 Feedback Model
+import connectToDatabase from '@/lib/database/connection'; // 導入資料庫連接
 
 interface VerificationTokenPayload {
   email: string;
@@ -220,19 +221,33 @@ export async function POST(request: NextRequest) {
       // You might want to inform the user that confirmation couldn't be sent but feedback was received.
     }
 
-    // Log the feedback submission to MongoDB before returning success to user
-    const submissionDataForLog = {
-      type,
-      title,
-      content,
-      email,
-      fileName: file ? file.name : null,
-      fileSize: file ? file.size : null,
-      fileType: file ? file.type : null,
-      developer_email_sent: true, // Assuming it was successful if we reached here
-      user_confirmation_email_sent: true, // Assuming successful or logging error above
-    };
-    await logFeedbackSubmission(submissionDataForLog);
+    // --- 7. Save feedback to the database using the new model ---
+    try {
+      await connectToDatabase();
+
+      const newFeedback = new Feedback({
+        submittedByEmail: email,
+        category: type,
+        title,
+        content,
+        attachment: file
+          ? {
+              fileName: file.name,
+              fileSize: file.size,
+              fileType: file.type,
+            }
+          : undefined,
+        // The 'status', 'priority', and 'history' fields will be set to their default values
+      });
+
+      await newFeedback.save();
+      console.log('Feedback saved to database:', newFeedback._id);
+    } catch (dbError) {
+      console.error('Error saving feedback to database:', dbError);
+      // Even if saving to DB fails, the user has received confirmation and the developer has been notified.
+      // This should be logged for manual follow-up.
+      // We don't return an error to the user here as the primary task (emailing) was successful.
+    }
 
     return NextResponse.json(
       { message: '您的意見回饋已成功提交！感謝您的寶貴意見。' },

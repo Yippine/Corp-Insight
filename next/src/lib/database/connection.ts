@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { ConnectOptions } from 'mongoose';
 
 // MongoDB 連線狀態
 interface MongoConnection {
@@ -40,7 +40,7 @@ async function connectToDatabase(): Promise<typeof mongoose> {
     const MONGODB_URI = getMongoURI();
 
     // 連線配置選項 (針對本地開發優化)
-    const options = {
+    const options: ConnectOptions = {
       bufferCommands: false,
       maxPoolSize: 10, // 連線池最大連線數
       serverSelectionTimeoutMS: 5000, // 伺服器選擇超時

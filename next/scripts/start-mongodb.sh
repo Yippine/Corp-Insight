@@ -2,12 +2,12 @@
 
 # Business Magnifier MongoDB 啟動與初始化腳本
 # 用途: 啟動 MongoDB Docker 服務並初始化所有 Collections
-# 目標: 建立 9 個完整的 MongoDB Collections
+# 目標: 建立 7 個完整的 MongoDB Collections
 
 set -e  # 遇到錯誤即退出
 
 echo "🚀 Business Magnifier MongoDB 啟動與初始化腳本"
-echo "🎯 目標：建立 9 個完整的 MongoDB Collections"
+echo "🎯 目標：建立 7 個完整的 MongoDB Collections"
 echo "=============================================="
 
 # 顏色定義
@@ -117,15 +117,13 @@ check_nodejs() {
 # 初始化 MongoDB Collections
 init_collections() {
     echo -e "\n${BLUE}🛠️  初始化 MongoDB Collections...${NC}"
-    echo -e "${BLUE}🎯 目標：建立 9 個完整的 Collections${NC}"
     
     if [ ! -f "scripts/init-mongodb-collections.js" ]; then
         echo -e "${RED}❌ 初始化腳本不存在: scripts/init-mongodb-collections.js${NC}"
         exit 1
     fi
     
-    # 設定環境變數
-    export MONGODB_URI="mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin"
+    # Node.js 腳本現在會自動從 .env.local 讀取 URI，不再需要手動 export
     
     # 執行初始化腳本
     echo -e "${BLUE}🔄 執行 Collections 初始化...${NC}"
@@ -148,18 +146,17 @@ show_connection_info() {
     echo -e "   🔐 密碼: password"
     echo -e "   🌐 管理介面: http://localhost:8081 (需要啟動 mongo-express)"
     
-    echo -e "\n${BLUE}📊 建立的 9 個 Collections:${NC}"
+    echo -e "\n${BLUE}📊 建立的 7 個 Collections:${NC}"
     echo -e "   🏢 核心業務資料:"
     echo -e "      📁 companies - 企業資料集合"
     echo -e "      📁 tenders - 政府標案資料集合"
     echo -e "      📁 ai_tools - AI 工具資料集合"
+    echo -e "      📁 feedbacks - 使用者意見回饋"
     echo -e "   🗂️  API 快取:"
     echo -e "      📁 pcc_api_cache - 政府採購網 API 快取"
     echo -e "      📁 g0v_company_api_cache - G0V 企業資料 API 快取"
     echo -e "      📁 twincn_api_cache - 台灣企業網 API 快取"
-    echo -e "   📝 系統日誌:"
-    echo -e "      📁 email_verification_log - Email 驗證日誌"
-    echo -e "      📁 feedback_submissions_log - 意見回饋提交日誌"
+    echo -e "   📝 系統日誌: (目前無)"
     
     echo -e "\n${BLUE}🛠️  管理命令:${NC}"
     echo -e "   停止 MongoDB: docker stop mongo"

@@ -5,15 +5,14 @@
  * 用途: 根據專案架構規則重建所有必要的 MongoDB Collections 和索引
  * 執行方式: node scripts/init-mongodb-collections.js
  * 
- * 重建的 9 個 Collections:
+ * 重建的 7 個 Collections:
  * 1. companies - 企業資料集合
  * 2. tenders - 政府標案資料集合  
  * 3. ai_tools - AI 工具資料集合
- * 4. pcc_api_cache - 政府採購網 API 快取
- * 5. g0v_company_api_cache - G0V 企業資料 API 快取
- * 6. twincn_api_cache - 台灣企業網 API 快取
- * 7. email_verification_log - Email 驗證日誌
- * 8. feedback_submissions_log - 意見回饋提交日誌
+ * 4. feedbacks - 使用者意見回饋
+ * 5. pcc_api_cache - 政府採購網 API 快取
+ * 6. g0v_company_api_cache - G0V 企業資料 API 快取
+ * 7. twincn_api_cache - 台灣企業網 API 快取
  */
 
 const { MongoClient } = require('mongodb');
@@ -25,7 +24,8 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://admin:password@localho
 const DB_NAME = 'business-magnifier';
 
 /**
- * Collections 定義和索引配置（9個完整 Collections）
+ * Collections 定義和索引配置
+ * Collections 定義和索引配置（7個完整 Collections）
  */
 const COLLECTIONS_CONFIG = {
   // 1. 核心業務資料 Collections
@@ -67,6 +67,17 @@ const COLLECTIONS_CONFIG = {
     ]
   },
 
+  feedbacks: {
+    description: '使用者意見回饋 - 儲存結構化的使用者意見回饋，包含狀態、優先級等',
+    indexes: [
+      { keys: { status: 1, priority: -1 }, options: { name: 'status_priority_index' } },
+      { keys: { category: 1 }, options: { name: 'category_index' } },
+      { keys: { assignedTo: 1 }, options: { name: 'assignedTo_index' } },
+      { keys: { createdAt: -1 }, options: { name: 'createdAt_sort_index' } },
+      { keys: { email: 1 }, options: { name: 'email_lookup_index' } }
+    ]
+  },
+
   // 2. API 快取 Collections
   pcc_api_cache: {
     description: '政府採購網 API 快取 - 快取外部 API 回應，提升效能',
@@ -97,31 +108,6 @@ const COLLECTIONS_CONFIG = {
       { keys: { expires_at: 1 }, options: { expireAfterSeconds: 0, name: 'expires_at_ttl' } },
       { keys: { data_type: 1 }, options: { name: 'data_type_1' } },
       { keys: { fetched_at: -1 }, options: { name: 'fetched_at_-1' } }
-    ]
-  },
-
-  // 3. 系統日誌 Collections
-  email_verification_log: {
-    description: 'Email 驗證日誌 - 記錄 Email 驗證碼發送和驗證過程',
-    indexes: [
-      { keys: { email: 1, verification_code: 1 }, options: { name: 'email_code_compound' } },
-      { keys: { expires_at: 1 }, options: { expireAfterSeconds: 0, name: 'expires_at_ttl' } },
-      { keys: { status: 1 }, options: { name: 'status_1' } },
-      { keys: { created_at: -1 }, options: { name: 'created_at_-1' } },
-      { keys: { purpose: 1 }, options: { name: 'purpose_1' } }
-    ]
-  },
-
-  feedback_submissions_log: {
-    description: '意見回饋提交日誌 - 記錄使用者意見回饋提交紀錄',
-    indexes: [
-      { keys: { status: 1 }, options: { name: 'status_1' } },
-      { keys: { category: 1 }, options: { name: 'category_1' } },
-      { keys: { priority: 1 }, options: { name: 'priority_1' } },
-      { keys: { email: 1 }, options: { name: 'email_1' } },
-      { keys: { created_at: -1 }, options: { name: 'created_at_-1' } },
-      { keys: { tags: 1 }, options: { name: 'tags_1' } },
-      { keys: { user_id: 1 }, options: { name: 'user_id_1' } }
     ]
   }
 };
@@ -186,7 +172,7 @@ async function initializeMongoDBCollections() {
 
   try {
     console.log('🚀 Business Magnifier MongoDB Collections 初始化開始');
-    console.log('🎯 目標：建立 9 個完整的 Collections');
+    console.log('🎯 目標：建立 7 個完整的 Collections');
     console.log('=' * 60);
     
     // 連接到 MongoDB
@@ -235,9 +221,8 @@ async function initializeMongoDBCollections() {
     console.log(`\n📋 最終 Collections (${finalCollections.length}):`);
     
     // 按照邏輯分組顯示
-    const coreCollections = ['companies', 'tenders', 'ai_tools'];
+    const coreCollections = ['companies', 'tenders', 'ai_tools', 'feedbacks'];
     const cacheCollections = ['pcc_api_cache', 'g0v_company_api_cache', 'twincn_api_cache'];
-    const logCollections = ['email_verification_log', 'feedback_submissions_log'];
     
     console.log('   🏢 核心業務資料:');
     coreCollections.forEach(name => {
@@ -250,12 +235,6 @@ async function initializeMongoDBCollections() {
       const exists = finalCollections.find(c => c.name === name);
       console.log(`      ${exists ? '✅' : '❌'} ${name}`);
     });
-    
-    console.log('   📝 系統日誌:');
-    logCollections.forEach(name => {
-      const exists = finalCollections.find(c => c.name === name);
-      console.log(`      ${exists ? '✅' : '❌'} ${name}`);
-    });
 
     // 資料庫統計
     const stats = await db.stats();
@@ -264,14 +243,14 @@ async function initializeMongoDBCollections() {
     console.log(`   📚 集合數量: ${stats.collections}`);
     console.log(`   🗂️  索引數量: ${stats.indexes}`);
 
-    // 驗證預期的 9 個 Collections 是否都存在
+    // 驗證預期的 7 個 Collections 是否都存在
     const expectedCollections = Object.keys(COLLECTIONS_CONFIG);
     const missingCollections = expectedCollections.filter(name => 
       !finalCollections.find(c => c.name === name)
     );
     
     if (missingCollections.length === 0) {
-      console.log('\n🎉 所有 9 個 Collections 建立完成！');
+      console.log('\n🎉 所有 7 個 Collections 建立完成！');
     } else {
       console.log(`\n⚠️  缺少 ${missingCollections.length} 個 Collections: ${missingCollections.join(', ')}`);
     }
