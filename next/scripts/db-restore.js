@@ -1,206 +1,153 @@
 #!/usr/bin/env node
 
-const { exec } = require('child_process');
-const path = require('path');
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env.local') });
 const fs = require('fs');
-const util = require('util');
+const path = require('path');
 const os = require('os');
 const tar = require('tar');
-const readline = require('readline');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+const { MongoClient } = require('mongodb');
 
-// 在所有其他代碼之前加載環境變數
-require('dotenv').config({ path: path.resolve(__dirname, '..', '.env.local') });
-
-const execAsync = util.promisify(exec);
-
-// --- 從環境變數解析資料庫設定 ---
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  console.error('\x1b[31m❌ 錯誤：找不到 MONGODB_URI 環境變數。\x1b[0m');
-  console.error('\x1b[33m請確保在 /next 目錄下有名為 .env.local 的檔案，且其中包含 MONGODB_URI 的設定。\x1b[0m');
-  process.exit(1);
-}
-
-let DB_NAME, DB_USER, DB_PASS, DB_HOST, DB_PORT;
-try {
-  const uri = new URL(MONGODB_URI);
-  DB_NAME = uri.pathname.substring(1); // 移除開頭的 '/'
-  DB_USER = uri.username;
-  DB_PASS = uri.password;
-  DB_HOST = uri.hostname;
-  DB_PORT = uri.port;
-} catch (error) {
-  console.error('\x1b[31m❌ 錯誤：MONGODB_URI 格式不正確。\x1b[0m');
-  console.error(error);
-  process.exit(1);
-}
-
-// --- 備份設定 ---
+// --- 配置 ---
 const BACKUP_DIR = path.join(__dirname, '..', 'db', 'backups');
-const DOCKER_CONTAINER_NAME = 'mongo';
+const MONGO_CONTAINER_NAME = 'mongo';
+// ---
 
-// 顏色輸出
-const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  green: '\x1b[32m',
-  blue: '\x1b[34m',
-  yellow: '\x1b[33m',
-  cyan: '\x1b[36m',
-  red: '\x1b[31m',
-};
-
-function colorize(text, color) {
-  return `${colors[color]}${text}${colors.reset}`;
-}
-
-// --- 輔助函式 ---
 async function checkDockerContainer() {
   try {
-    const { stdout } = await execAsync(
-      `docker ps --filter "name=${DOCKER_CONTAINER_NAME}" --format "{{.Names}}"`
-    );
-    if (!stdout.trim().includes(DOCKER_CONTAINER_NAME)) {
-      throw new Error(
-        `MongoDB 容器 '${DOCKER_CONTAINER_NAME}' 未運行！請先啟動 Docker 服務。`
-      );
+    const { stdout } = await exec(`docker ps -f "name=${MONGO_CONTAINER_NAME}" --format "{{.Names}}"`);
+    if (!stdout.trim().includes(MONGO_CONTAINER_NAME)) {
+      throw new Error();
     }
   } catch (error) {
-    throw new Error(`Docker 容器檢查失敗：${error.message}`);
+    console.error(`❌ 錯誤: 找不到名為 "${MONGO_CONTAINER_NAME}" 的 Docker 容器。請確保 MongoDB 正在運行 (npm run docker:mongo)。`);
+    process.exit(1);
   }
 }
 
-function getBackupFiles() {
+async function findLatestFullBackup() {
   if (!fs.existsSync(BACKUP_DIR)) {
-    return [];
+    console.error('❌ 備份目錄不存在:', BACKUP_DIR);
+    return null;
   }
-  return fs
-    .readdirSync(BACKUP_DIR)
-    .filter(file => file.endsWith('.tar.gz'))
-    .sort((a, b) => b.localeCompare(a)); // 按時間倒序
+  const files = fs.readdirSync(BACKUP_DIR)
+    .filter(file => file.startsWith('db-backup-all-') && file.endsWith('.tar.gz'))
+    .sort((a, b) => b.localeCompare(a));
+
+  if (files.length === 0) {
+    console.error('❌ 找不到任何 `-all-` 的完整備份檔案。');
+    return null;
+  }
+  return files[0];
 }
 
-function askQuestion(query) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise(resolve =>
-    rl.question(query, ans => {
-      rl.close();
-      resolve(ans);
-    })
-  );
+// 增加一個獨立的清理函數
+async function cleanup(directory) {
+  if (fs.existsSync(directory)) {
+    fs.rmSync(directory, { recursive: true, force: true });
+    console.log('🧹 臨時檔案清理完成');
+  }
 }
 
-async function main() {
-  console.log(colorize('\n🔄 MongoDB 全面還原工具', 'bright'));
-  console.log(colorize('='.repeat(50), 'cyan'));
+async function restore() {
+  console.log('\n🔄 MongoDB 全面還原工具');
+  console.log('='.repeat(50));
 
-  let tempDir;
+  await checkDockerContainer();
+  console.log('✅ Docker 容器檢查通過');
+
+  const backupFile = await findLatestFullBackup();
+  if (!backupFile) {
+    process.exit(1);
+  }
+
+  const backupFilePath = path.join(BACKUP_DIR, backupFile);
+  console.log(`📂 準備從最新完整備份還原: ${backupFile}`);
+
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mongodb-restore-'));
+  
+  let client;
   try {
-    // 1. 檢查 Docker
-    await checkDockerContainer();
-    console.log(colorize('✅ Docker 容器檢查通過', 'green'));
+    console.log('-'.repeat(50));
+    console.log('Connecting to MongoDB...');
+    const DB_NAME = process.env.DB_NAME || 'business-magnifier';
+    // 連線 URI 不應包含 db name
+    const connectionUri = process.env.MONGODB_URI.split('/').slice(0, 3).join('/');
+    client = new MongoClient(connectionUri);
+    await client.connect();
+    const db = client.db(DB_NAME);
+    console.log('Connection successful.');
+    console.log('-'.repeat(50));
+    
+    console.log(`📂 正在解壓縮至: ${tempDir}`);
+    await tar.x({ file: backupFilePath, cwd: tempDir });
+    console.log('✅ 解壓縮完成');
 
-    // 2. 尋找並列出備份檔案
-    const backupFiles = getBackupFiles();
-    if (backupFiles.length === 0) {
-      throw new Error(`在 ${BACKUP_DIR} 中找不到任何 '.tar.gz' 備份檔案`);
-    }
+    console.log('🔄 開始匯入資料...');
+    const files = fs.readdirSync(tempDir).filter(f => f.endsWith('.json'));
 
-    console.log(colorize('\n🔍 請選擇要還原的備份檔案:', 'yellow'));
-    backupFiles.forEach((file, index) => {
-      console.log(`  ${colorize(`[${index + 1}]`, 'cyan')} ${file}`);
-    });
-    console.log(`  ${colorize('[0]', 'cyan')} 取消`);
-
-    // 3. 獲取使用者選擇
-    const choice = await askQuestion(
-      colorize('\n請輸入選項編號: ', 'bright')
-    );
-    const choiceIndex = parseInt(choice, 10);
-
-    if (isNaN(choiceIndex) || choiceIndex < 0 || choiceIndex > backupFiles.length) {
-      throw new Error('無效的選項');
-    }
-    if (choiceIndex === 0) {
-      console.log(colorize('操作已取消', 'yellow'));
-      return;
-    }
-
-    const selectedFile = backupFiles[choiceIndex - 1];
-    const archivePath = path.join(BACKUP_DIR, selectedFile);
-    console.log(colorize(`\n📂 準備還原: ${selectedFile}`, 'blue'));
-
-    // 4. 建立臨時目錄並解壓縮
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mongodb-restore-'));
-    console.log(colorize(`📂 正在解壓縮至: ${tempDir}`, 'blue'));
-    await tar.x({
-      file: archivePath,
-      cwd: tempDir,
-    });
-    const collectionFiles = fs.readdirSync(tempDir).filter(f => f.endsWith('.json'));
-    console.log(colorize('✅ 解壓縮完成', 'green'));
-
-    // 5. 逐一還原 Collection
-    console.log(colorize('🔄 開始匯入資料...', 'blue'));
-    for (const file of collectionFiles) {
+    for (const file of files) {
       const collectionName = path.basename(file, '.json');
       const filePath = path.join(tempDir, file);
-      
-      console.log(`  -> 正在還原 ${colorize(collectionName, 'yellow')}...`);
-      
-      // 先複製到容器內
-      const containerFilePath = `/tmp/${file}`;
-      await execAsync(`docker cp "${filePath}" ${DOCKER_CONTAINER_NAME}:${containerFilePath}`);
-      
-      const command = [
-        `docker exec ${DOCKER_CONTAINER_NAME}`,
-        'mongoimport',
-        `--host=${DB_HOST}:${DB_PORT}`,
-        `--db=${DB_NAME}`,
-        `--collection=${collectionName}`,
-        `--username=${DB_USER}`,
-        `--password=${DB_PASS}`,
-        '--authenticationDatabase=admin',
-        '--jsonArray',
-        '--drop', // 清空目標 collection
-        `--file=${containerFilePath}`,
-      ].join(' ');
+      const stats = fs.statSync(filePath);
+      const isFileEmpty = stats.size < 5;
 
-      await execAsync(command);
-
-      // 清理容器內的檔案
-      await execAsync(`docker exec ${DOCKER_CONTAINER_NAME} rm ${containerFilePath}`);
+      if (isFileEmpty) {
+        console.log(`  -> 偵測到空備份 '${collectionName}'，將建立新集合...`);
+        // 先檢查遠端集合是否存在
+        const collections = await db.listCollections({ name: collectionName }).toArray();
+        if (collections.length > 0) {
+          console.log(`     ➡️ [跳過] 集合 '${collectionName}' 已存在，無需更動。`);
+        } else {
+          await db.createCollection(collectionName);
+          console.log(`     ✅ [新建] 空集合 '${collectionName}' 已成功建立。`);
+        }
+      } else {
+        console.log(`  -> 正在還原 ${collectionName}...`);
+        const tempContainerPath = `/tmp/${file}`;
+        await exec(`docker cp "${filePath}" ${MONGO_CONTAINER_NAME}:${tempContainerPath}`);
+        
+        const importCmd = [
+          'docker exec',
+          MONGO_CONTAINER_NAME,
+          'mongoimport',
+          `--db=${DB_NAME}`,
+          `--collection="${collectionName}"`,
+          '--type=json',
+          `--file=${tempContainerPath}`,
+          '--jsonArray',
+          '--drop',
+          `--username=${process.env.MONGO_INITDB_ROOT_USERNAME || 'admin'}`,
+          `--password=${process.env.MONGO_INITDB_ROOT_PASSWORD || 'password'}`,
+          '--authenticationDatabase=admin'
+        ].join(' ');
+        
+        try {
+          await exec(importCmd);
+        } catch (importError) {
+          console.error(`\n❌ 匯入 '${collectionName}' 失敗.`);
+          // mongoimport 的錯誤通常在 stderr
+          console.error(`Error Details: ${importError.stderr || importError.message}`);
+          throw importError; // 拋出錯誤以停止整個流程
+        }
+        
+        await exec(`docker exec ${MONGO_CONTAINER_NAME} rm ${tempContainerPath}`);
+      }
     }
 
-    console.log(colorize('\n🎉 資料還原成功完成！', 'bright'));
-    console.log(colorize(`📄 使用檔案: ${selectedFile}`, 'green'));
+    console.log('\n🎉 資料還原成功完成！');
+    console.log('\n💡 後續步驟建議:');
+    console.log('   請執行 `npm run db:init` 或 `npm run db:full-restore` 來確保所有索引都已建立。');
+
   } catch (error) {
-    console.error(colorize(`\n❌ 還原失敗: ${error.message}`, 'red'));
+    console.error(`\n❌ 還原期間發生致命錯誤。`);
+    // 不需要再次打印錯誤訊息，因為它已在內部被捕獲和記錄
     process.exit(1);
   } finally {
-    // 6. 清理臨時目錄
-    if (tempDir && fs.existsSync(tempDir)) {
-      fs.rm(tempDir, { recursive: true, force: true }, () => {
-        console.log(colorize('🧹 臨時檔案清理完成', 'blue'));
-      });
-    }
+    if (client) await client.close();
+    await cleanup(tempDir);
   }
 }
 
-// 確保有安裝 tar
-async function checkDependencies() {
-  try {
-    require.resolve('tar');
-  } catch (e) {
-    console.error(colorize('❌ 缺少 `tar` 依賴套件。', 'red'));
-    console.log(colorize('請執行 `npm install tar` 或 `yarn add tar`', 'yellow'));
-    process.exit(1);
-  }
-}
-
-checkDependencies().then(main);
+restore();

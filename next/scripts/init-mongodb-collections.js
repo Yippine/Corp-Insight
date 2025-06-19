@@ -116,51 +116,44 @@ const COLLECTIONS_CONFIG = {
  * 建立單一 Collection 和其索引
  */
 async function createCollection(db, collectionName, config) {
+  const result = { created: false, indexes: { created: 0, skipped: 0, failed: 0 } };
   try {
-    console.log(`\n📁 建立 Collection: ${collectionName}`);
+    console.log(`\n📁 正在處理 Collection: ${collectionName}`);
     console.log(`   描述: ${config.description}`);
 
-    // 檢查 Collection 是否已存在
     const collections = await db.listCollections({ name: collectionName }).toArray();
     
     if (collections.length === 0) {
-      // 建立 Collection
       await db.createCollection(collectionName);
       console.log(`   ✅ Collection "${collectionName}" 建立成功`);
+      result.created = true;
     } else {
       console.log(`   ℹ️  Collection "${collectionName}" 已存在，跳過建立`);
     }
 
-    // 建立索引
     const collection = db.collection(collectionName);
-    console.log(`   🔍 建立索引...`);
+    const existingIndexes = await collection.listIndexes().toArray();
+    const existingIndexNames = existingIndexes.map(idx => idx.name);
 
     for (const indexConfig of config.indexes) {
-      try {
-        await collection.createIndex(indexConfig.keys, indexConfig.options);
-        console.log(`      ✅ 索引 "${indexConfig.options.name}" 建立成功`);
-      } catch (error) {
-        if (error.code === 85) { // IndexOptionsConflict
-          console.log(`      ⚠️  索引 "${indexConfig.options.name}" 已存在但配置不同，嘗試重建中...`);
-          try {
-            await collection.dropIndex(indexConfig.options.name);
-            await collection.createIndex(indexConfig.keys, indexConfig.options);
-            console.log(`      ✅ 索引 "${indexConfig.options.name}" 重建成功`);
-          } catch (rebuildError) {
-            console.log(`      ❌ 索引 "${indexConfig.options.name}" 重建失敗:`, rebuildError.message);
-          }
-        } else if (error.code === 86) { // IndexKeySpecsConflict
-          console.log(`      ℹ️  索引 "${indexConfig.options.name}" 已存在，跳過`);
-        } else {
-          console.log(`      ❌ 索引 "${indexConfig.options.name}" 建立失敗:`, error.message);
+      if (existingIndexNames.includes(indexConfig.options.name)) {
+        console.log(`      - 索引 "${indexConfig.options.name}" 已存在，跳過`);
+        result.indexes.skipped++;
+      } else {
+        try {
+          await collection.createIndex(indexConfig.keys, indexConfig.options);
+          console.log(`      - ✅ 索引 "${indexConfig.options.name}" 建立成功`);
+          result.indexes.created++;
+        } catch (error) {
+          console.log(`      - ❌ 索引 "${indexConfig.options.name}" 建立失敗:`, error.message);
+          result.indexes.failed++;
         }
       }
     }
-
-    return true;
+    return { success: true, result };
   } catch (error) {
-    console.error(`❌ 建立 Collection "${collectionName}" 失敗:`, error.message);
-    return false;
+    console.error(`❌ 處理 Collection "${collectionName}" 失敗:`, error.message);
+    return { success: false, result };
   }
 }
 
@@ -168,113 +161,53 @@ async function createCollection(db, collectionName, config) {
  * 主要初始化函式
  */
 async function initializeMongoDBCollections() {
+  console.log('🚀 Business Magnifier MongoDB Collections 初始化開始');
+  const totalCollections = Object.keys(COLLECTIONS_CONFIG).length;
+  console.log(`🎯 目標：檢查並設定 ${totalCollections} 個 Collections`);
+  
   let client;
 
   try {
-    console.log('🚀 Business Magnifier MongoDB Collections 初始化開始');
-    console.log('🎯 目標：建立 7 個完整的 Collections');
-    console.log('=' * 60);
-    
-    // 連接到 MongoDB
     console.log('\n🔌 正在連接到 MongoDB...');
-    console.log(`📍 連線位址: ${MONGODB_URI.replace(/\/\/.*@/, '//***:***@')}`);
-    
     client = new MongoClient(MONGODB_URI);
     await client.connect();
-    
     console.log('✅ MongoDB 連線成功');
 
-    // 選擇資料庫
     const db = client.db(DB_NAME);
     console.log(`🏠 使用資料庫: ${DB_NAME}`);
 
-    // 顯示現有 Collections
-    const existingCollections = await db.listCollections().toArray();
-    console.log(`\n📋 現有 Collections (${existingCollections.length}): ${existingCollections.map(c => c.name).join(', ')}`);
-
-    // 建立所有 Collections
-    console.log(`\n🛠️  開始建立 ${Object.keys(COLLECTIONS_CONFIG).length} 個 Collections...`);
-    
-    let successCount = 0;
-    const failedCollections = [];
+    const stats = { created: 0, skipped: 0, failed: 0, indexes: { created: 0, skipped: 0, failed: 0 } };
 
     for (const [collectionName, config] of Object.entries(COLLECTIONS_CONFIG)) {
-      const success = await createCollection(db, collectionName, config);
+      const { success, result } = await createCollection(db, collectionName, config);
       if (success) {
-        successCount++;
+        if (result.created) stats.created++; else stats.skipped++;
+        stats.indexes.created += result.indexes.created;
+        stats.indexes.skipped += result.indexes.skipped;
+        stats.indexes.failed += result.indexes.failed;
       } else {
-        failedCollections.push(collectionName);
+        stats.failed++;
       }
     }
 
-    // 總結報告
-    console.log('\n' + '=' * 60);
+    console.log('\n' + '='.repeat(60));
     console.log('📊 初始化完成報告:');
-    console.log(`   ✅ 成功建立: ${successCount} 個 Collections`);
+    console.log(`   - Collections: ${stats.created} 個新建, ${stats.skipped} 個已存在, ${stats.failed} 個失敗`);
+    console.log(`   - 索引: ${stats.indexes.created} 個新建, ${stats.indexes.skipped} 個已存在, ${stats.indexes.failed} 個失敗`);
     
-    if (failedCollections.length > 0) {
-      console.log(`   ❌ 失敗項目: ${failedCollections.join(', ')}`);
-    }
-
-    // 顯示最終狀態
-    const finalCollections = await db.listCollections().toArray();
-    console.log(`\n📋 最終 Collections (${finalCollections.length}):`);
-    
-    // 按照邏輯分組顯示
-    const coreCollections = ['companies', 'tenders', 'ai_tools', 'feedbacks'];
-    const cacheCollections = ['pcc_api_cache', 'g0v_company_api_cache', 'twincn_api_cache'];
-    
-    console.log('   🏢 核心業務資料:');
-    coreCollections.forEach(name => {
-      const exists = finalCollections.find(c => c.name === name);
-      console.log(`      ${exists ? '✅' : '❌'} ${name}`);
-    });
-    
-    console.log('   🗂️  API 快取:');
-    cacheCollections.forEach(name => {
-      const exists = finalCollections.find(c => c.name === name);
-      console.log(`      ${exists ? '✅' : '❌'} ${name}`);
-    });
-
-    // 資料庫統計
-    const stats = await db.stats();
-    console.log(`\n📈 資料庫統計:`);
-    console.log(`   💾 資料庫大小: ${(stats.dataSize / 1024 / 1024).toFixed(2)} MB`);
-    console.log(`   📚 集合數量: ${stats.collections}`);
-    console.log(`   🗂️  索引數量: ${stats.indexes}`);
-
-    // 驗證預期的 7 個 Collections 是否都存在
-    const expectedCollections = Object.keys(COLLECTIONS_CONFIG);
-    const missingCollections = expectedCollections.filter(name => 
-      !finalCollections.find(c => c.name === name)
-    );
-    
-    if (missingCollections.length === 0) {
-      console.log('\n🎉 所有 7 個 Collections 建立完成！');
+    if (stats.failed === 0) {
+      console.log('\n🎉 所有 Collections 均已設定完成！');
     } else {
-      console.log(`\n⚠️  缺少 ${missingCollections.length} 個 Collections: ${missingCollections.join(', ')}`);
+      console.log(`\n⚠️  有 ${stats.failed} 個 Collections 處理失敗，請檢查上方日誌`);
     }
     
   } catch (error) {
-    console.error('\n❌ MongoDB 初始化失敗:', error.message);
-    
-    // 提供錯誤診斷建議
+    console.error('\n❌ MongoDB 初始化遭遇嚴重錯誤:', error.message);
     if (error.message.includes('ECONNREFUSED')) {
-      console.error('\n💡 錯誤診斷建議:');
-      console.error('   1. 檢查 MongoDB 服務是否已啟動');
-      console.error('   2. 檢查連線埠 27017 是否可用');
-      console.error('   3. 如使用 Docker: npm run docker:mongo');
-      console.error('   4. 等待 MongoDB 完全啟動 (約 30-60 秒)');
-    } else if (error.message.includes('Authentication failed')) {
-      console.error('\n💡 認證錯誤診斷:');
-      console.error('   1. 檢查使用者名稱和密碼是否正確');
-      console.error('   2. 檢查 authSource 設定');
-      console.error('   3. 確認 MongoDB 初始化完成');
+      console.error('💡 提示: 請確認 MongoDB 服務是否已啟動 (npm run docker:mongo)');
     }
-    
     process.exit(1);
   } finally {
-    // 關閉連線
     if (client) {
       await client.close();
       console.log('\n🔌 MongoDB 連線已關閉');
@@ -286,19 +219,7 @@ async function initializeMongoDBCollections() {
  * 執行腳本
  */
 if (require.main === module) {
-  console.log('⚙️  啟動 MongoDB Collections 初始化腳本...\n');
-  
-  initializeMongoDBCollections()
-    .then(() => {
-      console.log('\n✨ 腳本執行完成');
-      console.log('🎯 請使用 http://localhost:8081 檢查 MongoDB Express 管理介面');
-      console.log('🚀 現在可以執行 npm run dev 啟動應用程式');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('\n💥 腳本執行失敗:', error);
-      process.exit(1);
-    });
+  initializeMongoDBCollections().catch(console.error);
 }
 
 module.exports = {

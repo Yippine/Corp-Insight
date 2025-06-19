@@ -7,14 +7,22 @@ import CollectionStatusCard from './CollectionStatusCard';
 import { PlayCircle, Database, Loader2 } from 'lucide-react';
 import { useDatabaseStatus } from '@/hooks/useDatabaseStatus';
 
-const SCRIPT_COMMANDS = [
-    { name: 'db:init', title: '初始化資料庫', description: '根據 scripts/init-mongodb-collections.js 腳本建立所有集合。' },
-    { name: 'db:connect', title: '測試資料庫連線', description: '執行一個簡單的腳本來驗證與 MongoDB 的連線。' },
-    { name: 'db:list', title: '列出所有 Collections', description: '顯示當前資料庫中的所有集合列表。' },
-    { name: 'db:backup', title: '完整備份資料庫', description: '備份所有集合到 db/backups 目錄。' },
-    { name: 'db:backup:core', title: '核心資料備份', description: '僅備份核心業務資料集合。' },
-    { name: 'db:restore', title: '還原最新備份', description: '從最新的備份檔案還原資料庫。' },
-    { name: 'db:clean', title: '清理過期備份', description: '刪除超過保留期限的舊備份檔案。' },
+type Task = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+const tasks: Task[] = [
+    { id: 'db:connect', name: '連線測試（db:connect）', description: '測試與 Docker 中的 MongoDB 資料庫的連線。' },
+    { id: 'db:backup', name: '完整備份（db:backup）', description: '執行一次當前資料庫的完整備 GZ 壓縮檔。' },
+    { id: 'db:full-restore', name: '一鍵還原（db:full-restore）', description: '從最新的完整備份中還原所有資料與索引。' },
+    { id: 'db:restore', name: '僅還原資料（db:restore）', description: '從最新的備份還原資料，但不包含索引。' },
+    { id: 'db:init', name: '初始化索引（db:init）', description: '根據最新的 Schema 設定，建立或更新所有集合的索引。' },
+    { id: 'db:list', name: '列出集合（db:list）', description: '列出當前資料庫中的所有集合及其基本資訊。' },
+    { id: "db:analyze-backups", name: "分析備份（db:analyze-backups)", description: "分析現有的備份檔案，提供大小和日期等摘要資訊。" },
+    { id: 'db:backup:core', name: '核心備份（db:backup:core）', description: '僅備份核心資料集合。' },
+    { id: 'db:clean', name: '清理過期快取（db:clean）', description: '遍歷所有快取集合（如 `pcc_api_cache`），並刪除其中超過一天有效期的舊資料。此操作不會刪除集合本身。' },
 ];
 
 export default function DatabaseConsole() {
@@ -89,15 +97,15 @@ export default function DatabaseConsole() {
         <h2 className="text-2xl font-bold text-gray-900 mb-8">🤖 自動化管理與命令列工具</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
-            {SCRIPT_COMMANDS.map((cmd) => (
-              <div key={cmd.name} className="bg-gray-50 p-4 rounded-lg border hover:shadow-md transition-shadow">
+            {tasks.map((task) => (
+              <div key={task.id} className="bg-gray-50 p-4 rounded-lg border hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between space-x-4">
                   <div className="flex-grow">
-                    <h3 className="font-semibold text-gray-800 flex items-center break-words"><Database size={16} className="mr-2 text-blue-500 flex-shrink-0" />{cmd.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1 break-words">{cmd.description}</p>
+                    <h3 className="font-semibold text-gray-800 flex items-center break-words"><Database size={16} className="mr-2 text-blue-500 flex-shrink-0" />{task.name}</h3>
+                    <p className="text-sm text-gray-600 mt-1 break-words">{task.description}</p>
                   </div>
                   <button
-                    onClick={() => handleExecuteScript(cmd.name, cmd.title)}
+                    onClick={() => handleExecuteScript(task.id, task.name)}
                     disabled={isTerminalRunning || !isInitialized}
                     className={`
                       flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors flex-shrink-0

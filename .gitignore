@@ -133,3 +133,7 @@ dist
 **/.sitemap-status.json
 **/.sitemap-monitor.pid
 **/.sitemap-monitor.lock
+
+# Local backups
+/legacy/db/backups/
+/next/db/backups/
