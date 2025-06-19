@@ -96,3 +96,29 @@ export function formatUnifiedId(id: string): string {
   }
   return id;
 }
+
+export function formatNumber(num: number): string {
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+}
+
+export function formatTenderId(id: string): string {
+  if (id && id.length > 8) {
+    return id.substring(0, 8);
+  }
+  return id;
+}
+
+export function formatBytes(bytes: number, decimals = 2): { value: string; unit: string } {
+  if (bytes === 0) return { value: '0', unit: 'Bytes' };
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  const value = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+  const unit = sizes[i];
+
+  return { value: value.toString(), unit };
+}

@@ -6,7 +6,7 @@ import SitemapStatsDashboard from '@/components/sitemap/SitemapStatsDashboard';
 import SitemapStatusCard from '@/components/sitemap/SitemapStatusCard';
 import SitemapContentViewer from './SitemapContentViewer';
 import TerminalViewer from './TerminalViewer';
-import { PlayCircle } from 'lucide-react';
+import { PlayCircle, Loader2 } from 'lucide-react';
 
 const SCRIPT_COMMANDS = [
     { name: 'sitemap:test', title: '測試所有 Sitemap', description: '對所有 Sitemap 執行健康檢查並更新狀態。' },
@@ -64,7 +64,6 @@ export default function SitemapConsole() {
 
   const handleViewDetails = useCallback(async (url: string) => {
     if (selectedSitemapUrl === url) {
-      // If clicking the same one, just scroll to it
       document.getElementById('sitemap-content')?.scrollIntoView({ behavior: 'smooth' });
       return;
     }
@@ -74,7 +73,6 @@ export default function SitemapConsole() {
     setSelectedSitemapUrl(url);
 
     try {
-      // The fetch needs to get the absolute URL
       const fetchUrl = new URL(url, window.location.origin).href;
       const response = await fetch(fetchUrl);
       const data = await response.text();
@@ -84,7 +82,6 @@ export default function SitemapConsole() {
       setSitemapContent('載入失敗：' + message);
     } finally {
       setIsLoadingContent(false);
-      // Use setTimeout to ensure the element is rendered before scrolling
       setTimeout(() => {
         document.getElementById('sitemap-content')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -136,7 +133,6 @@ export default function SitemapConsole() {
         onReset={resetStatus}
       />
 
-      {/* 狀態卡片網格 - lg:grid-cols-3 for 3 columns */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">📋 詳細狀態監控</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -160,33 +156,49 @@ export default function SitemapConsole() {
         onOpenNewWindow={handleOpenNewWindow}
       />
 
-      {/* 自動化管理 New Layout */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-8">🤖 自動化管理與命令列工具</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Panel: Task Buttons */}
           <div className="space-y-4">
             {SCRIPT_COMMANDS.map((cmd) => (
               <div key={cmd.name} className="bg-gray-50 p-4 rounded-lg border hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-800">{cmd.title}</h3>
-                    <p className="text-sm text-gray-600">{cmd.description}</p>
+                <div className="flex items-center justify-between space-x-4">
+                  <div className="flex-grow">
+                    <h3 className="font-semibold text-gray-800 break-words">{cmd.title}</h3>
+                    <p className="text-sm text-gray-600 mt-1 break-words">{cmd.description}</p>
                   </div>
                   <button
                     onClick={() => handleExecuteScript(cmd.name, cmd.title)}
-                    disabled={isTerminalRunning}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                    disabled={isTerminalRunning || !isInitialized}
+                    className={`
+                      flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors flex-shrink-0
+                      ${isTerminalRunning || !isInitialized
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }
+                    `}
                   >
-                    <PlayCircle size={18} />
-                    <span>執行</span>
+                    <span className="whitespace-nowrap flex items-center">
+                      {!isInitialized ? (
+                        <>
+                          <Loader2 size={18} className="animate-spin mr-2" />
+                          <span>初始化中</span>
+                        </>
+                      ) : isTerminalRunning ? (
+                        <span>執行中...</span>
+                      ) : (
+                        <>
+                          <PlayCircle size={18} />
+                          <span className="ml-2">執行</span>
+                        </>
+                      )}
+                    </span>
                   </button>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Right Panel: Terminal Viewer */}
           <div>
             {isTerminalVisible && (
               <TerminalViewer
