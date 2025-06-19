@@ -1,153 +1,135 @@
 #!/usr/bin/env node
 
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env.local') });
-const fs = require('fs');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env.local') });
+
+const { execFile } = require('child_process');
 const path = require('path');
+const fs = require('fs');
+const util = require('util');
 const os = require('os');
 const tar = require('tar');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const { MongoClient } = require('mongodb');
 
-// --- 配置 ---
-const BACKUP_DIR = path.join(__dirname, '..', 'db', 'backups');
-const MONGO_CONTAINER_NAME = 'mongo';
-// ---
+const execFileAsync = util.promisify(execFile);
 
-async function checkDockerContainer() {
+// --- 設定 ---
+const DOCKER_MONGO_CONTAINER = 'mongo';
+const BACKUP_DIR_HOST = path.join(__dirname, '..', 'db', 'backups');
+
+// 從 MONGODB_URI 解析資料庫名稱，如果失敗則使用預設值
+function getDbNameFromUri(uri) {
+  if (!uri) return 'business-magnifier';
   try {
-    const { stdout } = await exec(`docker ps -f "name=${MONGO_CONTAINER_NAME}" --format "{{.Names}}"`);
-    if (!stdout.trim().includes(MONGO_CONTAINER_NAME)) {
-      throw new Error();
-    }
-  } catch (error) {
-    console.error(`❌ 錯誤: 找不到名為 "${MONGO_CONTAINER_NAME}" 的 Docker 容器。請確保 MongoDB 正在運行 (npm run docker:mongo)。`);
-    process.exit(1);
+    const dbName = new URL(uri).pathname.substring(1);
+    return dbName || 'business-magnifier';
+  } catch (e) {
+    return 'business-magnifier';
   }
 }
+const DB_NAME = getDbNameFromUri(process.env.MONGODB_URI);
 
-async function findLatestFullBackup() {
-  if (!fs.existsSync(BACKUP_DIR)) {
-    console.error('❌ 備份目錄不存在:', BACKUP_DIR);
+const colors = { reset: '\x1b[0m', bright: '\x1b[1m', green: '\x1b[32m', blue: '\x1b[34m', yellow: '\x1b[33m', cyan: '\x1b[36m', red: '\x1b[31m' };
+const colorize = (text, color) => `${colors[color] || colors.reset}${text}${colors.reset}`;
+
+function findLatestFullBackup() {
+  if (!fs.existsSync(BACKUP_DIR_HOST)) {
+    console.error(colorize('❌ 備份目錄不存在: ' + BACKUP_DIR_HOST, 'red'));
     return null;
   }
-  const files = fs.readdirSync(BACKUP_DIR)
+  const files = fs.readdirSync(BACKUP_DIR_HOST)
     .filter(file => file.startsWith('db-backup-all-') && file.endsWith('.tar.gz'))
     .sort((a, b) => b.localeCompare(a));
-
   if (files.length === 0) {
-    console.error('❌ 找不到任何 `-all-` 的完整備份檔案。');
+    console.error(colorize('❌ 找不到任何 `-all-` 的完整備份檔案。', 'red'));
     return null;
   }
   return files[0];
 }
 
-// 增加一個獨立的清理函數
-async function cleanup(directory) {
-  if (fs.existsSync(directory)) {
-    fs.rmSync(directory, { recursive: true, force: true });
-    console.log('🧹 臨時檔案清理完成');
-  }
-}
+async function main() {
+  console.log(colorize('\n🔄 MongoDB 還原工具 (遙控器模式)', 'bright'));
+  console.log(colorize('='.repeat(50), 'cyan'));
 
-async function restore() {
-  console.log('\n🔄 MongoDB 全面還原工具');
-  console.log('='.repeat(50));
+  const backupFile = findLatestFullBackup();
+  if (!backupFile) process.exit(1);
 
-  await checkDockerContainer();
-  console.log('✅ Docker 容器檢查通過');
+  const backupFilePath = path.join(BACKUP_DIR_HOST, backupFile);
+  console.log(`[App Container] 📂 準備從最新完整備份還原: ${backupFile}`);
 
-  const backupFile = await findLatestFullBackup();
-  if (!backupFile) {
-    process.exit(1);
-  }
+  const tempDirOnHost = fs.mkdtempSync(path.join(os.tmpdir(), 'mongodb-restore-'));
 
-  const backupFilePath = path.join(BACKUP_DIR, backupFile);
-  console.log(`📂 準備從最新完整備份還原: ${backupFile}`);
-
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mongodb-restore-'));
-  
-  let client;
   try {
-    console.log('-'.repeat(50));
-    console.log('Connecting to MongoDB...');
-    const DB_NAME = process.env.DB_NAME || 'business-magnifier';
-    // 連線 URI 不應包含 db name
-    const connectionUri = process.env.MONGODB_URI.split('/').slice(0, 3).join('/');
-    client = new MongoClient(connectionUri);
-    await client.connect();
-    const db = client.db(DB_NAME);
-    console.log('Connection successful.');
-    console.log('-'.repeat(50));
-    
-    console.log(`📂 正在解壓縮至: ${tempDir}`);
-    await tar.x({ file: backupFilePath, cwd: tempDir });
-    console.log('✅ 解壓縮完成');
+    console.log(`[App Container] 📂 正在解壓縮至: ${tempDirOnHost}`);
+    await tar.x({ file: backupFilePath, cwd: tempDirOnHost });
+    console.log('[App Container] ✅ 解壓縮完成');
 
-    console.log('🔄 開始匯入資料...');
-    const files = fs.readdirSync(tempDir).filter(f => f.endsWith('.json'));
+    console.log(`[App Container] ▶️  發送還原指令至 ${DOCKER_MONGO_CONTAINER} 容器...`, 'cyan');
+    const files = fs.readdirSync(tempDirOnHost).filter(f => f.endsWith('.json'));
 
     for (const file of files) {
       const collectionName = path.basename(file, '.json');
-      const filePath = path.join(tempDir, file);
-      const stats = fs.statSync(filePath);
-      const isFileEmpty = stats.size < 5;
-
-      if (isFileEmpty) {
-        console.log(`  -> 偵測到空備份 '${collectionName}'，將建立新集合...`);
-        // 先檢查遠端集合是否存在
-        const collections = await db.listCollections({ name: collectionName }).toArray();
-        if (collections.length > 0) {
-          console.log(`     ➡️ [跳過] 集合 '${collectionName}' 已存在，無需更動。`);
-        } else {
-          await db.createCollection(collectionName);
-          console.log(`     ✅ [新建] 空集合 '${collectionName}' 已成功建立。`);
-        }
-      } else {
-        console.log(`  -> 正在還原 ${collectionName}...`);
-        const tempContainerPath = `/tmp/${file}`;
-        await exec(`docker cp "${filePath}" ${MONGO_CONTAINER_NAME}:${tempContainerPath}`);
-        
-        const importCmd = [
-          'docker exec',
-          MONGO_CONTAINER_NAME,
-          'mongoimport',
-          `--db=${DB_NAME}`,
-          `--collection="${collectionName}"`,
-          '--type=json',
-          `--file=${tempContainerPath}`,
-          '--jsonArray',
-          '--drop',
-          `--username=${process.env.MONGO_INITDB_ROOT_USERNAME || 'admin'}`,
-          `--password=${process.env.MONGO_INITDB_ROOT_PASSWORD || 'password'}`,
-          '--authenticationDatabase=admin'
-        ].join(' ');
-        
+      const filePathOnHost = path.join(tempDirOnHost, file);
+      
+      const fileContent = fs.readFileSync(filePathOnHost, 'utf8').trim();
+      if (fileContent.length === 0 || fileContent === '[]') {
         try {
-          await exec(importCmd);
-        } catch (importError) {
-          console.error(`\n❌ 匯入 '${collectionName}' 失敗.`);
-          // mongoimport 的錯誤通常在 stderr
-          console.error(`Error Details: ${importError.stderr || importError.message}`);
-          throw importError; // 拋出錯誤以停止整個流程
+          // 檢查遠端 collection 是否存在
+          const checkCmd = `db.getCollectionNames().includes('${collectionName}')`;
+          const { stdout: checkStdout } = await execFileAsync('docker', [
+            'exec', DOCKER_MONGO_CONTAINER, 'mongosh', process.env.MONGODB_URI, '--quiet', '--eval', checkCmd
+          ]);
+          
+          const exists = checkStdout.trim() === 'true';
+
+          if (!exists) {
+            // 如果不存在，則建立空集合
+            const createCmd = `db.createCollection('${collectionName}')`;
+            await execFileAsync('docker', [
+              'exec', DOCKER_MONGO_CONTAINER, 'mongosh', process.env.MONGODB_URI, '--quiet', '--eval', createCmd
+            ]);
+            console.log(`  -> 建立空的集合 ${colorize(collectionName, 'yellow')}`);
+          } else {
+            console.log(`  -> 偵測到空的備份檔，但遠端集合 ${colorize(collectionName, 'yellow')} 已存在，略過操作`);
+          }
+        } catch (execError) {
+          console.error(colorize(`  -> 檢查或建立空集合 ${collectionName} 時發生錯誤: ${execError.stderr || execError.message}`, 'red'));
         }
-        
-        await exec(`docker exec ${MONGO_CONTAINER_NAME} rm ${tempContainerPath}`);
+        continue;
       }
+      
+      // 1. 將解壓後的檔案放到共享目錄
+      const sharedPathOnHost = path.join(__dirname, '..', 'db', file);
+      fs.copyFileSync(filePathOnHost, sharedPathOnHost);
+      
+      // 2. 命令 mongo 容器從共享目錄讀取此檔案並匯入
+      const importFilePathInMongo = `/data/db-mount/${file}`;
+      console.log(`  -> 正在還原 ${colorize(collectionName, 'yellow')}...`);
+      await execFileAsync('docker', [
+        'exec',
+        DOCKER_MONGO_CONTAINER,
+        'mongoimport',
+        `--uri=${process.env.MONGODB_URI}`,
+        `--collection=${collectionName}`,
+        '--type=json',
+        `--file=${importFilePathInMongo}`,
+        '--jsonArray',
+        '--drop',
+      ]);
+      
+      // 3. 清理共享目錄中的暫存檔案
+      fs.unlinkSync(sharedPathOnHost);
     }
 
-    console.log('\n🎉 資料還原成功完成！');
-    console.log('\n💡 後續步驟建議:');
-    console.log('   請執行 `npm run db:init` 或 `npm run db:full-restore` 來確保所有索引都已建立。');
+    console.log(colorize('\n🎉 資料還原成功完成！', 'bright'));
 
   } catch (error) {
-    console.error(`\n❌ 還原期間發生致命錯誤。`);
-    // 不需要再次打印錯誤訊息，因為它已在內部被捕獲和記錄
+    console.error(colorize(`\n❌ 還原失敗: ${error.stderr || error.message}`, 'red'));
     process.exit(1);
   } finally {
-    if (client) await client.close();
-    await cleanup(tempDir);
+    if (fs.existsSync(tempDirOnHost)) {
+      fs.rmSync(tempDirOnHost, { recursive: true, force: true });
+      console.log(colorize('[App Container] 🧹 臨時檔案清理完成', 'blue'));
+    }
   }
 }
 
-restore();
+main();

@@ -78,8 +78,6 @@ async function main() {
   try {
     // 使用從 .env.local 讀取的 URI 進行連線
     await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000,
     });
     console.log(colorize('✅ 資料庫連接成功', 'green'));

@@ -14,15 +14,15 @@ type Task = {
 };
 
 const tasks: Task[] = [
-    { id: 'db:connect', name: '連線測試（db:connect）', description: '測試與 Docker 中的 MongoDB 資料庫的連線。' },
-    { id: 'db:backup', name: '完整備份（db:backup）', description: '執行一次當前資料庫的完整備 GZ 壓縮檔。' },
-    { id: 'db:full-restore', name: '一鍵還原（db:full-restore）', description: '從最新的完整備份中還原所有資料與索引。' },
-    { id: 'db:restore', name: '僅還原資料（db:restore）', description: '從最新的備份還原資料，但不包含索引。' },
-    { id: 'db:init', name: '初始化索引（db:init）', description: '根據最新的 Schema 設定，建立或更新所有集合的索引。' },
-    { id: 'db:list', name: '列出集合（db:list）', description: '列出當前資料庫中的所有集合及其基本資訊。' },
-    { id: "db:analyze-backups", name: "分析備份（db:analyze-backups)", description: "分析現有的備份檔案，提供大小和日期等摘要資訊。" },
-    { id: 'db:backup:core', name: '核心備份（db:backup:core）', description: '僅備份核心資料集合。' },
-    { id: 'db:clean', name: '清理過期快取（db:clean）', description: '遍歷所有快取集合（如 `pcc_api_cache`），並刪除其中超過一天有效期的舊資料。此操作不會刪除集合本身。' },
+  { id: 'db:connect', name: '連線測試（db:connect）', description: '測試與 Docker 中的 MongoDB 資料庫的連線。' },
+  { id: 'db:backup', name: '完整備份（db:backup）', description: '執行一次當前資料庫的完整備 GZ 壓縮檔。' },
+  { id: 'db:full-restore', name: '一鍵還原（db:full-restore）', description: '從最新的完整備份中還原所有資料與索引。' },
+  { id: 'db:restore', name: '僅還原資料（db:restore）', description: '從最新的備份還原資料，但不包含索引。' },
+  { id: 'db:init', name: '初始化索引（db:init）', description: '根據最新的 Schema 設定，建立或更新所有集合的索引。' },
+  { id: 'db:list', name: '列出集合（db:list）', description: '列出當前資料庫中的所有集合及其基本資訊。' },
+  { id: "db:analyze-backups", name: "分析備份（db:analyze-backups)", description: "分析現有的備份檔案，提供大小和日期等摘要資訊。" },
+  { id: 'db:backup:core', name: '核心備份（db:backup:core）', description: '僅備份核心資料集合。' },
+  { id: 'db:clean', name: '清理過期快取（db:clean）', description: '遍歷所有快取集合（如 `pcc_api_cache`），並刪除其中超過一天有效期的舊資料。此操作不會刪除集合本身。' },
 ];
 
 export default function DatabaseConsole() {

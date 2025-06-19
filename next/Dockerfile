@@ -4,7 +4,7 @@
 FROM node:18-alpine AS base
 
 # 安裝必要的系統依賴
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat git docker-cli
 WORKDIR /app
 
 # 安裝依賴階段

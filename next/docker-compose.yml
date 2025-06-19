@@ -15,6 +15,7 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./docker/mongodb/init:/docker-entrypoint-initdb.d:ro
+      - ./db:/data/db-mount
     networks:
       - business-magnifier-network
     healthcheck:
@@ -42,9 +43,11 @@ services:
       - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-for-dev}
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - .:/app
       - /app/node_modules
       - /app/.next
+      - ./db:/app/db
     depends_on:
       mongodb:
         condition: service_healthy
@@ -70,6 +73,12 @@ services:
       - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY:-}
       - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-for-prod}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+      - ./db:/app/db
     depends_on:
       mongodb:
         condition: service_healthy

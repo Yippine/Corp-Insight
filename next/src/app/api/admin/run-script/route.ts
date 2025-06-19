@@ -8,7 +8,7 @@ const SCRIPT_WHITELIST = [
   // Sitemap Management
   'sitemap:test', 'sitemap:monitor', 'sitemap:stop', 'sitemap:status', 'sitemap:clear',
   // Database Operations
-  'db:init', 'db:connect', 'db:backup', 'db:backup:core', 'db:restore', 'db:list', 'db:clean',
+  'db:init', 'db:connect', 'db:backup', 'db:backup:core', 'db:restore', 'db:list', 'db:clean', 'db:full-restore', 'db:analyze-backups',
   // System Diagnostics
   'health:check', 'format:check', 'lint',
 ];
@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
           stdio: 'pipe',
           shell: true, // Use shell to correctly interpret npm scripts
           env: { ...process.env, FORCE_COLOR: '1' }, // Force color for terminal-like output
+          cwd: process.cwd(), // Set working directory to project root
         });
 
         const encoder = new TextEncoder();

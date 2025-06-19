@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
-import { X, Terminal } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { X, Terminal, Copy, Check } from 'lucide-react';
+import AnsiToHtml from 'ansi-to-html';
 
 interface TerminalViewerProps {
   title: string;
@@ -16,6 +17,23 @@ export default function TerminalViewer({
   isRunning,
   onClose,
 }: TerminalViewerProps) {
+  const [hasCopied, setHasCopied] = useState(false);
+
+  const convert = useMemo(() => new AnsiToHtml({
+    fg: '#e5e7eb', // gray-200
+    bg: '#111827', // gray-900
+    newline: true,
+    escapeXML: true,
+  }), []);
+
+  const htmlOutput = useMemo(() => convert.toHtml(output), [convert, output]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(output);
+    setHasCopied(true);
+    setTimeout(() => setHasCopied(false), 2000);
+  };
+
   return (
     <div className="bg-gray-900 text-gray-200 rounded-2xl border-2 border-gray-700 shadow-2xl overflow-hidden font-mono flex flex-col h-full">
       {/* Header */}
@@ -24,7 +42,7 @@ export default function TerminalViewer({
           <Terminal size={16} className="text-green-400" />
           <span className="font-semibold text-sm">{title}</span>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           {isRunning && (
             <div className="flex items-center space-x-1 text-xs text-yellow-400">
               <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
@@ -34,6 +52,14 @@ export default function TerminalViewer({
               <span>執行中...</span>
             </div>
           )}
+          <button
+            onClick={handleCopy}
+            disabled={!output}
+            className="text-gray-400 hover:text-white transition-colors disabled:text-gray-600 disabled:cursor-not-allowed"
+            title="複製內容"
+          >
+            {hasCopied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+          </button>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
@@ -46,9 +72,10 @@ export default function TerminalViewer({
 
       {/* Output Area */}
       <div className="p-4 overflow-y-auto flex-grow h-96">
-        <pre className="whitespace-pre-wrap break-words text-sm leading-6">
-          {output || '等待指令執行...'}
-        </pre>
+        <pre
+          className="whitespace-pre-wrap break-words text-sm leading-6"
+          dangerouslySetInnerHTML={{ __html: htmlOutput || '等待指令執行...' }}
+        />
       </div>
     </div>
   );
