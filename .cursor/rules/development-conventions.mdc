@@ -272,3 +272,37 @@ interface AITool {
 ### 8.3. 安全性優先
 - 嚴禁將高風險 (`docker:*`, `deploy:*` 等) 的 `npm scripts` 介面化。
 - 所有後端 API 必須通過 Secret Token 進行權限驗證。
+
+---
+
+## Admin Console 黃金開發準則 (Golden Standard)
+
+此為針對 `/admin/*` 下所有頁面開發的**強制性**指導方針，旨在將 `/admin/sitemap` 和 `/admin/database` 頁面在多次迭代後所結晶出的最佳實踐，固化為開發標準。
+
+### 9.1. 唯一參考範本 (Single Source of Truth)
+- **黃金標準**: `/admin/sitemap` 頁面及其核心元件 `SitemapConsole.tsx` 是所有新 Admin Console 頁面開發的**唯一且必須**遵循的「黃金標準範本」。
+- **複刻原則**: 開發新頁面（如 `/admin/system`）時，**必須**從完整複製 `/admin/sitemap` 或 `/admin/database` 的頁面結構、元件組合與互動邏輯開始。
+
+### 9.2. 非同步載入與視覺回饋 (Async Loading & Feedback)
+- **強制骨架屏 (Skeleton)**:
+    - 任何需要透過 API 請求或資料庫查詢的非同步數據，其對應的 UI 區域在等待數據回傳期間，**必須**顯示為「骨架屏」或「脈衝式」的載入效果 (`animate-pulse`)。
+    - **嚴禁**使用簡單的「載入中...」文字或單一旋轉圖示作為主要回饋。
+    - 應優先使用 `src/components/skeletons` 或參考 `CollectionStatusCard` 中針對數據欄位的載入效果。
+- **即時渲染優先**:
+    - 頁面級元件 (如 `DatabaseConsole.tsx`) 的外層佈局、標題、說明文字等靜態內容，**必須**立即渲染，**不得**因等待內部數據而延遲。確保使用者能立刻看到頁面框架。
+
+### 9.3. 標準化互動與動畫 (Standardized Interaction & Animation)
+- **卡片互動 (`hover-lift`)**:
+    - 所有可點擊的、以卡片形式呈現的元件（如 `CollectionStatusCard`），**必須**實作 `hover-lift` 懸停效果。
+    - **標準實現**: `transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1`。
+- **按鈕回饋**:
+    - 按鈕在懸停 (`hover`) 和點擊 (`active`) 時**必須**有明確的視覺變化（如背景色、邊框色、陰影或輕微位移），以提供清晰的操作回饋。
+    - 帶有外部連結的按鈕，建議加入 `ExternalLink` 圖示。
+- **優雅過渡**:
+    - 元件的狀態轉換（如顯現、消失、尺寸變化）**必須**使用平滑過渡效果。
+    - **標準實現**: `transition-all duration-300 ease-in-out`。
+
+### 9.4. 元件設計語言 (Component Design Language)
+- **圖示系統**: 優先使用 `lucide-react` 圖示庫，並保持風格一致性（如 `Cylinder` 代表資料集）。
+- **字體層次**: 遵循已建立的字體大小與粗細層級，例如卡片標題為 `text-xl font-bold`，統計數值為 `text-lg font-semibold`。
+- **視覺一致性**: 新的管理控制台頁面在佈局、顏色、間距、圓角和陰影等方面，**必須**與 `SitemapConsole` 和 `DatabaseConsole` 保持視覺上的高度一致。
