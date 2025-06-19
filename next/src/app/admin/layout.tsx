@@ -1,4 +1,14 @@
 import React from 'react';
+import type { Metadata } from 'next';
+import { staticTitles } from '@/config/pageTitles';
+
+export const metadata: Metadata = {
+  title: staticTitles.adminTemplate,
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function AdminLayout({
   children,

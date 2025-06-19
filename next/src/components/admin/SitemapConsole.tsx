@@ -133,7 +133,7 @@ export default function SitemapConsole() {
         onReset={resetStatus}
       />
 
-      <div>
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">📋 詳細狀態監控</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {statusList.map((item: SitemapStatusItem) => (

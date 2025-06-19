@@ -1,12 +1,9 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { DATABASE_ADMIN_TITLE } from '@/config/pageTitles';
 
 export const metadata: Metadata = {
-  title: '資料庫維運',
-  robots: {
-    index: false,
-    follow: false,
-  },
+  title: DATABASE_ADMIN_TITLE,
 };
 
 export default function DatabaseLayout({ children }: { children: React.ReactNode }) {

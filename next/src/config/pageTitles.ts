@@ -10,6 +10,8 @@ export const COMPANY_TITLE = `企業資訊查詢`;
 export const TENDER_TITLE = `標案資訊查詢`;
 export const AI_TOOL_TITLE = `AI 助理生產力`;
 export const ADMIN_TITLE = `開發管理平台`;
+export const DATABASE_ADMIN_TITLE = `資料庫維運`;
+export const SITEMAP_ADMIN_TITLE = `網站地圖管理`;
 export const FAQ_TITLE = `常見問題`;
 export const PRIVACY_TITLE = `資料來源聲明`;
 export const FEEDBACK_TITLE = `意見回饋`;
@@ -18,6 +20,12 @@ export const FEEDBACK_TITLE = `意見回饋`;
 export const staticTitles = {
   // 佈局與首頁
   home: `${SITE_TITLE} | ${ENGLISH_TITLE}`,
+
+  // Admin 頁面專用標題模板
+  adminTemplate: {
+    template: `%s | ${ADMIN_TITLE} | ${SITE_TITLE}`,
+    default: `${ADMIN_TITLE} | ${SITE_TITLE}`,
+  },
 
   // 公司相關頁面
   companySearch: `${COMPANY_TITLE} | ${SITE_TITLE}`, // 預設企業搜尋頁標題
@@ -30,10 +38,6 @@ export const staticTitles = {
   // AI工具相關頁面
   aiToolSearch: `${AI_TOOL_TITLE} | ${SITE_TITLE}`, // 預設AI工具搜尋頁標題
   aiToolNotFound: `查無此 AI 助理 | ${AI_TOOL_TITLE} | ${SITE_TITLE}`, // AI工具詳情頁找不到對應工具
-
-  // 管理中心相關頁面
-  adminDashboard: `${ADMIN_TITLE} | ${SITE_TITLE}`, // 管理中心首頁
-  adminSitemapTest: `Sitemap | ${ADMIN_TITLE} | ${SITE_TITLE}`, // Sitemap 管理頁面
 
   // 其他頁面
   faq: `${FAQ_TITLE} | ${SITE_TITLE}`,

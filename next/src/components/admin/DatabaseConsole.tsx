@@ -3,8 +3,9 @@
 import React, { useState, useCallback } from 'react';
 import TerminalViewer from './TerminalViewer';
 import DatabaseStatsDashboard from './DatabaseStatsDashboard';
+import BackupStatsDashboard from './BackupStatsDashboard';
 import CollectionStatusCard from './CollectionStatusCard';
-import { PlayCircle, Database, Loader2 } from 'lucide-react';
+import { PlayCircle, Database, Loader2, RotateCw } from 'lucide-react';
 import { useDatabaseStatus } from '@/hooks/useDatabaseStatus';
 
 type Task = {
@@ -19,8 +20,6 @@ const tasks: Task[] = [
   { id: 'db:full-restore', name: '一鍵還原（db:full-restore）', description: '從最新的完整備份中還原所有資料與索引。' },
   { id: 'db:restore', name: '僅還原資料（db:restore）', description: '從最新的備份還原資料，但不包含索引。' },
   { id: 'db:init', name: '初始化索引（db:init）', description: '根據最新的 Schema 設定，建立或更新所有集合的索引。' },
-  { id: 'db:list', name: '列出集合（db:list）', description: '列出當前資料庫中的所有集合及其基本資訊。' },
-  { id: "db:analyze-backups", name: "分析備份（db:analyze-backups)", description: "分析現有的備份檔案，提供大小和日期等摘要資訊。" },
   { id: 'db:backup:core', name: '核心備份（db:backup:core）', description: '僅備份核心資料集合。' },
   { id: 'db:clean', name: '清理過期快取（db:clean）', description: '遍歷所有快取集合（如 `pcc_api_cache`），並刪除其中超過一天有效期的舊資料。此操作不會刪除集合本身。' },
 ];
@@ -65,7 +64,7 @@ export default function DatabaseConsole() {
     setIsTerminalRunning(false);
 
     // 當執行的是可能改變資料庫狀態的指令時，刷新儀表板
-    if (['db:init', 'db:restore', 'db:clean', 'db:backup', 'db:backup:core', 'db:list'].includes(scriptName)) {
+    if (['db:init', 'db:restore', 'db:clean', 'db:backup', 'db:backup:core'].includes(scriptName)) {
       await refresh();
     }
   }, [refresh]);
@@ -75,9 +74,23 @@ export default function DatabaseConsole() {
       <DatabaseStatsDashboard stats={stats} isLoading={isLoading} isInitialized={isInitialized} />
 
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">📋 詳細狀態監控</h2>
+        <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                <div className="p-2 rounded-full bg-blue-500/10 mr-3">
+                    <Database className="h-6 w-6 text-blue-600" />
+                </div>
+                資料集合狀態監控
+            </h2>
+            <button
+                onClick={refresh}
+                disabled={isLoading}
+                className="flex items-center justify-center px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-100 border border-blue-200 rounded-lg shadow-sm hover:bg-blue-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-wait transition-all"
+                >
+                <RotateCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                重新整理
+            </button>
+        </div>
         
-        {/* 動態內容區域 */}
         {collectionDetails.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {collectionDetails.map((col) => (
@@ -93,6 +106,8 @@ export default function DatabaseConsole() {
         )}
       </div>
       
+      <BackupStatsDashboard />
+
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-8">🤖 自動化管理與命令列工具</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -150,4 +165,4 @@ export default function DatabaseConsole() {
       </div>
     </div>
   );
-}
+} 

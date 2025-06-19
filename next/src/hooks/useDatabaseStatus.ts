@@ -61,7 +61,7 @@ export function useDatabaseStatus() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   const fetchStats = useCallback(async () => {
-    !isInitialized && setIsLoading(true); // 只有在第一次加載時，才將整個頁面設為 loading
+    setIsLoading(true); // Always set loading to true on fetch
     try {
       const response = await fetch('/api/admin/database-stats', {
         headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_SECRET_TOKEN}` },
@@ -115,7 +115,7 @@ export function useDatabaseStatus() {
       setIsLoading(false);
       setIsInitialized(true);
     }
-  }, [isInitialized]);
+  }, []);
 
   useEffect(() => {
     fetchStats();
