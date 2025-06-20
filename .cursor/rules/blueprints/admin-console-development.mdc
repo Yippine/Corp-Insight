@@ -1,7 +1,7 @@
 ---
-description: 
+description: Admin Console 開發藍圖與實施指南。當你需要開發新的 Admin Console 頁面 (如 /admin/system)、或回顧／修改現有 Admin Console 功能的架構與進度時調用此規則。本規則旨在遵循統一的宏觀架構、開發 SOP 與黃金標準範本，確保 Admin Console 功能開發的一致性。此為階段性開發藍圖，將隨開發進度更新。
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 # 🎯 專案代號：Admin Console 開發藍圖
 
