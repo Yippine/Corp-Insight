@@ -57,10 +57,17 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # 環境變數檔案
 .env
 .env.local
+.env.dev
 .env.development.local
-.env.test.local
-.env.production.local
 .env.prod
+.env.production.local
+.env.test.local
+# 環境變數檔案（不包含在忽略列表中）
+!.env.example
+!.env.template
+!.env.sample
+!.env.local.example
+!config/.env.example
 
 # ===== 測試覆蓋率 =====
 # 測試覆蓋率報告
@@ -171,10 +178,6 @@ next/prisma/dev.db*
 
 # Vercel
 .vercel/
-
-# PM2
-ecosystem.config.cjs
-ecosystem.config.js
 
 # ===== 安全性檔案 =====
 # 私鑰和憑證

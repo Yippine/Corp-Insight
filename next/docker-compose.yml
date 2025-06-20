@@ -31,6 +31,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    entrypoint: /app/scripts/entrypoint.sh
+    command: npm run dev
     env_file:
       - .env.local
     ports:
@@ -62,6 +64,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    entrypoint: /app/scripts/entrypoint.sh
+    command: npm run start
     ports:
       - "3000:3000"
     restart: unless-stopped

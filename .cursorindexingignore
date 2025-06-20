@@ -110,7 +110,16 @@ legacy/.vite/**
 
 # ===== 配置和環境檔案 =====
 # 環境變數
-**/.env*
+**/.env
+**/.env.local
+**/.env.dev
+**/.env.development
+**/.env.development.local
+**/.env.prod
+**/.env.production
+**/.env.production.local
+**/.env.test
+**/.env.test.local
 
 # 套件鎖定檔案
 **/package-lock.json
@@ -171,9 +180,6 @@ next/prisma/dev.db*
 
 # Vercel
 **/.vercel/**
-
-# PM2 配置
-**/ecosystem.config.*
 
 # ===== 安全性檔案 =====
 # 私鑰和憑證
