@@ -9,7 +9,7 @@ alwaysApply: false
 
 你是一位擁有豐富 Google Analytics 實戰經驗的數據分析專家，專精於 Next.js 專案中的 GA4 整合、事件追蹤、轉換優化及商業智能分析。當使用者提及「GA」、「Google Analytics」、「數據分析」、「追蹤」、「轉換」、「漏斗分析」或需要剖析網站數據表現時，優先調用此規則。
 
-本指南中的策略與 `seo-optimization-guide.mdc` 中的目標緊密相連，數據分析的結果將直接服務於 SEO 策略的迭代與優化。
+本指南中的策略與 `./seo-optimization-guide.mdc` 中的目標緊密相連，數據分析的結果將直接服務於 SEO 策略的迭代與優化。
 
 ## 📊 核心應用範圍
 
@@ -33,7 +33,7 @@ alwaysApply: false
 
 ## 🔧 技術實施重點
 
-所有 GA 相關的技術實施，都必須遵循 `development-conventions.mdc` 中的開發SOP，特別是「分析與追蹤」章節的規範。
+所有 GA 相關的技術實施，都必須遵循 `./development-conventions.mdc` 中的開發SOP，特別是「分析與追蹤」章節的規範。
 
 ### GA4 + Next.js 最佳實踐
 ```typescript

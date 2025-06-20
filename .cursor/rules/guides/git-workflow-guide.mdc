@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Git 工作流程與 AI 協作指南
 
-本指南旨在定義一套標準化的 Git 工作流程，確保 AI 在協助開發時，能夠精準、一致地處理版本控制任務。此流程是 `development-conventions.mdc` 中開發SOP的一部分。
+本指南旨在定義一套標準化的 Git 工作流程，確保 AI 在協助開發時，能夠精準、一致地處理版本控制任務。此流程是 `./development-conventions.mdc` 中開發SOP的一部分。
 
 ## 1. 核心工作流程概覽
 

@@ -11,10 +11,10 @@ alwaysApply: true
 **執行細節：**
 1. **主動分析**: 不要等待使用者提醒。對於非一般性的、與專案相關的提問，主動審閱規則的 `description` metadata 是你的首要職責。
 2. **情境判斷**: 根據使用者當前的提問內容，判斷哪些規則是相關的。每個規則的 `description` 都清楚說明了其適用場景和觸發時機。
-    - *開發與架構*: 涉及新功能、程式碼撰寫或專案結構時，應優先查閱 `development-conventions.mdc` 和 `project-architecture.mdc`。
-    - *版本控制*: 接收到「暫存」、「上版」指令時，必須遵循 `git-workflow-guide.mdc`。
-    - *SEO與分析*: 當頁面建立或修改涉及 SEO 或 GA 時，需參考 `seo-optimization-guide.mdc` 和 `google-analytics-strategy.mdc`。
-    - *文件管理*: 若需建立或修改規則，則應遵循 `documentation-management.mdc` 的規範。
+    - *開發與架構*: 涉及新功能、程式碼撰寫或專案結構時，應優先查閱 `./development-conventions.mdc` 和 `./project-architecture.mdc`。
+    - *版本控制*: 接收到「暫存」、「上版」指令時，必須遵循 `./git-workflow-guide.mdc`。
+    - *SEO與分析*: 當頁面建立或修改涉及 SEO 或 GA 時，需參考 `./seo-optimization-guide.mdc` 和 `./google-analytics-strategy.mdc`。
+    - *文件管理*: 若需建立或修改規則，則應遵循 `./documentation-management.mdc` 的規範。
 3. **強制應用**: 一旦識別出相關規則，你 **必須** 嚴格遵循其指導方針來組織你的思考、回應和程式碼。
 4. **例外情況**: 只有在提問極度通用、與本專案完全無關時（例如：「請解釋什麼是量子力學」），才可豁免此原則。
 
@@ -39,14 +39,14 @@ alwaysApply: true
 
 ### 🔧 程式碼品質要求
 1. **效能優化**: 追求最佳效能表現
-2. **可維護性**: 程式碼結構清晰易懂。相關規範見 `development-conventions.mdc`。
-3. **擴展性**: 考慮未來功能擴展需求。宏觀規劃參考 `project-architecture.mdc`。
+2. **可維護性**: 程式碼結構清晰易懂。相關規範見 `./development-conventions.mdc`。
+3. **擴展性**: 考慮未來功能擴展需求。宏觀規劃參考 `./project-architecture.mdc`。
 4. **安全性**: 內建安全防護機制
 5. **測試覆蓋**: 提供完整的測試策略
 
 ### 📋 交付標準
 每次回應必須包含：
-1. **專案結構**: 清晰的目錄和檔案組織，需符合 `project-architecture.mdc` 的定義。
+1. **專案結構**: 清晰的目錄和檔案組織，需符合 `./project-architecture.mdc` 的定義。
 2. **安裝指令**: 完整的環境設置步驟
 3. **建置流程**: 詳細的建置和部署指令
 4. **運行方式**: 開發和生產環境的啟動方法
@@ -72,9 +72,9 @@ alwaysApply: true
 **核心原則**: 作為經營這個領域幾十年的 IT 專家，提供最簡潔、最有效能且最精美的程式碼範例和最簡單、最有效、最系統且最全面的解答，以及專家心路歷程。
 
 **必須包含**:
-1. 以業界的最佳實現來完美開發、修復和優化，並重複審視，排除所有潛在的漏洞、風險和臭蟲。開發流程需遵循 `development-conventions.mdc` 的SOP。
-2. 提供簡單有效的專案應用目錄名稱、檔案名稱、程式內容。UI/UX 需符合 `ui-ux-aesthetic-guide.mdc` 的美學標準。
-3. 提供專案應用的安裝、建置和運行指令或方式。版本控制需遵循 `git-workflow-guide.mdc` 的流程。
+1. 以業界的最佳實現來完美開發、修復和優化，並重複審視，排除所有潛在的漏洞、風險和臭蟲。開發流程需遵循 `./development-conventions.mdc` 的SOP。
+2. 提供簡單有效的專案應用目錄名稱、檔案名稱、程式內容。UI/UX 需符合 `./ui-ux-aesthetic-guide.mdc` 的美學標準。
+3. 提供專案應用的安裝、建置和運行指令或方式。版本控制需遵循 `./git-workflow-guide.mdc` 的流程。
 
 ## 回應模板結構
 

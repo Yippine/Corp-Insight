@@ -11,8 +11,8 @@ alwaysApply: false
 - **核心技術**: Next.js + MongoDB + Docker。
 - **主要分支**: `main`。
 - **延伸閱讀**:
-    - 若要了解詳細的開發SOP，請參閱 `development-conventions.mdc`。
-    - 若要了解 SEO 的具體實施策略，請參閱 `seo-optimization-guide.mdc`。
+    - 若要了解詳細的開發SOP，請參閱 `./development-conventions.mdc`。
+    - 若要了解 SEO 的具體實施策略，請參閱 `./seo-optimization-guide.mdc`。
 
 ---
 
@@ -20,8 +20,8 @@ alwaysApply: false
 
 ### 2.1 核心技術棧
 - **框架**: Next.js 14.1 / React 18
-- **資料庫**: MongoDB 7.0 (詳細規範請見 `mongodb-architecture-guide.mdc`)
-- **樣式**: Tailwind CSS / Framer Motion (美學標準請見 `ui-ux-aesthetic-guide.mdc`)
+- **資料庫**: MongoDB 7.0 (詳細規範請見 `./mongodb-architecture-guide.mdc`)
+- **樣式**: Tailwind CSS / Framer Motion (美學標準請見 `./ui-ux-aesthetic-guide.mdc`)
 - **容器化**: Docker / Docker Compose
 - **部署**: AWS EC2
 
@@ -35,13 +35,13 @@ src/
 ├── types/       # 全域 TypeScript 型別
 └── config/      # 應用程式配置
 ```
-*此結構的具體使用方式，請遵循 `development-conventions.mdc` 中的指導原則。*
+*此結構的具體使用方式，請遵循 `./development-conventions.mdc` 中的指導原則。*
 
 ---
 
 ## 3. SEO 優化與渲染策略
 
-本專案採用混合渲染模型以最大化 SEO 效益與使用者體驗。詳細的 SEO 實施細節、Sitemap 結構與 GA 整合，請參閱 `seo-optimization-guide.mdc` 與 `google-analytics-strategy.mdc`。
+本專案採用混合渲染模型以最大化 SEO 效益與使用者體驗。詳細的 SEO 實施細節、Sitemap 結構與 GA 整合，請參閱 `./seo-optimization-guide.mdc` 與 `./google-analytics-strategy.mdc`。
 
 - **SSG (靜態生成)**: 用於內容不頻繁變動的頁面，如 `FAQ`、`AI 工具詳情頁`，提供最快的載入速度。
 - **ISR (增量靜態再生)**: 用於需要定期更新的熱門頁面，如 `企業` 或 `標案詳情頁`，在背景重新生成頁面，確保資料新鮮度。
@@ -53,7 +53,7 @@ src/
 ## 4. API 架構
 
 ### 4.1 RESTful 路由結構
-API 路由定義於 `src/app/api/`，並按功能模組劃分。其實作應遵循 `development-conventions.mdc` 中的 API 設計規範。
+API 路由定義於 `src/app/api/`，並按功能模組劃分。其實作應遵循 `./development-conventions.mdc` 中的 API 設計規範。
 ```
 /api/
 ├── company/
@@ -86,16 +86,16 @@ interface APIResponse<T> {
   - **開發**: 使用 `docker-compose.yml` 管理本地開發環境，一鍵啟動 Next.js 應用和 MongoDB 資料庫 (`npm run start:dev`)。
   - **生產**: 使用 `Dockerfile` 進行最佳化建置，產生準備好部署的容器映像檔。
 - **部署環境**: 生產環境部署於 **AWS EC2** 實例上，透過 Docker 容器運行應用程式。
-- **管理中心 (規劃中)**: 規劃建立一個獨立的 Docker 化管理中心服務。此服務將提供 Web 介面，用於執行資料庫備份、腳本管理等後台任務，取代直接在伺服器後台操作，提升維運的便利性與安全性。詳細的資料庫腳本使用方式請參閱 `mongodb-architecture-guide.mdc`。
+- **管理中心 (規劃中)**: 規劃建立一個獨立的 Docker 化管理中心服務。此服務將提供 Web 介面，用於執行資料庫備份、腳本管理等後台任務，取代直接在伺服器後台操作，提升維運的便利性與安全性。詳細的資料庫腳本使用方式請參閱 `./mongodb-architecture-guide.mdc`。
 - **效能監控**:
     - **資料庫**: 使用 MongoDB Compass 和 Mongo Express (可選 Docker 服務) 進行監控。
-    - **應用程式**: 整合 Next.js 內建分析工具，並透過 Core Web Vitals 指標（FCP, LCP, CLS）追蹤前端效能。數據分析策略請參考 `google-analytics-strategy.mdc`。
+    - **應用程式**: 整合 Next.js 內建分析工具，並透過 Core Web Vitals 指標（FCP, LCP, CLS）追蹤前端效能。數據分析策略請參考 `./google-analytics-strategy.mdc`。
 
 ---
 
 ## 6. 未來發展路線圖
 
-本路線圖的實施，應結合 `development-conventions.mdc` 的開發流程與 `git-workflow-guide.mdc` 的版本控制規範。
+本路線圖的實施，應結合 `./development-conventions.mdc` 的開發流程與 `./git-workflow-guide.mdc` 的版本控制規範。
 
 ### 短期目標 (1-2 個月)
 - 🎯 完善 AI 工具分類系統

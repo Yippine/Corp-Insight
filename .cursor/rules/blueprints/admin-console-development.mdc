@@ -74,7 +74,7 @@ graph TD
 
 - **[x] 1.1: 建立 Admin 專用佈局**
 - **[x] 1.2: 建立後端腳本執行 API**
-- **[x] 1.3: 更新 `development-conventions.mdc` 規則**
+- **[x] 1.3: 更新 `../guides/development-conventions.mdc` 規則**
 - **[x] 1.4: (REBUILT & REFINED) 重建並優化 Sitemap 整合控制台**
     - **位置**: `/admin/sitemap`
     - **目標**: 建立一個功能完整、佈局優雅的 Sitemap 控制台，作為後續所有頁面的範本。

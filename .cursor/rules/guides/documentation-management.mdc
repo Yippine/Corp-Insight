@@ -44,7 +44,7 @@ alwaysApply: false
 
 ### Cursor Rule 建立與維護流程
 1.  **需求分析**: 確認該知識點或規範具備長期參考價值。
-2.  **規則設計**: 參考現有範本（如 `development-conventions.mdc` 或 `project-architecture.mdc`），設計新規則的架構。
+2.  **規則設計**: 參考現有範本（如 `./development-conventions.mdc` 或 `./project-architecture.mdc`），設計新規則的架構。
 3.  **描述撰寫**: 遵循 `Rule Description` 規範，撰寫清晰、準確的描述。
 4.  **內容建構**: 採用標準化的內容框架，確保一致性與完整性。
 5.  **品質檢核**: 驗證規則內容的準確性、實用性與可讀性。
