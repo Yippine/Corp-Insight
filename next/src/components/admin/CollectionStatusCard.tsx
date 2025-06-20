@@ -7,17 +7,17 @@ import { CollectionStats } from '@/hooks/useDatabaseStatus';
 const getStatusIndicator = (status: CollectionStats['status']) => {
   switch (status) {
     case 'ok':
-      return { Icon: CheckCircle, color: 'text-green-600', label: '正常', bg: 'bg-green-50/70 to-emerald-50/70', border: 'border-green-200' };
+      return { Icon: CheckCircle, color: 'text-green-600', badgeBg: 'bg-green-100', label: '正常', bg: 'bg-green-50/70 to-emerald-50/70', border: 'border-green-200' };
     case 'empty':
-      return { Icon: AlertTriangle, color: 'text-yellow-600', label: '無資料', bg: 'bg-yellow-50/70 to-amber-50/70', border: 'border-yellow-200' };
+      return { Icon: AlertTriangle, color: 'text-yellow-600', badgeBg: 'bg-yellow-100', label: '無資料', bg: 'bg-yellow-50/70 to-amber-50/70', border: 'border-yellow-200' };
     case 'warning':
-      return { Icon: AlertTriangle, color: 'text-orange-500', label: '資料稀少', bg: 'bg-orange-50/70 to-red-50/70', border: 'border-orange-200' };
+      return { Icon: AlertTriangle, color: 'text-orange-600', badgeBg: 'bg-orange-100', label: '資料稀少', bg: 'bg-orange-50/70 to-red-50/70', border: 'border-orange-200' };
     case 'error':
-      return { Icon: CircleHelp, color: 'text-red-600', label: '錯誤', bg: 'bg-red-50/70 to-rose-50/70', border: 'border-red-200' };
+      return { Icon: CircleHelp, color: 'text-red-600', badgeBg: 'bg-red-100', label: '錯誤', bg: 'bg-red-50/70 to-rose-50/70', border: 'border-red-200' };
     case 'testing':
-      return { Icon: Loader2, color: 'text-blue-600', label: '檢測中', bg: 'bg-blue-50/70 to-indigo-50/70', border: 'border-blue-200' };
+      return { Icon: Loader2, color: 'text-blue-600', badgeBg: 'bg-blue-100', label: '檢測中', bg: 'bg-blue-50/70 to-indigo-50/70', border: 'border-blue-200' };
     default:
-      return { Icon: CircleHelp, color: 'text-gray-500', label: '未知', bg: 'bg-gray-100/70 to-slate-100/70', border: 'border-gray-200' };
+      return { Icon: CircleHelp, color: 'text-gray-500', badgeBg: 'bg-gray-100', label: '未知', bg: 'bg-gray-100/70 to-slate-100/70', border: 'border-gray-200' };
   }
 };
 
@@ -70,7 +70,7 @@ export default function CollectionStatusCard({ collection }: CollectionStatusCar
                 <p className="text-sm text-gray-500">{collection.description || '核心資料集合'}</p>
               </div>
             </div>
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ${styles.color.replace('text-', 'bg-').replace('600', '100')} ${styles.color}`}>
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ${styles.badgeBg} ${styles.color}`}>
               <styles.Icon className={`h-4 w-4 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
               {styles.label}
             </span>
