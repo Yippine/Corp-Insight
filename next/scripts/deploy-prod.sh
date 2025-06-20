@@ -27,6 +27,17 @@ function print_success() {
 # --- 主腳本 ---
 print_info "開始執行正式環境部署流程..."
 
+# 0. 載入生產環境變數
+ENV_FILE=".env.prod"
+if [ -f "$ENV_FILE" ]; then
+  echo -e "\e[34mℹ️  偵測到 '$ENV_FILE'，正在載入生產環境變數...\e[0m"
+  export $(cat $ENV_FILE | sed 's/#.*//g' | xargs)
+else
+  echo -e "\e[31m❌ 錯誤: 找不到生產環境設定檔 '$ENV_FILE'。\e[0m" >&2
+  echo -e "\e[33m   請先建立此檔案並填入必要的生產環境變數。部署中止。\e[0m" >&2
+  exit 1
+fi
+
 # 1. 檢查目前分支
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then

@@ -56,23 +56,33 @@ services:
     profiles:
       - dev  # 開發環境 profile
 
-  # Next.js 生產環境服務 (用於生產環境測試)
+  # Next.js 生產環境服務
   app-prod:
     container_name: app-prod
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env.local
     ports:
       - "3000:3000"
     restart: unless-stopped
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
       - NODE_ENV=production
-      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY:-}
-      - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
-      - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-for-prod}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY}
+      - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+      - NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID}
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_SECRET_TOKEN=${ADMIN_SECRET_TOKEN}
+      - NEXT_PUBLIC_ADMIN_SECRET_TOKEN=${NEXT_PUBLIC_ADMIN_SECRET_TOKEN}
+      - EMAIL_SERVER_HOST=${EMAIL_SERVER_HOST}
+      - EMAIL_SERVER_PORT=${EMAIL_SERVER_PORT}
+      - EMAIL_SERVER_USER=${EMAIL_SERVER_USER}
+      - EMAIL_SERVER_PASSWORD=${EMAIL_SERVER_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
+      - NEXT_PUBLIC_DEVELOPER_EMAIL=${NEXT_PUBLIC_DEVELOPER_EMAIL}
+      - NEXT_PUBLIC_MONGO_EXPRESS_URL=${NEXT_PUBLIC_MONGO_EXPRESS_URL}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/app

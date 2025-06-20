@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
+import { BASE_URL } from '@/config/site';
 
 type CompanySearchSEOProps = {
   title?: string;
@@ -27,8 +28,8 @@ export function generateCompanySearchMetadata({
       description: metaDescription,
       type: 'website',
       url: query
-        ? `https://insight.leopilot.com/company/search?q=${encodeURIComponent(query)}`
-        : 'https://insight.leopilot.com/company/search',
+        ? `${BASE_URL}/company/search?q=${encodeURIComponent(query)}`
+        : `${BASE_URL}/company/search`,
     },
     twitter: {
       card: 'summary',
@@ -48,8 +49,8 @@ export function CompanySearchStructuredData({ query }: { query?: string }) {
       ? `查看 ${query} 的企業資訊搜尋結果，包含公司基本資料、資本額、統一編號、負責人等詳細資訊。`
       : '輸入公司名稱、統編、負責人或關鍵字，立即獲取完整企業資訊',
     url: query
-      ? `https://insight.leopilot.com/company/search?q=${encodeURIComponent(query)}`
-      : 'https://insight.leopilot.com/company/search',
+      ? `${BASE_URL}/company/search?q=${encodeURIComponent(query)}`
+      : `${BASE_URL}/company/search`,
   };
 
   return (

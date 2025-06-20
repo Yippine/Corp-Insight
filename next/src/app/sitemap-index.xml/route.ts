@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+import { BASE_URL } from '@/config/site';
 
 export async function GET() {
-  const baseUrl = 'https://insight.leopilot.com';
+  const baseUrl = BASE_URL;
   const currentDate = new Date().toISOString();
 
   // 創建 sitemap index，分離不同類型的內容

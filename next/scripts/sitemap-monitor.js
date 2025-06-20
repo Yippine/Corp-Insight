@@ -11,7 +11,7 @@ const path = require('path');
 
 // 配置
 const CONFIG = {
-  baseUrl: process.env.SITEMAP_BASE_URL || 'http://localhost:3000',
+  baseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
   storageFile: path.join(__dirname, '..', '.sitemap-status.json'),
   pidFile: path.join(__dirname, '..', '.sitemap-monitor.pid'),
   lockFile: path.join(__dirname, '..', '.sitemap-monitor.lock'),

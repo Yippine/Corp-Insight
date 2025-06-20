@@ -11,28 +11,37 @@ declare global {
   }
 }
 
-const GA_TRACKING_ID = 'G-PDSWJD7GMN';
+const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 
 export default function GoogleAnalytics() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // 確保 gtag 已載入
-    if (typeof window.gtag !== 'undefined') {
-      const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
-      
-      // 追蹤頁面瀏覽
-      window.gtag('config', GA_TRACKING_ID, {
-        page_path: url,
-        custom_map: {
-          custom_parameter_1: 'business_magnifier_platform'
-        }
-      });
-
-      console.log('🔍 GA 頁面追蹤:', url);
+    // 如果沒有 GA_TRACKING_ID 或 gtag 未定義，則不執行
+    if (!GA_TRACKING_ID || typeof window.gtag === 'undefined') {
+      if (!GA_TRACKING_ID) {
+        console.warn('GA_TRACKING_ID is not set. Google Analytics is disabled.');
+      }
+      return;
     }
+    
+    const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
+    
+    // 追蹤頁面瀏覽
+    window.gtag('config', GA_TRACKING_ID, {
+      page_path: url,
+      custom_map: {
+        custom_parameter_1: 'business_magnifier_platform'
+      }
+    });
+
+    console.log('🔍 GA 頁面追蹤:', url);
   }, [pathname, searchParams]);
+
+  if (!GA_TRACKING_ID) {
+    return null;
+  }
 
   return (
     <>

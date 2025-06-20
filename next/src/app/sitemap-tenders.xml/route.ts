@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
+import { BASE_URL } from '@/config/site';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 const DB_NAME = 'business-magnifier';
@@ -7,7 +8,7 @@ const DB_NAME = 'business-magnifier';
 export const dynamic = 'force-dynamic'; // 强制動態渲染
 
 export async function GET() {
-  const baseUrl = 'https://insight.leopilot.com';
+  const baseUrl = BASE_URL;
   const currentDate = new Date().toISOString();
   
   let tenders: any[] = [];

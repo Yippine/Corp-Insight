@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
+import { BASE_URL } from '@/config/site';
 
 type TenderSearchSEOProps = {
   title?: string;
@@ -21,7 +22,7 @@ export function generateTenderSearchMetadata({
     ? `查看 ${query} (${searchType === 'company' ? '廠商' : '標案'}) 的相關標案資訊、招標公告、得標資訊等完整資料。`
     : description;
 
-  const url = new URL('https://insight.leopilot.com/tender/search');
+  const url = new URL(`${BASE_URL}/tender/search`);
   if (query) url.searchParams.set('q', query);
   if (searchType) url.searchParams.set('type', searchType);
 
@@ -49,7 +50,7 @@ export function TenderSearchStructuredData({
   query?: string;
   searchType?: 'company' | 'tender';
 }) {
-  const url = new URL('https://insight.leopilot.com/tender/search');
+  const url = new URL(`${BASE_URL}/tender/search`);
   if (query) url.searchParams.set('q', query);
   if (searchType) url.searchParams.set('type', searchType);
 

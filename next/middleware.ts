@@ -8,11 +8,19 @@ export function middleware(request: NextRequest) {
 
   // 配置允許的域名
   const origin = request.headers.get('origin') || '';
+  
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   const allowedOrigins = [
-    'https://insight.leopilot.com',
-    'http://insight.leopilot.com',
-    'http://localhost:3000',
+    'http://localhost:3000', // 允許本地開發環境
   ];
+
+  if (siteUrl) {
+    allowedOrigins.push(siteUrl);
+    // 如果是 https，也允許 http 版本，增加靈活性
+    if (siteUrl.startsWith('https')) {
+      allowedOrigins.push(siteUrl.replace('https://', 'http://'));
+    }
+  }
 
   // 如果來源在允許列表中，設置 CORS 頭
   if (allowedOrigins.includes(origin)) {

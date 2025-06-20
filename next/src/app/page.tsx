@@ -1,6 +1,7 @@
 import { staticTitles } from '@/config/pageTitles';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { BASE_URL } from '@/config/site';
 
 export const metadata: Metadata = {
   title: staticTitles.home,
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: staticTitles.home,
     description: '專業的企業資訊查詢平台，提供最新、最全面的台灣企業和標案資料',
-    url: 'https://insight.leopilot.com',
+    url: BASE_URL,
   },
 };
 

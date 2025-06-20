@@ -1,8 +1,14 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(
-  process.env.NEXT_PUBLIC_GEMINI_API_KEY || ''
-);
+const apiKey = process.env.GOOGLE_AI_API_KEY || '';
+
+if (!apiKey) {
+  console.warn('Google AI API key is missing. AI features will be disabled.');
+}
+
+export const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+
+export const isGeminiAvailable = () => !!genAI;
 
 async function logTokenUsage(result: any) {
   const response = await result.response;
@@ -23,6 +29,11 @@ export async function streamGenerateContent(
   shouldLogTokens: boolean = false
 ) {
   try {
+    if (!isGeminiAvailable() || !genAI) {
+      console.error('Gemini API is not available. Check API Key.');
+      return;
+    }
+
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
       // generationConfig: {
