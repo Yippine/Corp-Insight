@@ -1,10 +1,10 @@
 # Business Magnifier 開發環境 Dockerfile
 # 專為開發環境設計，支援熱重載和除錯
 
-FROM node:18-alpine
+FROM node:21-bullseye-slim
 
 # 安裝必要的系統依賴
-RUN apk add --no-cache libc6-compat git docker-cli
+RUN apt-get update && apt-get install -y git docker-cli curl && rm -rf /var/lib/apt/lists/*
 
 # 設定工作目錄
 WORKDIR /app
@@ -32,9 +32,6 @@ EXPOSE 3000
 # 健康檢查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
-
-# 安裝 curl 用於健康檢查
-RUN apk add --no-cache curl
 
 # 啟動開發伺服器
 CMD ["npm", "run", "dev"]

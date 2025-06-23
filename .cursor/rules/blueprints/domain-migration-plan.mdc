@@ -1,7 +1,7 @@
 ---
-description: 
+description: 域名遷移計畫與實施指南。當需要規劃、執行或回顧 insight.leopilot.com 至 corpinsight.leopilot.com 的域名遷移進度時應調用此規則。本規則為此次遷移的唯一真實來源 (Single Source of Truth)，涵蓋從程式碼、基礎設施到 SEO 的完整行動方案，旨在實現零停機與零 SEO 損失的無縫轉換。
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 # 🎯 專案代號：域名遷移計畫
 

@@ -53,6 +53,8 @@
     "docker:ps": "docker-compose ps",
     "// 進入開發容器的 shell 環境": "",
     "docker:dev:shell": "docker exec -it app-dev sh",
+    "// 手動執行 Docker 啟動腳本 (主要用於測試)": "",
+    "docker:entrypoint": "bash scripts/entrypoint.sh",
     "// --- 服務重啟 ---": "",
     "// 重啟所有服務": "",
     "docker:restart": "docker-compose restart",

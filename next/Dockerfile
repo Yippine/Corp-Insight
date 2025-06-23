@@ -1,10 +1,11 @@
 # Business Magnifier Next.js Dockerfile
 # 多階段建置，優化映像大小和安全性
 
-FROM node:18-alpine AS base
+FROM node:21-bullseye-slim AS base
 
 # 安裝必要的系統依賴
-RUN apk add --no-cache libc6-compat git docker-cli
+# 更新 apt-get 並安裝 git 和 docker-cli。bullseye 已包含 curl。
+RUN apt-get update && apt-get install -y git docker-cli && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # 安裝依賴階段

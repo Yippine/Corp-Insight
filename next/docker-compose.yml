@@ -31,8 +31,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    entrypoint: /app/scripts/entrypoint.sh
-    command: npm run dev
+    entrypoint: ["bash", "-c", "cp /app/scripts/entrypoint.sh /tmp/entrypoint.sh && chmod +x /tmp/entrypoint.sh && /tmp/entrypoint.sh npm run dev"]
     env_file:
       - .env.local
     ports:
@@ -64,29 +63,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    entrypoint: /app/scripts/entrypoint.sh
-    command: npm run start
+    entrypoint: ["bash", "-c", "cp /app/scripts/entrypoint.sh /tmp/entrypoint.sh && chmod +x /tmp/entrypoint.sh && /tmp/entrypoint.sh npm run start"]
     ports:
       - "3000:3000"
     restart: unless-stopped
-    environment:
-      - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
-      - NODE_ENV=production
-      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
-      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY}
-      - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
-      - NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID}
-      - JWT_SECRET=${JWT_SECRET}
-      - ADMIN_SECRET_TOKEN=${ADMIN_SECRET_TOKEN}
-      - NEXT_PUBLIC_ADMIN_SECRET_TOKEN=${NEXT_PUBLIC_ADMIN_SECRET_TOKEN}
-      - EMAIL_SERVER_HOST=${EMAIL_SERVER_HOST}
-      - EMAIL_SERVER_PORT=${EMAIL_SERVER_PORT}
-      - EMAIL_SERVER_USER=${EMAIL_SERVER_USER}
-      - EMAIL_SERVER_PASSWORD=${EMAIL_SERVER_PASSWORD}
-      - EMAIL_FROM=${EMAIL_FROM}
-      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
-      - NEXT_PUBLIC_DEVELOPER_EMAIL=${NEXT_PUBLIC_DEVELOPER_EMAIL}
-      - NEXT_PUBLIC_MONGO_EXPRESS_URL=${NEXT_PUBLIC_MONGO_EXPRESS_URL}
+    env_file:
+      - ./.env.prod
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/app
