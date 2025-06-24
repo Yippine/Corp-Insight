@@ -57,10 +57,11 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # 環境變數檔案
 .env
 .env.local
-.env.dev
+.env.development
 .env.development.local
-.env.prod
+.env.production
 .env.production.local
+.env.test
 .env.test.local
 # 環境變數檔案（不包含在忽略列表中）
 !.env.example

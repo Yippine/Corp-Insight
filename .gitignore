@@ -74,10 +74,11 @@ web_modules/
 
 # dotenv environment variable files
 .env
-.env.dev
+.env.development
 .env.development.local
+.env.test
 .env.test.local
-.env.prod
+.env.production
 .env.production.local
 .env.local
 
@@ -135,7 +136,3 @@ dist
 **/.sitemap-status.json
 **/.sitemap-monitor.pid
 **/.sitemap-monitor.lock
-
-# Local backups
-/legacy/db/backups/
-/next/db/backups/

@@ -4,7 +4,7 @@
 FROM node:21-bullseye-slim
 
 # 安裝必要的系統依賴
-RUN apt-get update && apt-get install -y git docker-cli curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git docker.io curl && rm -rf /var/lib/apt/lists/*
 
 # 設定工作目錄
 WORKDIR /app

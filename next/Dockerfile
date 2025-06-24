@@ -5,7 +5,7 @@ FROM node:21-bullseye-slim AS base
 
 # 安裝必要的系統依賴
 # 更新 apt-get 並安裝 git 和 docker-cli。bullseye 已包含 curl。
-RUN apt-get update && apt-get install -y git docker-cli && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git docker.io gosu && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # 安裝依賴階段
@@ -25,9 +25,8 @@ COPY --from=deps /app/node_modules ./node_modules
 # 複製原始碼
 COPY . .
 
-# 接收建置時傳入的環境變數
-ARG MONGODB_URI
-ENV MONGODB_URI=$MONGODB_URI
+# 複製生產環境設定檔 (確保應用能在建置時存取)
+COPY .env.production ./
 
 # 設定建置環境變數
 ENV NEXT_TELEMETRY_DISABLED 1
@@ -58,6 +57,9 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# 複製生產環境設定檔 (確保應用能在運行時存取)
+COPY --from=builder --chown=nextjs:nodejs /app/.env.production ./
+
 # 複製 sitemap 管理所需的檔案
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
@@ -68,9 +70,6 @@ RUN mkdir -p node_modules
 # 確保 scripts 目錄有執行權限和寫入權限
 RUN chmod +x scripts/*.js 2>/dev/null || true
 RUN chown -R nextjs:nodejs /app
-
-# 切換到非 root 使用者
-USER nextjs
 
 # 暴露埠號
 EXPOSE 3000

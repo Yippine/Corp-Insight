@@ -6,12 +6,19 @@
  */
 
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
+// 根據是否在 Docker 容器內決定 baseUrl
+const isDocker = process.env.DOCKER_CONTAINER === 'true';
+const baseUrl = isDocker 
+  ? 'http://localhost:3000' 
+  : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 // 配置
 const CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  baseUrl: baseUrl,
   storageFile: path.join(__dirname, '..', '.sitemap-status.json'),
   pidFile: path.join(__dirname, '..', '.sitemap-monitor.pid'),
   lockFile: path.join(__dirname, '..', '.sitemap-monitor.lock'),
@@ -38,7 +45,11 @@ async function testSitemap(sitemap) {
     const startTime = Date.now();
     const url = CONFIG.baseUrl + sitemap.url;
     
-    const req = http.get(url, (res) => {
+    // 根據 URL 協定動態選擇 http 或 https 模組
+    const protocol = new URL(url).protocol;
+    const client = protocol === 'https:' ? https : http;
+    
+    const req = client.get(url, (res) => {
       const responseTime = Date.now() - startTime;
       let data = '';
       

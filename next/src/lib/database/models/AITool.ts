@@ -241,7 +241,9 @@ const AIToolSchema = new Schema<IAITool>(
   },
   {
     timestamps: true, // 自動添加 createdAt 和 updatedAt
-    collection: 'aitools', // 指定集合名稱
+    collection: 'ai_tools', // 指定集合名稱
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
@@ -406,10 +408,6 @@ AIToolSchema.virtual('fullPromptTemplate').get(function () {
     combined: `${prefix}\n\n[使用者輸入]\n\n${suffix}`,
   };
 });
-
-// 確保虛擬欄位在 JSON 序列化時包含
-AIToolSchema.set('toJSON', { virtuals: true });
-AIToolSchema.set('toObject', { virtuals: true });
 
 // 建立並匯出模型
 const AITool: Model<IAITool> =

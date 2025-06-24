@@ -40,6 +40,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
       - NODE_ENV=development
+      - DOCKER_CONTAINER=true
       - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY:-}
       - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-for-dev}
@@ -63,18 +64,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    entrypoint: ["bash", "-c", "cp /app/scripts/entrypoint.sh /tmp/entrypoint.sh && chmod +x /tmp/entrypoint.sh && /tmp/entrypoint.sh npm run start"]
+    entrypoint: ["bash", "-c", "cp /app/scripts/entrypoint.sh /tmp/entrypoint.sh && chmod +x /tmp/entrypoint.sh && /tmp/entrypoint.sh node server.js"]
     ports:
       - "3000:3000"
     restart: unless-stopped
     env_file:
-      - ./.env.prod
+      - ./.env.production
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/app
-      - /app/node_modules
-      - /app/.next
       - ./db:/app/db
+    environment:
+      - DOCKER_CONTAINER=true
     depends_on:
       mongodb:
         condition: service_healthy
