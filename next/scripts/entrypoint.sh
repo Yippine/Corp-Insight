@@ -33,6 +33,10 @@ fi
 
 echo "✅ MongoDB 已就緒。"
 
+# 新增步驟: 修正掛載的 /app 目錄權限 (包含 /app/db 和 sitemap 狀態檔)
+echo "🔧 正在修正 /app 的擁有者權限..."
+chown -R nextjs:nodejs /app
+
 # 步驟 2: 執行一次性的資料庫初始化/索引重建 (以 nextjs 使用者身份)
 echo "🔧 正在執行資料庫初始化 (db:init)..."
 gosu nextjs npm run db:init

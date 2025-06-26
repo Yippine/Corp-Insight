@@ -31,7 +31,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    entrypoint: ["bash", "-c", "cp /app/scripts/entrypoint.sh /tmp/entrypoint.sh && chmod +x /tmp/entrypoint.sh && /tmp/entrypoint.sh npm run dev"]
     env_file:
       - .env.local
     ports:
@@ -64,7 +63,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    entrypoint: ["bash", "-c", "cp /app/scripts/entrypoint.sh /tmp/entrypoint.sh && chmod +x /tmp/entrypoint.sh && /tmp/entrypoint.sh node server.js"]
     ports:
       - "3000:3000"
     restart: unless-stopped

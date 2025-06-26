@@ -64,12 +64,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/.env.production ./
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 
+# 建立並授權 db 目錄，用於備份和還原操作，同時確保 scripts 可執行
+RUN mkdir -p /app/db/backups && \
+    chown -R nextjs:nodejs /app/db && \
+    chmod +x scripts/*.js 2>/dev/null || true
+
 # 確保有基本的 Node.js 內建模組可用（http, fs 等已內建於 Node.js）
 RUN mkdir -p node_modules
-
-# 確保 scripts 目錄有執行權限和寫入權限
-RUN chmod +x scripts/*.js 2>/dev/null || true
-RUN chown -R nextjs:nodejs /app
 
 # 暴露埠號
 EXPOSE 3000
@@ -81,5 +82,8 @@ ENV HOSTNAME "0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node scripts/healthcheck.js
 
-# 啟動應用程式
+# 設定容器進入點
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]
+
+# 啟動應用程式 (此指令會傳遞給 ENTRYPOINT)
 CMD ["node", "server.js"]
