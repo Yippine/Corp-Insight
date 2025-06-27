@@ -64,10 +64,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.env.production ./
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 
-# 建立並授權 db 目錄，用於備份和還原操作，同時確保 scripts 可執行
+# 建立並授權 db 目錄，用於備份和還原操作，同時確保 scripts 目錄下的所有檔案都可執行
 RUN mkdir -p /app/db/backups && \
     chown -R nextjs:nodejs /app/db && \
-    chmod +x scripts/*.js 2>/dev/null || true
+    chmod +x /app/scripts/*
 
 # 確保有基本的 Node.js 內建模組可用（http, fs 等已內建於 Node.js）
 RUN mkdir -p node_modules
