@@ -37,9 +37,11 @@ export default function DatabaseConsole() {
   const [terminalTitle, setTerminalTitle] = useState('');
   const [isTerminalRunning, setIsTerminalRunning] = useState(false);
   const [isTerminalVisible, setIsTerminalVisible] = useState(false);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
 
-  const handleExecuteScript = useCallback(async (scriptName: string, title: string) => {
-    setTerminalTitle(title);
+  const handleExecuteScript = useCallback(async (task: Task) => {
+    setActiveTask(task);
+    setTerminalTitle(task.name);
     setTerminalOutput('');
     setIsTerminalRunning(true);
     setIsTerminalVisible(true);
@@ -47,7 +49,7 @@ export default function DatabaseConsole() {
     const response = await fetch('/api/admin/run-script', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_SECRET_TOKEN}` },
-      body: JSON.stringify({ scriptName }),
+      body: JSON.stringify({ scriptName: task.id }),
     });
     
     if (!response.body) return;
@@ -62,12 +64,14 @@ export default function DatabaseConsole() {
     }
     
     setIsTerminalRunning(false);
+  }, []);
 
-    // 當執行的是可能改變資料庫狀態的指令時，刷新儀表板
-    if (['db:init', 'db:restore', 'db:clean', 'db:backup', 'db:backup:core'].includes(scriptName)) {
-      await refresh();
+  const handleTerminalComplete = useCallback(() => {
+    if (activeTask && ['db:init', 'db:full-restore', 'db:restore', 'db:clean'].includes(activeTask.id)) {
+      console.log(`Script "${activeTask.name}" completed. Refreshing data...`);
+      refresh();
     }
-  }, [refresh]);
+  }, [activeTask, refresh]);
 
   return (
     <div className="space-y-8">
@@ -120,7 +124,7 @@ export default function DatabaseConsole() {
                     <p className="text-sm text-gray-600 mt-1 break-words">{task.description}</p>
                   </div>
                   <button
-                    onClick={() => handleExecuteScript(task.id, task.name)}
+                    onClick={() => handleExecuteScript(task)}
                     disabled={isTerminalRunning || !isInitialized}
                     className={`
                       flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors flex-shrink-0
@@ -158,6 +162,7 @@ export default function DatabaseConsole() {
                 output={terminalOutput}
                 isRunning={isTerminalRunning}
                 onClose={() => setIsTerminalVisible(false)}
+                onComplete={handleTerminalComplete}
               />
             )}
           </div>

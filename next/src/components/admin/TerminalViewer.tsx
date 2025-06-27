@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { X, Terminal, Copy, Check } from 'lucide-react';
 import AnsiToHtml from 'ansi-to-html';
 
@@ -9,6 +9,7 @@ interface TerminalViewerProps {
   output: string;
   isRunning: boolean;
   onClose: () => void;
+  onComplete?: () => void;
 }
 
 export default function TerminalViewer({
@@ -16,14 +17,43 @@ export default function TerminalViewer({
   output,
   isRunning,
   onClose,
+  onComplete,
 }: TerminalViewerProps) {
   const [hasCopied, setHasCopied] = useState(false);
+  const prevIsRunning = useRef(isRunning);
+
+  useEffect(() => {
+    if (prevIsRunning.current && !isRunning) {
+      onComplete?.();
+    }
+    prevIsRunning.current = isRunning;
+  }, [isRunning, onComplete]);
 
   const convert = useMemo(() => new AnsiToHtml({
-    fg: '#e5e7eb', // gray-200
-    bg: '#111827', // gray-900
+    fg: '#e5e7eb', // text-gray-200
+    bg: '#111827', // bg-gray-900
     newline: true,
     escapeXML: true,
+    colors: {
+      // 覆寫 ANSI 顏色碼，提升在深色背景下的可讀性
+      0: '#1f2937', // Black (bg-gray-800)
+      1: '#f87171', // Red (text-red-400)
+      2: '#4ade80', // Green (text-green-400)
+      3: '#facc15', // Yellow (text-yellow-400)
+      4: '#60a5fa', // Blue (text-blue-400) - 提升對比度的主要目標
+      5: '#c084fc', // Magenta (text-purple-400)
+      6: '#22d3ee', // Cyan (text-cyan-400)
+      7: '#f9fafb', // White (text-gray-50)
+      // Bright versions
+      8: '#4b5563', // Bright Black (Gray)
+      9: '#ef4444', // Bright Red
+      10: '#22c55e', // Bright Green
+      11: '#eab308', // Bright Yellow
+      12: '#3b82f6', // Bright Blue
+      13: '#a855f7', // Bright Magenta
+      14: '#06b6d4', // Bright Cyan
+      15: '#ffffff', // Bright White
+    }
   }), []);
 
   const htmlOutput = useMemo(() => convert.toHtml(output), [convert, output]);
