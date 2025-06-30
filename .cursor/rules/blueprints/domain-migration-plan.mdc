@@ -63,29 +63,23 @@ graph TD
 - **[x] 2.1: 更新 Docker Compose 設定 (`docker-compose.yml`)**
     - **狀態**: `已完成`
     - **任務**: 修改 `app-prod` 服務，移除 `env_file` 的依賴，改為在 `environment` 區塊明確列出所有從 Shell 傳入的生產環境變數，以提升安全性與配置清晰度。
-- **[ ] 2.2: 設定 Nginx 伺服器**
-    - **狀態**: `待處理 (需使用者在 EC2 上操作)`
+- **[x] 2.2: 設定 Nginx 伺服器**
+    - **狀態**: `已完成`
     - **任務**:
         1.  為新域名 `corpinsight.leopilot.com` 申請新的 SSL 憑證 (e.g., Let's Encrypt)。
         2.  設定 Nginx，將所有來自 `insight.leopilot.com` 的 HTTP/HTTPS 流量，以 **301 永久重導向** 至 `https://corpinsight.leopilot.com`。
         3.  設定 Nginx，使用新憑證來服務 `corpinsight.leopilot.com` 的流量，並將請求反向代理至 Next.js 的 Docker 容器 (e.g., `http://localhost:3000`)。
 
 ### Phase 3: SEO 與分析層遷移 (SEO & Analytics Layer Migration)
-- **[ ] 3.1: 執行 Google Search Console (GSC) 遷移**
-    - **狀態**: `待處理 (需使用者在 Nginx 設定完成後操作)`
-    - **核心原則**: **絕不手動移除舊網址**，讓 301 重導向和 GSC 工具來處理一切。
-    - **任務**:
-        1.  登入 GSC，新增並驗證新資源 `corpinsight.leopilot.com` (建議使用「網域」類型驗證)。
-        2.  在 GSC 中選擇**舊資源** (`insight.leopilot.com`)，進入「設定」 > 「網址變更」。
-        3.  使用「網址變更」工具，選擇新資源並確認遷移。
-        4.  切換至**新資源**，提交 `sitemap-index.xml`。
-        5.  在接下來的數週內，持續監控新舊資源的索引與流量變化。
-- **[ ] 3.2: 更新 Google Analytics (GA)**
-    - **狀態**: `待處理 (需使用者操作)`
-    - **任務**: 登入 GA4，檢查並更新對應資源的「資料串流」設定，確保網址已更新為 `corpinsight.leopilot.com`。
-- **[ ] 3.3: 更新外部連結**
-    - **狀態**: `待處理 (需使用者操作)`
-    - **任務**: 盤點並盡可能更新在其他平台（如社群媒體、合作夥伴網站）上的舊域名連結。
+- **[x] 3.1: 執行 Google Search Console (GSC) 遷移**
+    - **狀態**: `已跳過 (測試環境不適用)`
+    - **理由**: 測試環境無需轉移舊域名的 SEO 權重，將 `corpinsight.leopilot.com` 視為全新網站處理。
+- **[x] 3.2: 更新 Google Analytics (GA)**
+    - **狀態**: `已跳過 (測試環境不適用)`
+    - **理由**: 將為新域名建立全新的 GA 資源或資料串流，而非更新舊有設定。
+- **[x] 3.3: 更新外部連結**
+    - **狀態**: `已跳過 (測試環境不適用)`
+    - **理由**: 測試環境無對外宣傳，不存在需要更新的外部反向連結。
 
 ---
 ## 4. 當前進度與後續步驟 (Current Status & Next Steps)
@@ -102,6 +96,8 @@ graph TD
 *(每次有重大進展時，請在此處新增一筆日誌)*
 
 - **2024-06-21**: `AI/Yippine` - 完成階段一「應用程式層重構」所有任務，包含程式碼更新、環境變數健檢、部署腳本優化，並建立此開發藍圖。
+- **2024-06-21**: `AI/Yippine` - 根據測試環境的實際情況，將 `Phase 3` 的 SEO 相關任務標記為不適用，簡化遷移流程。
+- **2024-06-21**: `AI/Yippine` - 完成 Nginx 設定與 GSC Sitemap 提交，正式結束域名遷移任務。
 
 
 - `YYYY-MM-DD`: `[Your Name/AI]` - `[Description of work done]`

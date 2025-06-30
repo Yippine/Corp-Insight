@@ -20,6 +20,14 @@ Disallow: /.well-known/
 
 # 管理和測試頁面
 Disallow: /admin/
+
+# 允許存取 Sitemap
+Allow: /sitemap-index.xml
+Allow: /sitemap.xml
+Allow: /sitemap-companies.xml
+Allow: /sitemap-tenders.xml
+Allow: /sitemap-aitools.xml
+
 Disallow: /api/
 
 # 網站地圖位置
