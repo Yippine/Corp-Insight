@@ -1,0 +1,87 @@
+---
+description: 資料與 Sitemap 管線開發計畫。當你需要解決 companies, tenders, ai_tools 的 Sitemap 為空的問題、規劃資料導入流程、或回顧相關開發進度時調用此規則。本規則為此系列任務的唯一真實來源 (Single Source of Truth)，涵蓋從問題診斷、方案設計到任務追蹤的完整開發生命週期。
+globs: 
+alwaysApply: false
+---
+# 藍圖：資料與 Sitemap 管線開發計畫
+
+## 🎯 核心目標 (Core Objectives)
+
+本計畫旨在解決 `/admin/sitemap` 監控頁面中 Sitemap 為空的問題，並為專案建立一個可持續、自動化的資料導入與驗證流程。最終目標是確保 `companies`, `tenders`, `ai_tools` 三個核心 Sitemap 能夠準確、完整地反映資料庫中的有效資料。
+
+## 📝 任務追蹤清單 (Task Tracking List)
+
+所有腳本開發必須遵循專案規範：
+-   腳本存放於 `next/scripts/` 目錄。
+-   透過 `package.json` 中的 `npm scripts` 進行調用。
+
+---
+
+### 1. 🤖 AI 工具 Sitemap 修復與驗證 (AI Tools Sitemap Fix & Verification)
+
+-   **現狀**: `ai_tools` collection 中有 95 筆資料，但 `sitemap-aitools.xml` 為空。
+-   **根本原因**: Sitemap 產生器查詢 `status` 欄位，但資料庫中實際使用的欄位是 `isActive` (布林值)。
+
+-   **子任務 (Sub-tasks):**
+    -   [ ] **1.1. 方案決策：修改查詢 vs. 統一資料模型**
+        -   **選項 A (快速修復)**: 修改 `next/src/app/sitemap-aitools.xml/route.ts`，將查詢條件從 `status: { $in: ['active', 'published'] }` 更改為 `isActive: true`。
+        -   **選項 B (建議 - 長期一致性)**: 撰寫一個一次性更新腳本 (`next/scripts/migrate-aitools-status.js`)，將 `ai_tools` 中所有文件的 `isActive` 欄位轉換為 `status: 'published'` 或 `status: 'archived'`，與其他 collection 保持欄位名稱和格式統一。
+    -   [ ] **1.2. 實施選定方案**
+    -   [ ] **1.3. ✅ Sitemap 端對端測試**: 執行方案後，重新訪問 `/admin/sitemap`，確認 `/sitemap-aitools.xml` 狀態正常，且計數不再為 0。
+
+---
+
+### 2. 🏢 企業資料導入 (Companies Data Ingestion)
+
+-   **現狀**: `companies` collection 為空，或不包含帶有 `taxId` 的有效資料。
+-   **目標**: 從政府公開資料平台獲取全台灣所有公司的統編 (`taxId`)，並建立完整的企業資料庫。
+
+-   **子任務 (Sub-tasks):**
+    -   [ ] **2.1. 🔍 資料來源研究與驗證**:
+        -   研究並確定最佳的台灣政府官方或法人機構公開資料集 (e.g., [政府資料開放平臺](mdc:https:/data.gov.tw), [商工登記公示資料查詢服務](mdc:https:/findbiz.nat.gov.tw))，以獲取公司基本資料（至少需包含統一編號）。
+    -   [ ] **2.2. 📜 資料導入腳本開發 (`next/scripts/import-companies.js`)**:
+        -   開發腳本，用於下載、解析並寫入 `companies` collection。
+        -   確保每筆資料都包含有效的 `taxId` 欄位。
+    -   [ ] **2.3. ⚙️ 資料庫初始化整合**:
+        -   將此腳本整合至專案的資料庫初始化流程中 (e.g., `npm run db:init`)，方便新環境的快速部署。
+    -   [ ] **2.4. 🔄 定期更新機制規劃**:
+        -   規劃一個 cron job 或類似的排程任務，定期執行導入腳本，以確保企業資料的時效性。
+
+---
+
+### 3. 📋 標案資料導入 (Tenders Data Ingestion)
+
+-   **現狀**: `tenders` collection 為空，或不包含 `status` 為 `active`/`open`/`published` 的有效資料。
+-   **目標**: 從政府公開資料平台獲取標案資料，並解決 ID 匹配問題。
+
+-   **子任務 (Sub-tasks):**
+    -   [ ] **3.1. 🔍 資料來源研究**:
+        -   研究並確定最佳的政府採購或標案相關的公開資料集 (e.g., 政府電子採購網)。
+    -   [ ] **3.2. ⚠️ 【關鍵難點】標案 ID 比對與策略**:
+        -   **研究任務**: 深入調查從公開資料集獲取的標案 ID，與目前專案中用於查詢標案詳情的外部 API 所需的 ID 格式是否一致。
+        -   **產出**: 撰寫一份簡短的分析報告，說明兩種 ID 是否可直接使用、需要轉換，或完全不匹配。這是後續開發的關鍵決策點。
+    -   [ ] **3.3. 📜 資料導入腳本開發 (`next/scripts/import-tenders.js`)**:
+        -   *此任務相依於 3.2 的結論。*
+        -   根據 ID 比對的結果，開發導入腳本。如果 ID 不匹配，此腳本可能需要額外的邏輯來進行 ID 映射。
+        -   確保寫入的資料包含 `status` 欄位。
+    -   [ ] **3.4. 🔄 定期更新機制規劃**:
+        -   規劃排程任務，定期更新標案資料。
+
+---
+## 4. 當前進度與後續步驟 (Current Status & Next Steps)
+
+- **當前進度**: 已完成問題診斷與任務規劃，並建立此開發藍圖。
+- **後續步驟**:
+    1.  **解決 AI 工具 Sitemap 問題**: 根據 **任務 1** 進行決策與實施，這是最快可以看到成效的任務。
+    2.  **啟動資料導入研究**: 開始執行 **任務 2.1** 和 **任務 3.1 & 3.2**，為後續的腳本開發奠定基礎。
+
+---
+## 5. 開發進度追蹤 (Development Log)
+
+*(每次有重大進展時，請在此處新增一筆日誌)*
+
+- **2024-06-21**: `AI/Yippine` - 診斷出三種 Sitemap (`companies`, `tenders`, `aitools`) 為空的根本原因，並建立此開發任務追蹤清單。
+- `YYYY-MM-DD`: `[Your Name/AI]` - `[Description of work done]`
+
+
+
