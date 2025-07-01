@@ -57,7 +57,7 @@ graph TD
 - **[x] 1.4: 建立環境變數模板**
     - **細節**: 建立 `next/.env.example` 檔案，並提供中文註解作為團隊參考。
 - **[x] 1.5: 優化並整合部署腳本**
-    - **細節**: 將載入 `.env.prod` 的功能整合至現有的 `next/scripts/deploy-prod.sh` 腳本中。
+    - **細節**: 將載入 `.env.production` 的功能整合至現有的 `next/scripts/deploy-prod.sh` 腳本中。
 
 ### Phase 2: 基礎設施層設定 (Infrastructure Layer Setup)
 - **[x] 2.1: 更新 Docker Compose 設定 (`docker-compose.yml`)**

@@ -127,7 +127,19 @@
     "// 執行應用程式健康檢查": "",
     "health:check": "node scripts/healthcheck.js",
     "// 部署到生產環境": "",
-    "deploy:prod": "bash scripts/deploy-prod.sh"
+    "deploy:prod": "bash scripts/deploy-prod.sh",
+    "// 🔒 SECURE REMOTE ACCESS (安全遠端存取)": "",
+    "// 透過 AWS Session Manager 連線到生產環境 EC2": "",
+    "ssh:prod": "bash scripts/connect-ec2.sh",
+    "// 啟動到 Mongo Express 的安全通道": "",
+    "db:ui": "bash scripts/forward-db-port.sh",
+    "// 🌐 NGINX SERVER (Nginx 伺服器管理)": "",
+    "// 測試 Nginx 設定檔語法是否正確": "",
+    "nginx:test": "sudo nginx -t",
+    "// 優雅地重載 Nginx 設定 (不中斷服務)": "",
+    "nginx:reload": "sudo systemctl reload nginx",
+    "// 強制重啟 Nginx 服務": "",
+    "nginx:restart": "sudo systemctl restart nginx"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
