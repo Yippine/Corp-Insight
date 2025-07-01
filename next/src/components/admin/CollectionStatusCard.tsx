@@ -39,19 +39,9 @@ export default function CollectionStatusCard({ collection }: CollectionStatusCar
   const handleViewDetails = () => {
     const isLocal = window.location.hostname === 'localhost';
     const dbName = 'business-magnifier';
-    const prodMongoExpressUrl = process.env.NEXT_PUBLIC_MONGO_EXPRESS_URL;
 
-    let url;
-    if (isLocal) {
-      url = `http://localhost:8081/db/${dbName}/${collection.name}`;
-    } else if (prodMongoExpressUrl) {
-      const baseUrl = prodMongoExpressUrl.endsWith('/') ? prodMongoExpressUrl.slice(0, -1) : prodMongoExpressUrl;
-      url = `${baseUrl}/db/${dbName}/${collection.name}`;
-    } else {
-      console.error('Mongo Express URL not configured. Please set NEXT_PUBLIC_MONGO_EXPRESS_URL.');
-      alert('無法確定 Mongo Express 的位址。請檢查環境變數設定。');
-      return;
-    }
+    const port = isLocal ? 8081 : 18081;
+    const url = `http://localhost:${port}/db/${dbName}/${collection.name}`;
     
     window.open(url, '_blank', 'noopener,noreferrer');
   };
