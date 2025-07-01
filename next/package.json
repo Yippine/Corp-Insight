@@ -129,8 +129,10 @@
     "// 部署到生產環境": "",
     "deploy:prod": "bash scripts/deploy-prod.sh",
     "// 🔒 SECURE REMOTE ACCESS (安全遠端存取)": "",
-    "// 透過 AWS Session Manager 連線到生產環境 EC2": "",
-    "ssh:prod": "bash scripts/connect-ec2.sh",
+    "// 連線到 EC2 並直接進入專案目錄": "",
+    "ssh:prod": "bash scripts/connect-ec2-project.sh",
+    "// 連線到 EC2 的 ssm-user (不自動切換目錄)": "",
+    "ssh": "bash scripts/connect-ec2.sh",
     "// 啟動到 Mongo Express 的安全通道": "",
     "db:ui": "bash scripts/forward-db-port.sh",
     "// 🌐 NGINX SERVER (Nginx 伺服器管理)": "",
@@ -139,7 +141,9 @@
     "// 優雅地重載 Nginx 設定 (不中斷服務)": "",
     "nginx:reload": "sudo systemctl reload nginx",
     "// 強制重啟 Nginx 服務": "",
-    "nginx:restart": "sudo systemctl restart nginx"
+    "nginx:restart": "sudo systemctl restart nginx",
+    "// 列出 pm2 的程式列表": "",
+    "pm2:list": "node scripts/format-pm2-list.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
