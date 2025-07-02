@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Instructions from '../Instructions';
 
 interface ScalabilityResult {
   computeScore: number;
@@ -103,70 +102,63 @@ export default function WorkloadScalabilityCalculator() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <Instructions
-        what="AI 工作負載規模化評估工具幫助您評估 AI 系統的可擴展性。"
-        why="了解系統的擴展能力對於規劃長期發展和資源配置至關重要。"
-        how="為每個評估維度打分（1-10分），工具會計算總體評分並提供改進建議。"
-      />
-      <div className="grid grid-cols-1 gap-8">
-        {renderScoreInputs(computeFactors, '計算能力評估')}
-        {renderScoreInputs(resourceFactors, '資源彈性評估')}
-        {renderScoreInputs(costFactors, '成本效率評估')}
+    <div className="grid grid-cols-1 gap-8">
+      {renderScoreInputs(computeFactors, '計算能力評估')}
+      {renderScoreInputs(resourceFactors, '資源彈性評估')}
+      {renderScoreInputs(costFactors, '成本效率評估')}
 
-        <button
-          onClick={calculateScalability}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          計算評估結果
-        </button>
+      <button
+        onClick={calculateScalability}
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        計算評估結果
+      </button>
 
-        {result && (
-          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
-            <h3 className="text-xl font-medium text-gray-900">評估結果</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-base text-gray-500">計算能力得分</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.computeScore.toFixed(1)}
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">資源彈性得分</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.resourceScore.toFixed(1)}
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">成本效率得分</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.costScore.toFixed(1)}
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">總體評分</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.totalScore.toFixed(1)}
-                </p>
-              </div>
+      {result && (
+        <div className="space-y-4 rounded-lg bg-gray-50 p-6">
+          <h3 className="text-xl font-medium text-gray-900">評估結果</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-base text-gray-500">計算能力得分</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.computeScore.toFixed(1)}
+              </p>
             </div>
-            {result.recommendations.length > 0 && (
-              <div className="mt-4">
-                <h4 className="mb-2 text-base font-medium text-gray-900">
-                  改進建議
-                </h4>
-                <ul className="list-disc space-y-1 pl-5">
-                  {result.recommendations.map((rec, index) => (
-                    <li key={index} className="text-base text-gray-600">
-                      {rec}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <div>
+              <p className="text-base text-gray-500">資源彈性得分</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.resourceScore.toFixed(1)}
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">成本效率得分</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.costScore.toFixed(1)}
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">總體評分</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.totalScore.toFixed(1)}
+              </p>
+            </div>
           </div>
-        )}
-      </div>
+          {result.recommendations.length > 0 && (
+            <div className="mt-4">
+              <h4 className="mb-2 text-base font-medium text-gray-900">
+                改進建議
+              </h4>
+              <ul className="list-disc space-y-1 pl-5">
+                {result.recommendations.map((rec, index) => (
+                  <li key={index} className="text-base text-gray-600">
+                    {rec}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Instructions from '../Instructions';
 import { productCategories, reviewTypes } from '../../../config/geminiOptions';
 import { streamGenerateContent } from '../../../lib/gemini';
 import { ButtonLoading } from '../../common/loading/LoadingTypes';
@@ -90,12 +89,6 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Instructions
-        what="AI 評價生成器幫助您生成真實感的產品評價。"
-        why="真實的使用者評價可以增加產品可信度，提升轉換率。"
-        how="輸入產品資訊和特點，選擇產品類別和評價類型，AI 將生成相關的產品評價。"
-      />
-
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>

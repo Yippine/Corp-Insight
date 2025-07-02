@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Instructions from '../Instructions';
 import {
   productCategories,
   targetAudiences,
@@ -95,12 +94,6 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Instructions
-        what="AI FAQ 生成器幫助您快速生成專業的常見問題與答案。"
-        why="優質的 FAQ 內容可以提升使用者體驗、增加網站權威性並改善 SEO 排名。"
-        how="輸入產品資訊和使用者痛點，選擇產品類別和目標受眾，AI 將生成相關的 FAQ 內容。"
-      />
-
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>

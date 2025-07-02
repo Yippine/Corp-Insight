@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Instructions from '../Instructions';
 
 interface Material {
   id: string;
@@ -80,166 +79,159 @@ export default function MetalWeightCalculator() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <Instructions
-        what="金屬材料重量計算器可以幫助您計算不同形狀和材質的金屬工件重量。"
-        why="準確的重量計算對於材料採購、成本估算和物流規劃都非常重要。"
-        how="選擇材料類型和形狀（長方體或圓柱體），輸入尺寸後即可得到重量和成本估算。計算公式：重量 = 體積 × 密度，其中長方體體積 = 長×寬×高，圓柱體體積 = π×半徑²×高。"
-      />
-      <div className="grid grid-cols-1 gap-6">
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            材料類型
-          </label>
-          <select
-            value={material}
-            onChange={e => setMaterial(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            {materials.map(m => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            形狀
-          </label>
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              type="button"
-              onClick={() => setShape('rectangular')}
-              className={`${
-                shape === 'rectangular'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 bg-white text-gray-700'
-              } flex items-center justify-center rounded-md border px-4 py-2`}
-            >
-              長方體
-            </button>
-            <button
-              type="button"
-              onClick={() => setShape('cylindrical')}
-              className={`${
-                shape === 'cylindrical'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 bg-white text-gray-700'
-              } flex items-center justify-center rounded-md border px-4 py-2`}
-            >
-              圓柱體
-            </button>
-          </div>
-        </div>
-
-        {shape === 'rectangular' ? (
-          <>
-            <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">
-                長度 (mm)
-              </label>
-              <input
-                type="number"
-                value={length}
-                onChange={e => setLength(e.target.value)}
-                min="0"
-                step="0.1"
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">
-                寬度 (mm)
-              </label>
-              <input
-                type="number"
-                value={width}
-                onChange={e => setWidth(e.target.value)}
-                min="0"
-                step="0.1"
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">
-                高度 (mm)
-              </label>
-              <input
-                type="number"
-                value={height}
-                onChange={e => setHeight(e.target.value)}
-                min="0"
-                step="0.1"
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-          </>
-        ) : (
-          <>
-            <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">
-                直徑 (mm)
-              </label>
-              <input
-                type="number"
-                value={diameter}
-                onChange={e => setDiameter(e.target.value)}
-                min="0"
-                step="0.1"
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">
-                長度 (mm)
-              </label>
-              <input
-                type="number"
-                value={length}
-                onChange={e => setLength(e.target.value)}
-                min="0"
-                step="0.1"
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-          </>
-        )}
-
-        <button
-          onClick={calculateWeight}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    <div className="grid grid-cols-1 gap-6">
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          材料類型
+        </label>
+        <select
+          value={material}
+          onChange={e => setMaterial(e.target.value)}
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
-          計算重量與成本
-        </button>
+          {materials.map(m => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {result && (
-          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
-            <h3 className="text-xl font-medium text-gray-900">計算結果</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-base text-gray-500">體積</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.volume.toFixed(2)} cm³
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">重量</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.weight.toFixed(2)} kg
-                </p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-base text-gray-500">預估成本範圍</p>
-                <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.minCost.toFixed(0)} ~ {result.maxCost.toFixed(0)}
-                </p>
-              </div>
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          形狀
+        </label>
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => setShape('rectangular')}
+            className={`${
+              shape === 'rectangular'
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                : 'border-gray-300 bg-white text-gray-700'
+            } flex items-center justify-center rounded-md border px-4 py-2`}
+          >
+            長方體
+          </button>
+          <button
+            type="button"
+            onClick={() => setShape('cylindrical')}
+            className={`${
+              shape === 'cylindrical'
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                : 'border-gray-300 bg-white text-gray-700'
+            } flex items-center justify-center rounded-md border px-4 py-2`}
+          >
+            圓柱體
+          </button>
+        </div>
+      </div>
+
+      {shape === 'rectangular' ? (
+        <>
+          <div>
+            <label className="mb-1 block text-base font-medium text-gray-700">
+              長度 (mm)
+            </label>
+            <input
+              type="number"
+              value={length}
+              onChange={e => setLength(e.target.value)}
+              min="0"
+              step="0.1"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-base font-medium text-gray-700">
+              寬度 (mm)
+            </label>
+            <input
+              type="number"
+              value={width}
+              onChange={e => setWidth(e.target.value)}
+              min="0"
+              step="0.1"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-base font-medium text-gray-700">
+              高度 (mm)
+            </label>
+            <input
+              type="number"
+              value={height}
+              onChange={e => setHeight(e.target.value)}
+              min="0"
+              step="0.1"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div>
+            <label className="mb-1 block text-base font-medium text-gray-700">
+              直徑 (mm)
+            </label>
+            <input
+              type="number"
+              value={diameter}
+              onChange={e => setDiameter(e.target.value)}
+              min="0"
+              step="0.1"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-base font-medium text-gray-700">
+              長度 (mm)
+            </label>
+            <input
+              type="number"
+              value={length}
+              onChange={e => setLength(e.target.value)}
+              min="0"
+              step="0.1"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </>
+      )}
+
+      <button
+        onClick={calculateWeight}
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        計算重量與成本
+      </button>
+
+      {result && (
+        <div className="space-y-4 rounded-lg bg-gray-50 p-6">
+          <h3 className="text-xl font-medium text-gray-900">計算結果</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-base text-gray-500">體積</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.volume.toFixed(2)} cm³
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">重量</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.weight.toFixed(2)} kg
+              </p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-base text-gray-500">預估成本範圍</p>
+              <p className="text-xl font-medium text-gray-900">
+                NT$ {result.minCost.toFixed(0)} ~ {result.maxCost.toFixed(0)}
+              </p>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

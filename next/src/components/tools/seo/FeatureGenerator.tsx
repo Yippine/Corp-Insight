@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Instructions from '../Instructions';
 import {
   productCategories,
   targetAudiences,
@@ -101,12 +100,6 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Instructions
-        what="AI 功能生成器幫助您撰寫專業的產品功能描述。"
-        why="優質的功能描述可以突出產品價值，提高轉換率。"
-        how="輸入產品資訊和特點，選擇產品類別和目標受眾，AI 將生成相關的功能描述。"
-      />
-
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>

@@ -1,46 +1,27 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { SendHorizonal, Wand2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { streamGenerateContent } from '@/lib/gemini';
+import type { Tools } from '@/lib/aitool/types';
 
-interface PromptToolConfig {
-  id: string;
-  name: string;
-  description: string;
-  instructions: {
-    what: string;
-    why: string;
-    how: string;
-  };
-  placeholder: string;
-  promptTemplate: {
-    prefix: string;
-    suffix: string;
-  };
+interface GenerationResult {
+  content: string;
+  isOptimizing: boolean;
 }
 
 interface PromptToolTemplateProps {
-  config: PromptToolConfig;
+  config: Tools;
 }
 
 export default function PromptToolTemplate({
   config,
 }: PromptToolTemplateProps) {
-  const [userInput, setUserInput] = useState('');
-  const [result, setResult] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [result, setResult] = useState<GenerationResult | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
-
-  // 自動調整文本區域高度
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${Math.max(textarea.scrollHeight, 120)}px`;
-    }
-  }, [userInput]);
 
   // 當有結果出現時，滾動到結果部分
   useEffect(() => {
@@ -52,128 +33,137 @@ export default function PromptToolTemplate({
     }
   }, [result]);
 
-  // 處理提交
-  const handleSubmit = async () => {
-    if (!userInput.trim() || isLoading) return;
+  const generatePrompt = (isOptimizing: boolean) => {
+    if (isOptimizing && !result?.content) return '';
 
-    setIsLoading(true);
-    setResult('');
+    const prefix = config.promptTemplate?.prefix || '';
+    const suffix = config.promptTemplate?.suffix || '';
 
-    try {
-      // 在實際應用中，這裡會調用AI API
-      // 這裡只是模擬API調用
-      setTimeout(() => {
-        const simulatedResponse = `這是針對 "${userInput}" 的AI回應，使用了 ${config.name} 提示詞模板。\n\n您可以在這裡替換為實際的API調用結果。
-        
-${config.name} 處理了您的請求，結果如下：
+    const basePrompt = `${prefix}
+${
+  isOptimizing
+    ? '請基於以下現有指令進行優化：\\n' + result?.content + '\\n\\n以及參考以下資訊：\\n'
+    : ''
+}
+使用者的輸入：
+"""${prompt}"""
 
-1. 分析結果...
-2. 詳細建議...
-3. 進一步行動步驟...
+${suffix}
 
-希望這對您有所幫助！`;
+### CRITICAL WARNING ###
+The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
 
-        setResult(simulatedResponse);
-        setIsLoading(false);
-      }, 1500);
-    } catch (error) {
-      console.error('提示詞處理出錯:', error);
-      setResult('處理您的請求時出現錯誤，請稍後再試。');
-      setIsLoading(false);
-    }
+${
+  config.id !== 'english-writer'
+    ? '請以下列語言輸出：\\n請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。'
+    : ''
+}`;
+
+    console.log(`basePrompt: ${basePrompt}`);
+
+    return basePrompt;
   };
 
-  // 標題部分
-  const renderHeader = () => (
-    <div className="mb-6">
-      <div className="mb-2 flex items-center">
-        <h3 className="text-xl font-semibold text-gray-800">
-          {config.instructions.what}
-        </h3>
-      </div>
-      <p className="text-gray-600">{config.instructions.why}</p>
-    </div>
-  );
+  const handleGenerate = async (isOptimizing: boolean = false) => {
+    if (!prompt.trim()) return;
 
-  // 輸入部分
-  const renderInput = () => (
-    <div className="space-y-4">
-      <textarea
-        ref={textareaRef}
-        className="min-h-[120px] w-full rounded-lg border border-gray-300 p-4 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500"
-        placeholder={config.placeholder}
-        value={userInput}
-        onChange={e => setUserInput(e.target.value)}
-        disabled={isLoading}
-      />
-      <div className="flex justify-end">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={`flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium text-white transition-all ${
-            isLoading
-              ? 'cursor-not-allowed bg-gray-400'
-              : 'bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-lg'
-          }`}
-          onClick={handleSubmit}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-              <span>處理中...</span>
-            </>
-          ) : (
-            <>
-              <SendHorizonal size={18} />
-              <span>生成</span>
-            </>
-          )}
-        </motion.button>
-      </div>
-    </div>
-  );
+    setIsGenerating(true);
+    if (isOptimizing && result) {
+      setResult({ ...result, isOptimizing: true });
+    } else {
+      setResult({ content: '', isOptimizing: false });
+    }
 
-  // 結果部分
-  const renderResult = () => {
-    if (!result && !isLoading) return null;
+    try {
+      const promptText = generatePrompt(isOptimizing);
 
-    return (
-      <motion.div
-        ref={resultRef}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mt-8 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6"
-      >
-        <div className="mb-4 flex items-center">
-          <Wand2 className="mr-2 h-5 w-5 text-blue-500" />
-          <h4 className="text-lg font-medium text-blue-800">AI 助理結果</h4>
-        </div>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="border-3 h-8 w-8 animate-spin rounded-full border-blue-500 border-t-transparent"></div>
-            <span className="ml-3 text-blue-800">AI 思考中...</span>
-          </div>
-        ) : (
-          <div className="prose prose-blue max-w-none">
-            {result.split('\n').map((line, i) => (
-              <p key={i} className={line.trim() === '' ? 'my-4' : ''}>
-                {line}
-              </p>
-            ))}
-          </div>
-        )}
-      </motion.div>
-    );
+      await streamGenerateContent(promptText, text => {
+        setResult({
+          content: text,
+          isOptimizing: false,
+        });
+      });
+    } catch (error) {
+      console.error('Generation failed:', error);
+      setResult({
+        content: '生成時發生錯誤，請稍後再試。',
+        isOptimizing: false,
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // 主要渲染
   return (
-    <div className="w-full">
-      {renderHeader()}
-      {renderInput()}
-      {renderResult()}
+    <div className="w-full space-y-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="block text-base font-medium text-gray-700 mb-1">
+              需求描述 <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={prompt}
+              onChange={e => setPrompt(e.target.value)}
+              rows={6}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder={config.placeholder}
+              disabled={isGenerating}
+            />
+          </div>
+        </div>
+
+        <div className="flex space-x-4">
+          <button
+            onClick={() => handleGenerate(false)}
+            disabled={isGenerating || !prompt.trim()}
+            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isGenerating && !result?.isOptimizing ? (
+              <span className="flex items-center justify-center">
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
+                生成中...
+              </span>
+            ) : (
+              '開始新對話'
+            )}
+          </button>
+
+          <button
+            onClick={() => handleGenerate(true)}
+            disabled={isGenerating || !result || !prompt.trim()}
+            className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+              result
+                ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
+                : 'border-gray-300 text-gray-400'
+            }`}
+          >
+            {isGenerating && result?.isOptimizing ? (
+              <span className="flex items-center justify-center">
+                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
+                優化中...
+              </span>
+            ) : (
+              '延續對話並優化'
+            )}
+          </button>
+        </div>
+      </div>
+
+      {result && (
+        <motion.div
+          ref={resultRef}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gray-50 rounded-lg p-6"
+        >
+          <h3 className="text-xl font-medium text-gray-900 mb-4">對話結果</h3>
+          <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
+            {result.content}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

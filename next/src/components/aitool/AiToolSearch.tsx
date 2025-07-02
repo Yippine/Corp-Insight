@@ -14,6 +14,7 @@ import { dynamicTitles, staticTitles } from '@/config/pageTitles';
 import { useLoading } from '@/components/common/loading/LoadingProvider';
 import { trackBusinessEvents } from '../GoogleAnalytics';
 import LineBotBanner from './LineBotBanner';
+import FeatureSection from '@/components/FeatureSection';
 
 // 添加預載功能
 const preloadToolComponents = async () => {
@@ -73,6 +74,7 @@ export default function AiToolSearch({
   );
   const [tools, setTools] = useState<Tools[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hoveredTool, setHoveredTool] = useState<string | null>(null);
   const [categoryThemes, setCategoryThemes] = useState<
     Record<string, ColorTheme>
   >({});
@@ -227,9 +229,10 @@ export default function AiToolSearch({
   }
 
   const filtered = filteredTools();
+  const currentTag = searchParams.get('tag') || '';
 
   return (
-    <>
+    <div className="space-y-8">
       <LineBotBanner />
       <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
         <div className="mb-6 flex items-center justify-between">
@@ -261,91 +264,125 @@ export default function AiToolSearch({
               whileTap={{ scale: 0.95 }}
               onClick={() => handleTagSelect(tag)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                selectedTag === tag || (!selectedTag && tag === '全部')
+                currentTag === tag || (!currentTag && tag === '全部')
                   ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
                   : `${theme.secondary} ${theme.text} ${theme.hover}`
               }`}
             >
-              {tag}
+              {theme.name}
             </motion.button>
           ))}
         </div>
 
-        {filtered.length === 0 ? (
-          <NoSearchResults
-            query={searchQuery}
-            tag={selectedTag}
-            onClear={() => {
-              setSearchQuery('');
-              setSelectedTag('');
-            }}
-          />
-        ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <AnimatePresence mode="popLayout">
-              {filtered.map(tool => {
-                const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
-                const isAITool = tool.componentId === 'PromptToolTemplate';
+        <AnimatePresence>
+          <motion.div
+            key={currentTag}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+          >
+            {filtered.map((tool, index) => {
+              const Icon = iconMap[tool.iconName] || iconMap.Zap;
+              const toolThemes = tool.tags
+                .map(t => fullTagThemes[t] || fullTagThemes.ai)
+                .filter(Boolean);
+              const primaryTheme = toolThemes[0] || fullTagThemes.ai;
+              const isHovered = hoveredTool === tool.id;
 
-                return (
-                  <motion.div
-                    key={tool.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    whileHover={{
-                      scale: 1.02,
-                      transition: { duration: 0.2 },
-                    }}
-                    className="group cursor-pointer rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg"
+              return (
+                <motion.div
+                  key={tool.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.2, delay: index * 0.03 }}
+                  onMouseEnter={() => setHoveredTool(tool.id)}
+                  onMouseLeave={() => setHoveredTool(null)}
+                  className="h-full"
+                >
+                  <button
                     onClick={() => handleToolClick(tool.id)}
+                    className={`relative h-full w-full rounded-xl p-6 text-left transition-all duration-300 ${
+                      isHovered
+                        ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}`
+                        : 'border border-gray-100 shadow'
+                    }`}
                   >
-                    <div className="mb-4 flex items-start justify-between">
+                    <div className="mb-4 flex items-center">
                       <div
-                        className={`rounded-lg p-3 ${isAITool ? 'bg-gradient-to-br from-purple-100 to-pink-100' : 'bg-blue-50'} transition-transform duration-300 group-hover:scale-110`}
+                        className={`rounded-lg p-3 transition-all duration-300 ${
+                          isHovered
+                            ? primaryTheme.primary
+                            : primaryTheme.secondary
+                        }`}
                       >
-                        <IconComponent
-                          className={`h-6 w-6 ${isAITool ? 'text-purple-600' : 'text-blue-600'}`}
+                        <Icon
+                          className={`h-6 w-6 transition-all duration-300 ${
+                            isHovered ? 'text-white' : primaryTheme.icon
+                          }`}
                         />
                       </div>
+                      <h3
+                        className={`ml-4 text-xl font-semibold transition-colors duration-300 ${
+                          isHovered ? primaryTheme.text : 'text-gray-900'
+                        }`}
+                      >
+                        {tool.name}
+                      </h3>
                     </div>
-
-                    <h3 className="mb-2 font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-600">
-                      {tool.name}
-                    </h3>
-
-                    <p className="mb-4 line-clamp-2 text-sm text-gray-600">
+                    <p
+                      className={`transition-colors duration-300 ${
+                        isHovered ? primaryTheme.text : 'text-gray-600'
+                      }`}
+                    >
                       {tool.description}
                     </p>
-
-                    <div className="flex flex-wrap gap-1">
-                      {tool.tags.slice(0, 3).map(tag => {
-                        const tagTheme = fullTagThemes[tag];
-                        if (!tagTheme) return null;
-
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {tool.tags.map((tag, idx) => {
+                        const tagTheme = toolThemes[idx] || fullTagThemes.ai;
                         return (
                           <span
                             key={tag}
-                            className={`rounded-full px-2 py-1 text-xs ${tagTheme.secondary} ${tagTheme.text}`}
+                            className={`rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-300 ${
+                              isHovered
+                                ? `${tagTheme.primary} text-white`
+                                : `${tagTheme.secondary} ${tagTheme.text}`
+                            }`}
                           >
-                            {tag}
+                            {tagTheme.name}
                           </span>
                         );
                       })}
-                      {tool.tags.length > 3 && (
-                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
-                          +{tool.tags.length - 3}
-                        </span>
-                      )}
                     </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                  </button>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
+
+        {filtered.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="py-12 text-center"
+          >
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+              <Search className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">
+              找不到相關工具
+            </h3>
+            <p className="text-gray-600">
+              請嘗試使用不同的搜尋關鍵字或篩選條件
+            </p>
+          </motion.div>
         )}
       </div>
-    </>
+      <FeatureSection />
+    </div>
   );
 }

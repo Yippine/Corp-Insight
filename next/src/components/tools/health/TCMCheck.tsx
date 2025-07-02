@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Instructions from '../Instructions';
 import {
   questions,
   constitutions,
@@ -201,12 +200,6 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Instructions
-        what="中醫體質評估系統幫助您了解自身體質特點。"
-        why="了解體質類型可以更好地調理身心，預防疾病。"
-        how="回答一系列問題，系統會分析您的體質類型並提供個性化建議。評分標準：0 分（無）到 4 分（嚴重）。"
-      />
-
       <div className="space-y-6">
         {questions.map((question: Question) => (
           <div

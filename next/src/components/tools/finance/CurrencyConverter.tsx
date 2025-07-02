@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Instructions from '../Instructions';
 
 interface ExchangeRates {
   [key: string]: number;
@@ -62,111 +61,104 @@ export default function CurrencyConverter() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <Instructions
-        what="外幣快速換算器可以幫助您進行不同貨幣之間的換算。"
-        why="在國際貿易、旅遊或投資時，快速了解不同貨幣的等值金額非常重要。"
-        how="選擇原始貨幣和目標貨幣，輸入金額後即可看到換算結果。換算使用即時匯率（目前為模擬數據），計算方式：目標金額 = 原始金額 × 匯率。"
-      />
-      <div className="grid grid-cols-1 gap-6">
+    <div className="grid grid-cols-1 gap-6">
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          金額
+        </label>
+        <input
+          type="number"
+          value={amount}
+          onChange={e => setAmount(e.target.value)}
+          min="0"
+          step="0.01"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="grid grid-cols-[1fr,auto,1fr] items-end gap-4">
         <div>
           <label className="mb-1 block text-base font-medium text-gray-700">
-            金額
+            從
           </label>
-          <input
-            type="number"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            min="0"
-            step="0.01"
+          <select
+            value={fromCurrency}
+            onChange={e => setFromCurrency(e.target.value)}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="grid grid-cols-[1fr,auto,1fr] items-end gap-4">
-          <div>
-            <label className="mb-1 block text-base font-medium text-gray-700">
-              從
-            </label>
-            <select
-              value={fromCurrency}
-              onChange={e => setFromCurrency(e.target.value)}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              {currencies.map(currency => (
-                <option key={currency.code} value={currency.code}>
-                  {currency.name} ({currency.code})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            onClick={handleSwapCurrencies}
-            className="mb-1 p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
           >
-            ⇄
-          </button>
-
-          <div>
-            <label className="mb-1 block text-base font-medium text-gray-700">
-              轉換成
-            </label>
-            <select
-              value={toCurrency}
-              onChange={e => setToCurrency(e.target.value)}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              {currencies.map(currency => (
-                <option key={currency.code} value={currency.code}>
-                  {currency.name} ({currency.code})
-                </option>
-              ))}
-            </select>
-          </div>
+            {currencies.map(currency => (
+              <option key={currency.code} value={currency.code}>
+                {currency.name} ({currency.code})
+              </option>
+            ))}
+          </select>
         </div>
 
         <button
-          onClick={convertCurrency}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          onClick={handleSwapCurrencies}
+          className="mb-1 p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
         >
-          換算
+          ⇄
         </button>
 
-        {result !== null && (
-          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-base text-gray-500">
-                  {amount} {fromCurrency}
-                </p>
-                <p className="text-xl font-medium text-gray-900">
-                  {parseFloat(amount).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{' '}
-                  {fromCurrency}
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">轉換結果</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{' '}
-                  {toCurrency}
-                </p>
-              </div>
+        <div>
+          <label className="mb-1 block text-base font-medium text-gray-700">
+            轉換成
+          </label>
+          <select
+            value={toCurrency}
+            onChange={e => setToCurrency(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            {currencies.map(currency => (
+              <option key={currency.code} value={currency.code}>
+                {currency.name} ({currency.code})
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <button
+        onClick={convertCurrency}
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        換算
+      </button>
+
+      {result !== null && (
+        <div className="space-y-4 rounded-lg bg-gray-50 p-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-base text-gray-500">
+                {amount} {fromCurrency}
+              </p>
+              <p className="text-xl font-medium text-gray-900">
+                {parseFloat(amount).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{' '}
+                {fromCurrency}
+              </p>
             </div>
-            <div className="text-base text-gray-500">
-              匯率：1 {fromCurrency} ={' '}
-              {(rates[toCurrency] / rates[fromCurrency]).toFixed(4)}{' '}
-              {toCurrency}
+            <div>
+              <p className="text-base text-gray-500">轉換結果</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{' '}
+                {toCurrency}
+              </p>
             </div>
           </div>
-        )}
-      </div>
+          <div className="text-base text-gray-500">
+            匯率：1 {fromCurrency} ={' '}
+            {(rates[toCurrency] / rates[fromCurrency]).toFixed(4)}{' '}
+            {toCurrency}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

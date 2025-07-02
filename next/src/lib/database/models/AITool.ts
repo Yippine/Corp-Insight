@@ -7,47 +7,24 @@ export interface IAITool extends Document {
   id: string;
   name: string;
   description: string;
+  icon: string;
   category: string;
   tags: string[];
-
-  // 工具配置
-  config: {
-    icon: string;
-    placeholder?: string; // 對於非 AI 工具，這是選填的
-    instructions?: {
-      // 對於非 AI 工具，這是選填的
-      what: string;
-      why: string;
-      how: string;
-    };
-    promptTemplate?: {
-      // 對於非 AI 工具，這是選填的
-      prefix: string;
-      suffix: string;
-    };
-    // 新增：渲染配置
-    renderConfig?: {
-      componentId?: string; // 自定義組件 ID（工具類別使用）
-      renderType: 'prompt' | 'component'; // 渲染類型
-      isAITool: boolean; // 是否為 AI 工具
-    };
+  instructions?: {
+    what: string;
+    why: string;
+    how: string;
   };
-
-  // 使用統計
-  usage: {
-    totalUses: number;
-    lastUsed?: Date;
-    popularityScore: number;
+  placeholder?: string;
+  promptTemplate?: {
+    prefix: string;
+    suffix: string;
   };
-
-  // RAG 向量支援 (未來擴展)
-  embedding?: number[];
-
-  // 版本控制
+  componentId?: string;
+  renderType?: 'prompt' | 'component';
+  isAITool?: boolean;
   version: string;
   isActive: boolean;
-
-  // 時間戳
   createdAt: Date;
   updatedAt: Date;
 }
@@ -72,7 +49,6 @@ export interface AIToolDocument {
   };
   category?: string;
   subCategory?: string;
-  // 新增：渲染配置
   componentId?: string;
   renderType?: 'prompt' | 'component';
   isAITool?: boolean;
@@ -80,6 +56,27 @@ export interface AIToolDocument {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// 用於 API 回傳的欄位投影，集中管理以遵循 DRY 原則
+const toolProjection = {
+  _id: 0,
+  id: 1,
+  name: 1,
+  description: 1,
+  icon: 1,
+  tags: 1,
+  category: 1,
+  subCategory: 1,
+  componentId: 1,
+  renderType: 1,
+  isAITool: 1,
+  instructions: 1,
+  placeholder: 1,
+  promptTemplate: 1,
+  isActive: 1,
+  createdAt: 1,
+  updatedAt: 1,
+};
 
 // AI 工具 Schema 定義 - 更新以支援工具類別
 const AIToolSchema = new Schema<IAITool>(
@@ -104,6 +101,12 @@ const AIToolSchema = new Schema<IAITool>(
       required: true,
       trim: true,
       index: 'text',
+    },
+
+    icon: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
     category: {
@@ -139,94 +142,38 @@ const AIToolSchema = new Schema<IAITool>(
       },
     ],
 
-    // 工具配置
-    config: {
-      icon: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-
-      placeholder: {
-        type: String,
-        trim: true,
-        required: false, // 對於非 AI 工具，這是選填的
-      },
-
-      instructions: {
-        what: {
-          type: String,
-          trim: true,
-          required: false, // 對於非 AI 工具，這是選填的
-        },
-        why: {
-          type: String,
-          trim: true,
-          required: false,
-        },
-        how: {
-          type: String,
-          trim: true,
-          required: false,
-        },
-      },
-
-      promptTemplate: {
-        prefix: {
-          type: String,
-          required: false, // 對於非 AI 工具，這是選填的
-        },
-        suffix: {
-          type: String,
-          required: false,
-        },
-      },
-
-      // 渲染配置
-      renderConfig: {
-        componentId: {
-          type: String,
-          trim: true,
-          required: false, // 只有工具類別需要
-        },
-        renderType: {
-          type: String,
-          enum: ['prompt', 'component'],
-          default: 'prompt',
-        },
-        isAITool: {
-          type: Boolean,
-          default: true,
-        },
-      },
+    instructions: {
+      what: { type: String, trim: true },
+      why: { type: String, trim: true },
+      how: { type: String, trim: true },
     },
 
-    // 使用統計
-    usage: {
-      totalUses: {
-        type: Number,
-        default: 0,
-        min: 0,
-      },
-      lastUsed: {
-        type: Date,
-      },
-      popularityScore: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 100,
-      },
+    placeholder: {
+      type: String,
+      trim: true,
     },
 
-    // RAG 向量支援 (未來擴展)
-    embedding: [
-      {
-        type: Number,
-      },
-    ],
+    promptTemplate: {
+      prefix: { type: String },
+      suffix: { type: String },
+    },
 
-    // 版本控制
+    componentId: {
+      type: String,
+      trim: true,
+    },
+
+    renderType: {
+      type: String,
+      enum: ['prompt', 'component'],
+      default: 'prompt',
+    },
+
+    isAITool: {
+      type: Boolean,
+      default: true,
+    },
+
     version: {
       type: String,
       default: '1.0.0',
@@ -250,7 +197,7 @@ const AIToolSchema = new Schema<IAITool>(
 // 複合索引
 AIToolSchema.index({ category: 1, isActive: 1 });
 AIToolSchema.index({ tags: 1, isActive: 1 });
-AIToolSchema.index({ 'config.renderConfig.isAITool': 1, isActive: 1 });
+AIToolSchema.index({ isAITool: 1, isActive: 1 });
 
 // 文字搜尋索引
 AIToolSchema.index(
@@ -292,7 +239,7 @@ AIToolSchema.statics.searchTools = function (
     tags,
     page = 1,
     limit = 20,
-    sortBy = 'usage.popularityScore',
+    sortBy = 'name', // 預設排序欄位更改為 name
     isAITool,
   } = options;
   const skip = (page - 1) * limit;
@@ -320,10 +267,10 @@ AIToolSchema.statics.searchTools = function (
 
   // 工具類型篩選
   if (typeof isAITool === 'boolean') {
-    searchCondition['config.renderConfig.isAITool'] = isAITool;
+    searchCondition['isAITool'] = isAITool;
   }
 
-  const sortOrder = sortBy.startsWith('usage.') ? -1 : 1;
+  const sortOrder = sortBy.startsWith('name') ? 1 : -1; // 簡化排序邏輯
 
   return this.find(searchCondition)
     .sort({ [sortBy]: sortOrder })
@@ -338,11 +285,11 @@ AIToolSchema.statics.getPopularTools = function (
 ) {
   const condition: any = { isActive: true };
   if (typeof isAITool === 'boolean') {
-    condition['config.renderConfig.isAITool'] = isAITool;
+    condition['isAITool'] = isAITool;
   }
 
   return this.find(condition)
-    .sort({ 'usage.popularityScore': -1 })
+    .sort({ name: 1 }) // 預設排序欄位更改為 name
     .limit(limit);
 };
 
@@ -352,7 +299,7 @@ AIToolSchema.statics.getToolsByCategory = function (
   limit: number = 20
 ) {
   return this.find({ category, isActive: true })
-    .sort({ 'usage.popularityScore': -1 })
+    .sort({ name: 1 }) // 預設排序欄位更改為 name
     .limit(limit);
 };
 
@@ -375,22 +322,9 @@ AIToolSchema.methods.activate = async function () {
   return this.save();
 };
 
-// 虛擬欄位：是否為熱門工具
-AIToolSchema.virtual('isPopular').get(function () {
-  return this.usage.popularityScore >= 70;
-});
-
-// 虛擬欄位：是否為新工具
-AIToolSchema.virtual('isNew').get(function () {
-  const daysSinceCreated =
-    (Date.now() - this.createdAt.getTime()) / (1000 * 60 * 60 * 24);
-  return daysSinceCreated <= 7; // 7 天內建立的算新工具
-});
-
 // 虛擬欄位：完整的提示詞範本
 AIToolSchema.virtual('fullPromptTemplate').get(function () {
-  const config = this.config;
-  if (!config || !config.promptTemplate) {
+  if (!this.promptTemplate) {
     return {
       prefix: '',
       suffix: '',
@@ -398,14 +332,13 @@ AIToolSchema.virtual('fullPromptTemplate').get(function () {
     };
   }
 
-  const promptTemplate = config.promptTemplate;
-  const prefix = promptTemplate.prefix || '';
-  const suffix = promptTemplate.suffix || '';
+  const prefix = this.promptTemplate.prefix || '';
+  const suffix = this.promptTemplate.suffix || '';
 
   return {
     prefix,
     suffix,
-    combined: `${prefix}\n\n[使用者輸入]\n\n${suffix}`,
+    combined: `${prefix}\\n\\n[使用者輸入]\\n\\n${suffix}`,
   };
 });
 
@@ -427,10 +360,12 @@ export class AIToolModel {
   static async getAllActive(): Promise<AIToolDocument[]> {
     try {
       const collection = await this.getCollection();
-      return await collection
+      const tools = await collection
         .find({ isActive: true })
+        .project(toolProjection)
         .sort({ createdAt: 1 })
         .toArray();
+      return tools as AIToolDocument[];
     } catch (error) {
       console.error('Error fetching AI tools:', error);
       return [];
@@ -461,7 +396,13 @@ export class AIToolModel {
   static async getById(id: string): Promise<AIToolDocument | null> {
     try {
       const collection = await this.getCollection();
-      return await collection.findOne({ id, isActive: true });
+      const result = await collection.findOne(
+        { id, isActive: true },
+        {
+          projection: toolProjection,
+        }
+      );
+      return result;
     } catch (error) {
       console.error('Error fetching AI tool by ID:', error);
       return null;

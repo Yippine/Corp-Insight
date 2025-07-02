@@ -15,23 +15,76 @@ alwaysApply: false
 ### 1. 🚨【首要】修復 AI 工具詳細頁面 (AITool Detail Page)
 
 - **目標**: 解決目前 95 個 AI 工具點擊後，詳細頁面 (`/aitool/detail/[toolId]`) 會報錯的問題，確保所有工具頁面皆能正常載入與運作。
-- **狀態**: `未開始`
+- **狀態**: `已完成`
 - **關鍵路由**: `/aitool/detail/[toolId]`
 - **核心檔案**:
     - **頁面入口**: `next/src/app/aitool/detail/[toolId]/page.tsx`
     - **核心組件**: `next/src/components/aitool/AiToolDetail.tsx`
     - **通用模板**: `next/src/components/tools/common/PromptToolTemplate.tsx` (負責處理 Gemini API 互動)
     - **資料獲取**: `next/src/lib/aitool/apiHelpers.ts` (內的 `getToolById` 函式)
+- **核心問題**:
+    - **錯誤訊息**: `TypeError: (0 , ...getToolById) is not a function`
+    - **根本原因**: 在伺服器元件 (`page.tsx`) 中，直接呼叫了被標記為用戶端模組 (`'use client'`) 內的 `getToolById` 函式。
 - **子任務**:
-    1.  **[診斷]** 檢查 `getToolById` 函式，確認從 MongoDB 獲取資料的流程是否正確，特別是 ID 處理。
-    2.  **[診斷]** 檢視 `AiToolDetail.tsx` 與 `PromptToolTemplate.tsx`，分析傳遞給組件的 `tool` 物件結構是否符合預期。
-    3.  **[診斷]** 分析 `PromptToolTemplate.tsx` 中的 Gemini API 呼叫邏輯，檢查 `apiKey`、`prompt` 等參數是否正確傳遞。
-    4.  **[修復]** 根據診斷結果，修復導致頁面崩潰的根本原因。
-    5.  **[驗證]** 抽樣測試數個 AI 工具頁面，確保問題已解決。
+    1.  **[已完成]** **效能優化**: 在 `page.tsx` 中，將獲取資料的方式從 `getToolsDataFromAPI` (獲取全部) 更改為 `getToolById` (根據 ID 獲取單一)。
+    2.  **[已完成]** **修復 `'use client'` 衝突**:
+        - **行動**: 建立一個新的伺服器端專用的資料獲取檔案 `next/src/lib/aitool/data.ts`。
+        - **行動**: 將 `getToolById` 及其相依的輔助函式從 `apiHelpers.ts` 遷移至新的 `data.ts` 檔案中。
+        - **行動**: 更新 `page.tsx`，使其從新的 `data.ts` 匯入 `getToolById`。
+        - **原理**: 此舉能將伺服器端邏輯與用戶端邏輯分離，解決在伺服器元件中呼叫用戶端模組函式的問題。
+    3.  **[已完成]** **驗證修復**: 重新啟動開發環境，抽樣測試數個 AI 工具詳細頁面，確認錯誤已消失且頁面正常渲染。
+    4.  **[已完成]** **完整功能測試**: 確認頁面不僅能渲染，其內部的 Gemini API 互動功能也正常運作。
 
 ---
 
-### 2. 🧪 驗證與優化 AI 工具的 Prompt 與標籤
+### 2. 🎨【優先】還原 AI 工具頁面 UI/UX
+
+- **目標**: 審慎比對 `legacy` 與 `next` 專案的 AI 工具相關頁面，在保留 `next` 專案效能與 SEO 優勢的前提下，將前端 UI/UX 完美還原至 `legacy` 專案的視覺呈現。
+- **狀態**: `已完成`
+- **核心原則**:
+    - **最小改動原則**: 只針對視覺還原進行必要修改，不對已優化的後端邏輯或 `next` 專案的架構進行不必要的改動。
+    - **保留效能優勢**: 所有修改都不能犧牲 `next` 專案帶來的效能提升，如動態載入、圖片優化、非同步資料獲取等。
+- **子任務**:
+    1.  **還原 `/aitool/detail/[toolId]` 頁面 (結構與功能)**:
+        - **[✔] D1. 還原 `instructions` 區塊**: `legacy` 版本會顯示「這是什麼？」、「為什麼需要？」、「如何使用？」的說明區塊。`next` 版本缺失此部分，需將其在工具組件上方重新渲染。
+        - **[✔] D2. 還原雙按鈕外觀**: `legacy` 版本在輸入框下有「開始新對話」和「延續對話並優化」兩個功能不同的按鈕。`next` 版本只有一個「生成」按鈕。必須還原這兩個按鈕及其各自的功能邏輯。
+        - **[✔] D3. 統一輸入框樣式**: 確保輸入框 (`textarea`) 的樣式、`placeholder` 文字與 `legacy` 版本一致。
+        - **[✔] D4. 調整組件渲染邏輯**: `next` 版本錯誤地將 `PromptToolTemplate` 作為頁面主體。需調整渲染邏輯，使其僅作為互動核心（輸入框＋按鈕），並與 D1、D2 還原的 UI 元素正確組合。
+        - **[✔] D5. 返回按鈕樣式**: 參照 `legacy` 的 `<BackButton>` 組件樣式，調整 `next` 版本按鈕外觀。
+        - **[✔] D6. 主體與卡片動畫效果**: 統一將 `legacy` 的 `y: 20` 滑入動畫參數加入到 `next` 的 `AiToolDetail.tsx` 及其內容卡片中。
+        - **[✔] D7. 圖示與標籤顏色一致性**: 檢查並確保 `next` 專案使用的 `categoryThemes` 所呈現的顏色與 `legacy` 的 `fullTagThemes` 完全相同。
+        - **[✔] D8.【緊急】修復按鈕功能**: 還原後的「開始新對話」與「延續對話並優化」按鈕點擊後沒有反應，需修復其 `onClick` 事件處理函式，確保能正確觸發 Gemini API。
+
+    2.  **還原 `/aitool/search` 頁面 (視覺與互動)**:
+        - **[✔] S1. 工具卡片懸停效果**: 移植 `legacy` 版本中完整且豐富的懸停效果，包括 `hoveredTool` 狀態管理，以及對卡片邊框、陰影、圖示背景、文字和圖示顏色的同步變動。
+        - **[✔] S2. 分類標籤按鈕樣式與動效**: 為 `next` 版本的標籤按鈕加上 `framer-motion` 的 `whileHover` 縮放動畫，並還原 `legacy` 的漸層色 (`gradient`) 選中樣式。
+        - **[✔] S3. `FeatureSection` 組件**: 在 `AiToolSearch.tsx` 頁面底部加回 `legacy` 版本中存在的 `<FeatureSection />` 組件。
+        - **[✔] S4. "無結果" 頁面樣式**: 檢查並確保 `next` 專案中的 `<NoSearchResults />` 組件或其替代方案，在視覺上與 `legacy` 的自訂 "無結果" 區塊完全一致。
+
+---
+
+### 3. 🏗️【架構重構】統一 AI 工具 Instructions 資料源
+
+- **目標**: 移除所有 AI 工具範本中寫死的 (hardcoded) `Instructions` 內容，將其遷移至 MongoDB 資料庫，並確保所有工具的資料結構一致，以實現內容的統一管理與架構的單一化。
+- **狀態**: `規劃中`
+- **核心問題**:
+    - **不一致的資料源**: 通用型 AI 工具 (`PromptToolTemplate`) 的 `Instructions` 來自資料庫，而特定工具（如 `DepositCalculator.tsx`）的 `Instructions` 則寫死在組件中。
+    - **資料庫欄位缺失**: 承上，特定工具在 `ai_tools` 集合中的文件缺少 `instructions` 欄位資料，導致 `AiToolDetail.tsx` 無法統一渲染。
+    - **維護困難**: 內容分散在程式碼中，不易更新與管理。
+- **子任務**:
+    1.  **[盤點]** 掃描 `next/src/components/tools/` 目錄下的所有子資料夾 (如 `finance`, `health`, `manufacturing` 等)，列出所有寫死 `<Instructions>` 元件內容的 AI 工具範本檔案。
+    2.  **[資料遷移]** 針對每一個被識別出的工具：
+        - **行動**: 從範本檔案中提取 `what`, `why`, `how` 的字串內容。
+        - **行動**: 建立或執行一個腳本 (`next/scripts/update-instructions.js`)，將提取出的 `instructions` 物件更新至 MongoDB `business-magnifier` 資料庫 `ai_tools` 集合中對應的工具文件 (document)。為此腳本在 `package.json` 中建立對應的 npm script (如 `db:update-instructions`)。
+        - **驗證**: 確認 `ai_tools` 集合中所有工具文件的資料格式都包含一致的 `instructions` 欄位 (`{ what: string, why: string, how: string }`)。
+    3.  **[程式碼重構]**
+        - **行動**: 修改所有在步驟 1 中識別出的 AI 工具範本檔案，移除內部寫死的 `<Instructions>` 組件。
+        - **行動**: 確保 `next/src/components/aitool/AiToolDetail.tsx` 能為所有類型的 AI 工具（無論是通用型還是特定型）統一渲染來自資料庫的 `instructions` 內容。
+    4.  **[驗證]** 啟動應用程式，逐一訪問先前寫死內容的 AI 工具詳細頁面，確認 `Instructions` 區塊能正常顯示，且內容與原先一致。
+
+---
+
+### 4. 🧪 驗證與優化 AI 工具的 Prompt 與標籤
 
 - **目標**: 確保所有 AI 工具的 Prompt 和標籤內容準確無誤，且生成效果令人滿意，避免出現不相關或品質低落的回答。同時，規劃自動化測試流程。
 - **狀態**: `未開始`
@@ -51,7 +104,7 @@ alwaysApply: false
 
 ---
 
-### 3. 🏗️ 還原標案詳細頁面樣式與資料流
+### 5. 🏗️ 還原標案詳細頁面樣式與資料流
 
 - **目標**: 確保新版 (`next`) 專案中的標案詳細頁面，其資料流處理、前端呈現及整體樣式，能最大程度地還原 `legacy` 專案的設計。
 - **狀態**: `未開始`
@@ -71,7 +124,7 @@ alwaysApply: false
 
 ---
 
-## 4. 當前進度與後續步驟 (Current Status & Next Steps)
+## 6. 當前進度與後續步驟 (Current Status & Next Steps)
 
 -   **當前狀態**: `規劃階段` - 已根據使用者需求，將上線前的緊急任務全數盤點並文件化。
 -   **後續步驟**:
@@ -81,11 +134,25 @@ alwaysApply: false
 
 ---
 
-## 5. 開發進度追蹤 (Development Log)
+## 7. 開發進度追蹤 (Development Log)
 
 -   **YYYY-MM-DD**:
     -   **行動**: 建立了 `pre-launch-tasks-plan.mdc` v1.0，將分散的需求整理成結構化的開發藍圖。
     -   **決策**: 確認了三大核心任務：AI 工具修復、Prompt/標籤驗證、標案頁面還原。
-
-
     -   **後續**: 準備開始執行任務 1。
+-   **YYYY-MM-DD**:
+    -   **行動**: 完成了 **任務 1**，所有 AI 工具詳細頁面皆可正常訪問。
+    -   **行動**: 新增了 **任務 4**，盤點了 AI 工具相關頁面在新舊專案中的 UI/UX 差異，並制定了詳細的還原計畫。
+    -   **後續**: 準備開始執行 **任務 4**。
+-   **YYYY-MM-DD**:
+    -   **行動**: 執行了 **任務 2** 的大部分視覺還原工作。
+    -   **發現**: 還原後的按鈕功能失效，已將此問題新增為子任務 D8。
+    -   **後續**: 準備修復按鈕功能。
+-   **YYYY-MM-DD**:
+    -   **行動**: 成功修復 **任務 2** 的子任務 D8，透過統一 `NEXT_PUBLIC_` 環境變數，解決了前端 API 金鑰讀取問題，使 AI 工具的「生成」與「優化」按鈕恢復正常功能。
+    -   **決策**: 將整個 **任務 2 (還原 AI 工具頁面 UI/UX)** 標記為 `已完成`。`/aitool/detail` 和 `/aitool/search` 的 UI/UX 和核心功能均已還原。
+    -   **後續**: 等待使用者對 `/aitool/search` 頁面進行最終確認。準備開始執行 **任務 3 (驗證 Prompt)**。
+-   **YYYY-MM-DD**:
+    -   **行動**: 根據使用者最新請求，新增 **任務 3 (統一 AI 工具 Instructions 資料源)**，以解決內容寫死與資料庫結構不一致的問題。
+    -   **決策**: 將原有的 **任務 3 和 4** 順延為 **任務 4 和 5**。
+    -   **後續**: 等待使用者審閱新的開發計畫。

@@ -116,7 +116,7 @@ const nextConfig = {
   output: 'standalone',
   env: {
     MONGODB_URI: process.env.MONGODB_URI,
-    GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
+    NEXT_PUBLIC_GOOGLE_AI_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY,
   },
   webpack: (config, { isServer }) => {
     // 讓 webpack 忽略這些只在伺服器端使用的模組

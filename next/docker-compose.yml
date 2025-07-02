@@ -40,8 +40,9 @@ services:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
       - NODE_ENV=development
       - DOCKER_CONTAINER=true
-      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY:-}
+      - NEXT_PUBLIC_GOOGLE_AI_API_KEY=${NEXT_PUBLIC_GOOGLE_AI_API_KEY:-}
       - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-for-dev}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

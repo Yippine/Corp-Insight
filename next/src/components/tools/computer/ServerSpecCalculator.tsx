@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Instructions from '../Instructions';
 
 interface Complexity {
   id: string;
@@ -70,92 +69,85 @@ export default function ServerSpecCalculator() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <Instructions
-        what="伺服器規格計算器幫助您估算應用所需的伺服器資源。"
-        why="準確的伺服器規格評估可以確保應用運行順暢，同時避免資源浪費。"
-        how="輸入預期的並發使用者數量量、數據量和應用複雜度，計算器會根據經驗值推薦合適的伺服器配置。"
-      />
-      <div className="grid grid-cols-1 gap-6">
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            並發使用者數量量
-          </label>
-          <input
-            type="number"
-            value={users}
-            onChange={e => setUsers(e.target.value)}
-            min="1"
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            數據量 (GB)
-          </label>
-          <input
-            type="number"
-            value={dataSize}
-            onChange={e => setDataSize(e.target.value)}
-            min="1"
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            應用複雜度
-          </label>
-          <select
-            value={complexity}
-            onChange={e => setComplexity(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            {complexityLevels.map(level => (
-              <option key={level.id} value={level.id}>
-                {level.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          onClick={calculateSpecs}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          計算規格
-        </button>
-
-        {result && (
-          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
-            <h3 className="text-xl font-medium text-gray-900">建議規格</h3>
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <p className="text-base text-gray-500">CPU</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.cpuCores} 核心
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">記憶體</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.memory} GB RAM
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">存儲空間</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.storage} GB
-                </p>
-              </div>
-            </div>
-            <p className="mt-4 text-base text-gray-500">
-              注意：這是基本估算，實際需求可能因應用特性而異
-            </p>
-          </div>
-        )}
+    <div className="grid grid-cols-1 gap-6">
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          並發使用者數量量
+        </label>
+        <input
+          type="number"
+          value={users}
+          onChange={e => setUsers(e.target.value)}
+          min="1"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
       </div>
+
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          數據量 (GB)
+        </label>
+        <input
+          type="number"
+          value={dataSize}
+          onChange={e => setDataSize(e.target.value)}
+          min="1"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          應用複雜度
+        </label>
+        <select
+          value={complexity}
+          onChange={e => setComplexity(e.target.value)}
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        >
+          {complexityLevels.map(level => (
+            <option key={level.id} value={level.id}>
+              {level.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <button
+        onClick={calculateSpecs}
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        計算規格
+      </button>
+
+      {result && (
+        <div className="space-y-4 rounded-lg bg-gray-50 p-6">
+          <h3 className="text-xl font-medium text-gray-900">建議規格</h3>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <p className="text-base text-gray-500">CPU</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.cpuCores} 核心
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">記憶體</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.memory} GB RAM
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">存儲空間</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.storage} GB
+              </p>
+            </div>
+          </div>
+          <p className="mt-4 text-base text-gray-500">
+            注意：這是基本估算，實際需求可能因應用特性而異
+          </p>
+        </div>
+      )}
     </div>
   );
 }

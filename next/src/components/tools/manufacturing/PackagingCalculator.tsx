@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Instructions from '../Instructions';
 
 interface CalculationResult {
   boxesNeeded: number;
@@ -53,155 +52,148 @@ export default function PackagingCalculator() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <Instructions
-        what="包裝箱最佳化計算器幫助您規劃產品在包裝箱中的最佳擺放方式。"
-        why="合理的包裝配置可以最大化空間利用率，降低運輸成本，提高物流效率。"
-        how="輸入產品和包裝箱的尺寸（長寬高）以及需求數量，計算器會推薦最佳擺放方式。計算過程：分析不同擺放方向的可能性，計算每箱可容納數量和空間利用率。"
-      />
-      <div className="grid grid-cols-1 gap-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <h3 className="mb-3 text-xl font-medium text-gray-900">
-              產品尺寸 (mm)
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">
-                  長度
-                </label>
-                <input
-                  type="number"
-                  value={productLength}
-                  onChange={e => setProductLength(e.target.value)}
-                  min="1"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">
-                  寬度
-                </label>
-                <input
-                  type="number"
-                  value={productWidth}
-                  onChange={e => setProductWidth(e.target.value)}
-                  min="1"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">
-                  高度
-                </label>
-                <input
-                  type="number"
-                  value={productHeight}
-                  onChange={e => setProductHeight(e.target.value)}
-                  min="1"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
+    <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <h3 className="mb-3 text-xl font-medium text-gray-900">
+            產品尺寸 (mm)
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-base font-medium text-gray-700">
+                長度
+              </label>
+              <input
+                type="number"
+                value={productLength}
+                onChange={e => setProductLength(e.target.value)}
+                min="1"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
             </div>
-          </div>
-
-          <div>
-            <h3 className="mb-3 text-xl font-medium text-gray-900">
-              箱子尺寸 (mm)
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">
-                  長度
-                </label>
-                <input
-                  type="number"
-                  value={boxLength}
-                  onChange={e => setBoxLength(e.target.value)}
-                  min="1"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">
-                  寬度
-                </label>
-                <input
-                  type="number"
-                  value={boxWidth}
-                  onChange={e => setBoxWidth(e.target.value)}
-                  min="1"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">
-                  高度
-                </label>
-                <input
-                  type="number"
-                  value={boxHeight}
-                  onChange={e => setBoxHeight(e.target.value)}
-                  min="1"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
+            <div>
+              <label className="mb-1 block text-base font-medium text-gray-700">
+                寬度
+              </label>
+              <input
+                type="number"
+                value={productWidth}
+                onChange={e => setProductWidth(e.target.value)}
+                min="1"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-base font-medium text-gray-700">
+                高度
+              </label>
+              <input
+                type="number"
+                value={productHeight}
+                onChange={e => setProductHeight(e.target.value)}
+                min="1"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
             </div>
           </div>
         </div>
 
         <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            需求數量 (件)
-          </label>
-          <input
-            type="number"
-            value={quantity}
-            onChange={e => setQuantity(e.target.value)}
-            min="1"
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <button
-          onClick={calculatePackaging}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          計算包裝方式
-        </button>
-
-        {result && (
-          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
-            <h3 className="text-xl font-medium text-gray-900">計算結果</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-base text-gray-500">需要箱數</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.boxesNeeded} 箱
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">每箱數量</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.itemsPerBox} 件
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">空間利用率</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.utilization.toFixed(2)}%
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">擺放方式</p>
-                <p className="text-xl font-medium text-gray-900">
-                  {result.layout}
-                </p>
-              </div>
+          <h3 className="mb-3 text-xl font-medium text-gray-900">
+            箱子尺寸 (mm)
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-base font-medium text-gray-700">
+                長度
+              </label>
+              <input
+                type="number"
+                value={boxLength}
+                onChange={e => setBoxLength(e.target.value)}
+                min="1"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-base font-medium text-gray-700">
+                寬度
+              </label>
+              <input
+                type="number"
+                value={boxWidth}
+                onChange={e => setBoxWidth(e.target.value)}
+                min="1"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-base font-medium text-gray-700">
+                高度
+              </label>
+              <input
+                type="number"
+                value={boxHeight}
+                onChange={e => setBoxHeight(e.target.value)}
+                min="1"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
             </div>
           </div>
-        )}
+        </div>
       </div>
+
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          需求數量 (件)
+        </label>
+        <input
+          type="number"
+          value={quantity}
+          onChange={e => setQuantity(e.target.value)}
+          min="1"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <button
+        onClick={calculatePackaging}
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        計算包裝方式
+      </button>
+
+      {result && (
+        <div className="space-y-4 rounded-lg bg-gray-50 p-6">
+          <h3 className="text-xl font-medium text-gray-900">計算結果</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-base text-gray-500">需要箱數</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.boxesNeeded} 箱
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">每箱數量</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.itemsPerBox} 件
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">空間利用率</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.utilization.toFixed(2)}%
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">擺放方式</p>
+              <p className="text-xl font-medium text-gray-900">
+                {result.layout}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

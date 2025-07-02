@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const apiKey = process.env.GOOGLE_AI_API_KEY || '';
+const apiKey = process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY || '';
 
 if (!apiKey) {
   console.warn('Google AI API key is missing. AI features will be disabled.');

@@ -60,27 +60,54 @@ npm install
 
 ### 3. 環境變數設定
 
-在 `next/` 目錄下建立一個 `.env.local` 檔案，並填入以下內容。
+在專案根目錄下，將 `next/.env.example` 複製一份並命名為 `next/.env.local`。然後，填入必要的環境變數。
 
-```env
-# MongoDB 連線（Docker 環境）
+```bash
+# 這是環境變數的範本檔案。
+# 在開發前，請將此檔案複製為 .env.local，並填入您的實際金鑰。
+# ⚠️ 注意：.env.local 檔案絕不應該被提交到版本控制系統 (Git) 中。
+
+# 💡 --- 核心基礎設施 ---
+# MongoDB 資料庫連線字串
 MONGODB_URI=mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
 
-# Google 服務 API
-GOOGLE_AI_API_KEY=your_google_ai_api_key_here
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+# 網站的公開基礎 URL (用於 SEO, Sitemap, CORS 等)
+# 開發時使用 http://localhost:3000, 生產環境請填寫您的域名
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-# 身份驗證
-JWT_SECRET=your_jwt_secret_key_here_with_sufficient_length
+# 💡 --- Google 服務 ---
+# Google AI (Gemini) API 金鑰
+NEXT_PUBLIC_GOOGLE_AI_API_KEY=
 
-# 郵件服務（可選）
-NEXT_PUBLIC_DEVELOPER_EMAIL=your_email@gmail.com
+# Google Maps API 金鑰 (用於公司地圖)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+
+# Google Analytics 追蹤 ID
+NEXT_PUBLIC_GA_ID=
+
+# 💡 --- 安全與認證 ---
+# 用於簽署「使用者回饋」功能的 JWT 密鑰
+JWT_SECRET=
+
+# 管理員後端 API 的存取權杖
+ADMIN_SECRET_TOKEN=
+
+# 管理員前端請求的授權權杖 (值必須與 ADMIN_SECRET_TOKEN 相同)
+NEXT_PUBLIC_ADMIN_SECRET_TOKEN=
+
+# 💡 --- 郵件服務 (用於使用者回饋) ---
 EMAIL_SERVER_HOST=smtp.gmail.com
 EMAIL_SERVER_PORT=465
-EMAIL_SERVER_USER=your_email@gmail.com
-EMAIL_SERVER_PASSWORD=your_app_password
-EMAIL_FROM=your_email@gmail.com
+EMAIL_SERVER_USER=
+EMAIL_SERVER_PASSWORD=
+EMAIL_FROM=
 EMAIL_FROM_NAME="Business Magnifier 客戶支援"
+# 開發人員聯絡信箱 (用於接收系統錯誤通知)
+NEXT_PUBLIC_DEVELOPER_EMAIL=
+
+# 💡 --- AWS
+# 用於透過 AWS Session Manager 進行遠端存取的 EC2 實例 ID。
+EC2_INSTANCE_ID="YOUR_EC2_INSTANCE_ID_HERE"
 ```
 
 ### 4. 啟動開發環境

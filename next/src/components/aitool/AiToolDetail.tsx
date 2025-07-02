@@ -7,10 +7,11 @@ import { getCategoryThemes } from '@/lib/aitool/apiHelpers';
 import { iconMap } from '@/lib/aitool/iconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import { trackBusinessEvents } from '../GoogleAnalytics';
-import { ChevronLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
 import { useLoading } from '@/components/common/loading/LoadingProvider';
+import BackButton from '@/components/common/BackButton';
+import Instructions from '@/components/tools/Instructions';
 
 // 預載所有工具組件而不是在點擊後再載入
 // 使用設置較低的loading priority來優化初始頁面載入速度但仍提前載入組件
@@ -180,8 +181,8 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="space-y-4"
       onAnimationComplete={() => {
@@ -189,15 +190,18 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
         stopLoading();
       }}
     >
-      <button
-        onClick={handleBackClick}
-        className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
-      >
-        <ChevronLeft className="mr-2 h-4 w-4" />
-        返回工具列表
-      </button>
+      <BackButton
+        returnPath="/aitool/search"
+        sessionKey="toolSearchParams"
+        buttonText="返回工具列表"
+      />
 
-      <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg"
+      >
         <div className="mb-6 flex items-center">
           <div
             className={`rounded-lg p-3 ${primaryTheme?.primary || 'bg-gray-500'}`}
@@ -208,10 +212,18 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
         </div>
 
         <p className="mb-8 text-lg text-gray-700">{tool.description}</p>
+        
+        <div className="mb-8 mx-auto max-w-2xl space-y-6">
+          {tool.instructions && (
+            <Instructions
+              what={tool.instructions.what}
+              why={tool.instructions.why}
+              how={tool.instructions.how}
+            />
+          )}
 
-        <div className="mb-8">
           {SpecificToolComponent ? (
-            <SpecificToolComponent />
+            <SpecificToolComponent config={tool} />
           ) : (
             <div className="py-12 text-center text-gray-500">
               此工具暫時無法使用
@@ -235,7 +247,7 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
             );
           })}
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

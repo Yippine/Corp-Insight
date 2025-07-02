@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { getToolsDataFromAPI } from '@/lib/aitool/apiHelpers';
+import { getToolById } from '@/lib/aitool/data';
 import {
   AiToolDetailStructuredData,
   generateAiToolDetailMetadata,
@@ -24,8 +24,7 @@ export default async function AiToolDetailPage({
   params,
 }: AiToolDetailPageProps) {
   const { toolId } = params;
-  const tools = await getToolsDataFromAPI();
-  const tool = tools.find(t => t.id === toolId);
+  const tool = await getToolById(toolId);
 
   if (!tool) {
     notFound();
@@ -44,8 +43,7 @@ export default async function AiToolDetailPage({
 
 export async function generateMetadata({ params }: AiToolDetailPageProps) {
   const { toolId } = params;
-  const tools = await getToolsDataFromAPI();
-  const tool = tools.find(t => t.id === toolId);
+  const tool = await getToolById(toolId);
 
   if (!tool) {
     return {

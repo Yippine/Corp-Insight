@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Instructions from '../Instructions';
 
 interface WorkloadType {
   id: string;
@@ -82,124 +81,117 @@ export default function AIInfrastructureCostCalculator() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <Instructions
-        what="AI 基礎設施成本估算器幫助您評估 AI 專案的總體成本。"
-        why="準確的成本估算可以幫助做出更好的預算規劃和投資決策。"
-        how="輸入工作負載類型、使用者數量、請求量等參數，計算器會估算硬體、運營和軟體成本。"
-      />
-      <div className="grid grid-cols-1 gap-6">
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            工作負載類型
-          </label>
-          <select
-            value={workloadType}
-            onChange={e => setWorkloadType(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            {workloadTypes.map(type => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            並發使用者數量量
-          </label>
-          <input
-            type="number"
-            value={concurrentUsers}
-            onChange={e => setConcurrentUsers(e.target.value)}
-            min="1"
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            每日請求量
-          </label>
-          <input
-            type="number"
-            value={dailyRequests}
-            onChange={e => setDailyRequests(e.target.value)}
-            min="1"
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            GPU 數量
-          </label>
-          <input
-            type="number"
-            value={gpuCount}
-            onChange={e => setGpuCount(e.target.value)}
-            min="1"
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-base font-medium text-gray-700">
-            使用期間 (月)
-          </label>
-          <input
-            type="number"
-            value={duration}
-            onChange={e => setDuration(e.target.value)}
-            min="1"
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <button
-          onClick={calculateCosts}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    <div className="grid grid-cols-1 gap-6">
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          工作負載類型
+        </label>
+        <select
+          value={workloadType}
+          onChange={e => setWorkloadType(e.target.value)}
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
-          計算成本
-        </button>
+          {workloadTypes.map(type => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {result && (
-          <div className="space-y-4 rounded-lg bg-gray-50 p-6">
-            <h3 className="text-xl font-medium text-gray-900">成本估算結果</h3>
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <p className="text-base text-gray-500">硬體成本</p>
-                <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.hardwareCost.toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">運營成本</p>
-                <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.operationalCost.toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-base text-gray-500">軟體授權成本</p>
-                <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.softwareCost.toLocaleString()}
-                </p>
-              </div>
-              <div className="border-t pt-4">
-                <p className="text-base text-gray-500">總成本</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  NT$ {result.totalCost.toLocaleString()}
-                </p>
-              </div>
-              <div className="text-base text-gray-500">
-                預估每月耗電量：{result.monthlyPowerConsumption.toFixed(1)} kWh
-              </div>
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          並發使用者數量量
+        </label>
+        <input
+          type="number"
+          value={concurrentUsers}
+          onChange={e => setConcurrentUsers(e.target.value)}
+          min="1"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          每日請求量
+        </label>
+        <input
+          type="number"
+          value={dailyRequests}
+          onChange={e => setDailyRequests(e.target.value)}
+          min="1"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          GPU 數量
+        </label>
+        <input
+          type="number"
+          value={gpuCount}
+          onChange={e => setGpuCount(e.target.value)}
+          min="1"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-base font-medium text-gray-700">
+          使用期間 (月)
+        </label>
+        <input
+          type="number"
+          value={duration}
+          onChange={e => setDuration(e.target.value)}
+          min="1"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <button
+        onClick={calculateCosts}
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        計算成本
+      </button>
+
+      {result && (
+        <div className="space-y-4 rounded-lg bg-gray-50 p-6">
+          <h3 className="text-xl font-medium text-gray-900">成本估算結果</h3>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <p className="text-base text-gray-500">硬體成本</p>
+              <p className="text-xl font-medium text-gray-900">
+                NT$ {result.hardwareCost.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">運營成本</p>
+              <p className="text-xl font-medium text-gray-900">
+                NT$ {result.operationalCost.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-500">軟體授權成本</p>
+              <p className="text-xl font-medium text-gray-900">
+                NT$ {result.softwareCost.toLocaleString()}
+              </p>
+            </div>
+            <div className="border-t pt-4">
+              <p className="text-base text-gray-500">總成本</p>
+              <p className="text-2xl font-bold text-gray-900">
+                NT$ {result.totalCost.toLocaleString()}
+              </p>
+            </div>
+            <div className="text-base text-gray-500">
+              預估每月耗電量：{result.monthlyPowerConsumption.toFixed(1)} kWh
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
