@@ -120,7 +120,7 @@ alwaysApply: false
 
 此階段旨在徹底重構 AI 工具的搜尋功能，從一個寬泛的全文檢索，轉變為以 `name` 為核心、同時兼顧新手與專家使用情境的智慧型搜尋引擎。目標是提供快速、精準且符合使用者直覺的搜尋體驗。
 
-- **狀態**: `[✅ 已完成]`
+- **狀態**: `開發中` (後端智慧搜尋邏輯已初步完成，前端已重構為後端驅動，但功能不穩定，需重新測試與修復)
 - **核心 API**: `next/src/app/api/aitool/route.ts`
 - **核心資料邏輯**: `next/src/lib/aitool/data.ts` (`searchTools` function)
 - **資料庫模型**: `next/src/lib/database/models/AITool.ts`
