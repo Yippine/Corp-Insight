@@ -22,7 +22,6 @@ export interface IAITool extends Document {
   };
   componentId?: string;
   renderType?: 'prompt' | 'component';
-  isAITool?: boolean;
   version: string;
   isActive: boolean;
   createdAt: Date;
@@ -51,7 +50,6 @@ export interface AIToolDocument {
   subCategory?: string;
   componentId?: string;
   renderType?: 'prompt' | 'component';
-  isAITool?: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -69,7 +67,6 @@ const toolProjection = {
   subCategory: 1,
   componentId: 1,
   renderType: 1,
-  isAITool: 1,
   instructions: 1,
   placeholder: 1,
   promptTemplate: 1,
@@ -169,11 +166,6 @@ const AIToolSchema = new Schema<IAITool>(
       default: 'prompt',
     },
 
-    isAITool: {
-      type: Boolean,
-      default: true,
-    },
-
     version: {
       type: String,
       default: '1.0.0',
@@ -197,22 +189,15 @@ const AIToolSchema = new Schema<IAITool>(
 // 複合索引
 AIToolSchema.index({ category: 1, isActive: 1 });
 AIToolSchema.index({ tags: 1, isActive: 1 });
-AIToolSchema.index({ isAITool: 1, isActive: 1 });
 
 // 文字搜尋索引
 AIToolSchema.index(
   {
     name: 'text',
-    description: 'text',
-    category: 'text',
-    tags: 'text',
   },
   {
     weights: {
       name: 10,
-      description: 5,
-      category: 3,
-      tags: 2,
     },
   }
 );
@@ -231,7 +216,6 @@ AIToolSchema.statics.searchTools = function (
     page?: number;
     limit?: number;
     sortBy?: string;
-    isAITool?: boolean; // 新增：按工具類型篩選
   } = {}
 ) {
   const {
@@ -240,7 +224,6 @@ AIToolSchema.statics.searchTools = function (
     page = 1,
     limit = 20,
     sortBy = 'name', // 預設排序欄位更改為 name
-    isAITool,
   } = options;
   const skip = (page - 1) * limit;
 
@@ -265,11 +248,6 @@ AIToolSchema.statics.searchTools = function (
     searchCondition.tags = { $in: tags };
   }
 
-  // 工具類型篩選
-  if (typeof isAITool === 'boolean') {
-    searchCondition['isAITool'] = isAITool;
-  }
-
   const sortOrder = sortBy.startsWith('name') ? 1 : -1; // 簡化排序邏輯
 
   return this.find(searchCondition)
@@ -279,14 +257,8 @@ AIToolSchema.statics.searchTools = function (
 };
 
 // 靜態方法：取得熱門工具
-AIToolSchema.statics.getPopularTools = function (
-  limit: number = 10,
-  isAITool?: boolean
-) {
+AIToolSchema.statics.getPopularTools = function (limit: number = 10) {
   const condition: any = { isActive: true };
-  if (typeof isAITool === 'boolean') {
-    condition['isAITool'] = isAITool;
-  }
 
   return this.find(condition)
     .sort({ name: 1 }) // 預設排序欄位更改為 name
@@ -368,26 +340,6 @@ export class AIToolModel {
       return tools as AIToolDocument[];
     } catch (error) {
       console.error('Error fetching AI tools:', error);
-      return [];
-    }
-  }
-
-  // 根據工具類型獲取工具
-  static async getByToolType(isAITool: boolean): Promise<AIToolDocument[]> {
-    try {
-      const collection = await this.getCollection();
-      return await collection
-        .find({
-          isActive: true,
-          $or: [
-            { 'config.renderConfig.isAITool': isAITool },
-            { isAITool: isAITool }, // 向後兼容
-          ],
-        })
-        .sort({ createdAt: 1 })
-        .toArray();
-    } catch (error) {
-      console.error('Error fetching AI tools by type:', error);
       return [];
     }
   }
@@ -534,24 +486,17 @@ export class AIToolModel {
 
       // 為常用查詢字段創建索引
       await collection.createIndex({ id: 1 }, { unique: true });
-      await collection.createIndex({ tags: 1 });
-      await collection.createIndex({ isActive: 1 });
-      await collection.createIndex({ createdAt: 1 });
-      await collection.createIndex({ category: 1 });
-      await collection.createIndex({ 'config.renderConfig.isAITool': 1 });
+      await collection.createIndex({ category: 1, isActive: 1 });
+      await collection.createIndex({ tags: 1, isActive: 1 });
 
       // 文字搜尋索引
       await collection.createIndex(
         {
           name: 'text',
-          description: 'text',
-          category: 'text',
         },
         {
           weights: {
             name: 10,
-            description: 5,
-            category: 3,
           },
         }
       );
@@ -559,6 +504,7 @@ export class AIToolModel {
       console.log('AI Tools indexes created successfully');
     } catch (error) {
       console.error('Error creating AI tools indexes:', error);
+      throw error;
     }
   }
 }

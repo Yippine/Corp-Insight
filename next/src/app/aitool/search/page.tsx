@@ -8,7 +8,7 @@ import {
 import { Metadata } from 'next';
 import AiToolSearch from '@/components/aitool/AiToolSearch';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
-import { hasToolSearchResults } from '@/lib/aitool/apiHelpers';
+import { hasToolSearchResults } from '@/lib/aitool/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,8 +42,6 @@ export default function AiToolSearchPage({
       <Suspense fallback={<InlineLoading />}>
         <AiToolSearch initialQuery={query} initialTag={tag} />
       </Suspense>
-
-      {!query && !tag && <FeatureSection />}
     </div>
   );
 }

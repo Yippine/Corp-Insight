@@ -71,7 +71,6 @@ export interface AIToolDocument {
   category?: string;
   subCategory?: string;
   isActive: boolean;
-  isAITool?: boolean;
   componentId?: string;
   renderType?: 'prompt' | 'component';
   createdAt: Date;

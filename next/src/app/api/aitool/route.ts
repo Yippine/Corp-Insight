@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AIToolModel } from '@/lib/database/models/AITool';
+import { searchTools } from '@/lib/aitool/data';
+import {
+  mapAiToolDocumentToTool,
+  mapAiToolDocumentsToTools,
+} from '@/lib/aitool/utils';
 
 // GET - 獲取所有工具（AI 工具 + 基礎工具）
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q');
-    const tag = searchParams.get('tag');
-    const category = searchParams.get('category');
+    const query = searchParams.get('q') || '';
+    const tag = searchParams.get('tag') || '';
     const toolId = searchParams.get('id');
 
     // 如果請求特定工具
@@ -22,42 +26,28 @@ export async function GET(request: NextRequest) {
           { status: 404 }
         );
       }
+      // 在回傳前轉換為前端格式
+      const formattedTool = mapAiToolDocumentToTool(tool);
       return NextResponse.json({
         success: true,
-        data: tool,
+        data: formattedTool,
       });
     }
 
-    // 獲取所有啟用的工具
-    let allTools = await AIToolModel.getAllActive();
+    // 使用重構後的 searchTools 函數
+    const allTools = await searchTools(query, tag);
 
-    // 篩選邏輯
-    if (query) {
-      const searchQuery = query.toLowerCase();
-      allTools = allTools.filter(
-        tool =>
-          tool.name.toLowerCase().includes(searchQuery) ||
-          tool.description.toLowerCase().includes(searchQuery) ||
-          tool.tags.some(tag => tag.toLowerCase().includes(searchQuery))
-      );
-    }
-
-    if (tag) {
-      allTools = allTools.filter(tool => tool.tags.includes(tag));
-    }
-
-    if (category) {
-      allTools = allTools.filter(tool => tool.category === category);
-    }
+    // 在回傳前轉換為前端格式
+    const formattedTools = mapAiToolDocumentsToTools(allTools);
 
     return NextResponse.json({
       success: true,
-      data: allTools,
-      count: allTools.length,
+      data: formattedTools,
+      count: formattedTools.length,
       filters: {
         query: query || null,
         tag: tag || null,
-        category: category || null,
+        category: null, // category is not supported by searchTools yet
       },
     });
   } catch (error) {

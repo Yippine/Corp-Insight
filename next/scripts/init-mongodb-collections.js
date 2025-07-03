@@ -63,7 +63,7 @@ const COLLECTIONS_CONFIG = {
       { keys: { category: 1, isActive: 1 }, options: { name: 'category_active' } },
       { keys: { tags: 1, isActive: 1 }, options: { name: 'tags_1_isActive_1' } },
       { keys: { 'usage.popularityScore': -1 }, options: { name: 'popularityScore_-1' } },
-      { keys: { name: 'text', description: 'text' }, options: { name: 'name_desc_text' } }
+      { keys: { name: 1 }, options: { name: 'name_search_index' } }
     ]
   },
 
@@ -133,16 +133,56 @@ async function createCollection(db, collectionName, config) {
 
     const collection = db.collection(collectionName);
     const existingIndexes = await collection.listIndexes().toArray();
-    const existingIndexNames = existingIndexes.map(idx => idx.name);
+    const existingIndexMap = new Map(existingIndexes.map(idx => [idx.name, idx]));
 
+    // 檢查並刪除設定檔中不存在的索引
+    for (const [indexName, indexDef] of existingIndexMap.entries()) {
+      // 跳過預設的 _id 索引
+      if (indexName === '_id_') continue;
+      
+      const isDefinedInConfig = config.indexes.some(
+        (cfg) => cfg.options.name === indexName
+      );
+
+      if (!isDefinedInConfig) {
+        try {
+          await collection.dropIndex(indexName);
+          console.log(`      - 🗑️  陳舊索引 "${indexName}" 已刪除`);
+        } catch (error) {
+          console.log(`      - ⚠️  刪除陳舊索引 "${indexName}" 失敗:`, error.message);
+        }
+      }
+    }
+
+    // 檢查並建立或更新索引
     for (const indexConfig of config.indexes) {
-      if (existingIndexNames.includes(indexConfig.options.name)) {
-        console.log(`      - 索引 "${indexConfig.options.name}" 已存在，跳過`);
-        result.indexes.skipped++;
+      const existingIndex = existingIndexMap.get(indexConfig.options.name);
+
+      if (existingIndex) {
+        // 比較索引鍵是否一致
+        const a = JSON.stringify(existingIndex.key);
+        const b = JSON.stringify(indexConfig.keys);
+
+        if (a !== b) {
+          console.log(`      - 🔄 索引 "${indexConfig.options.name}" 定義不一致，將重建...`);
+          try {
+            await collection.dropIndex(indexConfig.options.name);
+            console.log(`        - 舊索引已刪除`);
+            await collection.createIndex(indexConfig.keys, indexConfig.options);
+            console.log(`        - ✅ 新索引已建立`);
+            result.indexes.created++;
+          } catch (error) {
+            console.log(`      - ❌ 索引 "${indexConfig.options.name}" 重建失敗:`, error.message);
+            result.indexes.failed++;
+          }
+        } else {
+          console.log(`      - ℹ️  索引 "${indexConfig.options.name}" 已存在且定義一致，跳過`);
+          result.indexes.skipped++;
+        }
       } else {
         try {
           await collection.createIndex(indexConfig.keys, indexConfig.options);
-          console.log(`      - ✅ 索引 "${indexConfig.options.name}" 建立成功`);
+          console.log(`      - ✅ 新索引 "${indexConfig.options.name}" 建立成功`);
           result.indexes.created++;
         } catch (error) {
           console.log(`      - ❌ 索引 "${indexConfig.options.name}" 建立失敗:`, error.message);

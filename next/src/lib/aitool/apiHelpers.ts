@@ -1,81 +1,43 @@
 'use client';
 
-import { AIToolDocument as DBToolDocument } from '@/lib/database/models/AITool';
-import { iconMap } from './iconMap';
 import type { Tools, ColorTheme, TagStats } from './types';
 
 // 從 API 獲取所有工具資料
 export async function getToolsDataFromAPI(): Promise<Tools[]> {
   try {
-    // 統一從 MongoDB 獲取所有工具（AI 工具 + 基礎工具）
     const response = await fetch('/api/aitool');
-
     if (!response.ok) {
       throw new Error('Failed to fetch tools from MongoDB');
     }
-
     const { data: allToolsFromAPI } = await response.json();
-    
-    // 轉換為前端使用的格式
-    const allTools: Tools[] = allToolsFromAPI.map((tool: DBToolDocument) => {
-      const currentTags = tool.tags || [];
-
-      // 檢查是否為 AI 工具
-      const isAITool = tool.isAITool !== false && tool.renderType !== 'component';
-
-      // 確保 AI 工具有 'AI' 標籤
-      if (isAITool && !currentTags.includes('AI')) {
-        currentTags.push('AI');
-      }
-
-      // 確保 icon 存在於 iconMap 中，否則使用 'Zap'
-      const iconName = tool.icon in iconMap ? tool.icon : 'Zap';
-
-      return {
-        id: tool.id,
-        name: tool.name,
-        description: tool.description,
-        iconName: iconName as keyof typeof iconMap,
-        componentId: tool.componentId || (isAITool ? 'PromptToolTemplate' : undefined),
-        tags: currentTags,
-        category: tool.category || 'AI 工具',
-        subCategory: tool.subCategory,
-        instructions: tool.instructions,
-        placeholder: tool.placeholder,
-        promptTemplate: tool.promptTemplate,
-      };
-    });
-
-    return allTools;
+    // 資料已在 API 端格式化，客戶端直接使用
+    return allToolsFromAPI;
   } catch (error) {
     console.error('Error fetching tools data from API:', error);
     return [];
   }
 }
 
-// 檢查搜尋結果是否存在
-export async function hasToolSearchResults(
-  query?: string,
-  tag?: string
-): Promise<boolean> {
-  if (!query && !tag) {
-    return true; // 沒有查詢條件時返回 true
-  }
-
+// 根據查詢和標籤搜尋工具
+export async function searchToolsFromAPI(
+  query: string,
+  tag: string
+): Promise<Tools[]> {
   try {
-    const searchParams = new URLSearchParams();
-    if (query) searchParams.append('q', query);
-    if (tag) searchParams.append('tag', tag);
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    if (tag) params.set('tag', tag);
 
-    const response = await fetch(`/api/aitool?${searchParams.toString()}`);
-    if (response.ok) {
-      const { data } = await response.json();
-      return Array.isArray(data) && data.length > 0;
+    const response = await fetch(`/api/aitool?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error('Failed to search tools from API');
     }
-    return false;
+    const { data: searchedTools } = await response.json();
+    // 資料已在 API 端格式化，客戶端直接使用
+    return searchedTools;
   } catch (error) {
-    console.error('Error checking search results:', error);
-    return false;
+    console.error('Error searching tools from API:', error);
+    return [];
   }
 }
 
