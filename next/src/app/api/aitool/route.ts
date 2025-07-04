@@ -37,6 +37,20 @@ export async function GET(request: NextRequest) {
     // 使用重構後的 searchTools 函數
     const allTools = await searchTools(query, tag);
 
+    // 在開發模式下，我們期望 allTools 包含 matchDetails，直接回傳
+    if (process.env.NODE_ENV === 'development') {
+      return NextResponse.json({
+        success: true,
+        data: allTools,
+        count: allTools.length,
+        filters: {
+          query: query || null,
+          tag: tag || null,
+          category: null,
+        },
+      });
+    }
+
     // 在回傳前轉換為前端格式
     const formattedTools = mapAiToolDocumentsToTools(allTools);
 

@@ -62,8 +62,28 @@ const COLLECTIONS_CONFIG = {
       { keys: { id: 1 }, options: { unique: true, name: 'id_unique' } },
       { keys: { category: 1, isActive: 1 }, options: { name: 'category_active' } },
       { keys: { tags: 1, isActive: 1 }, options: { name: 'tags_1_isActive_1' } },
-      { keys: { 'usage.popularityScore': -1 }, options: { name: 'popularityScore_-1' } },
-      { keys: { name: 1 }, options: { name: 'name_search_index' } }
+      {
+        keys: {
+          name: 'text',
+          description: 'text',
+          tags: 'text',
+          'instructions.what': 'text',
+          'instructions.why': 'text',
+          'instructions.how': 'text'
+        },
+        options: {
+          name: 'weighted_text_search',
+          weights: {
+            name: 5,
+            tags: 3,
+            'instructions.what': 3,
+            description: 1,
+            'instructions.why': 1,
+            'instructions.how': 1
+          },
+          default_language: 'none'
+        }
+      }
     ]
   },
 

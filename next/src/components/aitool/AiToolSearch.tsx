@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ListFilter, Search } from 'lucide-react';
+import { ListFilter, Search, TestTube2 } from 'lucide-react';
 import {
   getCategoryThemes,
   getFullTagThemes,
@@ -18,6 +18,7 @@ import { useLoading } from '@/components/common/loading/LoadingProvider';
 import { trackBusinessEvents } from '../GoogleAnalytics';
 import LineBotBanner from './LineBotBanner';
 import FeatureSection from '@/components/FeatureSection';
+import SearchAnalysis from './SearchAnalysis';
 
 interface AiToolSearchProps {
   initialQuery: string;
@@ -44,6 +45,7 @@ export default function AiToolSearch({
   const [fullTagThemes, setFullTagThemes] = useState<
     Record<string, ColorTheme>
   >({});
+  const [showDebugInfo, setShowDebugInfo] = useState(false);
   
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const isInitialMount = useRef(true);
@@ -156,6 +158,7 @@ export default function AiToolSearch({
   };
 
   const currentTag = searchParams.get('tag') || '';
+  const isDebugButtonDisabled = !searchQuery || (!isLoading && tools.length === 0);
 
   return (
     <div className="space-y-8">
@@ -174,6 +177,24 @@ export default function AiToolSearch({
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
+
+          {process.env.NODE_ENV === 'development' && (
+            <motion.button
+              onClick={() => setShowDebugInfo(prev => !prev)}
+              disabled={isDebugButtonDisabled}
+              whileHover={isDebugButtonDisabled ? {} : { filter: 'brightness(90%)' }}
+              whileTap={{ filter: 'brightness(80%)' }}
+              className={`ml-4 flex items-center rounded-lg px-4 py-2 font-medium transition-all duration-200 ${
+                isDebugButtonDisabled
+                  ? 'cursor-not-allowed bg-gray-100 text-gray-400'
+                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+              }`}
+            >
+              <TestTube2 className="mr-2 h-5 w-5" />
+              <span>{showDebugInfo ? '隱藏搜尋分析' : '顯示搜尋分析'}</span>
+            </motion.button>
+          )}
+
           <div className="ml-4 flex items-center rounded-lg bg-gray-50 px-4 py-2">
             <ListFilter className="mr-2 h-5 w-5 text-gray-500" />
             <span className="font-medium text-gray-600">
@@ -295,6 +316,13 @@ export default function AiToolSearch({
                             );
                           })}
                         </div>
+
+                        {showDebugInfo && (
+                          <SearchAnalysis
+                            tool={tool}
+                            keywords={searchQuery.split(' ').filter(Boolean)}
+                          />
+                        )}
                       </button>
                     </motion.div>
                   );

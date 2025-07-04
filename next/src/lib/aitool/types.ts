@@ -1,6 +1,14 @@
 // AI 工具類型定義檔案
 import { IconName } from './iconMap';
 
+// For SearchAnalysis component in development
+export interface MatchDetail {
+  field: string;
+  keyword: string;
+  content: string;
+  score: number;
+}
+
 // 工具介面定義
 export interface Tools {
   id: string;
@@ -21,6 +29,8 @@ export interface Tools {
     prefix: string;
     suffix: string;
   };
+  score?: number;
+  matchDetails?: MatchDetail[];
 }
 
 // 顏色主題介面

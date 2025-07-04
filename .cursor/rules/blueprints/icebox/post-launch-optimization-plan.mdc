@@ -96,7 +96,14 @@ alwaysApply: false
 
 ---
 
-## 5. 當前進度與後續步驟 (Current Status & Next Steps)
+### 5. 💡 未來考量 (Post-Launch)
+- **遷移至 Atlas Search**: 本次為滿足時限採用程式控制方案。專案上線穩定後，應規劃將搜尋功能遷移至 MongoDB Atlas Search，以獲得更佳的效能、更低的維護成本與更強大的功能 (如 `MoreLikeThis`)，應對未來百萬級資料量。
+- **擴充標籤庫**: 目前 `"生產力"`, `"報告"` 等通用詞無結果，是內容問題。上線後應豐富 `tags` 庫，提升搜尋覆蓋面。
+- **使用者搜尋行為分析**: 記錄使用者搜尋失敗的關鍵字，作為優化 `tags` 和工具內容的依據。
+
+---
+
+## 6. 當前進度與後續步驟 (Current Status & Next Steps)
 
 -   **當前狀態**: `規劃階段` - 已根據使用者需求，將上線後的優化與創新任務進行了全面的盤點與文件化。
 -   **後續步驟**:
@@ -106,7 +113,7 @@ alwaysApply: false
 
 ---
 
-## 6. 開發進度追蹤 (Development Log)
+## 7. 開發進度追蹤 (Development Log)
 
 -   **YYYY-MM-DD**:
     -   **行動**: 建立了 `post-launch-optimization-plan.mdc` v1.0，將具前瞻性的優化點子轉化為可追蹤的開發計畫。

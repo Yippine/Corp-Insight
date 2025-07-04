@@ -186,95 +186,6 @@ const AIToolSchema = new Schema<IAITool>(
   }
 );
 
-// 複合索引
-AIToolSchema.index({ category: 1, isActive: 1 });
-AIToolSchema.index({ tags: 1, isActive: 1 });
-
-// 文字搜尋索引
-AIToolSchema.index(
-  {
-    name: 'text',
-  },
-  {
-    weights: {
-      name: 10,
-    },
-  }
-);
-
-// 靜態方法：根據 ID 查找工具
-AIToolSchema.statics.findByToolId = function (toolId: string) {
-  return this.findOne({ id: toolId, isActive: true });
-};
-
-// 靜態方法：搜尋 AI 工具
-AIToolSchema.statics.searchTools = function (
-  query: string,
-  options: {
-    category?: string;
-    tags?: string[];
-    page?: number;
-    limit?: number;
-    sortBy?: string;
-  } = {}
-) {
-  const {
-    category,
-    tags,
-    page = 1,
-    limit = 20,
-    sortBy = 'name', // 預設排序欄位更改為 name
-  } = options;
-  const skip = (page - 1) * limit;
-
-  const searchCondition: any = { isActive: true };
-
-  // 文字搜尋
-  if (query) {
-    searchCondition.$or = [
-      { name: { $regex: query, $options: 'i' } },
-      { description: { $regex: query, $options: 'i' } },
-      { tags: { $in: [new RegExp(query, 'i')] } },
-    ];
-  }
-
-  // 分類篩選
-  if (category) {
-    searchCondition.category = category;
-  }
-
-  // 標籤篩選
-  if (tags && tags.length > 0) {
-    searchCondition.tags = { $in: tags };
-  }
-
-  const sortOrder = sortBy.startsWith('name') ? 1 : -1; // 簡化排序邏輯
-
-  return this.find(searchCondition)
-    .sort({ [sortBy]: sortOrder })
-    .skip(skip)
-    .limit(limit);
-};
-
-// 靜態方法：取得熱門工具
-AIToolSchema.statics.getPopularTools = function (limit: number = 10) {
-  const condition: any = { isActive: true };
-
-  return this.find(condition)
-    .sort({ name: 1 }) // 預設排序欄位更改為 name
-    .limit(limit);
-};
-
-// 靜態方法：根據分類取得工具
-AIToolSchema.statics.getToolsByCategory = function (
-  category: string,
-  limit: number = 20
-) {
-  return this.find({ category, isActive: true })
-    .sort({ name: 1 }) // 預設排序欄位更改為 name
-    .limit(limit);
-};
-
 // 實例方法：記錄使用
 AIToolSchema.methods.recordUsage = async function () {
   this.usage.totalUses += 1;
@@ -365,44 +276,14 @@ export class AIToolModel {
   static async getByTags(tags: string[]): Promise<AIToolDocument[]> {
     try {
       const collection = await this.getCollection();
-      return await collection
-        .find({
-          tags: { $in: tags },
-          isActive: true,
-        })
-        .sort({ createdAt: 1 })
-        .toArray();
+      return await collection.find({ tags: { $in: tags }, isActive: true }).toArray();
     } catch (error) {
       console.error('Error fetching AI tools by tags:', error);
       return [];
     }
   }
 
-  // 搜尋工具（名稱或描述）
-  static async search(query: string): Promise<AIToolDocument[]> {
-    try {
-      const collection = await this.getCollection();
-      return await collection
-        .find({
-          $and: [
-            { isActive: true },
-            {
-              $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { description: { $regex: query, $options: 'i' } },
-              ],
-            },
-          ],
-        })
-        .sort({ createdAt: 1 })
-        .toArray();
-    } catch (error) {
-      console.error('Error searching AI tools:', error);
-      return [];
-    }
-  }
-
-  // 新增工具
+  // 向 ai_tools 集合中插入單一文件
   static async insertOne(
     tool: Omit<AIToolDocument, '_id' | 'createdAt' | 'updatedAt'>
   ): Promise<boolean> {

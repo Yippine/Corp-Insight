@@ -19,7 +19,7 @@ export function mapAiToolDocumentToTool(tool: DBToolDocument): Tools {
   // 確保 icon 存在於 iconMap 中，否則使用預設的 'Zap' 圖標
   const iconName = tool.icon && tool.icon in iconMap ? tool.icon : 'Zap';
 
-  return {
+  const toolObject: Tools = {
     id: tool.id,
     name: tool.name,
     description: tool.description,
@@ -32,6 +32,18 @@ export function mapAiToolDocumentToTool(tool: DBToolDocument): Tools {
     placeholder: tool.placeholder,
     promptTemplate: tool.promptTemplate,
   };
+
+  // 在開發模式下，如果 score 和 matchDetails 存在，則將它們附加到物件上
+  // 這解決了除錯資訊在 API 路由中被剝離的問題
+  const anyTool = tool as any;
+  if (anyTool.score !== undefined) {
+    toolObject.score = anyTool.score;
+  }
+  if (anyTool.matchDetails) {
+    toolObject.matchDetails = anyTool.matchDetails;
+  }
+
+  return toolObject;
 }
 
 /**
@@ -39,6 +51,8 @@ export function mapAiToolDocumentToTool(tool: DBToolDocument): Tools {
  * @param aiTools - AITool 文件的陣列。
  * @returns - 轉換後的前端 Tools 物件陣列。
  */
-export function mapAiToolDocumentsToTools(aiTools: DBToolDocument[]): Tools[] {
+export function mapAiToolDocumentsToTools(
+  aiTools: (DBToolDocument & { score?: number; matchDetails?: any[] })[]
+): Tools[] {
   return aiTools.map(mapAiToolDocumentToTool);
 }
