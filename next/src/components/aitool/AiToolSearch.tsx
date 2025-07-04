@@ -45,6 +45,7 @@ export default function AiToolSearch({
   const [fullTagThemes, setFullTagThemes] = useState<
     Record<string, ColorTheme>
   >({});
+  const [isTagsExpanded, setIsTagsExpanded] = useState(false);
   const [showDebugInfo, setShowDebugInfo] = useState(false);
   
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -203,23 +204,57 @@ export default function AiToolSearch({
           </div>
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2">
+        <div className="mb-6 flex flex-wrap items-center gap-2">
           {Object.keys(categoryThemes).length > 0 ? (
-            Object.entries(categoryThemes).map(([tag, theme]) => (
-              <motion.button
-                key={tag}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleTagSelect(tag)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                  currentTag === tag || (!currentTag && tag === '全部')
-                    ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
-                    : `${theme.secondary} ${theme.text} ${theme.hover}`
-                }`}
-              >
-                {theme.name}
-              </motion.button>
-            ))
+            <>
+              {Object.entries(categoryThemes).slice(0, 12).map(([tag, theme]) => (
+                <motion.button
+                  key={tag}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleTagSelect(tag)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                    currentTag === tag || (!currentTag && tag === '全部')
+                      ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
+                      : `${theme.secondary} ${theme.text} ${theme.hover}`
+                  }`}
+                >
+                  {theme.name}
+                </motion.button>
+              ))}
+              <AnimatePresence>
+                {isTagsExpanded &&
+                  Object.entries(categoryThemes).slice(12).map(([tag, theme]) => (
+                    <motion.button
+                      key={tag}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleTagSelect(tag)}
+                      className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                        currentTag === tag
+                          ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
+                          : `${theme.secondary} ${theme.text} ${theme.hover}`
+                      }`}
+                    >
+                      {theme.name}
+                    </motion.button>
+                  ))}
+              </AnimatePresence>
+              {Object.keys(categoryThemes).length > 12 && (
+                <motion.button
+                  onClick={() => setIsTagsExpanded(prev => !prev)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="rounded-full border-2 border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-600"
+                >
+                  {isTagsExpanded ? '收合部分標籤' : `+ ${Object.keys(categoryThemes).length - 12} 個其他標籤`}
+                </motion.button>
+              )}
+            </>
           ) : (
             <div className="h-10 w-full" /> // Placeholder for loading state
           )}

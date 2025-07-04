@@ -24,13 +24,13 @@ export async function getToolById(toolId: string): Promise<Tools | null> {
     const tool = await AIToolModel.getById(toolId);
 
     if (tool) {
-      // The model returns a single object, but convertAIToolDocumentToTools expects an array
+      // 模型回傳的是單一物件，但 convertAIToolDocumentToTools 預期的是一個陣列
       return convertAIToolDocumentToTools([tool])[0] || null;
     }
 
     return null;
   } catch (error) {
-    console.error(`Error fetching tool by ID directly from DB (${toolId}):`, error);
+    console.error(`從資料庫直接按 ID 獲取工具時發生錯誤（${toolId}）：`, error);
     return null;
   }
 }
@@ -265,7 +265,7 @@ export async function searchTools(
       ];
 
       const processedResults = results.map(tool => {
-        // --- Step 1: Calculate all components for the final score ---
+        // --- 步驟一：計算最終分數的所有組成部分 ---
         const baseScore = tool.score;
         const lowerCaseKeywords = traditionalKeywords.map(k => k.toLowerCase());
         const matchedKeywords = new Set<string>();
@@ -281,7 +281,7 @@ export async function searchTools(
 
             if (isMatch) {
               matchedKeywords.add(keyword);
-              // Once a keyword is matched in any field, we can stop checking other fields for it.
+              // 一旦一個關鍵字在任何欄位中被匹配，我們就可以停止檢查該關鍵字的其他欄位。
               break; 
             }
           }
@@ -313,10 +313,10 @@ export async function searchTools(
           exactMatchBonus = 10;
         }
 
-        // --- Step 2: Calculate final score ---
+        // -- 步驟二：計算最終分數 ---
         const finalScore = (baseScore * multiplier) + exactMatchBonus;
 
-        // --- Step 3: Populate details for UI display (does not affect score) ---
+        // --- 步驟三：填充用於 UI 顯示的詳細資訊（不影響分數） ---
         lowerCaseKeywords.forEach(keyword => {
           fieldConfig.forEach(field => {
             const fieldValue = getNestedValue(tool, field.key);
@@ -342,7 +342,7 @@ export async function searchTools(
         });
 
         if (exactMatchBonus > 0) {
-          matchDetails.unshift({ // Put it at the top for visibility
+          matchDetails.unshift({ // 置於頂部以方便查看
             field: '完美匹配',
             keyword: originalQuery,
             content: tool.name,
@@ -352,7 +352,7 @@ export async function searchTools(
         
         return { 
           ...tool,
-          score: finalScore, // Override original score with the new final score
+          score: finalScore, // 使用新的最終分數覆蓋原有的分數
           baseScore,
           matchedKeywordCount,
           totalKeywords: lowerCaseKeywords.length,
@@ -361,7 +361,7 @@ export async function searchTools(
         } as (DBToolDocument & { score: number; matchDetails?: any[], baseScore?: number, matchedKeywordCount?: number, totalKeywords?: number, multiplier?: number });
       });
 
-      // --- Step 4: Re-sort the entire result set based on the new finalScore ---
+      // --- 步驟四：根據新的最終分數重新排序整個結果集 ---
       processedResults.sort((a, b) => b.score - a.score);
 
       return processedResults;
@@ -369,7 +369,7 @@ export async function searchTools(
 
     return results as DBToolDocument[];
   } catch (error) {
-    console.error('Error searching tools from DB:', error);
+    console.error('從資料庫搜尋工具時發生錯誤：', error);
     return [];
   }
 }

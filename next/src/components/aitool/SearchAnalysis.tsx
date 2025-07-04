@@ -16,7 +16,7 @@ interface SearchAnalysisProps {
   keywords: string[];
 }
 
-// Helper function to highlight keywords in a string
+// 在字串中高亮關鍵字的輔助函式
 const HighlightedText = ({ text, highlight }: { text: string; highlight: string }) => {
   if (!highlight.trim()) {
     return <span>{text}</span>;
@@ -120,9 +120,9 @@ const SearchAnalysis: React.FC<SearchAnalysisProps> = ({ tool, keywords }) => {
         <span className="text-yellow-600">📊</span> 計分儀表板
       </h3>
       
-      {/* Section 1: Base Score Calculation */}
+      {/* 第一部分：基礎分數計算 */}
       <div className="mb-4">
-        <h4 className="font-semibold text-gray-700 mb-2">1. 基礎分累加 (Base Score)</h4>
+        <h4 className="font-semibold text-gray-700 mb-2">1. 基礎分累加（Base Score）</h4>
         <div className="space-y-2">
           {matchDetails.map((detail: any, index: number) => (
             <ScoreDetailItem 
@@ -138,26 +138,26 @@ const SearchAnalysis: React.FC<SearchAnalysisProps> = ({ tool, keywords }) => {
         </div>
       </div>
 
-      {/* Section 2: Keyword Coverage Multiplier */}
+      {/* 第二部分：關鍵字覆蓋率加權 */}
       <div className="mb-4">
-        <h4 className="font-semibold text-gray-700 mb-2">2. 關鍵字覆蓋率加權 (Keyword Coverage Multiplier)</h4>
+        <h4 className="font-semibold text-gray-700 mb-2">2. 關鍵字覆蓋率加權（Keyword Coverage Multiplier）</h4>
         <div className="bg-white p-3 rounded-md shadow-sm text-center">
           <p className="text-gray-600">
-            成功匹配 <span className="font-bold text-blue-600">{matchedKeywordCount}</span> 個獨立關鍵字 (共 <span className="font-bold">{totalKeywords}</span> 個)
+            成功匹配 <span className="font-bold text-blue-600">{matchedKeywordCount}</span> 個獨立關鍵字（共 <span className="font-bold">{totalKeywords}</span> 個）
           </p>
           <p className="text-2xl font-bold text-purple-600 my-1">
             x {multiplier.toFixed(1)}
           </p>
-          <p className="text-xs text-gray-500">(匹配越多，加權倍率越高)</p>
+          <p className="text-xs text-gray-500">（匹配越多，加權倍率越高）</p>
         </div>
       </div>
 
-      {/* Section 3: Final Score Calculation */}
+      {/* 第三部分：最終總分計算 */}
       <div>
-        <h4 className="font-semibold text-gray-700 mb-2">3. 最終總分 (Final Score)</h4>
+        <h4 className="font-semibold text-gray-700 mb-2">3. 最終總分（Final Score）</h4>
         <div className="bg-gradient-to-r from-yellow-100 to-amber-200 p-4 rounded-lg text-center shadow-inner">
            <p className="text-gray-600 font-mono text-base">
-            (基礎分 <span className="font-bold">{baseScore}</span> x 加權倍率 <span className="font-bold">{multiplier.toFixed(1)}</span>)
+            （基礎分 <span className="font-bold">{baseScore}</span> x 加權倍率 <span className="font-bold">{multiplier.toFixed(1)}</span>）
             {perfectMatchBonus ? ` + 完美匹配 ${perfectMatchBonus.score}` : ''}
           </p>
           <p className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-red-500 mt-1">
