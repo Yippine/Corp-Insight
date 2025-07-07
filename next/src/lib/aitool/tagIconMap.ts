@@ -170,3 +170,12 @@ export function getIconForTool(tags: string[]): LucideIcon {
   // 如果都找不到，回傳預設圖示
   return DEFAULT_ICON;
 }
+
+/**
+ * 根據單一標籤，獲取其對應的圖示組件。
+ * @param tag - 單一標籤字串 (e.g., '寫作')
+ * @returns 對應的 LucideIcon 組件，或一個預設圖示。
+ */
+export function getIconForTag(tag: string): LucideIcon {
+  return TAG_ICON_MAP[tag] || DEFAULT_ICON;
+}

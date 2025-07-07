@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown } from 'lucide-react';
-import { getIconForTool } from '@/lib/aitool/tagIconMap';
+import { getIconForTool, getIconForTag } from '@/lib/aitool/tagIconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import SearchAnalysis from './SearchAnalysis';
 import { useState, useRef, useLayoutEffect } from 'react';
@@ -155,17 +155,19 @@ export default function ToolCard({
           <div className="flex flex-wrap gap-2">
             {tool.tags.map((tag, idx) => {
               const tagTheme = toolThemes[idx] || fullTagThemes.ai;
+              const TagIcon = getIconForTag(tag);
               return (
-                <span
+                <div
                   key={tag}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-300 ${
                     showActiveStyles
                       ? `${tagTheme.primary} text-white`
                       : `${tagTheme.secondary} ${tagTheme.text}`
                   }`}
                 >
-                  {tagTheme.name}
-                </span>
+                  <TagIcon className="h-4 w-4" />
+                  <span>{tag}</span>
+                </div>
               );
             })}
           </div>

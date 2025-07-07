@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { getCategoryThemes } from '@/lib/aitool/apiHelpers';
-import { getIconForTool } from '@/lib/aitool/tagIconMap';
+import { getIconForTool, getIconForTag } from '@/lib/aitool/tagIconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import { trackBusinessEvents } from '../GoogleAnalytics';
 import dynamic from 'next/dynamic';
@@ -237,13 +237,17 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
               categoryThemes[tag] ||
               categoryThemes.ai ||
               categoryThemes.default;
+            const TagIcon = getIconForTag(tag);
             return (
-              <span
+              <div
                 key={tag}
-                className={`rounded-full px-3 py-1.5 text-sm font-medium ${theme?.secondary || 'bg-gray-100'} ${theme?.text || 'text-gray-800'}`}
+                className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${
+                  theme?.secondary || 'bg-gray-100'
+                } ${theme?.text || 'text-gray-800'}`}
               >
-                {theme?.name || tag}
-              </span>
+                <TagIcon className="h-4 w-4" />
+                <span>{tag}</span>
+              </div>
             );
           })}
         </div>

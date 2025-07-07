@@ -9,7 +9,7 @@ import {
   getFullTagThemes,
   searchToolsFromAPI,
 } from '@/lib/aitool/apiHelpers';
-import { iconMap } from '@/lib/aitool/iconMap';
+import { getIconForTag } from '@/lib/aitool/tagIconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
@@ -230,42 +230,54 @@ export default function AiToolSearch({
         <div className="mb-6 flex flex-wrap items-center gap-2">
           {Object.keys(categoryThemes).length > 0 ? (
             <>
-              {Object.entries(categoryThemes).slice(0, 12).map(([tag, theme]) => (
-                <motion.button
-                  key={tag}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleTagSelect(tag)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                    currentTag === tag || (!currentTag && tag === '全部')
-                      ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
-                      : `${theme.secondary} ${theme.text} ${theme.hover}`
-                  }`}
-                >
-                  {theme.name}
-                </motion.button>
-              ))}
-              <AnimatePresence>
-                {isTagsExpanded &&
-                  Object.entries(categoryThemes).slice(12).map(([tag, theme]) => (
+              {Object.entries(categoryThemes)
+                .slice(0, 12)
+                .map(([tag, theme]) => {
+                  const TagIcon = getIconForTag(tag);
+                  return (
                     <motion.button
                       key={tag}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.2 }}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleTagSelect(tag)}
-                      className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                        currentTag === tag
+                      className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-300 ${
+                        currentTag === tag || (!currentTag && tag === '全部')
                           ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
                           : `${theme.secondary} ${theme.text} ${theme.hover}`
                       }`}
                     >
-                      {theme.name}
+                      <TagIcon className="h-4 w-4" />
+                      <span>{tag}</span>
                     </motion.button>
-                  ))}
+                  );
+                })}
+              <AnimatePresence>
+                {isTagsExpanded &&
+                  Object.entries(categoryThemes)
+                    .slice(12)
+                    .map(([tag, theme]) => {
+                      const TagIcon = getIconForTag(tag);
+                      return (
+                        <motion.button
+                          key={tag}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.2 }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleTagSelect(tag)}
+                          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-300 ${
+                            currentTag === tag
+                              ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
+                              : `${theme.secondary} ${theme.text} ${theme.hover}`
+                          }`}
+                        >
+                          <TagIcon className="h-4 w-4" />
+                          <span>{tag}</span>
+                        </motion.button>
+                      );
+                    })}
               </AnimatePresence>
               {Object.keys(categoryThemes).length > 12 && (
                 <motion.button
