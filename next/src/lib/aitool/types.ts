@@ -1,6 +1,4 @@
 // AI 工具類型定義檔案
-import { IconName } from './iconMap';
-
 // For SearchAnalysis component in development
 export interface MatchDetail {
   field: string;
@@ -14,11 +12,9 @@ export interface Tools {
   id: string;
   name: string;
   description: string;
-  iconName: IconName;
   componentId?: string;
   tags: string[];
   category?: string;
-  subCategory?: string;
   instructions?: {
     what: string;
     why: string;
@@ -39,7 +35,6 @@ export interface ColorTheme {
   secondary: string;
   accent: string;
   text: string;
-  icon: string;
   hover: string;
   shadow: string;
   name: string;
@@ -66,7 +61,6 @@ export interface AIToolDocument {
   id: string;
   name: string;
   description: string;
-  icon: string;
   tags: string[];
   instructions?: {
     what: string;
@@ -79,7 +73,6 @@ export interface AIToolDocument {
     suffix: string;
   };
   category?: string;
-  subCategory?: string;
   isActive: boolean;
   componentId?: string;
   renderType?: 'prompt' | 'component';

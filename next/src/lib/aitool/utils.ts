@@ -1,5 +1,4 @@
 import { AIToolDocument as DBToolDocument } from '@/lib/database/models/AITool';
-import { iconMap } from './iconMap';
 import type { Tools } from './types';
 
 /**
@@ -16,18 +15,13 @@ export function mapAiToolDocumentToTool(tool: DBToolDocument): Tools {
     currentTags.push('AI');
   }
 
-  // 確保 icon 存在於 iconMap 中，否則使用預設的 'Zap' 圖標
-  const iconName = tool.icon && tool.icon in iconMap ? tool.icon : 'Zap';
-
   const toolObject: Tools = {
     id: tool.id,
     name: tool.name,
     description: tool.description,
-    iconName: iconName as keyof typeof iconMap,
     componentId: tool.componentId || 'PromptToolTemplate',
     tags: currentTags,
     category: tool.category || 'AI 工具',
-    subCategory: tool.subCategory,
     instructions: tool.instructions,
     placeholder: tool.placeholder,
     promptTemplate: tool.promptTemplate,

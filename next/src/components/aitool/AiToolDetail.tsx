@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { getCategoryThemes } from '@/lib/aitool/apiHelpers';
-import { iconMap } from '@/lib/aitool/iconMap';
+import { getIconForTool } from '@/lib/aitool/tagIconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import { trackBusinessEvents } from '../GoogleAnalytics';
 import dynamic from 'next/dynamic';
@@ -171,7 +171,7 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
   const primaryTheme =
     categoryThemes[primaryTag] || categoryThemes.ai || categoryThemes.default;
 
-  const IconComponent = iconMap[tool.iconName] || iconMap.Zap;
+  const IconComponent = getIconForTool(tool.tags);
 
   // 直接獲取組件
   const SpecificToolComponent =

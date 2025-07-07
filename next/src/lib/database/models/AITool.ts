@@ -34,7 +34,6 @@ export interface AIToolDocument {
   id: string;
   name: string;
   description: string;
-  icon: string;
   tags: string[];
   instructions?: {
     what: string;
@@ -47,7 +46,6 @@ export interface AIToolDocument {
     suffix: string;
   };
   category?: string;
-  subCategory?: string;
   componentId?: string;
   renderType?: 'prompt' | 'component';
   isActive: boolean;
@@ -61,10 +59,8 @@ const toolProjection = {
   id: 1,
   name: 1,
   description: 1,
-  icon: 1,
   tags: 1,
   category: 1,
-  subCategory: 1,
   componentId: 1,
   renderType: 1,
   instructions: 1,

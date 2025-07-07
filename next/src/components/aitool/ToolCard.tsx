@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown } from 'lucide-react';
-import { iconMap } from '@/lib/aitool/iconMap';
+import { getIconForTool } from '@/lib/aitool/tagIconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import SearchAnalysis from './SearchAnalysis';
 import { useState, useRef, useLayoutEffect } from 'react';
@@ -30,7 +30,7 @@ export default function ToolCard({
   onNavigate,
   onToggleExpand,
 }: ToolCardProps) {
-  const IconComponent = iconMap[tool.iconName] || Search;
+  const IconComponent = getIconForTool(tool.tags);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const [isClamped, setIsClamped] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -108,7 +108,7 @@ export default function ToolCard({
             >
               <IconComponent
                 className={`h-6 w-6 transition-all duration-300 ${
-                  showActiveStyles ? 'text-white' : primaryTheme.icon
+                  showActiveStyles ? 'text-white' : primaryTheme.text
                 }`}
               />
             </div>

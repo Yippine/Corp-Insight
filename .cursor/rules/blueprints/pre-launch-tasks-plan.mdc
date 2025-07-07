@@ -225,12 +225,46 @@
 
 #### **第四階段：部署前最終驗證與清理 (Final Validation & Cleanup)**
 
-- **目標**: 在所有功能開發與測試完畢後，從資料庫中移除已確認廢棄的 `subCategory` 欄位。
-- **狀態**: `未開始`
-- **子任務**:
-  1.  **[分析]** 確認 `subCategory` 欄位在整個專案中無任何引用。
-  2.  **[資料庫]** 編寫並執行一個 MongoDB 更新腳本 (`db.ai_tools.updateMany({}, { $unset: { subCategory: "" } })`)，移除所有文件中的該欄位。
-  3.  **[後端]** 從 `AITool` 的 Mongoose Schema 中移除 `subCategory` 的定義。
+此階段專注於在 `v1.0` 版本正式上線前，修復所有已知的 UI/UX 臭蟲與不一致性，並進行最終的程式碼清理。
+
+**已完成的重構任務 (Completed Refactors):**
+
+1.  **✅ 廢棄欄位清理 (`subCategory`, `icon`):**
+    -   **目標**: 從 `ai_tools` 集合中，徹底移除不再使用的 `subCategory` 和 `icon` 欄位。
+    -   **執行**: 透過 `001-remove-subcategory-from-aitools.js` 和 `002-remove-icon-from-aitools.js` 遷移腳本完成資料庫清理，並同步更新了後端的 Mongoose Schema (`AITool.ts`) 和相關的 TypeScript 型別定義。
+
+2.  **✅ 圖示系統重構 (Icon System Refactoring):**
+    -   **目標**: 建立一個基於「標籤 (Tag)」而非單一工具的動態圖示系統，以提升維護性與視覺一致性。
+    -   **執行**:
+        -   在前端建立了 `tagIconMap.ts`，定義了 `TAG_PRIORITY`（標籤優先級）和 `TAG_ICON_MAP`（標籤與圖示的對應）。
+        -   實作了 `getIconForTool` 輔助函式，根據標籤優先級為工具動態選擇最合適的圖示。
+        -   重構了 `ToolCard.tsx` 和 `AiToolDetail.tsx`，使其使用新的圖示系統。
+        -   移除了所有舊的、寫死的圖示邏輯及相關檔案 (`iconMap.ts`)。
+
+---
+
+**待辦任務與臭蟲修復 (Bugs & Tasks):**
+
+1.  **標籤圖示化 (Tag Iconography):**
+    -   **問題**: 目前僅有卡片標題有圖示，標籤本身僅為純文字。
+    -   **目標**: 在 `ToolCard.tsx` 和 `AiToolDetail.tsx` 的標籤文字旁，也增加對應的小圖示。
+    -   **實作細節**:
+        -   需要調整 UI，在標籤藥丸 (Pill) 內部文字前，渲染一個 `1em` 大小的圖示。
+        -   需要複用 `getIconForTool` 邏輯或建立一個新的 `getIconForTag(tag: string)` 的輔助函式，以根據單一標籤獲取圖示。
+
+2.  **標籤顏色統一 (Tag Color Consistency):**
+    -   **問題**: 在 `/aitool/search` 頁面，篩選器中的標籤顏色與搜尋結果卡片中的標籤顏色不一致。
+    -   **目標**: 統一兩者的顏色邏輯，確保視覺一致性。
+    -   **實作細節**:
+        -   需要建立一個共享的顏色映射或邏輯 (例如 `tagColorMap.ts`)，讓篩選器元件和卡片元件都從同一個來源獲取標籤顏色。
+        -   確保顏色在不同狀態 (預設, hover, active) 下都保持一致。
+
+3.  **動態標籤造成的圖示不一致 (Icon Inconsistency from Dynamic Tagging):**
+    -   **問題**: 資料轉換邏輯會動態為通用工具添加 "AI" 標籤，但這個邏輯可能未在所有頁面（如詳情頁）的資料獲取路徑中被一致應用，導致同一個工具在搜尋頁和詳情頁顯示的圖示不同。
+    -   **目標**: 無論在哪個頁面，一個工具的圖示必須是穩定且一致的。
+    -   **實作細節**:
+        -   **方案 A (推薦)**: 將「為通用工具添加 "AI" 標籤」的邏輯，從後端資料轉換層 (`utils.ts`) 移至前端的圖示決定函式 (`getIconForTool`) 內部。在判斷圖示前，先檢查 `componentId`，若不存在則在邏輯上視為包含 "AI" 標籤來決定圖示。這能確保圖示判斷邏輯的唯一性和一致性，且不污染原始的 `tool.tags` 資料狀態。
+        -   **方案 B**: 修改 `AiToolDetail.tsx` 的資料獲取邏輯，使其也經過 `mapAiToolDocumentToTool` 函式處理，但這可能增加不必要的複雜性。
 
 ---
 
