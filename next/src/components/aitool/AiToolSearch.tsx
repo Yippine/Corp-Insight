@@ -19,6 +19,7 @@ import { trackBusinessEvents } from '../GoogleAnalytics';
 import LineBotBanner from './LineBotBanner';
 import FeatureSection from '@/components/FeatureSection';
 import SearchAnalysis from './SearchAnalysis';
+import ToolCard from './ToolCard';
 
 interface AiToolSearchProps {
   initialQuery: string;
@@ -38,7 +39,7 @@ export default function AiToolSearch({
   const [selectedTag, setSelectedTag] = useState(initialTag);
   const [tools, setTools] = useState<Tools[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [hoveredTool, setHoveredTool] = useState<string | null>(null);
+  const [expandedToolId, setExpandedToolId] = useState<string | null>(null);
   const [categoryThemes, setCategoryThemes] = useState<
     Record<string, ColorTheme>
   >({});
@@ -48,6 +49,7 @@ export default function AiToolSearch({
   const [isTagsExpanded, setIsTagsExpanded] = useState(false);
   const [showDebugInfo, setShowDebugInfo] = useState(false);
   
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const isInitialMount = useRef(true);
 
@@ -158,6 +160,27 @@ export default function AiToolSearch({
     router.push(`/aitool/detail/${toolId}`);
   };
 
+  const handleToggleExpand = (toolId: string) => {
+    const newExpandedToolId = expandedToolId === toolId ? null : toolId;
+    setExpandedToolId(newExpandedToolId);
+
+    if (newExpandedToolId && showDebugInfo) {
+      setTimeout(() => {
+        const toolIndex = tools.findIndex(t => t.id === newExpandedToolId);
+        const cardElement = cardRefs.current[toolIndex];
+
+        if (cardElement) {
+          const targetPosition =
+            window.scrollY + cardElement.getBoundingClientRect().top - 22;
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth',
+          });
+        }
+      }, 450);
+    }
+  };
+
   const currentTag = searchParams.get('tag') || '';
   const isDebugButtonDisabled = !searchQuery || (!isLoading && tools.length === 0);
 
@@ -264,111 +287,48 @@ export default function AiToolSearch({
           <div className="flex items-center justify-center py-12">
             <InlineLoading />
           </div>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentTag + searchQuery}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { duration: 0.3 } }}
-              exit={{ opacity: 0, transition: { duration: 0.2 } }}
-              className="grid min-h-[300px] grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-            >
-              {tools.length > 0 ? (
-                tools.map((tool, index) => {
-                  const Icon = iconMap[tool.iconName] || iconMap.Zap;
-                  const toolThemes = tool.tags
-                    .map(t => fullTagThemes[t] || fullTagThemes.ai)
-                    .filter(Boolean);
-                  const primaryTheme = toolThemes[0] || fullTagThemes.ai;
-                  const isHovered = hoveredTool === tool.id;
-
-                  return (
-                    <motion.div
-                      key={`${tool.id}-${index}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                        transition: { delay: index * 0.05 },
-                      }}
-                      exit={{ opacity: 0, y: -20 }}
-                      onMouseEnter={() => setHoveredTool(tool.id)}
-                      onMouseLeave={() => setHoveredTool(null)}
-                      className="h-full"
-                    >
-                      <button
-                        onClick={() => handleToolClick(tool.id)}
-                        className={`relative h-full w-full rounded-xl p-6 text-left transition-all duration-300 ${
-                          isHovered
-                            ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}`
-                            : 'border border-gray-100 shadow'
-                        }`}
-                      >
-                        <div className="mb-4 flex items-center">
-                          <div
-                            className={`rounded-lg p-3 transition-all duration-300 ${
-                              isHovered
-                                ? primaryTheme.primary
-                                : primaryTheme.secondary
-                            }`}
-                          >
-                            <Icon
-                              className={`h-6 w-6 transition-all duration-300 ${
-                                isHovered ? 'text-white' : primaryTheme.icon
-                              }`}
-                            />
-                          </div>
-                          <h3
-                            className={`ml-4 text-xl font-semibold transition-colors duration-300 ${
-                              isHovered ? primaryTheme.text : 'text-gray-900'
-                            }`}
-                          >
-                            {tool.name}
-                          </h3>
-                        </div>
-                        <p
-                          className={`transition-colors duration-300 ${
-                            isHovered ? primaryTheme.text : 'text-gray-600'
-                          }`}
-                        >
-                          {tool.description}
-                        </p>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {tool.tags.map((tag, idx) => {
-                            const tagTheme =
-                              toolThemes[idx] || fullTagThemes.ai;
-                            return (
-                              <span
-                                key={tag}
-                                className={`rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-300 ${
-                                  isHovered
-                                    ? `${tagTheme.primary} text-white`
-                                    : `${tagTheme.secondary} ${tagTheme.text}`
-                                }`}
-                              >
-                                {tagTheme.name}
-                              </span>
-                            );
-                          })}
-                        </div>
-
-                        {showDebugInfo && (
-                          <SearchAnalysis
-                            tool={tool}
-                            keywords={searchQuery.split(' ').filter(Boolean)}
-                          />
-                        )}
-                      </button>
-                    </motion.div>
-                  );
-                })
-              ) : (
-                <div className="col-span-full">
-                  <NoSearchResults />
+        ) : tools.length > 0 ? (
+          <motion.div
+            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.05,
+                },
+              },
+            }}
+          >
+            {tools.map((tool, index) => {
+              const primaryTheme =
+                fullTagThemes[tool.tags[0]] || fullTagThemes.ai;
+              return (
+                <div
+                  key={tool.id}
+                  ref={el => {
+                    cardRefs.current[index] = el;
+                  }}
+                >
+                  <ToolCard
+                    tool={tool}
+                    index={index}
+                    isExpanded={expandedToolId === tool.id}
+                    primaryTheme={primaryTheme}
+                    fullTagThemes={fullTagThemes}
+                    showDebugInfo={showDebugInfo}
+                    searchQuery={searchQuery}
+                    onNavigate={() => handleToolClick(tool.id)}
+                    onToggleExpand={() => handleToggleExpand(tool.id)}
+                  />
                 </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+              );
+            })}
+          </motion.div>
+        ) : (
+          <NoSearchResults />
         )}
       </div>
       <FeatureSection />
