@@ -3,33 +3,32 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown } from 'lucide-react';
 import { getIconForTool, getIconForTag } from '@/lib/aitool/tagIconMap';
+import { getTagColor } from '@/lib/aitool/tagColorMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import SearchAnalysis from './SearchAnalysis';
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useRef, useLayoutEffect, forwardRef } from 'react';
 
 interface ToolCardProps {
   tool: Tools;
   index: number;
   isExpanded: boolean;
   primaryTheme: ColorTheme;
-  fullTagThemes: Record<string, ColorTheme>;
   showDebugInfo: boolean;
   searchQuery: string;
   onNavigate: () => void;
   onToggleExpand: () => void;
 }
 
-export default function ToolCard({
+const ToolCard = forwardRef<HTMLDivElement, ToolCardProps>(({
   tool,
   index,
   isExpanded,
   primaryTheme,
-  fullTagThemes,
   showDebugInfo,
   searchQuery,
   onNavigate,
   onToggleExpand,
-}: ToolCardProps) {
+}, ref) => {
   const IconComponent = getIconForTool(tool.tags);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const [isClamped, setIsClamped] = useState(false);
@@ -48,15 +47,12 @@ export default function ToolCard({
     return () => window.removeEventListener('resize', checkClamp);
   }, []);
 
-  const toolThemes = tool.tags
-    .map(t => fullTagThemes[t] || fullTagThemes.ai)
-    .filter(Boolean);
-
   const showChevron = showDebugInfo || isClamped;
   const showActiveStyles = isHovered;
 
   return (
     <motion.div
+      ref={ref}
       key={tool.id}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -153,8 +149,8 @@ export default function ToolCard({
           }}
         >
           <div className="flex flex-wrap gap-2">
-            {tool.tags.map((tag, idx) => {
-              const tagTheme = toolThemes[idx] || fullTagThemes.ai;
+            {tool.tags.map(tag => {
+              const tagTheme = getTagColor(tag);
               const TagIcon = getIconForTag(tag);
               return (
                 <div
@@ -191,4 +187,8 @@ export default function ToolCard({
       </motion.button>
     </motion.div>
   );
-}
+});
+
+ToolCard.displayName = 'ToolCard';
+
+export default ToolCard;

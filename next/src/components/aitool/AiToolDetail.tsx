@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { getCategoryThemes } from '@/lib/aitool/apiHelpers';
+import { getTagColor } from '@/lib/aitool/tagColorMap';
 import { getIconForTool, getIconForTag } from '@/lib/aitool/tagIconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import { trackBusinessEvents } from '../GoogleAnalytics';
@@ -117,23 +117,6 @@ interface AiToolDetailProps {
 export default function AiToolDetail({ tool }: AiToolDetailProps) {
   const router = useRouter();
   const { stopLoading, checkAndStopLoading } = useLoading();
-  const [categoryThemes, setCategoryThemes] = useState<
-    Record<string, ColorTheme>
-  >({});
-
-  useEffect(() => {
-    // 載入分類主題
-    const loadThemes = async () => {
-      try {
-        const themes = await getCategoryThemes();
-        setCategoryThemes(themes);
-      } catch (error) {
-        console.error('Error loading category themes:', error);
-      }
-    };
-
-    loadThemes();
-  }, []);
 
   useEffect(() => {
     // 在頁面加載時回到頂部
@@ -168,8 +151,7 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
 
   // 選擇標籤的主題
   const primaryTag = tool.tags[0] || 'AI';
-  const primaryTheme =
-    categoryThemes[primaryTag] || categoryThemes.ai || categoryThemes.default;
+  const primaryTheme = getTagColor(primaryTag);
 
   const IconComponent = getIconForTool(tool.tags);
 
@@ -233,10 +215,7 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
 
         <div className="flex flex-wrap gap-2">
           {tool.tags.map(tag => {
-            const theme =
-              categoryThemes[tag] ||
-              categoryThemes.ai ||
-              categoryThemes.default;
+            const theme = getTagColor(tag);
             const TagIcon = getIconForTag(tag);
             return (
               <div

@@ -5,10 +5,10 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Search, TestTube2 } from 'lucide-react';
 import {
-  getCategoryThemes,
-  getFullTagThemes,
   searchToolsFromAPI,
+  getTagStatistics,
 } from '@/lib/aitool/apiHelpers';
+import { initializeTagColorMap, getTagColor } from '@/lib/aitool/tagColorMap';
 import { getIconForTag } from '@/lib/aitool/tagIconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import NoSearchResults from '@/components/common/NoSearchResults';
@@ -35,52 +35,38 @@ export default function AiToolSearch({
   const pathname = usePathname();
   const { startLoading } = useLoading();
 
+  const [allTools, setAllTools] = useState<Tools[]>([]);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedTag, setSelectedTag] = useState(initialTag);
   const [tools, setTools] = useState<Tools[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedToolId, setExpandedToolId] = useState<string | null>(null);
-  const [categoryThemes, setCategoryThemes] = useState<
-    Record<string, ColorTheme>
-  >({});
-  const [fullTagThemes, setFullTagThemes] = useState<
-    Record<string, ColorTheme>
-  >({});
   const [isTagsExpanded, setIsTagsExpanded] = useState(false);
   const [showDebugInfo, setShowDebugInfo] = useState(false);
+  const [tagsForFilter, setTagsForFilter] = useState<string[]>([]);
   
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const isInitialMount = useRef(true);
 
-  // 統一的資料獲取與狀態設定函式
-  const fetchTools = useCallback(async (query: string, tag: string) => {
-    setIsLoading(true);
-    try {
-      const toolsData = await searchToolsFromAPI(query, tag);
-      setTools(toolsData);
-    } catch (error) {
-      console.error('Error loading tools data:', error);
-      setTools([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // 首次掛載時，獲取主題和初始工具列表
+  // 首次掛載時，獲取所有工具和標籤，並初始化顏色對應表
   useEffect(() => {
     const loadInitialData = async () => {
       setIsLoading(true);
       try {
-        const [toolsData, categoryThemesData, fullTagThemesData] =
-          await Promise.all([
-            searchToolsFromAPI(initialQuery, initialTag),
-            getCategoryThemes(),
-            getFullTagThemes(),
-          ]);
-        setTools(toolsData);
-        setCategoryThemes(categoryThemesData);
-        setFullTagThemes(fullTagThemesData);
+        // 一次性獲取所有工具
+        const allToolsData = await searchToolsFromAPI('', ''); 
+        setAllTools(allToolsData);
+        setTools(allToolsData);
+
+        // 根據所有工具計算一次標籤列表
+        const stats = getTagStatistics(allToolsData);
+        const topTags = stats.mergedTags.map((t: { tag: string }) => t.tag);
+        setTagsForFilter(topTags);
+        
+        // 初始化全域的標籤顏色對應表
+        initializeTagColorMap(topTags);
+
       } catch (error) {
         console.error('Error loading initial data:', error);
         setTools([]);
@@ -89,9 +75,9 @@ export default function AiToolSearch({
       }
     };
     loadInitialData();
-  }, [initialQuery, initialTag]);
+  }, []);
 
-  // 監聽搜尋條件變化，並帶有防抖動機制 (非首次渲染)
+  // 監聽搜尋條件變化，並在前端進行篩選
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -102,17 +88,35 @@ export default function AiToolSearch({
     if (searchQuery) params.set('q', searchQuery);
     if (selectedTag) params.set('tag', selectedTag);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    
+    setIsLoading(true);
 
+    // 使用防抖動機制來處理前端篩選
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
     debounceTimeout.current = setTimeout(() => {
-      fetchTools(searchQuery, selectedTag);
+      let filteredTools = allTools;
+
+      if (selectedTag) {
+        filteredTools = filteredTools.filter(tool => tool.tags.includes(selectedTag));
+      }
+
+      if (searchQuery) {
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        filteredTools = filteredTools.filter(tool => 
+          tool.name.toLowerCase().includes(lowerCaseQuery) ||
+          tool.description.toLowerCase().includes(lowerCaseQuery)
+        );
+      }
+
+      setTools(filteredTools);
+      setIsLoading(false);
     }, 300);
 
     return () => {
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
-  }, [searchQuery, selectedTag, fetchTools, pathname, router]);
+  }, [searchQuery, selectedTag, allTools, pathname, router]);
 
 
   // 更新頁面標題
@@ -228,11 +232,12 @@ export default function AiToolSearch({
         </div>
 
         <div className="mb-6 flex flex-wrap items-center gap-2">
-          {Object.keys(categoryThemes).length > 0 ? (
+          {tagsForFilter.length > 0 ? (
             <>
-              {Object.entries(categoryThemes)
+              {tagsForFilter
                 .slice(0, 12)
-                .map(([tag, theme]) => {
+                .map(tag => {
+                  const theme = getTagColor(tag);
                   const TagIcon = getIconForTag(tag);
                   return (
                     <motion.button
@@ -253,9 +258,10 @@ export default function AiToolSearch({
                 })}
               <AnimatePresence>
                 {isTagsExpanded &&
-                  Object.entries(categoryThemes)
+                  tagsForFilter
                     .slice(12)
-                    .map(([tag, theme]) => {
+                    .map(tag => {
+                      const theme = getTagColor(tag);
                       const TagIcon = getIconForTag(tag);
                       return (
                         <motion.button
@@ -279,68 +285,57 @@ export default function AiToolSearch({
                       );
                     })}
               </AnimatePresence>
-              {Object.keys(categoryThemes).length > 12 && (
+              {tagsForFilter.length > 12 && (
                 <motion.button
                   onClick={() => setIsTagsExpanded(prev => !prev)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="rounded-full border-2 border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-600"
                 >
-                  {isTagsExpanded ? '收合部分標籤' : `+ ${Object.keys(categoryThemes).length - 12} 個其他標籤`}
+                  {isTagsExpanded ? '收合部分標籤' : `+ ${tagsForFilter.length - 12} 個其他標籤`}
                 </motion.button>
               )}
             </>
           ) : (
-            <div className="h-10 w-full" /> // Placeholder for loading state
+            <div className="h-10" /> // Placeholder for tag buttons loading
           )}
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <InlineLoading />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="h-[250px] animate-pulse rounded-xl bg-gray-100"
+              />
+            ))}
           </div>
         ) : tools.length > 0 ? (
-          <motion.div
-            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.05,
-                },
-              },
-            }}
-          >
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {tools.map((tool, index) => {
-              const primaryTheme =
-                fullTagThemes[tool.tags[0]] || fullTagThemes.ai;
+              const primaryTag = tool.tags[0] || 'ai';
+              const primaryTheme = getTagColor(primaryTag);
               return (
-                <div
+                <ToolCard
                   key={tool.id}
-                  ref={el => {
-                    cardRefs.current[index] = el;
-                  }}
-                >
-                  <ToolCard
-                    tool={tool}
-                    index={index}
-                    isExpanded={expandedToolId === tool.id}
-                    primaryTheme={primaryTheme}
-                    fullTagThemes={fullTagThemes}
-                    showDebugInfo={showDebugInfo}
-                    searchQuery={searchQuery}
-                    onNavigate={() => handleToolClick(tool.id)}
-                    onToggleExpand={() => handleToggleExpand(tool.id)}
-                  />
-                </div>
+                  ref={(el: HTMLDivElement | null) => { cardRefs.current[index] = el; }}
+                  tool={tool}
+                  index={index}
+                  isExpanded={expandedToolId === tool.id}
+                  primaryTheme={primaryTheme}
+                  showDebugInfo={showDebugInfo}
+                  searchQuery={searchQuery}
+                  onNavigate={() => handleToolClick(tool.id)}
+                  onToggleExpand={() => handleToggleExpand(tool.id)}
+                />
               );
             })}
-          </motion.div>
+          </div>
         ) : (
-          <NoSearchResults />
+          <NoSearchResults
+            query={searchQuery}
+            onClear={() => setSearchQuery('')}
+          />
         )}
       </div>
       <FeatureSection />
