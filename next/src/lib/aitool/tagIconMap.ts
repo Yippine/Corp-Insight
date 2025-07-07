@@ -153,21 +153,20 @@ export function getIconForTool(tags: string[]): LucideIcon {
     return DEFAULT_ICON;
   }
 
-  // 根據 TAG_PRIORITY 找到第一個匹配的標籤
+  // 1. 根據 TAG_PRIORITY 找到第一個匹配的標籤
   const priorityTag = TAG_PRIORITY.find(priorityTag => tags.includes(priorityTag));
-
-  // 如果在優先級列表中找到了標籤，則使用它
   if (priorityTag && TAG_ICON_MAP[priorityTag]) {
     return TAG_ICON_MAP[priorityTag];
   }
 
-  // 否則，嘗試使用標籤陣列中的第一個標籤
-  const firstTag = tags[0];
-  if (TAG_ICON_MAP[firstTag]) {
-    return TAG_ICON_MAP[firstTag];
+  // 2. 如果優先級列表中沒有，則從工具自身標籤中尋找第一個可用的圖示
+  for (const tag of tags) {
+    if (TAG_ICON_MAP[tag]) {
+      return TAG_ICON_MAP[tag];
+    }
   }
 
-  // 如果都找不到，回傳預設圖示
+  // 3. 如果都找不到，回傳預設圖示
   return DEFAULT_ICON;
 }
 

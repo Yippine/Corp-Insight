@@ -47,14 +47,9 @@ export async function searchTools(
     // 基本過濾條件
     const baseFilter: any = { isActive: true };
 
-    // 針對 'AI' 標籤的特殊處理
+    // 如果提供了標籤，將其作為過濾條件
     if (tag) {
-      if (tag === 'AI') {
-        // 查詢沒有指定 componentId 的通用 AI 工具
-        baseFilter.componentId = { $in: [null, undefined] };
-      } else {
-        baseFilter.tags = tag;
-      }
+      baseFilter.tags = tag;
     }
 
     // 如果沒有任何查詢條件，返回所有符合基本過濾的工具

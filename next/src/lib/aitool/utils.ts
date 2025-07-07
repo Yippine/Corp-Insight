@@ -10,11 +10,6 @@ import type { Tools } from './types';
 export function mapAiToolDocumentToTool(tool: DBToolDocument): Tools {
   const currentTags = tool.tags || [];
 
-  // 如果工具沒有指定的 componentId，就將其視為通用 AI 工具並自動添加 'AI' 標籤
-  if (!tool.componentId && !currentTags.includes('AI')) {
-    currentTags.push('AI');
-  }
-
   const toolObject: Tools = {
     id: tool.id,
     name: tool.name,
