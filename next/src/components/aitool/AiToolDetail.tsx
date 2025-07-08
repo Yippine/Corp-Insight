@@ -4,7 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { getTagColor } from '@/lib/aitool/tagColorMap';
-import { getIconForTool, getIconForTag } from '@/lib/aitool/tagIconMap';
+import {
+  getIconForTool,
+  getIconForTag,
+  getPrimaryTagForTool,
+  sortTagsByPriority,
+} from '@/lib/aitool/tagIconMap';
 import type { Tools, ColorTheme } from '@/lib/aitool/types';
 import { trackBusinessEvents } from '../GoogleAnalytics';
 import dynamic from 'next/dynamic';
@@ -150,8 +155,9 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
   };
 
   // 選擇標籤的主題
-  const primaryTag = tool.tags[0] || 'AI';
+  const primaryTag = getPrimaryTagForTool(tool.tags) || 'AI';
   const primaryTheme = getTagColor(primaryTag);
+  const sortedTags = sortTagsByPriority(tool.tags);
 
   const IconComponent = getIconForTool(tool.tags);
 
@@ -214,13 +220,13 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {tool.tags.map(tag => {
+          {sortedTags.map(tag => {
             const theme = getTagColor(tag);
             const TagIcon = getIconForTag(tag);
             return (
               <div
                 key={tag}
-                className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${
+                className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-medium transition-all duration-300 ${
                   theme?.secondary || 'bg-gray-100'
                 } ${theme?.text || 'text-gray-800'}`}
               >

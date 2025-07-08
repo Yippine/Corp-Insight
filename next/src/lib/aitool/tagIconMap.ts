@@ -144,30 +144,69 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
 export const DEFAULT_ICON = HelpCircle;
 
 /**
+ * [私有] 根據優先級系統，找出最能代表工具的單一標籤。
+ * 此函式是決定工具圖示及其主色調的唯一真實來源。
+ * @param tags - 工具的標籤陣列。
+ * @returns 最高優先級的標籤字串，若無標籤則返回 null。
+ */
+function _findPrimaryTag(tags: string[]): string | null {
+  if (!tags || tags.length === 0) {
+    return null;
+  }
+
+  // 1. 從優先級列表中尋找第一個匹配的標籤。
+  const priorityTag = TAG_PRIORITY.find(tag => tags.includes(tag));
+  if (priorityTag) {
+    return priorityTag;
+  }
+
+  // 2. 如果優先級列表中沒有，則尋找第一個有定義圖示的標籤。
+  const firstTagWithIcon = tags.find(tag => TAG_ICON_MAP[tag]);
+  if (firstTagWithIcon) {
+    return firstTagWithIcon;
+  }
+
+  // 3. 作為最終的後備（主要用於顏色主題），返回第一個標籤。
+  return tags[0];
+}
+
+/**
  * 根據工具的標籤陣列和預定義的優先級，獲取對應的圖示組件。
  * @param tags - 工具的標籤陣列 (e.g., ['寫作', '創意'])
  * @returns 對應的 LucideIcon 組件，或一個預設圖示。
  */
 export function getIconForTool(tags: string[]): LucideIcon {
-  if (!tags || tags.length === 0) {
-    return DEFAULT_ICON;
+  const primaryTag = _findPrimaryTag(tags);
+  
+  if (primaryTag && TAG_ICON_MAP[primaryTag]) {
+    return TAG_ICON_MAP[primaryTag];
   }
 
-  // 1. 根據 TAG_PRIORITY 找到第一個匹配的標籤
-  const priorityTag = TAG_PRIORITY.find(priorityTag => tags.includes(priorityTag));
-  if (priorityTag && TAG_ICON_MAP[priorityTag]) {
-    return TAG_ICON_MAP[priorityTag];
-  }
-
-  // 2. 如果優先級列表中沒有，則從工具自身標籤中尋找第一個可用的圖示
-  for (const tag of tags) {
-    if (TAG_ICON_MAP[tag]) {
-      return TAG_ICON_MAP[tag];
-    }
-  }
-
-  // 3. 如果都找不到，回傳預設圖示
   return DEFAULT_ICON;
+}
+
+/**
+ * 根據工具的標籤陣列，找出其最主要的標籤。
+ * 邏輯與 getIconForTool 一致，但返回的是標籤字串。
+ * @param tags - 工具的標籤陣列。
+ * @returns - 最高優先級的標籤字串，或標籤列表中的第一個，如果都沒有則返回 null。
+ */
+export function getPrimaryTagForTool(tags: string[]): string | null {
+  return _findPrimaryTag(tags);
+}
+
+/**
+ * 根據預定義的優先級列表對標籤進行排序。
+ * @param tags - 需要排序的標籤陣列。
+ * @returns - 排序後的標籤陣列。
+ */
+export function sortTagsByPriority(tags: string[]): string[] {
+  const priorityMap = new Map(TAG_PRIORITY.map((tag, index) => [tag, index]));
+  return [...tags].sort((a, b) => {
+    const priorityA = priorityMap.get(a) ?? Infinity;
+    const priorityB = priorityMap.get(b) ?? Infinity;
+    return priorityA - priorityB;
+  });
 }
 
 /**

@@ -10,7 +10,7 @@ import {
 } from '@/lib/aitool/apiHelpers';
 import { initializeTagColorMap, getTagColor } from '@/lib/aitool/tagColorMap';
 import { getIconForTag } from '@/lib/aitool/tagIconMap';
-import type { Tools, ColorTheme } from '@/lib/aitool/types';
+import type { Tools } from '@/lib/aitool/types';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { dynamicTitles, staticTitles } from '@/config/pageTitles';
@@ -35,7 +35,6 @@ export default function AiToolSearch({
   const pathname = usePathname();
   const { startLoading } = useLoading();
 
-  const [allTools, setAllTools] = useState<Tools[]>([]);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedTag, setSelectedTag] = useState(initialTag);
   const [tools, setTools] = useState<Tools[]>([]);
@@ -44,40 +43,46 @@ export default function AiToolSearch({
   const [isTagsExpanded, setIsTagsExpanded] = useState(false);
   const [showDebugInfo, setShowDebugInfo] = useState(false);
   const [tagsForFilter, setTagsForFilter] = useState<string[]>([]);
-  
+
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const isInitialMount = useRef(true);
 
-  // 首次掛載時，獲取所有工具和標籤，並初始化顏色對應表
-  useEffect(() => {
-    const loadInitialData = async () => {
-      setIsLoading(true);
-      try {
-        // 一次性獲取所有工具
-        const allToolsData = await searchToolsFromAPI('', ''); 
-        setAllTools(allToolsData);
-        setTools(allToolsData);
+  // 統一的資料獲取函式
+  const fetchTools = useCallback(async (query: string, tag: string) => {
+    setIsLoading(true);
+    try {
+      const toolsData = await searchToolsFromAPI(query, tag);
+      setTools(toolsData);
+    } catch (error) {
+      console.error('Error loading tools data:', error);
+      setTools([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-        // 根據所有工具計算一次標籤列表
+  // 首次掛載時，獲取初始工具和完整的標籤列表
+  useEffect(() => {
+    // 獲取初始搜尋結果
+    fetchTools(initialQuery, initialTag);
+
+    // 獲取所有標籤用於篩選器，並初始化顏色
+    const initializeTags = async () => {
+      try {
+        const allToolsData = await searchToolsFromAPI('', '');
         const stats = getTagStatistics(allToolsData);
         const topTags = stats.mergedTags.map((t: { tag: string }) => t.tag);
         setTagsForFilter(topTags);
-        
-        // 初始化全域的標籤顏色對應表
         initializeTagColorMap(topTags);
-
       } catch (error) {
-        console.error('Error loading initial data:', error);
-        setTools([]);
-      } finally {
-        setIsLoading(false);
+        console.error('Error initializing tags:', error);
       }
     };
-    loadInitialData();
-  }, []);
+    initializeTags();
+  }, [initialQuery, initialTag, fetchTools]);
 
-  // 監聽搜尋條件變化，並在前端進行篩選
+  // 監聽搜尋條件變化，並帶有防抖動機制 (非首次渲染)
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -88,36 +93,25 @@ export default function AiToolSearch({
     if (searchQuery) params.set('q', searchQuery);
     if (selectedTag) params.set('tag', selectedTag);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    
-    setIsLoading(true);
 
-    // 使用防抖動機制來處理前端篩選
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
+    setIsLoading(true); // 立即顯示載入狀態
     debounceTimeout.current = setTimeout(() => {
-      let filteredTools = allTools;
-
-      if (selectedTag) {
-        filteredTools = filteredTools.filter(tool => tool.tags.includes(selectedTag));
-      }
-
-      if (searchQuery) {
-        const lowerCaseQuery = searchQuery.toLowerCase();
-        filteredTools = filteredTools.filter(tool => 
-          tool.name.toLowerCase().includes(lowerCaseQuery) ||
-          tool.description.toLowerCase().includes(lowerCaseQuery)
-        );
-      }
-
-      setTools(filteredTools);
-      setIsLoading(false);
+      fetchTools(searchQuery, selectedTag);
     }, 300);
 
     return () => {
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
-  }, [searchQuery, selectedTag, allTools, pathname, router]);
+  }, [searchQuery, selectedTag, fetchTools, pathname, router]);
 
+  // 當搜尋關鍵字為空時，自動隱藏搜尋分析模式
+  useEffect(() => {
+    if (!searchQuery) {
+      setShowDebugInfo(false);
+    }
+  }, [searchQuery]);
 
   // 更新頁面標題
   useEffect(() => {
@@ -245,7 +239,7 @@ export default function AiToolSearch({
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleTagSelect(tag)}
-                      className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-300 ${
+                      className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-medium transition-all duration-300 ${
                         currentTag === tag || (!currentTag && tag === '全部')
                           ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
                           : `${theme.secondary} ${theme.text} ${theme.hover}`
@@ -273,7 +267,7 @@ export default function AiToolSearch({
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleTagSelect(tag)}
-                          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-300 ${
+                          className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-medium transition-all duration-300 ${
                             currentTag === tag
                               ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
                               : `${theme.secondary} ${theme.text} ${theme.hover}`
@@ -311,30 +305,47 @@ export default function AiToolSearch({
             ))}
           </div>
         ) : tools.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {tools.map((tool, index) => {
-              const primaryTag = tool.tags[0] || 'ai';
-              const primaryTheme = getTagColor(primaryTag);
-              return (
+          <motion.div
+            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.05,
+                },
+              },
+            }}
+          >
+            {tools.map((tool, index) => (
+              <div
+                key={tool.id}
+                ref={el => {
+                  cardRefs.current[index] = el;
+                }}
+              >
                 <ToolCard
-                  key={tool.id}
-                  ref={(el: HTMLDivElement | null) => { cardRefs.current[index] = el; }}
                   tool={tool}
                   index={index}
                   isExpanded={expandedToolId === tool.id}
-                  primaryTheme={primaryTheme}
                   showDebugInfo={showDebugInfo}
                   searchQuery={searchQuery}
                   onNavigate={() => handleToolClick(tool.id)}
                   onToggleExpand={() => handleToggleExpand(tool.id)}
+                  onTagClick={handleTagSelect}
                 />
-              );
-            })}
-          </div>
+              </div>
+            ))}
+          </motion.div>
         ) : (
           <NoSearchResults
             query={searchQuery}
-            onClear={() => setSearchQuery('')}
+            onClear={() => {
+              setSearchQuery('');
+              setSelectedTag('');
+            }}
           />
         )}
       </div>
