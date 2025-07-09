@@ -31,7 +31,8 @@ const collectionInitialState: { name: string, description: string }[] = [
     { name: 'feedbacks', description: '使用者意見回饋' },
     { name: 'pcc_api_cache', description: '政府採購網 API 快取' },
     { name: 'g0v_company_api_cache', description: 'G0V 企業資料 API 快取' },
-    { name: 'twincn_api_cache', description: '台灣企業網 API 快取' }
+    { name: 'twincn_api_cache', description: '台灣企業網 API 快取' },
+    { name: 'api_key_statuses', description: 'LLM API 金鑰狀態追蹤' }
 ];
 
 const createInitialStatus = (): CollectionStats[] => {

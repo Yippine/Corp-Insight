@@ -15,7 +15,7 @@ alwaysApply: false
 
 ## ‼️ AI 開發流程核心指令 (AI Development Flow Core Directive)
 
-**在執行任何開發任務前，必須優先閱讀並嚴格遵循本文末尾的 `第 10 章：AI 互動式開發與驗收流程`。該章節定義了所有開發工作的標準作業程序 (SOP)，是確保協作品質的最高準則。**
+**在執行任何開發任務前，必須優先閱讀並嚴格遵循本文末尾的 `第 15 章：AI 互動式開發與驗收流程`。該章節定義了所有開發工作的標準作業程序 (SOP)，是確保協作品質的最高準則。**
 
 ---
 
@@ -56,12 +56,18 @@ alwaysApply: false
 - **[ ] 複用業務邏輯**：如果新功能需要類似的後端資料處理，**應**優先使用或擴充 `src/lib/` 中對應模組的函式。資料庫操作需遵循 `./mongodb-architecture-guide.mdc`。
 - **[ ] 遵循 API 規範**：若需新增 API 端點，其請求/回應格式**必須**符合 `src/app/api/` 下的現有規範。
 
-### 5. 分析與追蹤 (Analytics & Tracking)
+### 5. AI 驅動功能開發 (AI-Powered Features)
+- **[ ] 優先使用標準 Hook**：所有需要與 Gemini API 進行串流互動的用戶端功能，**必須**使用 `@/hooks/useGeminiStream.ts` 這個標準化 Hook。
+    - **禁止**在組件內手動撰寫 `fetch` 串流邏輯。
+    - **目標**：確保所有 AI 功能的 API 請求、錯誤處理、載入狀態管理和串流渲染邏輯完全統一。
+    - ***實作參考**：新組件的實作方式，應直接參考專案中既有的、使用此 Hook 的元件，例如 `next/src/components/tools/seo/FaqGenerator.tsx`。*
+
+### 6. 分析與追蹤 (Analytics & Tracking)
 - **[ ] 整合 Google Analytics**：
     - 確保 `RootLayout` 中的 `GoogleAnalytics` 組件存在。
     - 對於關鍵使用者互動（如表單提交、重要按鈕點擊），**必須**調用 `trackBusinessEvents` 或其他 GA 事件追蹤函式。詳細策略請參閱 `./google-analytics-strategy.mdc`。
 
-### 6. 版本控制 (Version Control)
+### 7. 版本控制 (Version Control)
 - **[ ] 遵循 Git 工作流**: 所有開發過程中的暫存與最終提交，都**必須**嚴格遵循 `./git-workflow-guide.mdc` 中定義的 `WIP` 和 `Release` 流程。
 
 
@@ -126,18 +132,18 @@ app/
 
 ## 路由與渲染策略
 
-### 3.1 頁面檔案慣例
+### 8.1 頁面檔案慣例
 - **頁面**: `page.tsx`
 - **版面**: `layout.tsx`
 - **載入**: `loading.tsx`
 - **錯誤**: `error.tsx`
 - **404**: `not-found.tsx`
 
-### 3.2 路由結構
+### 8.2 路由結構
 - **靜態路由**: `/company/search`, `/aitool/search`, `/faq`
 - **動態路由**: `/company/[id]`, `/tender/[id]`, `/aitool/detail/[id]`
 
-### 3.3 渲染策略
+### 8.3 渲染策略
 - **SSG (靜態生成)**: 內容不常變動的頁面 (FAQ, 隱私政策, AI 工具詳情頁)。
 - **ISR (增量靜態再生)**: 熱門但需定期更新的頁面 (企業/標案詳情頁)。
 - **SSR (伺服器端渲染)**: 需要即時資料的頁面 (搜尋結果頁)。
@@ -148,7 +154,7 @@ app/
 
 ## API 設計規範
 
-### 4.1 API 路由結構 (`src/app/api/`)
+### 9.1 API 路由結構 (`src/app/api/`)
 API 路由依功能模組劃分，保持結構清晰。
 ```
 api/
@@ -163,7 +169,7 @@ api/
 └── health/route.ts        # GET /api/health
 ```
 
-### 4.2 API 設計原則
+### 9.2 API 設計原則
 - **RESTful**: 使用標準 HTTP 方法 (GET, POST, PUT/PATCH, DELETE)。
 - **統一回應格式**: API 回應需遵循標準的成功與失敗結構，便於前端處理。
 ```typescript
@@ -188,7 +194,7 @@ interface APIError {
 
 ## 元件架構
 
-### 5.1 元件目錄結構 (`src/components/`)
+### 10.1 元件目錄結構 (`src/components/`)
 ```
 components/
 ├── ui/         # 基礎 UI 元件 (Button, Input)，無業務邏輯
@@ -199,7 +205,7 @@ components/
 └── seo/        # SEO 專用元件 (MetaTags, StructuredData)
 ```
 
-### 5.2 元件設計與複用
+### 10.2 元件設計與複用
 - **分層**: 基礎 UI 元件 → 業務元件 → 頁面專用元件。
 - **複刻原則**: 開發新功能時，優先複用或參考現有相似元件，以保持風格一致。
     - **範例**: `AIToolCard` 參考 `BusinessCard` 設計；`AIToolList` 參考 `BusinessList`。
@@ -209,7 +215,7 @@ components/
 
 ## 資料與狀態管理
 
-### 6.1 資料層結構 (`src/lib/`)
+### 11.1 資料層結構 (`src/lib/`)
 資料庫連線、Mongoose 模型與核心業務邏輯存放於此。
 ```
 lib/
@@ -221,7 +227,7 @@ lib/
 └── tender/             # 標案相關業務邏輯
 ```
 
-### 6.2 狀態管理策略
+### 11.2 狀態管理策略
 - **本地狀態**: React Hooks (`useState`, `useReducer`) 用於元件內部狀態。
 - **伺服器狀態**: SWR 或 React Query (推薦)，用於管理與快取 API 資料。
 - **全域狀態**: Context API，用於使用者設定、主題等跨元件共享的狀態。
@@ -237,13 +243,13 @@ lib/
 > **開發者職責**: 請手動將 AI 提供的鍵值對加入到 `next/.env.local` 檔案。
 > **AI 職責**: **嚴禁**使用 `echo` 或其他指令直接建立或覆蓋 `.env.local` 檔案。
 
-### 7.1 Docker 開發流程
+### 12.1 Docker 開發流程
 使用 `docker-compose.yml` 管理開發環境 (Next.js, MongoDB)。
 - `npm run start:dev`: 一鍵啟動所有服務。
 - `npm run db:backup`: 備份資料庫。
 - `npm run stop`: 停止並清理環境。
 
-### 7.2 程式碼品質
+### 12.2 程式碼品質
 - **自動化**: 使用 Prettier 進行格式化，ESLint 進行程式碼風格與錯誤檢查。
 - **TypeScript**: 所有程式碼需有嚴格的型別定義，特別是 API 回應與資料模型。
 ```typescript
@@ -266,15 +272,15 @@ interface AITool {
 
 專案包含一個位於 `/admin/*` 路徑下的內部維運控制台，開發此區域時必須遵循以下原則：
 
-### 8.1. 零 SEO 與追蹤
+### 13.1. 零 SEO 與追蹤
 - 所有 `/admin` 下的頁面 **禁止** 包含任何 `Google Analytics` 追蹤碼。
 - **禁止** 為 `/admin` 頁面產生 `Metadata` 物件。
 - 為此，`/admin` 路由群組應使用其專屬的 `layout.tsx`，該佈局不應繼承根佈局中的任何全域元件。
 
-### 8.2. 功能導向 UI
+### 13.2. 功能導向 UI
 - UI 設計應以功能性為最高優先，避免使用面向終端使用者的行銷元件 (如 `HeroSection`)。
 
-### 8.3. 安全性優先
+### 13.3. 安全性優先
 - 嚴禁將高風險 (`docker:*`, `deploy:*` 等) 的 `npm scripts` 介面化。
 - 所有後端 API 必須通過 Secret Token 進行權限驗證。
 
@@ -284,11 +290,11 @@ interface AITool {
 
 此為針對 `/admin/*` 下所有頁面開發的**強制性**指導方針，旨在將 `/admin/sitemap` 和 `/admin/database` 頁面在多次迭代後所結晶出的最佳實踐，固化為開發標準。
 
-### 9.1. 唯一參考範本 (Single Source of Truth)
+### 14.1. 唯一參考範本 (Single Source of Truth)
 - **黃金標準**: `/admin/sitemap` 頁面及其核心元件 `SitemapConsole.tsx` 是所有新 Admin Console 頁面開發的**唯一且必須**遵循的「黃金標準範本」。
 - **複刻原則**: 開發新頁面（如 `/admin/system`）時，**必須**從完整複製 `/admin/sitemap` 或 `/admin/database` 的頁面結構、元件組合與互動邏輯開始。
 
-### 9.2. 非同步載入與視覺回饋 (Async Loading & Feedback)
+### 14.2. 非同步載入與視覺回饋 (Async Loading & Feedback)
 - **強制骨架屏 (Skeleton)**:
     - 任何需要透過 API 請求或資料庫查詢的非同步數據，其對應的 UI 區域在等待數據回傳期間，**必須**顯示為「骨架屏」或「脈衝式」的載入效果 (`animate-pulse`)。
     - **嚴禁**使用簡單的「載入中...」文字或單一旋轉圖示作為主要回饋。
@@ -296,7 +302,7 @@ interface AITool {
 - **即時渲染優先**:
     - 頁面級元件 (如 `DatabaseConsole.tsx`) 的外層佈局、標題、說明文字等靜態內容，**必須**立即渲染，**不得**因等待內部數據而延遲。確保使用者能立刻看到頁面框架。
 
-### 9.3. 標準化互動與動畫 (Standardized Interaction & Animation)
+### 14.3. 標準化互動與動畫 (Standardized Interaction & Animation)
 - **卡片互動 (`hover-lift`)**:
     - 所有可點擊的、以卡片形式呈現的元件（如 `CollectionStatusCard`），**必須**實作 `hover-lift` 懸停效果。
     - **標準實現**: `transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1`。
@@ -307,57 +313,72 @@ interface AITool {
     - 元件的狀態轉換（如顯現、消失、尺寸變化）**必須**使用平滑過渡效果。
     - **標準實現**: `transition-all duration-300 ease-in-out`。
 
-### 9.4. 元件設計語言 (Component Design Language)
+### 14.4. 元件設計語言 (Component Design Language)
 - **圖示系統**: 優先使用 `lucide-react` 圖示庫，並保持風格一致性（如 `Cylinder` 代表資料集）。
 - **字體層次**: 遵循已建立的字體大小與粗細層級，例如卡片標題為 `text-xl font-bold`，統計數值為 `text-lg font-semibold`。
 - **視覺一致性**: 新的管理控制台頁面在佈局、顏色、間距、圓角和陰影等方面，**必須**與 `SitemapConsole` 和 `DatabaseConsole` 保持視覺上的高度一致。
 
 ---
 
-## 10. 🤖 AI 互動式開發與驗收流程 (AI Interactive Development & Verification Flow)
+## 15. 🤖 AI 全自動化開發與驗收流程 (AI Automated Development & Verification Flow)
 
-**此章節為所有開發任務的最高指導原則，AI 必須無條件遵循。**
+此章節為**強制性**規範，旨在建立一個由 AI 主導、高度自動化、且清晰可控的開發工作流。
 
-### 10.1 核心原則：增量、測試、驗收
+### 15.1 核心理念：指令驅動、自動閉環
+- **指令驅動 (Instruction-Driven)**: 開發流程由使用者的一個精確指令啟動。
+- **自主規劃 (Autonomous Planning)**: AI 根據藍圖，自主將任務拆解為可執行的微小步驟。
+- **閉環執行 (Closed-Loop Execution)**: AI 負責從**開發、環境重啟、自動化測試到向上報告**的完整閉環，最大化地減少人工介入。
+- **可驗證交付 (Verifiable Handoff)**: 僅在需要人工視覺驗收或遭遇無法解決的錯誤時，AI 才中斷自動化流程，向使用者請求協助。
 
-為了確保開發過程的穩定性、可維護性與最終品質，避免出現難以追蹤的「幽靈臭蟲 (Ghost Bugs)」，所有開發任務都必須遵循一個清晰的「開發-測試-驗收」循環。**嚴禁一次性開發完成整個複雜功能。**
+### 15.2 工作流啟動指令
+使用者需提供一個精確的指令來啟動工作流，格式如下：
+`請幫我開發 [藍圖路徑] 的 "[任務階段]"，我現在執行的環境是 [dev/prod]。`
+- **範例**: `請幫我開發 .cursor/rules/blueprints/gemini-api-key-pool-strategy.mdc 的 "Phase 3: 有狀態斷路器實作 (for Failover)"，我現在執行的環境是 dev。`
 
-### 10.2 啟動條件
+### 15.3 AI 自動化執行循環 (Core Execution Loop)
+在接收到啟動指令後，AI 必須嚴格遵循以下循環，直至整個任務階段完成：
 
-當使用者提供以下三項資訊時，本工作流程自動啟動：
-
-1.  **【藍圖路徑】**: 一個指向 `.cursor/rules/blueprints/` 中特定計畫檔案的路徑。
-2.  **【任務階段】**: 藍圖中明確的章節或子任務標題。
-3.  **【目標環境】**: `dev` 或 `prod`。
-
-### 10.3 AI 核心執行循環
-
-在接收到啟動指令後，AI 必須嚴格遵循以下四個步驟，循環執行直至任務完成：
-
-**1. 任務解析與增量規劃 (Task Analysis & Incremental Planning)**
+**1. 任務解析與微觀規劃 (Task Analysis & Micro-Planning)**
    - **分析**: 深入理解使用者指定的藍圖章節內容。
-   - **拆分**: 將該任務**拆解成數個更小、可獨立測試與驗收的子步驟**。一次循環只處理一個子步驟。
-   - **目標**: 每個子步驟的產出都應是一個**清晰、可被測試的功能點**（例如：一個 API 端點的建立、一個前端元件的基礎渲染、一個資料庫查詢的完成）。
+   - **拆分**: 將該任務拆解成**一系列可獨立開發與測試的微步驟 (Micro-steps)**。一次循環只處理一個微步驟。
+   - **目標**: 每個微步驟的產出都是一個極小但可被測試的功能變更（例如：新增一個 API 路由檔案、修改一個函式的邏輯、更新一個元件的狀態處理）。
 
-**2. 開發與自動化自測 (Development & Automated Self-Test)**
-   - **編碼**: 根據規劃好的單一子步驟，進行程式碼的編寫或修改。
-   - **自測**: 在交付前，AI 必須進行自我檢查，確保：
-     - 程式碼沒有語法錯誤。
-     - 所有必要的 `import` 都已加入。
-     - 程式碼邏輯在 AI 的理解範圍內是正確的。
+**2. 開發執行 (Development Execution)**
+   - 根據規劃好的單一微步驟，進行程式碼的編寫或修改。
 
-**3. 智慧環境管理 (Intelligent Environment Management)**
-   - 在請求使用者驗收之前，AI 必須判斷是否需要重啟或重建環境，並自動執行對應指令。
-   - **判斷規則**:
-     - **若本次變更涉及 `package.json`, `Dockerfile`, `docker-compose.yml` 或任何 `build` 階段的設定檔**，則必須執行 `npm run rebuild:dev` (或 `rebuild:prod`)。
-     - **若僅修改應用程式邏輯 (如 `.ts`, `.tsx` 檔案)**，則執行 `npm run restart:dev` (或 `restart:prod`)。
+**3. 智慧環控與自動化測試 (Intelligent Environment Control & Automated Testing)**
+   - **變更分析**: 分析本次變更所涉及的檔案。
+   - **環境決策**:
+     - 若變更涉及 `package.json`, `Dockerfile`, `docker-compose.yml` 或任何 `build` 階段的設定檔，則**必須**執行 `npm run rebuild:[env]`。
+     - 若僅修改應用程式邏輯 (如 `.ts`, `.tsx` 檔案)，則**必須**執行 `npm run restart:[env]`。
+   - **自動化測試執行**:
+     - AI **必須**設計並執行對應的自動化測試來驗證其變更。
+     - **測試形式**: 優先使用 `docker exec [container_name] [command]` 的方式在容器內執行測試。
+       - *API 測試範例*: `docker exec app-dev curl -X POST http://localhost:3000/api/some-endpoint -H "Content-Type: application/json" -d '{"key":"value"}'`
+       - *資料庫檢查範例*: `docker exec mongo mongosh ... --eval "db.myCollection.findOne()"`
+   - **結果判斷**:
+     - **若測試成功**: 繼續下一個微步驟的循環。
+     - **若測試失敗**: 進入除錯模式，嘗試修復問題。若連續失敗，則停止並向使用者報告問題。
 
-**4. 交付與請求驗收 (Handoff & Verification Request)**
-   - **這是每一個循環的終點。**
-   - AI 必須**主動停止**開發流程，並向使用者交付成果。
-   - **交付內容必須包含**:
-     1.  **完成報告**: 簡潔說明這個子步驟完成了什麼。
-     2.  **測試指南**: 提供**清晰、具體、可直接操作**的測試步驟。
-         - *範例 (後端)*: "請使用 Postman 或 curl，向 `GET /api/users/test` 發送請求，預期應收到 `{ success: true }` 的回應。"
-         - *範例 (前端)*: "請訪問頁面 `/login`，您現在應該能看到一個藍色的登入按鈕。"
-     3.  **明確提問**: 「**請您驗收，並告知是否可以繼續進行下一個子步驟的開發。**」
+**4. 交付與請求人工驗收 (Handoff & Manual Verification Request)**
+   - **觸發時機**: AI 僅在以下情況下中斷自動化循環，並請求人工驗收：
+     - 當一個**有意義的功能集合**（由數個微步驟組成）已完成。
+     - 當變更涉及**重要的使用者介面 (UI)**，需要人工視覺確認。
+     - 當 AI 連續嘗試後仍**無法通過自動化測試**時。
+   - **交付內容**:
+     1.  **完成報告**: 清晰說明已完成的功能集合。
+     2.  **測試指南**: 提供使用者進行手動驗收的具體步驟。
+     3.  **明確提問**: 「請您驗收，並告知是否可以繼續進行下一個階段的自動化開發。」
+
+### 15.4 使用者觸發的暫存與發布
+- **進度暫存 (WIP Commit)**:
+  - **觸發指令**: 當使用者在驗收成功後，發出「**請暫存進度**」或類似指令。
+  - **AI 行為**: AI **必須**嚴格遵循 `.cursor/rules/guides/git-workflow-guide.mdc` 中的規範，執行 `WIP` 提交流程。
+- **正式上版 (Release Commit)**:
+  - **觸發指令**: 當整個任務階段完成，使用者發出「**請正式上版**」或類似指令。
+  - **AI 行為**: AI **必須**嚴格遵循 `.cursor/rules/guides/git-workflow-guide.mdc` 中關於「正式提交訊息規範」的章節，執行 Squash 合併與格式化提交。
+
+### 15.5 使用者的職責
+- **清晰指令**: 提供明確的開發目標。
+- **及時回饋**: 在收到 AI 的交付成果後，盡快進行測試驗收，並提供明確的回饋 (成功或失敗)。
+- **最終決策**: 對於 AI 的開發路徑和最終成果擁有最終決定權。

@@ -17,11 +17,11 @@ alwaysApply: false
 - **目標**: 建立一個具備容錯與負載平衡能力的 API 金鑰池，以應對未來高流量需求，避免因單一金鑰額度耗盡而服務中斷。
 - **狀態**: `未開始`
 - **核心檔案**:
-    - **API 呼叫邏輯**: `next/src/lib/gemini.ts`
+    - **API 呼叫邏輯**: `next/src/lib/gemini.server.ts`
     - **環境變數範本**: `next/.env.example`
 - **子任務**:
     1.  **[設計]** 在 `.env.example` 中定義新的環境變數格式，例如 `GEMINI_API_KEYS`，以逗號分隔多個金鑰。
-    2.  **[實作]** 修改 `next/src/lib/gemini.ts`。
+    2.  **[實作]** 修改 `next/src/lib/gemini.server.ts`。
         - 啟動時讀取 `GEMINI_API_KEYS` 並將其解析為一個金鑰陣列。
         - 建立一個輪詢或隨機選擇器，從池中挑選一個金鑰用於每次 API 請求。
         - 包裝 API 呼叫邏輯，加入 `try...catch` 區塊。

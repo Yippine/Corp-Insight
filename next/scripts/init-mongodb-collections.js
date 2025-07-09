@@ -129,6 +129,14 @@ const COLLECTIONS_CONFIG = {
       { keys: { data_type: 1 }, options: { name: 'data_type_1' } },
       { keys: { fetched_at: -1 }, options: { name: 'fetched_at_-1' } }
     ]
+  },
+
+  api_key_statuses: {
+    description: 'LLM API 金鑰狀態追蹤 - 用於斷路器模式，追蹤各類大型語言模型 API 金鑰的健康狀況',
+    indexes: [
+      { keys: { keyIdentifier: 1 }, options: { unique: true, name: 'keyIdentifier_unique' } },
+      { keys: { status: 1 }, options: { name: 'status_1' } },
+    ]
   }
 };
 

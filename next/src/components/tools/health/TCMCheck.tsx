@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   questions,
   constitutions,
   Question,
   Constitution,
 } from '../../../data/tcm';
-import { streamGenerateContent } from '../../../lib/gemini';
 import { formatConstitutionTitle } from '../../../utils/tcmFormatter';
 import type { ConstitutionScore } from 'tcm-types';
 import { ButtonLoading } from '../../common/loading';
+import { useGeminiStream } from '@/hooks/useGeminiStream';
 
 interface GenerationResult {
   content: string;
@@ -19,8 +19,23 @@ interface GenerationResult {
 
 export default function TCMCheck() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
+  const { 
+    isLoading: isGenerating, 
+    error: generationError, 
+    result: generationResult, 
+    generate 
+  } = useGeminiStream();
+
+  useEffect(() => {
+    // 當 useGeminiStream 的結果更新時，同步到我們自己的 result 狀態
+    if (generationResult) {
+      setResult({ content: generationResult, isOptimizing: false });
+    }
+    if (generationError) {
+        setResult({ content: `生成失敗：${generationError}`, isOptimizing: false });
+    }
+  }, [generationResult, generationError]);
 
   const handleAnswerChange = (questionId: string, value: number) => {
     setAnswers(prev => ({
@@ -169,33 +184,16 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
   };
 
   const handleGenerate = async (isOptimizing: boolean = false) => {
-    if (Object.keys(answers).length !== questions.length) return;
+    if (isGenerating || Object.keys(answers).length !== questions.length) return;
 
-    setIsGenerating(true);
-    if (result) {
-      setResult(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          isOptimizing: true,
-        };
-      });
+    // 如果是優化模式，先更新 UI 狀態以顯示"優化中"
+    if (isOptimizing && result) {
+      setResult(prev => ({ ...prev!, isOptimizing: true }));
     }
 
-    try {
-      const prompt = generatePrompt(isOptimizing);
-
-      await streamGenerateContent(prompt, (text: string) => {
-        setResult({
-          content: text,
-          isOptimizing: false,
-        });
-      });
-    } catch (error) {
-      console.error('Generation failed:', error);
-    } finally {
-      setIsGenerating(false);
-    }
+    const prompt = generatePrompt(isOptimizing);
+    // 呼叫 hook 中的 generate 函式，它會處理 API 請求和所有狀態管理
+    await generate(prompt);
   };
 
   return (

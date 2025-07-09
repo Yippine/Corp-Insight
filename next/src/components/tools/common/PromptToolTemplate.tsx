@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { streamGenerateContent } from '@/lib/gemini';
 import type { Tools } from '@/lib/aitool/types';
+import { useGeminiStream } from '@/hooks/useGeminiStream';
 
 interface GenerationResult {
   content: string;
@@ -19,9 +19,24 @@ export default function PromptToolTemplate({
   config,
 }: PromptToolTemplateProps) {
   const [prompt, setPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
+  const { 
+    isLoading: isGenerating, 
+    error: generationError, 
+    result: generationResult, 
+    generate 
+  } = useGeminiStream();
   const resultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // 當 useGeminiStream 的結果更新時，同步到我們自己的 result 狀態
+    if (generationResult) {
+      setResult({ content: generationResult, isOptimizing: false });
+    }
+    if (generationError) {
+        setResult({ content: `生成失敗：${generationError}`, isOptimizing: false });
+    }
+  }, [generationResult, generationError]);
 
   // 當有結果出現時，滾動到結果部分
   useEffect(() => {
@@ -65,33 +80,14 @@ ${
   };
 
   const handleGenerate = async (isOptimizing: boolean = false) => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || isGenerating) return;
 
-    setIsGenerating(true);
     if (isOptimizing && result) {
       setResult({ ...result, isOptimizing: true });
-    } else {
-      setResult({ content: '', isOptimizing: false });
     }
-
-    try {
-      const promptText = generatePrompt(isOptimizing);
-
-      await streamGenerateContent(promptText, text => {
-        setResult({
-          content: text,
-          isOptimizing: false,
-        });
-      });
-    } catch (error) {
-      console.error('Generation failed:', error);
-      setResult({
-        content: '生成時發生錯誤，請稍後再試。',
-        isOptimizing: false,
-      });
-    } finally {
-      setIsGenerating(false);
-    }
+    
+    const promptText = generatePrompt(isOptimizing);
+    await generate(promptText);
   };
 
   // 主要渲染

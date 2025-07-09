@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   productCategories,
   targetAudiences,
 } from '../../../config/geminiOptions';
-import { streamGenerateContent } from '../../../lib/gemini';
 import { ButtonLoading } from '../../common/loading/LoadingTypes';
+import { useGeminiStream } from '@/hooks/useGeminiStream';
 
 interface GenerationResult {
   content: string;
@@ -18,8 +18,23 @@ export default function FaqGenerator() {
   const [painPoints, setPainPoints] = useState('');
   const [category, setCategory] = useState<string>(productCategories[0].id);
   const [audience, setAudience] = useState<string>(targetAudiences[0].id);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
+  const { 
+    isLoading: isGenerating, 
+    error: generationError, 
+    result: generationResult, 
+    generate 
+  } = useGeminiStream();
+
+  useEffect(() => {
+    // 當 useGeminiStream 的結果更新時，同步到我們自己的 result 狀態
+    if (generationResult) {
+      setResult({ content: generationResult, isOptimizing: false });
+    }
+    if (generationError) {
+        setResult({ content: `生成失敗：${generationError}`, isOptimizing: false });
+    }
+  }, [generationResult, generationError]);
 
   const generatePrompt = (isOptimizing: boolean) => {
     if (isOptimizing && !result?.content) return '';
@@ -66,30 +81,16 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
   };
 
   const handleGenerate = async (isOptimizing: boolean = false) => {
-    if (!product.trim() || !painPoints.trim()) return;
+    if (!product.trim() || !painPoints.trim() || isGenerating) return;
 
-    setIsGenerating(true);
-    if (result) {
-      setResult({
-        ...result,
-        isOptimizing: true,
-      });
+    // 如果是優化模式，先更新 UI 狀態以顯示"優化中"
+    if (isOptimizing && result) {
+      setResult(prev => ({ ...prev!, isOptimizing: true }));
     }
 
-    try {
-      const prompt = generatePrompt(isOptimizing);
-
-      await streamGenerateContent(prompt, text => {
-        setResult({
-          content: text,
-          isOptimizing: false,
-        });
-      });
-    } catch (error) {
-      console.error('Generation failed:', error);
-    } finally {
-      setIsGenerating(false);
-    }
+    const prompt = generatePrompt(isOptimizing);
+    // 呼叫 hook 中的 generate 函式，它會處理 API 請求和所有狀態管理
+    await generate(prompt);
   };
 
   return (
