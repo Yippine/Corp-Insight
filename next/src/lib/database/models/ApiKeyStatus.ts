@@ -12,6 +12,7 @@ export interface IApiKeyStatus extends Document {
   keyIdentifier: string;
   status: 'HEALTHY' | 'UNHEALTHY';
   failureCount: number;
+  dailyFailureCount: number;
   lastCheckedAt: Date;
   retryAt?: Date;
   recentErrors: IErrorLog[];
@@ -42,10 +43,14 @@ const ApiKeyStatusSchema: Schema<IApiKeyStatus> = new Schema(
       required: true,
       default: 'HEALTHY',
     },
-    // 連續失敗的次數，成功時會歸零
+    // 連續失敗次數
     failureCount: {
       type: Number,
-      required: true,
+      default: 0,
+    },
+    // 每日失敗次數
+    dailyFailureCount: {
+      type: Number,
       default: 0,
     },
     // 最後一次檢查此金鑰的時間

@@ -41,7 +41,7 @@ const colors = {
   reset: '\x1b[0m',
   bright: '\x1b[1m',
   green: '\x1b[32m',
-  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
   yellow: '\x1b[33m',
   cyan: '\x1b[36m',
   red: '\x1b[31m',
@@ -107,7 +107,7 @@ async function main() {
     console.log(colorize('✅ 資料庫連接成功', 'green'));
 
     if (scope === 'cache' || scope === 'all') {
-      console.log(colorize('\n🧹 開始清理快取 (Caches)...', 'blue'));
+      console.log(colorize('\n🧹 開始清理快取 (Caches)...', 'magenta'));
       for (const [name, config] of Object.entries(CACHE_COLLECTIONS)) {
         totalDeleted += await cleanCollection(name, config.days, config.dateField);
       }
@@ -123,7 +123,7 @@ async function main() {
     console.error(colorize(`\n❌ 維護失敗: ${error.message}`, 'red'));
   } finally {
     await mongoose.disconnect();
-    console.log(colorize('\n🔌 資料庫連接已關閉', 'blue'));
+    console.log(colorize('\n🔌 資料庫連接已關閉', 'magenta'));
   }
 }
 

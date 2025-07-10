@@ -27,7 +27,7 @@ function getDbNameFromUri(uri) {
 }
 const DB_NAME = getDbNameFromUri(process.env.MONGODB_URI);
 
-const colors = { reset: '\x1b[0m', bright: '\x1b[1m', green: '\x1b[32m', blue: '\x1b[34m', yellow: '\x1b[33m', cyan: '\x1b[36m', red: '\x1b[31m' };
+const colors = { reset: '\x1b[0m', bright: '\x1b[1m', green: '\x1b[32m', magenta: '\x1b[35m', yellow: '\x1b[33m', cyan: '\x1b[36m', red: '\x1b[31m' };
 const colorize = (text, color) => `${colors[color] || colors.reset}${text}${colors.reset}`;
 
 function findLatestFullBackup() {
@@ -127,7 +127,7 @@ async function main() {
   } finally {
     if (fs.existsSync(tempDirOnHost)) {
       fs.rmSync(tempDirOnHost, { recursive: true, force: true });
-      console.log(colorize('[App Container] 🧹 臨時檔案清理完成', 'blue'));
+      console.log(colorize('[App Container] 🧹 臨時檔案清理完成', 'magenta'));
     }
   }
 }

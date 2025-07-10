@@ -45,6 +45,10 @@ gosu nextjs npm run db:init
 echo "📡 正在背景啟動 Sitemap 監控器 (sitemap:monitor)..."
 gosu nextjs npm run sitemap:monitor &
 
+# 步驟 3.5: 在背景啟動 API 金鑰每日重置排程 (以 nextjs 使用者身份)
+echo "🔑 正在背景啟動 API 金鑰每日重置排程 (db:reset-keys)..."
+gosu nextjs npm run db:reset-keys &
+
 # 步驟 4: 執行傳遞給此腳本的主指令 (例如 "npm run dev" 或 "npm run start")
 echo "🏁 啟動腳本執行完畢，正在以 'nextjs' 使用者身份啟動主應用程式..."
 echo "----------------------------------------------------"

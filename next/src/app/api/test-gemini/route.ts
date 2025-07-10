@@ -1,3 +1,16 @@
+/**
+ * ⚠️ 測試 API 端點 - 請謹慎使用 ⚠️
+ *
+ * 此路由主要用於 `npm run test:ejection` 等自動化測試腳本，以驗證 Round-Robin 策略的節點排除與恢復功能。
+ *
+ * @important
+ * 由於 Next.js API Route 的 Serverless 執行模型與其生命週期的不確定性，
+ * **不建議** 使用 `curl` 或其他一次性 HTTP 工具來手動測試需要等待資料庫回寫的非同步副作用 (例如 `updateKeyState`)。
+ * 這類測試的結果可能因執行緒被過早回收而產生誤導 (即資料庫狀態看似沒有更新)。
+ *
+ * 進行 Gemini 核心邏輯 (`gemini.server.ts`) 的功能驗證時，
+ * 應優先使用 `npm run test:gemini`，它在一個穩定的長生命週期 Node.js 環境中執行，結果更為可靠。
+ */
 import { NextResponse } from 'next/server';
 import { streamGenerateContent } from '@/lib/gemini.server';
 

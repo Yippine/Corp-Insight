@@ -6,13 +6,26 @@ const tar = require('tar');
 
 // --- 配置 ---
 const BACKUP_DIR = path.join(__dirname, '..', 'db', 'backups');
+const COLLECTIONS_CONFIG = {
+  core: ['companies', 'tenders', 'ai_tools', 'feedbacks'],
+  cache: ['pcc_api_cache', 'g0v_company_api_cache', 'twincn_api_cache'],
+  system: ['api_key_statuses'],
+};
+
+// 建立一個反向對應，方便快速查找 collection 的類型
+const collectionTypeMap = {};
+for (const type in COLLECTIONS_CONFIG) {
+  for (const collection of COLLECTIONS_CONFIG[type]) {
+    collectionTypeMap[collection] = type;
+  }
+}
 
 // 顏色輸出
 const colors = {
   reset: '\x1b[0m',
   bright: '\x1b[1m',
   green: '\x1b[32m',
-  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
   yellow: '\x1b[33m',
   cyan: '\x1b[36m',
 };
@@ -111,7 +124,7 @@ async function main() {
       `   📏 檔案大小: ${colorize(formatBytes(analysis.fileSize), 'cyan')}`
     );
     console.log(
-        `   📅 修改時間: ${colorize(new Date(analysis.modifiedTime).toLocaleString(), 'blue')}`
+        `   📅 修改時間: ${colorize(new Date(analysis.modifiedTime).toLocaleString(), 'magenta')}`
     );
 
     if (analysis.error) {
@@ -119,7 +132,12 @@ async function main() {
     } else {
       console.log('   包含的 Collections:');
       for (const [name, count] of Object.entries(analysis.collections)) {
-        console.log(`     - ${colorize(name, 'yellow')}: ${colorize(count.toString(), 'green')} 筆記錄`);
+        const type = collectionTypeMap[name] || 'unknown';
+        let typeColor = 'yellow';
+        if (type === 'core') typeColor = 'cyan';
+        if (type === 'cache') typeColor = 'green';
+        if (type === 'system') typeColor = 'magenta';
+        console.log(`     - ${colorize(name, 'yellow')} (${colorize(type, typeColor)}): ${colorize(count.toString(), 'green')} 筆記錄`);
       }
     }
     console.log(); // 空行分隔

@@ -115,6 +115,8 @@
     "db:backup:core": "node scripts/db-backup.js --scope=core",
     "// 從最新備份檔還原資料": "",
     "db:restore": "node scripts/db-restore.js",
+    "// 重置 API 金鑰狀態": "",
+    "db:reset-keys": "ts-node -r tsconfig-paths/register --project scripts/tsconfig.json scripts/cron-reset-api-key-stats.ts",
     "//【推薦】一鍵還原資料並重建索引": "",
     "db:full-restore": "npm run db:restore && npm run db:init",
     "// 列出所有 Collections": "",

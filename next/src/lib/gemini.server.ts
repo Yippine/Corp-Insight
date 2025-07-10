@@ -2,6 +2,11 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import dbConnect from './database/connection';
 import ApiKeyStatus, { IApiKeyStatus } from './database/models/ApiKeyStatus';
 
+// 斷路器與指數退避策略設定
+const MAX_BACKOFF_MINUTES = 120; // 最長冷凍時間 (分鐘) - 根據分析調整為一個更合理的中期值
+// 從環境變數讀取每日失敗次數上限，若未設定則預設為 10
+const DAILY_FAILURE_THRESHOLD = parseInt(process.env.GEMINI_DAILY_FAILURE_THRESHOLD || '10', 10);
+
 // 維護一個 API Key 到 GenAI 實例的映射，避免對同一個 Key 重複初始化
 const genAIInstances = new Map<string, GoogleGenerativeAI>();
 
@@ -73,70 +78,123 @@ async function checkKeyState(keyIdentifier: string): Promise<void> {
  * @param type - 更新類型：'success' 或 'failure'。
  * @param error - (可選) 如果是失敗類型，傳入的錯誤物件。
  */
-function updateKeyState(keyIdentifier: string, type: 'success' | 'failure', error?: unknown): void {
-  const update = async () => {
-    try {
-      await dbConnect();
-      const failureThreshold = 3;
-      const retryMinutes = 5;
+export async function updateKeyState(keyIdentifier: string, type: 'success' | 'failure', error?: unknown): Promise<void> {
+  try {
+    await dbConnect();
 
-      if (type === 'success') {
-        await ApiKeyStatus.findOneAndUpdate(
-          { keyIdentifier },
-          { 
-            $set: { 
-              status: 'HEALTHY', 
-              failureCount: 0,
-              lastCheckedAt: new Date(),
-            } 
-          },
-          { upsert: true, new: true }
-        );
-      } else if (type === 'failure') {
-        const keyStatus = await ApiKeyStatus.findOne({ keyIdentifier });
-        const newFailureCount = (keyStatus?.failureCount || 0) + 1;
-        
-        let errorType = 'UnknownError';
-        let errorMessage = 'An unknown error occurred';
-
-        if (error instanceof Error) {
-          errorType = error.constructor.name;
-          errorMessage = error.message;
-        } else if (typeof error === 'string') {
-          errorMessage = error;
-        }
-
-        const updatePayload: Partial<IApiKeyStatus> = {
-          failureCount: newFailureCount,
-          lastCheckedAt: new Date(),
-          recentErrors: [
-            ...((keyStatus?.recentErrors || []).slice(-2)), // 保留最近的 2 個
-            {
-              errorType,
-              errorMessage,
-              timestamp: new Date(),
-            }
-          ]
-        };
-
-        if (newFailureCount >= failureThreshold) {
-          updatePayload.status = 'UNHEALTHY';
-          updatePayload.retryAt = new Date(Date.now() + retryMinutes * 60 * 1000);
-          console.error(`🚨 [CircuitBreaker] 金鑰 ${keyIdentifier} 連續失敗已達 ${newFailureCount} 次，狀態更新為 UNHEALTHY，將在 ${retryMinutes} 分鐘後重試。`);
-        }
-
-        await ApiKeyStatus.findOneAndUpdate(
-          { keyIdentifier },
-          { $set: updatePayload },
-          { upsert: true, new: true }
-        );
+    if (type === 'success') {
+      const keyStatus = await ApiKeyStatus.findOne({ keyIdentifier });
+      if (keyStatus && keyStatus.status === 'UNHEALTHY') {
+        console.log(`[CircuitBreaker] 金鑰 ${keyIdentifier} 在重試後成功，狀態恢復為 HEALTHY。`);
       }
-    } catch (dbError) {
-      console.error(`[CircuitBreaker] 更新金鑰 ${keyIdentifier} 狀態時發生資料庫錯誤：`, dbError);
-    }
-  };
+      await ApiKeyStatus.findOneAndUpdate(
+        { keyIdentifier },
+        {
+          $set: {
+            status: 'HEALTHY',
+            failureCount: 0,
+            // 注意：成功的請求不會重置 dailyFailureCount，它只由每日排程重置
+            lastCheckedAt: new Date(),
+          }
+        },
+        { upsert: true, new: true }
+      );
+    } else if (type === 'failure') {
+      const keyStatus = await ApiKeyStatus.findOne({ keyIdentifier });
+      
+      // 更新失敗計數器
+      const newFailureCount = (keyStatus?.failureCount || 0) + 1;
+      const newDailyFailureCount = (keyStatus?.dailyFailureCount || 0) + 1;
+      
+      let errorType = 'UnknownError';
+      let errorMessage = 'An unknown error occurred';
 
-  update().catch(err => console.error('背景狀態更新失敗：', err)); // 確保即使背景任務出錯也不會崩潰主程序
+      if (error instanceof Error) {
+        errorType = error.constructor.name;
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      let finalCooldownMs: number;
+      let cooldownReason: string;
+
+      // Phase 6: 智慧熔斷層 (RPD 每日配額)
+      if (newDailyFailureCount > DAILY_FAILURE_THRESHOLD) {
+        // 計算到下一個太平洋時間 (PT) 午夜的時間
+        const now = new Date();
+        const targetTimezone = 'America/Los_Angeles';
+
+        // 1. 取得在目標時區的 "現在" 是什麼樣子
+        const nowInTargetTimezone = new Date(now.toLocaleString('en-US', { timeZone: targetTimezone }));
+
+        // 2. 建立一個代表目標時區 "今天午夜" 的物件
+        const todayMidnightInTargetTimezone = new Date(nowInTargetTimezone);
+        todayMidnightInTargetTimezone.setHours(0, 0, 0, 0);
+
+        // 3. 計算下一個午夜的時間戳
+        let nextMidnightTimestamp = todayMidnightInTargetTimezone.getTime();
+        if (nowInTargetTimezone.getTime() >= todayMidnightInTargetTimezone.getTime()) {
+          // 如果已經過了今天的午夜，就加 24 小時
+          nextMidnightTimestamp += 24 * 60 * 60 * 1000;
+        }
+
+        finalCooldownMs = nextMidnightTimestamp - nowInTargetTimezone.getTime();
+        cooldownReason = `RPD (每日配額) 耗盡`;
+        
+      } else {
+        // Phase 5: 指數退避策略 (臨時錯誤)
+        const ONE_MINUTE_MS = 60 * 1000;
+        let cooldownMs;
+
+        if (newFailureCount === 1) {
+          // 首次失敗，給予一個較短的基礎冷凍期
+          cooldownMs = ONE_MINUTE_MS;
+        } else {
+          // 從第二次失敗開始，指數增長
+          const basePeriodMs = 2 * ONE_MINUTE_MS;
+          const growthFactor = Math.pow(2, newFailureCount - 2);
+          cooldownMs = basePeriodMs * growthFactor;
+        }
+        
+        // 加入最多 10% 的隨機抖動
+        const jitter = Math.random() * 0.1 * cooldownMs;
+        finalCooldownMs = Math.min(
+          cooldownMs + jitter, 
+          MAX_BACKOFF_MINUTES * ONE_MINUTE_MS
+        );
+        cooldownReason = `指數退避`;
+      }
+      
+      const finalCooldownMinutes = finalCooldownMs / (60 * 1000);
+      
+      const updatePayload: Partial<IApiKeyStatus> = {
+        failureCount: newFailureCount,
+        dailyFailureCount: newDailyFailureCount,
+        lastCheckedAt: new Date(),
+        status: 'UNHEALTHY', // 只要失敗就標記為不健康，並設定退避
+        retryAt: new Date(Date.now() + finalCooldownMs),
+        recentErrors: [
+          ...((keyStatus?.recentErrors || []).slice(-2)),
+          {
+            errorType,
+            errorMessage,
+            timestamp: new Date(),
+          }
+        ]
+      };
+
+      console.error(`🚨 [CircuitBreaker] 金鑰 ${keyIdentifier} 失敗，連續失敗次數: ${newFailureCount}, 每日失敗: ${newDailyFailureCount}。原因: ${cooldownReason}。狀態更新為 UNHEALTHY，將在 ${finalCooldownMinutes.toFixed(2)} 分鐘後重試。`);
+      
+      await ApiKeyStatus.findOneAndUpdate(
+        { keyIdentifier },
+        { $set: updatePayload },
+        { upsert: true, new: true }
+      );
+    }
+  } catch (dbError) {
+    console.error(`[CircuitBreaker] 更新金鑰 ${keyIdentifier} 狀態時發生資料庫錯誤：`, dbError);
+  }
 }
 
 /**
@@ -276,12 +334,12 @@ export async function streamGenerateContent(
       try {
         await attemptApiCall(apiKey, keyIdentifier, prompt, onStream, shouldLogTokens);
         roundRobinIndex = (currentIndex + 1) % totalHealthyKeys; // 更新索引
-        updateKeyState(keyIdentifier, 'success'); // 成功後更新狀態
+        await updateKeyState(keyIdentifier, 'success'); // 成功後更新狀態
         return; // 成功後立即返回
       } catch (error: any) {
         console.error(`[RoundRobin] 使用金鑰 ${keyIdentifier} 呼叫 API 時發生錯誤:`, error);
         lastError = error;
-        updateKeyState(keyIdentifier, 'failure', error);
+        await updateKeyState(keyIdentifier, 'failure', error);
         // 繼續迴圈以嘗試下一個健康的金鑰
       }
     }
@@ -306,7 +364,7 @@ export async function streamGenerateContent(
         const result = await attemptApiCall(apiKey, keyIdentifier, prompt, onStream, shouldLogTokens);
         
         // 2. 成功後更新狀態
-        updateKeyState(keyIdentifier, 'success');
+        await updateKeyState(keyIdentifier, 'success');
         
         return result; // 成功後立即返回
       } catch (error: unknown) {
@@ -320,7 +378,7 @@ export async function streamGenerateContent(
         }
 
         // 3. 失敗後更新狀態
-        updateKeyState(keyIdentifier, 'failure', error);
+        await updateKeyState(keyIdentifier, 'failure', error);
         
         const isRetriable = isRetriableError(error);
         if (isRetriable && i < apiKeyPool.length - 1) {

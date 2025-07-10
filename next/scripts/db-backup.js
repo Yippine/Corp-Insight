@@ -21,8 +21,9 @@ const MONGO_CONTAINER_BACKUP_PATH = '/data/db-mount/backups';
 const COLLECTIONS_CONFIG = {
   core: ['companies', 'tenders', 'ai_tools', 'feedbacks'],
   cache: ['pcc_api_cache', 'g0v_company_api_cache', 'twincn_api_cache'],
+  system: ['api_key_statuses'],
 };
-const colors = { reset: '\x1b[0m', bright: '\x1b[1m', green: '\x1b[32m', blue: '\x1b[34m', yellow: '\x1b[33m', cyan: '\x1b[36m', red: '\x1b[31m' };
+const colors = { reset: '\x1b[0m', bright: '\x1b[1m', green: '\x1b[32m', magenta: '\x1b[35m', yellow: '\x1b[33m', cyan: '\x1b[36m', red: '\x1b[31m' };
 const colorize = (text, color) => `${colors[color] || colors.reset}${text}${colors.reset}`;
 
 
@@ -33,14 +34,24 @@ async function main() {
   const args = process.argv.slice(2);
   const scopeArg = args.find(arg => arg.startsWith('--scope=')) || '--scope=all';
   const scope = scopeArg.split('=')[1];
-  const collectionsToBackup = scope === 'core' ? COLLECTIONS_CONFIG.core : [...COLLECTIONS_CONFIG.core, ...COLLECTIONS_CONFIG.cache];
+
+  let collectionsToBackup;
+  if (scope === 'core') {
+    collectionsToBackup = COLLECTIONS_CONFIG.core;
+  } else { // scope === 'all'
+    collectionsToBackup = [
+      ...COLLECTIONS_CONFIG.core,
+      ...COLLECTIONS_CONFIG.cache,
+      ...COLLECTIONS_CONFIG.system,
+    ];
+  }
   
   let tempDirOnHost;
 
   try {
     // 1. 在主機(app-dev)建立臨時目錄
     tempDirOnHost = fs.mkdtempSync(path.join(os.tmpdir(), 'mongodb-backup-'));
-    console.log(colorize(`[App Container] 📂 建立臨時目錄: ${tempDirOnHost}`, 'blue'));
+    console.log(colorize(`[App Container] 📂 建立臨時目錄: ${tempDirOnHost}`, 'magenta'));
 
     // 2. 透過 `docker exec` 命令 mongo 容器進行備份
     console.log(colorize(`[App Container] ▶️  發送備份指令至 ${DOCKER_MONGO_CONTAINER} 容器...`, 'cyan'));
@@ -94,7 +105,7 @@ async function main() {
     const archiveName = `db-backup-${scope}-${timestamp}.tar.gz`;
     const archivePath = path.join(BACKUP_DIR_HOST, archiveName);
 
-    console.log(colorize(`[App Container] 📦 正在壓縮檔案... ${archiveName}`, 'blue'));
+    console.log(colorize(`[App Container] 📦 正在壓縮檔案... ${archiveName}`, 'magenta'));
     await tar.c({ gzip: true, file: archivePath, cwd: tempDirOnHost }, fs.readdirSync(tempDirOnHost));
 
     console.log(colorize('\n🎉 備份成功完成！', 'bright'));
@@ -107,7 +118,7 @@ async function main() {
     // 4. 清理主機(app-dev)端的臨時目錄
     if (tempDirOnHost && fs.existsSync(tempDirOnHost)) {
       fs.rmSync(tempDirOnHost, { recursive: true, force: true });
-      console.log(colorize('[App Container] 🧹 臨時檔案清理完成', 'blue'));
+      console.log(colorize('[App Container] 🧹 臨時檔案清理完成', 'magenta'));
     }
   }
 }
