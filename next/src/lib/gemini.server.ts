@@ -200,6 +200,9 @@ async function attemptApiCall(
 
   if (shouldLogTokens) await logTokenUsage(result);
   
+  // 為了讓測試端點能捕捉到使用的金鑰，我們先發送一個特殊標記
+  onStream(`KEY_USED:${keyIdentifier}`);
+
   let fullText = '';
   for await (const chunk of result.stream) {
     const chunkText = chunk.text();
@@ -230,29 +233,56 @@ export async function streamGenerateContent(
 
   let lastError: any = null;
 
-  // 根據策略執行不同的金鑰處理邏輯
   if (strategy === 'round-robin') {
-    // Round-Robin 邏輯: 嘗試所有 key，從上次的位置開始
-    const startIndex = roundRobinIndex % apiKeyPool.length;
-    for (let i = 0; i < apiKeyPool.length; i++) {
-      const currentIndex = (startIndex + i) % apiKeyPool.length;
-      const apiKey = apiKeyPool[currentIndex];
-      // 更新全域索引，以便下次從下一個 key 開始
-      roundRobinIndex = currentIndex + 1;
+    await dbConnect();
+    const keyStatusesFromDB = await ApiKeyStatus.find({
+      keyIdentifier: { $in: apiKeyPool.map(k => getKeyIdentifier(k)).filter(Boolean) as string[] }
+    }).lean();
+    
+    const keyStatusMap = new Map(keyStatusesFromDB.map(s => [s.keyIdentifier, s]));
+
+    const healthyKeys = apiKeyPool.filter(apiKey => {
+      const keyIdentifier = getKeyIdentifier(apiKey);
+      if (!keyIdentifier) return false;
+
+      const status = keyStatusMap.get(keyIdentifier);
+      if (!status) return true; // DB 無記錄，視為健康
+
+      const isUnhealthyAndCoolingDown =
+        status.status === 'UNHEALTHY' &&
+        status.retryAt &&
+        new Date() < new Date(status.retryAt);
       
-      const keyIdentifier = `[${envType.toUpperCase()}_RR_${currentIndex}]`;
+      return !isUnhealthyAndCoolingDown;
+    });
+
+    if (healthyKeys.length === 0) {
+      console.error('[RoundRobin] 錯誤：金鑰池中已無任何健康的金鑰可供使用。');
+      onStream('所有 AI 服務節點暫時過載，請稍後再試。');
+      return;
+    }
+    
+    console.log(`[RoundRobin] 發現 ${healthyKeys.length} 個健康金鑰，準備輪詢。`);
+
+    const totalHealthyKeys = healthyKeys.length;
+    // 確保索引不會超出健康金鑰池的範圍
+    roundRobinIndex = roundRobinIndex % totalHealthyKeys;
+
+    for (let i = 0; i < totalHealthyKeys; i++) {
+      const currentIndex = (roundRobinIndex + i) % totalHealthyKeys;
+      const apiKey = healthyKeys[currentIndex];
+      const keyIdentifier = getKeyIdentifier(apiKey)!;
+
       try {
-        const result = await attemptApiCall(apiKey, keyIdentifier, prompt, onStream, shouldLogTokens);
-        return result; // 成功後立即返回
-      } catch (error) {
-        lastError = error; // 記錄錯誤
-        const isRetriable = isRetriableError(error);
-        if (isRetriable && i < apiKeyPool.length - 1) {
-          console.warn(`🚨 [Gemini] 金鑰 ${keyIdentifier} 發生可重試錯誤。輪詢至下一個金鑰...`);
-          continue;
-        }
-        // 如果是不可重試的錯誤，或所有金鑰都已嘗試失敗，則跳出迴圈
-        break;
+        await attemptApiCall(apiKey, keyIdentifier, prompt, onStream, shouldLogTokens);
+        roundRobinIndex = (currentIndex + 1) % totalHealthyKeys; // 更新索引
+        updateKeyState(keyIdentifier, 'success'); // 成功後更新狀態
+        return; // 成功後立即返回
+      } catch (error: any) {
+        console.error(`[RoundRobin] 使用金鑰 ${keyIdentifier} 呼叫 API 時發生錯誤:`, error);
+        lastError = error;
+        updateKeyState(keyIdentifier, 'failure', error);
+        // 繼續迴圈以嘗試下一個健康的金鑰
       }
     }
   } else {
@@ -267,13 +297,13 @@ export async function streamGenerateContent(
       }
 
       const keyRole = i === 0 ? '主要' : '備用';
-      const logIdentifier = `[${envType.toUpperCase()}_${keyRole}]`;
+      console.log(`[Failover] 正在準備嘗試 ${keyRole} 金鑰: ${keyIdentifier}`);
 
       try {
         // 1. 呼叫前檢查狀態
         await checkKeyState(keyIdentifier);
 
-        const result = await attemptApiCall(apiKey, logIdentifier, prompt, onStream, shouldLogTokens);
+        const result = await attemptApiCall(apiKey, keyIdentifier, prompt, onStream, shouldLogTokens);
         
         // 2. 成功後更新狀態
         updateKeyState(keyIdentifier, 'success');
@@ -294,21 +324,20 @@ export async function streamGenerateContent(
         
         const isRetriable = isRetriableError(error);
         if (isRetriable && i < apiKeyPool.length - 1) {
-          console.warn(`🚨 [Gemini] 金鑰 ${logIdentifier} 發生可重試錯誤。正在啟動容錯移轉至備用金鑰...`);
+          console.warn(`🚨 [Gemini] 金鑰 ${keyIdentifier} 發生可重試錯誤。正在啟動容錯移轉至備用金鑰...`);
           continue;
         }
         // 如果是不可重試的錯誤，或所有金鑰都已嘗試失敗，則跳出迴圈
         break;
       }
     }
-  }
 
-  // 統一處理最終的失敗情況
-  console.error(`[Gemini] 所有金鑰嘗試均失敗。最後一個錯誤:`, lastError?.message || lastError?.toString());
-  const errorMessage = `[系統訊息] 所有 AI 服務金鑰皆暫時無法使用，請稍後再試或聯繫管理員。`;
-  onStream(errorMessage);
-  if (lastError) {
-    throw lastError;
+    console.error(`[Gemini] 所有金鑰嘗試均失敗。最後一個錯誤:`, lastError?.message || lastError?.toString());
+    const errorMessage = `[系統訊息] 所有 AI 服務金鑰皆暫時無法使用，請稍後再試或聯繫管理員。`;
+    onStream(errorMessage);
+    if (lastError) {
+      throw lastError;
+    }
   }
 }
 

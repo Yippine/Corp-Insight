@@ -41,6 +41,8 @@
     "// 測試 Failover 策略請執行 `npm run test:gemini`": "",
     "// 測試 Round-Robin 策略請執行 `npm run test:gemini -- --strategy=round-robin`": "",
     "test:gemini": "ts-node -r tsconfig-paths/register --project scripts/tsconfig.json scripts/test-gemini-key-strategies.ts",
+    "// 測試 Round-Robin 策略的節點排除與恢復": "",
+    "test:ejection": "node scripts/test-round-robin-ejection.js",
     "// 🐳 DOCKER ENVIRONMENT (容器環境管理)": "",
     "// --- 啟動單一環境或服務 ---": "",
     "// 僅啟動開發環境應用程式 (需手動啟動工具)": "",

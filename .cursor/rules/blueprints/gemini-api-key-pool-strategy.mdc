@@ -1,7 +1,3 @@
----
-title: "Gemini API 金鑰池與自動化測試策略"
-description: "本文件定義了專案中 Gemini API 金鑰的「三層式備援金鑰池」架構，並規劃了整合 Cursor Agent 進行自動化提示詞優化的開發流程。此為 API 金鑰管理與相關自動化任務的唯一真實來源 (Single Source of Truth)。"
----
 
 ### 🎯 核心目標 (Core Objective)
 
@@ -113,24 +109,74 @@ Google 的反濫用機制旨在打擊**意圖規避計費的欺騙性行為**（
 ---
 
 #### **Phase 4: 不健康節點排除 (for Round-Robin)**
-*   **🎯 任務描述:** 針對 `Round-Robin` 策略，實作一個輕量級的「不健康節點排除」機制，以提高輪詢池的整體可用性。
-*   **💡 核心思想:** 與斷路器不同，此機制的核心是「動態調整輪詢範圍」，而不是「阻止對單一資源的呼叫」。
-*   **🧑‍💻 開發者實作:**
-    1.  **擴充 `ApiKeyStatus` 模型**: 無需變更 Schema，可直接複用 Phase 3 建立的模型。
+*   **🎯 任務描述:** 針對 `Round-Robin` 策略，實作一個輕量級的「不健康節點排除」機制，以提高輪詢池的整體可用性並解決無狀態輪詢的效能問題。
+*   **💡 核心思想:** 當一個金鑰失敗時，系統應「記住」其不健康的狀態，並在一段冷凍期內避免再次使用它。此機制的核心是透過集中式狀態管理（資料庫）結合穩健的輪詢算法，在不犧牲輪詢公平性的前提下，動態調整當前可用的金鑰池。
+*   **⚠️ 關鍵挑戰與設計陷阱:** 一個常見的實作陷阱是：先從完整金鑰池中過濾掉不健康的金鑰，然後在剩餘的「健康池」上使用全域輪詢索引。這會導致**索引錯位**：如果一個不健康的金鑰被移除，會改變池的長度，使得原來的索引指向錯誤的金鑰，從而跳過某些健康的金鑰，破壞輪詢的公平性。
+*   **🧑‍💻 開發者實作 (穩健輪詢邏輯):**
+    1.  **擴充 `ApiKeyStatus` 模型**: 無需變更 Schema，可直接複用 Phase 3 建立的 `ApiKeyStatus` 模型及其 `consecutiveFailures` 欄位。
     2.  **重構 `Round-Robin` 邏輯**:
         *   在 `streamGenerateContent` 的 `round-robin` 區塊開始處，先從資料庫中一次性撈取所有**開發環境**金鑰的狀態 (`ApiKeyStatus.find({ keyIdentifier: /_DEV_/ })`)。
-        *   從 `apiKeyPool` 中，過濾掉那些狀態為 `UNHEALTHY` 且尚未到達 `retryAt` 時間的金鑰，產生一個**當前的「健康金鑰池 (healthyPool)」**。
-        *   後續的輪詢邏輯，都只在這個 `healthyPool` 上進行。
-        *   如果 `healthyPool` 為空，則直接拋出最終錯誤。
-    3.  **狀態更新**: `updateKeyState` 函式的邏輯可以完全複用 Phase 3 的實現。
+        *   建立一個**當前的「健康金鑰 Set (healthyKeysSet)」**以便快速查找，其中只包含狀態為 `HEALTHY` 或雖為 `UNHEALTHY` 但已到達 `retryAt` 時間的金鑰。
+        *   **輪詢的核心算法**:
+            *   保留原始、完整的 `apiKeyPool` 陣列。輪詢索引 `currentIndex` **始終在此完整陣列上移動**。
+            *   進入一個迴圈（最多執行 `apiKeyPool.length` 次，以防全部金鑰失效）。
+            *   在迴圈中，根據 `currentIndex` 從**完整** `apiKeyPool` 中取得一個`candidateKey`。
+            *   檢查 `healthyKeysSet.has(candidateKey)` 是否為真。
+            *   如果為真，則**這就是我們要使用的金鑰**。執行 API 呼叫，然後將 `currentIndex` 更新為 `(currentIndex + 1) % apiKeyPool.length`，並跳出迴圈。
+            *   如果為假，則僅遞增 `currentIndex`，繼續下一輪迴圈，直到找到一個健康金鑰。
+        *   如果迴圈結束後仍未找到健康金鑰，則拋出最終錯誤。
+    3.  **狀態更新**: `updateKeyState` 函式的邏輯將由新的 `Phase 5` 智慧冷凍期策略定義。
+
 *   **✅ 驗收標準 (可自動化):**
-    1.  **擴充 `test-circuit-breaker.ts` 腳本**，或建立新的 `test-node-ejection.ts`。
-    2.  **測試案例**: 模擬將池中的一個金鑰 (`DEV_PRIMARY`) 狀態手動設為 `UNHEALTHY`。執行 `round-robin` 測試，驗證後續的所有請求是否都**只**使用了另一個健康的金鑰 (`DEV_BACKUP`)，完全跳過了不健康的金鑰。
+    1.  擴充 `test-circuit-breaker.ts` 腳本，或建立新的 `test-node-ejection.ts`。
+    2.  **測試案例 1 (節點排除)**: 模擬將池中的一個金鑰 (`DEV_PRIMARY`) 狀態手動設為 `UNHEALTHY`。執行 `round-robin` 測試，驗證後續的所有請求是否都**只**使用了另一個健康的金鑰 (`DEV_BACKUP`)，完全跳過了不健康的金鑰。
+    3.  **測試案例 2 (輪詢公平性)**: 假設有 `["A", "B", "C"]` 三個金鑰，將 `B` 設為 `UNHEALTHY`。從 `A` 開始輪詢，驗證下一次請求使用的是 `C`（而不是跳過 `C` 去到 `A`），再下一次是 `A`，確保索引不會錯位。
+    4.  **測試案例 3 (節點恢復)**: 將 `B` 的 `retryAt` 設為過去的時間。執行輪詢，驗證 `B` 會被重新嘗試使用。
 
----
+#### **Phase 5: 智慧冷凍期 (指數退避策略)**
+*   **🎯 任務描述:** 設計並實作一個智慧型的金鑰冷凍期策略，以取代固定的冷卻時間。此策略能根據連續失敗的次數，動態調整冷凍期，從而更優雅地處理不同類型的 API 錯誤（如短期的 RPM 限制與長期的 RPD 限制）。
+*   **💡 核心思想:** 失敗次數少的，很可能是臨時性問題，給予較短的冷凍期以便快速恢復；連續失敗次數多的，則可能是永久性或長期問題（如金鑰失效、RPD 耗盡），給予極長的冷凍期，避免對其進行無效的輪詢。
+*   **🧑‍💻 開發者實作:**
+    1.  **定位目標函式**: 此邏輯的核心將被實作在 `updateKeyState` 函式中，因為 `Failover` 和 `Round-Robin` 兩種策略在金鑰失敗時都會呼叫此函式，從而實現邏輯複用。
+    2.  **使用現有欄位**: `ApiKeyStatus` 模型中已存在 `consecutiveFailures` 欄位，可直接利用此欄位進行計算。
+    3.  **實作指數退避演算法**:
+        *   當金鑰呼叫**成功**時，將其 `consecutiveFailures` 重設為 `0`。
+        *   當金鑰呼叫**失敗**時，先將 `consecutiveFailures` 加 `1`，然後根據以下邏輯計算新的 `retryAt` 時間：
 
-#### **Phase 5: 自動化提示詞優化腳本框架**
-*   **🎯 任務描述:** 建立一個 Node.js 腳本框架，供 Cursor Agent 驅動以執行自動化的提示詞優化任務。
+        ```javascript
+        // 偽代碼，在 updateKeyState 函式內實現
+        const MAX_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 最大冷凍時間：24 小時
+        const ONE_MINUTE_MS = 60 * 1000;
+
+        let cooldownMs;
+        const failures = keyStatus.consecutiveFailures; // 已 +1 的失敗次數
+
+        if (failures === 1) {
+            // 首次失敗，給予一個較短的基礎冷凍期
+            cooldownMs = ONE_MINUTE_MS;
+        } else {
+            // 從第二次失敗開始，指數增長
+            // 基礎週期為 2 分鐘，乘以 2 的 (n-2) 次方
+            const basePeriodMs = 2 * ONE_MINUTE_MS;
+            const growthFactor = Math.pow(2, failures - 2);
+            cooldownMs = basePeriodMs * growthFactor;
+        }
+
+        // 為避免驚群效應，可加入少量隨機抖動 (可選，但為最佳實踐)
+        const jitter = Math.random() * 0.1 * cooldownMs; // 最多 10% 的抖動
+        const finalCooldownMs = Math.min(cooldownMs + jitter, MAX_COOLDOWN_MS);
+
+        const newRetryAt = new Date(Date.now() + finalCooldownMs);
+        // ...更新資料庫...
+        ```
+*   **✅ 驗收標準:**
+    1.  建立或修改測試腳本，驗證 `updateKeyState` 的行為。
+    2.  **測試案例 1 (首次失敗)**: 模擬一個金鑰首次失敗，驗證其 `retryAt` 是否被設定為大約 1 分鐘後。
+    3.  **測試案例 2 (連續失敗)**: 模擬同一個金鑰連續失敗 3 次，驗證其 `retryAt` 是否被設定為大約 4 分鐘後 (`2 * 2^(3-2) = 4`)。
+    4.  **測試案例 3 (成功後重設)**: 模擬一個已失敗多次的金鑰成功呼叫一次後，其 `consecutiveFailures` 是否被重設為 `0`。
+
+#### **Phase 6: 自動化提示詞優化腳本框架**
+*   **🎯 任務描述:** 開發一個 Node.js 腳本，用於自動評估和優化儲存在 `src/config/promptTools.ts` 中的提示詞 (Prompts)。
 *   **🧑‍💻 開發者實作:**
     1.  建立 `next/scripts/batch-optimize-prompts.js` 檔案。
     2.  此腳本應能讀取一個指定的 AI 工具設定檔。
