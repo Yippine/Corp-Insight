@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { Tools } from '@/lib/aitool/types';
 import { useGeminiStream } from '@/hooks/useGeminiStream';
-import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 
 interface GenerationResult {
   content: string;
@@ -79,8 +80,7 @@ ${
   };
 
   const hasContent = generationResult !== null && generationResult !== '';
-  const isStreaming = isGenerating && generationResult === '';
-  const showResultArea = isGenerating || hasContent || generationError;
+  const showResultArea = hasContent || !!generationError;
   const contentToDisplay = generationResult || (generationError ? `生成失敗：${generationError}` : '');
 
   // 主要渲染
@@ -89,54 +89,60 @@ ${
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-1">
+            <label className="block text-base font-medium text-gray-700 mb-2">
               需求描述 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
               rows={6}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block w-full rounded-lg border-gray-200 bg-white p-4 text-base text-gray-800 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder={config.placeholder}
               disabled={isGenerating}
             />
           </div>
         </div>
 
-        <div className="flex space-x-4">
-          <button
+        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
+          <motion.button
             onClick={() => handleGenerate(false)}
             disabled={isGenerating || !prompt.trim()}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-600 hover:to-indigo-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isGenerating && !isOptimizing ? (
-              <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
-                生成中...
-              </span>
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>生成中...</span>
+              </>
             ) : (
-              '開始新對話'
+              <>
+                <Sparkles className="h-5 w-5" />
+                <span>開始新對話</span>
+              </>
             )}
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !generationResult || !prompt.trim()}
-            className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-              generationResult
-                ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
-                : 'border-gray-300 text-gray-400'
-            }`}
+            disabled={isGenerating || !hasContent || !prompt.trim()}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-white px-5 py-3 font-semibold text-indigo-600 shadow-sm transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:opacity-70"
           >
             {isGenerating && isOptimizing ? (
-              <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
-                優化中...
-              </span>
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>優化中...</span>
+              </>
             ) : (
-              '延續對話並優化'
+              <>
+                <Wand2 className="h-5 w-5" />
+                <span>延續對話並優化</span>
+              </>
             )}
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -145,15 +151,13 @@ ${
           ref={resultRef}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-50 rounded-lg p-6"
+          className="overflow-hidden rounded-2xl border border-white/20 bg-white/10 p-6 shadow-soft backdrop-blur-lg"
         >
-          <h3 className="text-xl font-medium text-gray-900 mb-4">對話結果</h3>
-          <div className="space-y-4 whitespace-pre-wrap font-mono text-base min-h-[200px] flex flex-col justify-center">
-            {isStreaming ? (
-              <InlineLoading />
-            ) : (
-              contentToDisplay
-            )}
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">對話結果</h3>
+          <div className="prose max-w-none prose-p:my-2 prose-h1:my-4 prose-h2:my-3 prose-h3:my-2 min-h-[200px] flex flex-col justify-center">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {contentToDisplay}
+            </ReactMarkdown>
           </div>
         </motion.div>
       )}
