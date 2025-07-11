@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Tools } from '@/lib/aitool/types';
 import { useGeminiStream } from '@/hooks/useGeminiStream';
+import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 
 interface GenerationResult {
   content: string;
@@ -19,45 +20,36 @@ export default function PromptToolTemplate({
   config,
 }: PromptToolTemplateProps) {
   const [prompt, setPrompt] = useState('');
-  const [result, setResult] = useState<GenerationResult | null>(null);
   const { 
     isLoading: isGenerating, 
     error: generationError, 
     result: generationResult, 
     generate 
   } = useGeminiStream();
+  
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // 當 useGeminiStream 的結果更新時，同步到我們自己的 result 狀態
-    if (generationResult) {
-      setResult({ content: generationResult, isOptimizing: false });
-    }
-    if (generationError) {
-        setResult({ content: `生成失敗：${generationError}`, isOptimizing: false });
-    }
-  }, [generationResult, generationError]);
 
   // 當有結果出現時，滾動到結果部分
   useEffect(() => {
-    if (result && resultRef.current) {
+    if (generationResult && resultRef.current) {
       resultRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
       });
     }
-  }, [result]);
+  }, [generationResult]);
 
-  const generatePrompt = (isOptimizing: boolean) => {
-    if (isOptimizing && !result?.content) return '';
+  const generatePrompt = (isOptimizingPrompt: boolean) => {
+    if (isOptimizingPrompt && !generationResult) return '';
 
     const prefix = config.promptTemplate?.prefix || '';
     const suffix = config.promptTemplate?.suffix || '';
 
     const basePrompt = `${prefix}
 ${
-  isOptimizing
-    ? '請基於以下現有指令進行優化：\\n' + result?.content + '\\n\\n以及參考以下資訊：\\n'
+  isOptimizingPrompt
+    ? '請基於以下現有指令進行優化：\\n' + generationResult + '\\n\\n以及參考以下資訊：\\n'
     : ''
 }
 使用者的輸入：
@@ -74,21 +66,22 @@ ${
     : ''
 }`;
 
-    console.log(`basePrompt: ${basePrompt}`);
-
     return basePrompt;
   };
 
-  const handleGenerate = async (isOptimizing: boolean = false) => {
+  const handleGenerate = async (isOptimizingReq: boolean = false) => {
     if (!prompt.trim() || isGenerating) return;
 
-    if (isOptimizing && result) {
-      setResult({ ...result, isOptimizing: true });
-    }
+    setIsOptimizing(isOptimizingReq);
     
-    const promptText = generatePrompt(isOptimizing);
+    const promptText = generatePrompt(isOptimizingReq);
     await generate(promptText);
   };
+
+  const hasContent = generationResult !== null && generationResult !== '';
+  const isStreaming = isGenerating && generationResult === '';
+  const showResultArea = isGenerating || hasContent || generationError;
+  const contentToDisplay = generationResult || (generationError ? `生成失敗：${generationError}` : '');
 
   // 主要渲染
   return (
@@ -116,7 +109,7 @@ ${
             disabled={isGenerating || !prompt.trim()}
             className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isGenerating && !result?.isOptimizing ? (
+            {isGenerating && !isOptimizing ? (
               <span className="flex items-center justify-center">
                 <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 生成中...
@@ -128,14 +121,14 @@ ${
 
           <button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !result || !prompt.trim()}
+            disabled={isGenerating || !generationResult || !prompt.trim()}
             className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-              result
+              generationResult
                 ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
                 : 'border-gray-300 text-gray-400'
             }`}
           >
-            {isGenerating && result?.isOptimizing ? (
+            {isGenerating && isOptimizing ? (
               <span className="flex items-center justify-center">
                 <Loader2 className="animate-spin -ml-1 mr-2 h-6 w-6" />
                 優化中...
@@ -147,7 +140,7 @@ ${
         </div>
       </div>
 
-      {result && (
+      {showResultArea && (
         <motion.div
           ref={resultRef}
           initial={{ opacity: 0, y: 20 }}
@@ -155,8 +148,12 @@ ${
           className="bg-gray-50 rounded-lg p-6"
         >
           <h3 className="text-xl font-medium text-gray-900 mb-4">對話結果</h3>
-          <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
-            {result.content}
+          <div className="space-y-4 whitespace-pre-wrap font-mono text-base min-h-[200px] flex flex-col justify-center">
+            {isStreaming ? (
+              <InlineLoading />
+            ) : (
+              contentToDisplay
+            )}
           </div>
         </motion.div>
       )}

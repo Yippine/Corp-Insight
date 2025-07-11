@@ -256,20 +256,19 @@ async function attemptApiCall(
   const model = aiInstance.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const result = await model.generateContentStream(prompt);
 
-  if (shouldLogTokens) await logTokenUsage(result);
-  
-  // 為了讓測試端點能捕捉到使用的金鑰，我們先發送一個特殊標記
-  onStream(`KEY_USED:${keyIdentifier}`);
-
-  let fullText = '';
   for await (const chunk of result.stream) {
     const chunkText = chunk.text();
-    fullText += chunkText;
-    onStream(fullText);
+    if (chunkText) {
+      onStream(chunkText);
+    }
+  }
+
+  // 將 Token 用量記錄移至串流處理完成之後，避免阻塞串流本身
+  if (shouldLogTokens) {
+    await logTokenUsage(result);
   }
   
   console.log(`[Gemini] 使用金鑰 ${keyIdentifier} 成功生成內容。`);
-  return fullText;
 }
 
 export async function streamGenerateContent(
