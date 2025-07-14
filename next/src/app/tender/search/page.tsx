@@ -152,8 +152,17 @@ export async function generateMetadata({
   const hasResults = searchResults.results.length > 0;
   
   // 使用 SEO 組件生成元數據
-  return generateTenderSearchMetadata({
+  const metadata = generateTenderSearchMetadata({
     query: decodedQuery,
     searchType,
   });
+
+  // 根據您的指示，設定 Canonical URL，以解決重複內容問題
+  // 這會告訴 Google，無論 URL 參數為何，都將此頁面的正本視為 /tender/search
+  metadata.alternates = {
+    ...metadata.alternates,
+    canonical: 'https://corpinsight.leopilot.com/tender/search',
+  };
+
+  return metadata;
 }
