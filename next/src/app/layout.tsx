@@ -8,6 +8,12 @@ import { staticTitles } from '@/config/pageTitles';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import GoogleAnalyticsDebug from '@/components/GoogleAnalyticsDebug';
 import WebVitalsTracker from '@/components/WebVitalsTracker';
+import dynamic from 'next/dynamic';
+
+// 動態導入 ChatbotWrapper 組件，避免在服務器端渲染
+const ChatbotWrapper = dynamic(() => import('@/components/aitool/ChatbotWrapper'), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
   title: staticTitles.home,
@@ -57,6 +63,7 @@ export default function RootLayout({
               </section>
             </main>
             <Footer />
+            <ChatbotWrapper />
           </LoadingProvider>
         </div>
       </body>
