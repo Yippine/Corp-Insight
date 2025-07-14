@@ -1,7 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Loader2, Sparkles, Wand2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  Loader2, 
+  Sparkles, 
+  Wand2, 
+  ChevronLeft, 
+  ChevronRight,
+  Plus
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -37,6 +44,7 @@ export default function PromptToolTemplate({
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isAwaitingFirstToken, setIsAwaitingFirstToken] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const promptInputRef = useRef<HTMLTextAreaElement>(null);
   
   const generatePromptText = (isOptimizingPrompt: boolean) => {
     const lastItem = history.length > 0 ? history[history.length - 1] : null;
@@ -131,6 +139,54 @@ ${
 
   const lastValidResultItem = [...history].reverse().find(h => h.result && !h.result.startsWith('生成失敗'));
   
+  // 規則一：介面即指南。我們根據上下文來決定當前的操作模式。
+  const isFollowUpMode = !!lastValidResultItem;
+
+  // 動態提交處理函式，此單一函式現在負責處理新對話與後續追問。
+  const handleDynamicSubmit = () => {
+    handleGenerate(isFollowUpMode);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // 如果只按 Enter 而沒有按 Ctrl/Cmd，則不進行任何操作（允許預設的換行行為）。
+    if (event.key === 'Enter' && !event.ctrlKey && !event.metaKey) {
+      return;
+    }
+
+    // 如果按下 Ctrl/Cmd + Enter，則觸發提交。
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault(); // 防止在文字區塊中產生新的一行。
+      if (!isGenerating && prompt.trim()) {
+        handleDynamicSubmit();
+      }
+    }
+  };
+
+  // 新增一個處理函式來重置對話狀態，以便開始一個全新的對話。
+  const handleReset = () => {
+    setHistory([]);
+    setCurrentIndex(-1);
+    setDisplayedItem(null);
+    setPrompt('');
+    // 確保 isOptimizing 狀態也被重置
+    setIsOptimizing(false);
+
+    // 優化：重置後，自動將焦點移回輸入框。
+    promptInputRef.current?.focus();
+  };
+
+  // 規則二：情境感知提示文字。
+  const basePlaceholder = isFollowUpMode
+    ? '根據結果繼續追問...'
+    : (config.placeholder || '請輸入您的需求...');
+  const shortcutHint = '（Enter 換行，Ctrl + Enter 送出）';
+  const dynamicPlaceholder = `${basePlaceholder} ${shortcutHint}`;
+
+  // 規則三：依需求顯示的工具提示。
+  const buttonTitle = isFollowUpMode
+    ? '提示：基於目前的對話結果繼續提問'
+    : '提示：開始一個全新的對話';
+
   return (
     <div className="w-full space-y-6">
       <div className="space-y-4">
@@ -140,56 +196,81 @@ ${
               需求描述 <span className="text-red-500">*</span>
             </label>
             <textarea
+              ref={promptInputRef}
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
               rows={6}
-              className="block w-full rounded-lg border-gray-200 bg-white p-4 text-base text-gray-800 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder={config.placeholder}
+              className="block w-full rounded-lg border-gray-200 bg-white p-4 text-base text-gray-800 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder={dynamicPlaceholder}
               disabled={isGenerating}
             />
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
+        <div className="flex items-center space-x-2">
           <motion.button
-            onClick={() => handleGenerate(false)}
+            onClick={handleDynamicSubmit}
             disabled={isGenerating || !prompt.trim()}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-600 hover:to-indigo-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+            title={buttonTitle}
+            className="flex-grow inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-600 hover:to-indigo-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isGenerating && !isOptimizing ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span>生成中...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-5 w-5" />
-                <span>開啟新對話</span>
-              </>
-            )}
+            <AnimatePresence mode="wait">
+              {isGenerating ? (
+                <motion.span
+                  key="generating"
+                  className="flex items-center justify-center gap-2"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>{isOptimizing ? '追問中...' : '生成中...'}</span>
+                </motion.span>
+              ) : (
+                <motion.span
+                  key={isFollowUpMode ? 'followup' : 'new'}
+                  className="flex items-center justify-center gap-2"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {isFollowUpMode ? (
+                    <>
+                      <Wand2 className="h-5 w-5" />
+                      <span>根據結果追問</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-5 w-5" />
+                      <span>開啟新對話</span>
+                    </>
+                  )}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </motion.button>
 
-          <motion.button
-            onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !lastValidResultItem || !prompt.trim()}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-white px-5 py-3 font-semibold text-indigo-600 shadow-sm transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:opacity-70"
-          >
-            {isGenerating && isOptimizing ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span>追問中...</span>
-              </>
-            ) : (
-              <>
-                <Wand2 className="h-5 w-5" />
-                <span>根據結果追問</span>
-              </>
+          <AnimatePresence>
+            {isFollowUpMode && (
+              <motion.button
+                onClick={handleReset}
+                title="開啟全新對話"
+                initial={{ opacity: 0, scale: 0.5, width: 0 }}
+                animate={{ opacity: 1, scale: 1, width: 'auto' }}
+                exit={{ opacity: 0, scale: 0.5, width: 0 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                className="flex-shrink-0 p-3 rounded-lg border border-gray-300 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                aria-label="New Conversation"
+              >
+                <Plus className="h-5 w-5" />
+              </motion.button>
             )}
-          </motion.button>
+          </AnimatePresence>
         </div>
       </div>
       
