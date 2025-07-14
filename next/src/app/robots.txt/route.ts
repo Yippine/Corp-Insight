@@ -3,38 +3,39 @@ import { BASE_URL } from '@/config/site';
 
 export async function GET() {
   const baseUrl = BASE_URL;
+  const siteHostname = new URL(baseUrl).hostname;
 
-  const robotsContent = `User-agent: *
-Allow: /
+  const robotsContent = `
+# ===============================================================
+# robots.txt for ${siteHostname}
+# Last Updated: 2024-07-16
+#
+# This file provides guidance to web crawlers.
+# It is a set of suggestions, not a security mechanism.
+# ===============================================================
 
-# 忽略特定檔案和目錄
+User-agent: *
+
+# [Core Rule] Disallow crawling of build artifacts and API routes.
+# These folders contain files that are not meaningful for search results
+# and should not be indexed. Blocking them saves crawl budget.
 Disallow: /_next/
-Disallow: /public/
-Disallow: /src/
-Disallow: /docker/
-Disallow: /legacy/
-Disallow: /node_modules/
-Disallow: /.next/
-Disallow: /.vercel/
-Disallow: /.well-known/
-
-# 管理和測試頁面
-Disallow: /admin/
-
-# 允許存取 Sitemap
-Allow: /sitemap-index.xml
-Allow: /sitemap.xml
-Allow: /sitemap-companies.xml
-Allow: /sitemap-tenders.xml
-Allow: /sitemap-aitools.xml
-
 Disallow: /api/
 
-# 網站地圖位置
-Sitemap: ${baseUrl}/sitemap-index.xml
+# [Admin Rule] Disallow crawling of administration panels.
+Disallow: /admin/
 
-# 爬蟲友好設定
-Crawl-delay: 1`;
+# ===============================================================
+# SITEMAP DECLARATION
+#
+# This is the single most important directive for crawlers to
+# discover all the important pages on the site.
+#
+# We point to the sitemap index file, which contains links to all
+# other sitemaps.
+# ===============================================================
+Sitemap: ${baseUrl}/sitemap-index.xml
+`.trim();
 
   return new NextResponse(robotsContent, {
     headers: {
