@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Tools } from '@/lib/aitool/types';
 import { useGeminiStream } from '@/hooks/useGeminiStream';
+import CopyButton from '@/components/common/CopyButton';
 
 interface HistoryItem {
   id: string;
@@ -216,15 +217,17 @@ ${
                   </div>
                 </div>
                 
-                <div className="mb-4 p-4 rounded-xl bg-slate-500/5 text-base text-slate-700 border border-slate-200/50">
+                <div className="group relative mb-4 p-4 rounded-xl bg-slate-500/5 text-base text-slate-700 border border-slate-200/50">
                   <p className="font-semibold text-slate-800">你的輸入：</p>
                   <p className="whitespace-pre-wrap mt-1">{displayedItem.prompt}</p>
+                  <CopyButton textToCopy={displayedItem.prompt} />
                 </div>
                 
-                <div className="prose max-w-none prose-p:my-2 prose-h1:my-4 prose-h2:my-3 prose-h3:my-2 min-h-[200px] flex flex-col justify-center">
+                <div className="group relative prose max-w-none prose-p:my-2 prose-h1:my-4 prose-h2:my-3 prose-h3:my-2 min-h-[200px] flex flex-col justify-center">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {displayedItem.result}
                   </ReactMarkdown>
+                  <CopyButton textToCopy={displayedItem.result} className="prose-copy-button" />
                 </div>
               </div>
             </motion.div>
