@@ -66,6 +66,32 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // 專為 Gemini Stream API 設置，停用快取與壓縮以確保串流正常運作
+        source: '/api/gemini/stream',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/event-stream; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-transform',
+          },
+          {
+            key: 'Connection',
+            value: 'keep-alive',
+          },
+          {
+            key: 'Content-Encoding',
+            value: 'none',
+          },
+          {
+            key: 'X-Accel-Buffering',
+            value: 'no',
+          },
+        ],
+      },
+      {
         // 應用於所有 API 路由
         source: '/api/:path*',
         headers: [
