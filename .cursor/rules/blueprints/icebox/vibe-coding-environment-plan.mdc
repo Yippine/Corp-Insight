@@ -1,23 +1,23 @@
 ---
-description: Vibe Coding 環境遷移實施指南。當你需要規劃、執行或回顧「Git + Cloud9 + Q Developer + Cursor」雲端開發環境的遷移進度時調用此規則。本規則涵蓋了從成本診斷、工具選型、安全設定到 CI/CD 流程規劃的完整行動方案與決策紀錄，是此遷移任務的唯一真實來源 (Single Source of Truth)，旨在解決多設備同步痛點並實現終極開發者體驗。
+description: Vibe Coding 環境遷移實施指南。當你需要規劃、執行或回顧從舊有開發模式遷移至「Git + Amazon CodeCatalyst + Q Developer + Cursor」雲端開發環境的進度時調用此規則。本規則涵蓋了從工具選型、環境建置、安全設定到整合式 CI/CD 流程規劃的完整行動方案與決策紀錄，是此遷移任務的唯一真實來源 (Single Source of Truth)，專精於解決多設備同步痛點並實現終極開發者體驗。
 alwaysApply: false
 ---
 # 🚀 Vibe Coding 開發環境遷移計畫
-**最後更新：2025/07/16**
+**最後更新：2024/07/26 (因應 AWS Cloud9 政策調整)**
 
 ## 🎯 0. 專案背景與診斷 (Project Context & Diagnosis)
 
-本計畫的發起，源於對現有開發流程痛點的分析及對雲端成本的審查。
+本計畫的發起，源於對現有開發流程痛點的分析及對未來工作流的展望。
 
 *   **核心痛點**：開發工作分散於多台本地設備（家中、公司、筆電），環境配置與專案同步耗費大量時間心力，無法實現流暢的「Vibe Coding」體驗。
-*   **成本疑雲 (已解決)**：在 2025 年 7 月初，我們發現 AWS 每月帳單高達 ~$60 USD，遠超預期。經過深入診斷，確認問題根源為**已停止但未終止的 EC2 實例**及其持續計費的 **EBS 磁碟區**和**未關聯的彈性 IP**。此問題已在 2025/07/16 徹底清理完畢，帳戶成本已回歸正常。
+*   **環境突變 (Urgent Change)**：自 2024 年 7 月 25 日起，**AWS Cloud9 不再對新客戶開放**。這迫使我們必須尋找一個更現代、更強大的雲端開發環境 (CDE) 作為替代方案。
 
-基於以上背景，本計畫旨在徹底革新開發工作流，轉向以雲端為核心、AI 為輔助的現代化模式，以根除痛點並將資源專注於創造性工作。
+基於以上背景，本計畫旨在徹底革新開發工作流，轉向以 **Amazon CodeCatalyst** 為核心、AI 為輔助的現代化模式，以根除痛點並將資源專注於創造性工作。
 
 ## 🎯 1. 專案目標 (Project Goal)
 
-*   **消除多設備同步問題**：建立單一、一致、隨時可用的雲端開發環境 (CDE)。
-*   **提升開發與部署效率**：將繁瑣的雲端資源管理與部署工作交由 AI (AWS Q) 處理。
+*   **消除多設備同步問題**：建立基於 CodeCatalyst 的單一、一致、隨時可用的雲端開發環境。
+*   **提升開發與部署效率**：將繁瑣的雲端資源管理與部署工作交由 AI (AWS Q) 處理，並利用 CodeCatalyst 的整合 CI/CD 能力。
 *   **實現「Vibe Coding」體驗**：讓開發者能專注於創造性工作，而非環境配置與維運。
 
 本文件為此遷移任務的**唯一真實來源 (Single Source of Truth)**，將用於追蹤所有相關任務的規劃與進度。
@@ -28,50 +28,52 @@ alwaysApply: false
 
 | 組件 | 角色 | 預估月費 (USD) | 關鍵考量與決策 |
 | :--- | :--- | :--- | :--- |
-| **Git (GitHub)** | **單一事實來源** | $0 | 所有程式碼的變更與版本控制中心。 |
-| **AWS Cloud9** | **雲端開發大本營** | **~$7 - $12** | 提供基於 EC2 的、完全配置好的開發環境。**這是解決多設備同步問題的核心方案。** |
-| **Cursor IDE** | **程式碼神經機械鎧** | (既有成本) | 作為本地的主力開發介面，透過 `Remote-SSH` 無縫連接至 Cloud9。 |
-| **AWS Q Developer** | **雲端專屬副官** | **$0 - $19** | 在 Cloud9/Cursor 中使用，以自然語言處理所有 AWS 相關的開發、分析與部署任務。 |
-| **總計額外投資** | | **~$26 - $31** | **共識：這是一筆高投資報酬率的費用，能換取巨大的開發效率提升。** |
+| **Git (GitHub)** | **單一事實來源** | $0 | 所有程式碼的變更與版本控制中心。可與 CodeCatalyst 雙向同步。 |
+| **Amazon CodeCatalyst** | **雲端開發大本營** | **$0 - $5** | 提供基於 VS Code 的、完全託管的雲端開發環境。**這是解決多設備同步問題的核心方案**。免費方案包含每月足夠的運算時數。 |
+| **Cursor IDE** | **程式碼神經機械鎧** | (既有成本) | 作為本地的主力開發介面，透過 `CodeCatalyst` 擴充功能無縫連接至雲端環境。 |
+| **AWS Q Developer** | **雲端專屬副官** | **$0 - $19** | 在 CodeCatalyst/Cursor 中使用，以自然語言處理所有 AWS 相關的開發、分析與部署任務。 |
+| **總計額外投資** | | **~$19 - $24** | **共識：這是一筆高投資報酬率的費用，能換取巨大的開發效率提升與工作流整合。** |
 
 ---
 
 ## 🗺️ 3. 實施路徑與任務清單 (Implementation Roadmap & Tasks)
 
-### Phase 1: 建立雲端大本營 (CDE Foundation)
+### Phase 1: 建立雲端大本營 (CDE Foundation with CodeCatalyst)
 
-**目標：** 建立一個穩定、經濟、安全且包含所有專案依賴的雲端開發環境。
+**目標：** 在 Amazon CodeCatalyst 中建立一個穩定、安全且包含所有專案依賴的雲端開發環境。
 
-- [ ] **Task 1.1: 創建並優化 Cloud9 環境**
-    - [ ] 登入 AWS Console 並前往 Cloud9。
-    - [ ] 建立一個新的 EC2 環境。
-    - [ ] **[關鍵決策]** Instance Type 選擇 **`t3.small`** 作為起點，以平衡效能與成本。
-    - [ ] **[成本關鍵]** 在 "Network settings" 中，設定 **閒置 30 分鐘後自動休眠 (Auto-hibernation)**。
-    - [ ] 驗證環境成功啟動。
+- [ ] **Task 1.1: 創建 CodeCatalyst 專案與環境**
+    - [ ] 登入 AWS Console 並前往 Amazon CodeCatalyst。
+    - [ ] 建立一個新的 Space (如果尚未建立)。
+    - [ ] 建立一個新的 Project，選擇 "Start from scratch"。
+    - [ ] 在專案中，連結現有的 GitHub Repository 作為 Source Repository。
+    - [ ] 前往 "Dev Environments"，點擊 "Create Dev Environment"。
+    - [ ] **[關鍵決策]** IDE 選擇 **VS Code**。Repository 選擇剛才連結的 GitHub Repo。
+    - [ ] **[成本關鍵]** Dev Environment settings 中，選擇 **2-core CPU / 4GB RAM** 作為起點，並設定 **閒置 15 分鐘後停止 (Timeout)**。
+    - [ ] 驗證環境成功啟動，並可以在瀏覽器中看到 VS Code 介面。
 
-- [ ] **Task 1.2: 配置 Cloud9 環境**
-    - [ ] 在 Cloud9 終端機中安裝 Docker 與 Docker Compose。
-    - [ ] Clone 本專案的 Git Repository。
-    - [ ] 進入 `next/` 目錄，安裝 `npm` 依賴。
+- [ ] **Task 1.2: 配置雲端開發環境**
+    - [ ] 在 CodeCatalyst 終端機中，驗證 `node`, `npm`, `docker` 等工具是否已預裝。
+    - [ ] 進入 `next/` 目錄，執行 `npm install` 安裝專案依賴。
 
 - [ ] **Task 1.3: 啟動並驗證專案**
     - [ ] 使用 `docker-compose up -d` 啟動 MongoDB 服務。
     - [ ] 使用 `npm run dev` 啟動 Next.js 開發伺服器。
-    - [ ] 使用 Cloud9 內建的 "Preview" 功能，確認可以成功訪問 `localhost:3000`。
+    - [ ] CodeCatalyst 會自動偵測到運行的服務，並在 "Ports" 標籤頁提供轉發後的 URL。點擊該 URL，確認可以成功訪問專案。
 
 ### Phase 2: 無縫連接本地主力 IDE (IDE Integration)
 
-**目標：** 實現本地 Cursor IDE 與雲端 Cloud9 環境的無縫連接，兼顧最佳介面體驗與雲端環境的一致性。
+**目標：** 實現本地 Cursor IDE 與雲端 CodeCatalyst 環境的無縫連接，兼顧最佳介面體驗與雲端環境的一致性。
 
 - [ ] **Task 2.1: 安裝並設定遠端連線**
-    - [ ] 在本地 Cursor IDE 中，從 Marketplace 安裝 `Remote - SSH` 擴充功能。
-    - [ ] **[安全關鍵]** 前往 Cloud9 EC2 實例的安全群組 (Security Group)，新增一條 Inbound Rule：`Type: SSH`, `Port: 22`, `Source: My IP`。**決不**對 `0.0.0.0/0` 開放。
-    - [ ] 根據 Cloud9 的指引，設定 SSH Config 檔案，以便連接。
+    - [ ] 在本地 Cursor IDE 中，從 Marketplace 安裝 `Amazon CodeCatalyst` 擴充功能。
+    - [ ] 點擊左側邊欄的 CodeCatalyst 圖示，登入你的 AWS Builder ID。
 
 - [ ] **Task 2.2: 連接並測試**
-    - [ ] 透過 Cursor 左下角的遠端選單，連接到新設定的 Cloud9 Host。
+    - [ ] 在 CodeCatalyst 擴充功能的面板中，應該能看到你剛建立的 Dev Environment。
+    - [ ] 點擊環境旁邊的「連接」圖示。Cursor 將會開啟一個新視窗，並自動連接到雲端環境。
     - [ ] 連接成功後，在 Cursor 中打開雲端的專案資料夾。
-    - [ ] 測試在 Cursor 中修改檔案，並在 Cloud9 終端機中確認變更，反之亦然。
+    - [ ] 測試在 Cursor 中修改檔案，並在 CodeCatalyst 瀏覽器介面中確認變更，反之亦然。
 
 ### Phase 3: 喚醒你的 AI 副官 (AI Co-pilot Activation)
 
@@ -80,7 +82,7 @@ alwaysApply: false
 - [ ] **Task 3.1: 安裝 AWS Q Developer 工具鏈**
     - [ ] **[決策]** 先從**免費版**開始體驗。
     - [ ] 在已連接遠端的 Cursor IDE 中，安裝 `AWS Toolkit` 擴充功能並登入 Q Developer。
-    - [ ] 在 Cloud9 的終端機中，透過 `npm` 全域安裝 `@aws/q-cli`。
+    - [ ] 在 CodeCatalyst 的終端機中，透過 `npm` 全域安裝 `@aws/q-cli`。
 
 - [ ] **Task 3.2: 掌握 Q Developer 的核心能力**
     - [ ] **[練習]** 嘗試用 Q CLI 分析專案：`q scan-project`
@@ -89,15 +91,15 @@ alwaysApply: false
 
 ### Phase 4: 進化至終極工作流 (The Ultimate Workflow)
 
-**目標：** 引入 IaC 和 CI/CD，實現開發與部署的全自動化。
+**目標：** 引入 IaC 和 CodeCatalyst CI/CD，實現開發與部署的全自動化。
 
 - [ ] **Task 4.1: 學習並應用 IaC (基礎設施即程式碼)**
     - [ ] **[目標]** 研究並使用 Q Developer 生成部署計畫，例如：`q create a deployment plan for my Next.js app to AWS ECS using AWS CDK.`
     - [ ] **[目標]** 逐步用 AWS CDK 腳本來管理專案的雲端資源，取代手動到 Console 操作。
 
 - [ ] **Task 4.2: 建立 CI/CD Pipeline**
-    - [ ] **[目標]** 使用 Q Developer 輔助，編寫一個 `buildspec.yml` 檔案。
-    - [ ] **[目標]** 建立一個 AWS CodePipeline，串聯 GitHub -> CodeBuild -> ECS/EC2 部署。
+    - [ ] **[目標]** 在 CodeCatalyst 中，建立一個新的 Workflow。使用內建的 Blueprint (範本) 作為起點，例如 "Deploy to Amazon ECS"。
+    - [ ] **[目標]** 編輯 Workflow 的 YAML 檔案，將其串聯 GitHub -> 自動化測試 -> CodeBuild -> ECS/EC2 部署。
     - [ ] **[目標]** 實現 `git push` 到特定分支後，自動觸發測試、建置與部署。
 
 ---
@@ -106,25 +108,25 @@ alwaysApply: false
 
 本章節記錄了專案規劃過程中的關鍵問答與共識，以供未來參考。
 
-1.  **Q: 為何選擇 Cloud9，而不是再開一台 EC2？**
-    **A:** Cloud9 是專為開發設計的**完全託管環境**。其核心優勢在於：1) **自動休眠**功能可大幅節省成本；2) 預裝開發工具，開箱即用；3) 天然支援協作；4) 預設使用 SSM 連線，安全性高。
+1.  **Q: 為何選擇 Amazon CodeCatalyst，而不是自己手動在 EC2 上搭建環境？**
+    **A:** CodeCatalyst 是專為開發設計的**完全託管整合平台**。其核心優勢在於：1) **按需運算與自動休眠**，成本效益高；2) **環境即程式碼 (`devfile.yaml`)**，確保所有開發者環境一致；3) **深度整合 CI/CD**，從開發到部署一氣呵成；4) **安全性高**，無需管理 SSH 金鑰或開放安全群組端口。
 
 2.  **Q: Q Developer 和 Cursor 的功能是否重疊？**
     **A:** **否，它們是完美互補的。**
     *   **Cursor 是「應用層」專家**：精通程式碼、演算法、重構。
-    *   **Q Developer 是「基礎設施層」專家**：精通 AWS 服務生態，能生成最佳雲端架構建議、IaC 腳本 (如 CDK) 和 AWS SDK 程式碼。**它負責出謀劃策，告訴你該用哪些雲端積木以及如何搭建；Cursor 負責精雕細琢每一塊積木內部的業務邏輯。**
+    *   **Q Developer 是「基礎設施層」專家**：精通 AWS 服務生態，能生成最佳雲端架構建議、IaC 腳本 (如 CDK) 和 AWS SDK 程式碼。**它負責出謀劃策，告訴你該用哪些雲端積木以及如何搭建；Cursor 負責精雕細琢每一塊積木內部的業務邏輯**
 
-3.  **Q: Q Developer Pro ($19/月) 的額度限制是什麼？**
-    **A:** **對於你的使用場景，額度非常充足。**
-    *   **程式碼建議 & 聊天**：無限。
-    *   **高價值指令 (如 `/dev` 生成程式碼)**：每月有極高額度，個人開發者幾乎用不完。
-    *   **重量級轉換 (`/transform`)**：每月有較低次數限制，但你的專案暫時用不到。
+3.  **Q: CodeCatalyst 的免費額度夠用嗎？**
+    **A:** **對於個人或小型團隊的開發階段，完全足夠。**
+    *   **Standard Tier (2-core)** 開發環境每月有 **60 小時**免費時數。
+    *   **CI/CD (Build)** 每月有 **300 分鐘**免費時數。
+    *   只要記得隨手停止不用的環境，或讓它自動休眠，成本就能控制在 $0。
 
-4.  **Q: Cloud9 上的多人協作如何處理 Git 衝突？**
-    **A:** Git 衝突的解決方式與本地完全相同 (`git pull` -> 手動解衝突 -> `commit` -> `push`)。Cloud9 的優勢在於提供一個**共享的執行環境**，確保所有協作者都在完全相同的環境下解決問題，消除了「在我電腦上可以」的爭議。
+4.  **Q: 在 CodeCatalyst 中如何處理 Git 衝突？**
+    **A:** Git 衝突的解決方式與本地完全相同 (`git pull` -> 手動解衝突 -> `commit` -> `push`)。CodeCatalyst 的優勢在於提供一個**共享的、標準化的執行環境**，確保所有協作者都在完全相同的環境下解決問題，消除了「在我電腦上可以」的爭議。
 
 5.  **Q: CI/CD Pipeline 如何處理 `.env` 敏感檔案？**
-    **A:** **絕對不能**將 `.env` 檔案提交到 Git。業界最佳實踐是使用 **AWS Secrets Manager** 或 **SSM Parameter Store** 儲存密鑰。在 CI/CD 流程中（`buildspec.yml`），加入從 Secrets Manager 讀取密鑰並注入到環境變數的步驟。
+    **A:** **絕對不能**將 `.env` 檔案提交到 Git。在 CodeCatalyst 中，最佳實踐是使用 **Project-level secrets** 來儲存密鑰。在 Workflow (CI/CD) 的定義中，可以引用這些 secrets，並在執行時將它們作為環境變數注入。
 
 6.  **Q: 如果 CI/CD 流程失敗了怎麼辦？**
-    **A:** 這是正常且健康的。標準做法是：在本地修復導致失敗的問題（如測試不通過、建置錯誤），然後提交一個**新的 `git push`**，這會自動觸發一次全新的 Pipeline 流程。
+    **A:** 這是正常且健康的。標準做法是：在本地或 Dev Environment 中修復導致失敗的問題（如測試不通過、建置錯誤），然後提交一個**新的 `git push`**，這會自動觸發一次全新的 Workflow 執行。
