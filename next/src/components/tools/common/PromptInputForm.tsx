@@ -146,6 +146,7 @@ const PromptInputForm: React.FC<PromptInputFormProps> = ({
           {isFollowUpMode || isDirty ? (
             <motion.button
               onClick={isDirty ? handleDiscardChanges : handleReset}
+              disabled={isGenerating} // 新增禁用邏輯
               title={isDirty ? '捨棄修改' : '開啟全新對話'}
               initial={{ opacity: 0, scale: 0.5, width: 0 }}
               animate={{ opacity: 1, scale: 1, width: 'auto' }}

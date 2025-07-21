@@ -38,6 +38,9 @@ export default function PromptToolTemplate({
     frozenResult,
     history,
     currentIndex,
+    // 優化器相關
+    isOptimizingPrompt,
+    promptBeforeOptimization,
 
     // Refs
     promptInputRef,
@@ -55,16 +58,21 @@ export default function PromptToolTemplate({
     handleSaveToolPrompt,
     handleSaveSystemPrompt,
     handleDiscardChanges,
+    // 優化器函式
+    handleOptimizePrompt,
+    handleUndoOptimization,
   } = usePromptEngine({
     config,
     commonSystemPrompt: (config as any).systemPromptTemplate || '',
   });
 
+  const isAnyLoading = isGenerating || isOptimizingPrompt;
+
   return (
     <div className="w-full space-y-6">
       <PromptInputForm
         prompt={prompt}
-        isGenerating={isGenerating}
+        isGenerating={isAnyLoading}
         isOptimizing={isOptimizing}
         isFollowUpMode={isFollowUpMode}
         isDirty={isDirty}
@@ -87,7 +95,13 @@ export default function PromptToolTemplate({
           onSystemPromptChange={setEditedSystemPrompt}
           isSystemPromptDirty={isSystemPromptDirty}
           onSaveSystemPrompt={handleSaveSystemPrompt}
-          isGenerating={isGenerating}
+          isGenerating={isAnyLoading}
+          // 傳遞優化器 props
+          isOptimizing={isOptimizingPrompt}
+          onOptimize={handleOptimizePrompt}
+          // 傳遞復原功能 props (新增)
+          promptBeforeOptimization={promptBeforeOptimization}
+          handleUndoOptimization={handleUndoOptimization}
         />
       )}
 
@@ -98,7 +112,7 @@ export default function PromptToolTemplate({
         frozenResult={frozenResult}
         history={history}
         currentIndex={currentIndex}
-        isGenerating={isGenerating}
+        isGenerating={isAnyLoading}
         isAwaitingFirstToken={isAwaitingFirstToken}
         resultRef={resultRef}
         handleNavigate={handleNavigate}

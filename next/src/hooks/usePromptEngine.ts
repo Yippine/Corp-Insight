@@ -54,6 +54,13 @@ export const usePromptEngine = ({
   // 新增：用於在等待新串流時凍結舊畫面的狀態
   const [frozenResult, setFrozenResult] = useState<FrozenResult>(null);
 
+  // --- 優化器相關狀態 (新增) ---
+  const [isOptimizingPrompt, setIsOptimizingPrompt] = useState(false);
+  const [promptBeforeOptimization, setPromptBeforeOptimization] = useState<{
+    tool?: PromptConfig;
+    system?: string;
+  } | null>(null);
+
   // --- Gemini API 串流 Hook ---
   const {
     isLoading: isGeneratingOriginal,
@@ -148,7 +155,7 @@ export const usePromptEngine = ({
 
       return finalPrompt;
     },
-    [history, config.id] // 依賴項優化
+    [history, config.id, prompt] // 依賴項優化
   );
 
   const handleGenerate = useCallback(async () => {
@@ -251,6 +258,100 @@ export const usePromptEngine = ({
       handleReset();
     }
   }, [originalConfig, originalSystemPrompt, history, handleReset]);
+
+  // --- 優化器處理函式 (新增) ---
+  const handleOptimizePrompt = useCallback(
+    async (
+      type: 'prefix' | 'suffix' | 'system',
+      philosophy: string,
+      framework: string
+    ) => {
+      setIsOptimizingPrompt(true);
+
+      // 1. 在呼叫 API 前，先備份當前的狀態
+      if (type === 'system') {
+        setPromptBeforeOptimization({ system: editedSystemPrompt });
+      } else {
+        setPromptBeforeOptimization({ tool: { ...editedConfig } });
+      }
+
+      try {
+        // 2. 準備請求內容
+        let currentPromptData;
+        if (type === 'system') {
+          currentPromptData = { currentContent: editedSystemPrompt };
+        } else {
+          currentPromptData = {
+            prefix: editedConfig.prefix,
+            suffix: editedConfig.suffix,
+            target: type, // 告訴後端這次是針對 prefix 還是 suffix
+          };
+        }
+
+        const response = await fetch('/api/prompt/optimize', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type,
+            currentPromptData,
+            philosophy,
+            framework,
+            toolId: config.id, // 將工具 ID 也傳遞過去
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'API 請求失敗');
+        }
+
+        const optimizedText = await response.text();
+
+        // 3. 成功後更新對應的 state
+        if (type === 'system') {
+          setEditedSystemPrompt(optimizedText);
+        } else {
+          setEditedConfig(prev => ({
+            ...prev,
+            [type]: optimizedText, // 動態更新 prefix 或 suffix
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to optimize prompt:', error);
+        // 如果出錯，復原剛才的備份
+        if (promptBeforeOptimization) {
+          if (promptBeforeOptimization.system !== undefined) {
+            setEditedSystemPrompt(promptBeforeOptimization.system);
+          }
+          if (promptBeforeOptimization.tool) {
+            setEditedConfig(promptBeforeOptimization.tool);
+          }
+        }
+        // 清除復原狀態，因為操作失敗了
+        setPromptBeforeOptimization(null);
+      } finally {
+        setIsOptimizingPrompt(false);
+      }
+    },
+    [editedConfig, editedSystemPrompt, config.id]
+  );
+
+  const handleUndoOptimization = useCallback(() => {
+    if (!promptBeforeOptimization) return;
+
+    console.log('[Prompt Optimizer] Undoing optimization...');
+
+    if (promptBeforeOptimization.system !== undefined) {
+      setEditedSystemPrompt(promptBeforeOptimization.system);
+    }
+    if (promptBeforeOptimization.tool) {
+      setEditedConfig(promptBeforeOptimization.tool);
+    }
+
+    setPromptBeforeOptimization(null); // 清除復原狀態
+  }, [promptBeforeOptimization]);
 
   const handleNavigate = useCallback(
     (newIndex: number) => {
@@ -424,6 +525,9 @@ export const usePromptEngine = ({
     frozenResult, // 傳出凍結的結果
     history,
     currentIndex,
+    // 優化器相關 (新增)
+    isOptimizingPrompt,
+    promptBeforeOptimization,
 
     // Refs
     promptInputRef,
@@ -441,5 +545,8 @@ export const usePromptEngine = ({
     handleSaveToolPrompt,
     handleSaveSystemPrompt,
     handleDiscardChanges,
+    // 優化器函式 (新增)
+    handleOptimizePrompt,
+    handleUndoOptimization,
   };
 };
