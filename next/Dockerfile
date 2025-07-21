@@ -42,31 +42,27 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# 建立非 root 使用者
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
 # 複製公共資源
 COPY --from=builder /app/public ./public
 
 # 設定正確的權限
 RUN mkdir .next
-RUN chown nextjs:nodejs .next
+RUN chown -R node:node .next
 
 # 複製建置輸出 (使用 standalone 模式)
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 
 # 複製生產環境設定檔 (確保應用能在運行時存取)
-COPY --from=builder --chown=nextjs:nodejs /app/.env.production ./
+COPY --from=builder --chown=node:node /app/.env.production ./
 
 # 複製 sitemap 管理所需的檔案
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=node:node /app/package.json ./package.json
+COPY --from=builder --chown=node:node /app/scripts ./scripts
 
 # 建立並授權 db 目錄，用於備份和還原操作，同時確保 scripts 目錄下的所有檔案都可執行
 RUN mkdir -p /app/db/backups && \
-    chown -R nextjs:nodejs /app/db && \
+    chown -R node:node /app/db && \
     chmod +x /app/scripts/*
 
 # 確保有基本的 Node.js 內建模組可用（http, fs 等已內建於 Node.js）

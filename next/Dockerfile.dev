@@ -3,6 +3,10 @@
 
 FROM node:21-bullseye-slim
 
+# 增加使用者 / 群組 ID 的 ARG，以便從 docker-compose 接收它們
+ARG UID
+ARG GID
+
 # 安裝必要的系統依賴
 RUN apt-get update && apt-get install -y git docker.io curl gosu && rm -rf /var/lib/apt/lists/*
 
@@ -22,10 +26,8 @@ RUN npm list critters web-vitals || echo "Warning: Some dependencies may be miss
 # 複製原始碼
 COPY . .
 
-# 為 entrypoint 建立必要的 nextjs 使用者和群組 (與 Dockerfile 一致)
-# 在開發環境中，應用主要以 root 運行以方便調試，但 entrypoint 腳本內有 gosu 切換
-RUN addgroup --system --gid 1001 nodejs || true
-RUN adduser --system --uid 1001 nextjs || true
+# 根據主機 UID/GID 動態調整 node 使用者，確保容器內外權限一致性
+RUN groupmod -g $GID node && usermod -u $UID -g $GID node
 
 # 設定開發環境變數
 ENV NODE_ENV=development
