@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * Business Magnifier MongoDB Collections 初始化腳本
- * 
+ *
  * 用途: 根據專案架構規則重建所有必要的 MongoDB Collections 和索引
  * 執行方式: node scripts/init-mongodb-collections.js
- * 
+ *
  * 重建的 7 個 Collections:
  * 1. companies - 企業資料集合
- * 2. tenders - 政府標案資料集合  
+ * 2. tenders - 政府標案資料集合
  * 3. ai_tools - AI 工具資料集合
  * 4. feedbacks - 使用者意見回饋
  * 5. pcc_api_cache - 政府採購網 API 快取
@@ -137,6 +137,14 @@ const COLLECTIONS_CONFIG = {
       { keys: { keyIdentifier: 1 }, options: { unique: true, name: 'keyIdentifier_unique' } },
       { keys: { status: 1 }, options: { name: 'status_1' } },
     ]
+  },
+
+  // 3. 系統設定 Collection
+  global_settings: {
+    description: '全域設定 - 儲存共享的系統級設定，如通用提示詞範本',
+    indexes: [
+      // 此 Collection 僅透過 _id 查詢，故不需額外索引
+    ]
   }
 };
 
@@ -150,7 +158,7 @@ async function createCollection(db, collectionName, config) {
     console.log(`   描述: ${config.description}`);
 
     const collections = await db.listCollections({ name: collectionName }).toArray();
-    
+
     if (collections.length === 0) {
       await db.createCollection(collectionName);
       console.log(`   ✅ Collection "${collectionName}" 建立成功`);
@@ -167,7 +175,7 @@ async function createCollection(db, collectionName, config) {
     for (const [indexName, indexDef] of existingIndexMap.entries()) {
       // 跳過預設的 _id 索引
       if (indexName === '_id_') continue;
-      
+
       const isDefinedInConfig = config.indexes.some(
         (cfg) => cfg.options.name === indexName
       );
@@ -232,7 +240,7 @@ async function initializeMongoDBCollections() {
   console.log('🚀 Business Magnifier MongoDB Collections 初始化開始');
   const totalCollections = Object.keys(COLLECTIONS_CONFIG).length;
   console.log(`🎯 目標：檢查並設定 ${totalCollections} 個 Collections`);
-  
+
   let client;
 
   try {
@@ -262,13 +270,13 @@ async function initializeMongoDBCollections() {
     console.log('📊 初始化完成報告:');
     console.log(`   - Collections: ${stats.created} 個新建, ${stats.skipped} 個已存在, ${stats.failed} 個失敗`);
     console.log(`   - 索引: ${stats.indexes.created} 個新建, ${stats.indexes.skipped} 個已存在, ${stats.indexes.failed} 個失敗`);
-    
+
     if (stats.failed === 0) {
       console.log('\n🎉 所有 Collections 均已設定完成！');
     } else {
       console.log(`\n⚠️  有 ${stats.failed} 個 Collections 處理失敗，請檢查上方日誌`);
     }
-    
+
   } catch (error) {
     console.error('\n❌ MongoDB 初始化遭遇嚴重錯誤:', error.message);
     if (error.message.includes('ECONNREFUSED')) {

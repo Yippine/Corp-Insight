@@ -20,6 +20,7 @@ export function mapAiToolDocumentToTool(tool: DBToolDocument): Tools {
     instructions: tool.instructions,
     placeholder: tool.placeholder,
     promptTemplate: tool.promptTemplate,
+    systemPromptTemplate: (tool as any).systemPromptTemplate,
   };
 
   // 在開發模式下，如果 score 和 matchDetails 存在，則將它們附加到物件上

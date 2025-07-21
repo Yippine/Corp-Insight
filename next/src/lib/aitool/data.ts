@@ -1,4 +1,5 @@
 import { getDb } from '@/lib/mongodbUtils';
+import { Filter } from 'mongodb';
 import {
   AIToolModel,
   AIToolDocument as DBToolDocument,
@@ -11,6 +12,15 @@ const OpenCC = require('opencc-js');
 const toSimplified = OpenCC.Converter({ from: 'tw', to: 'cn' });
 const toTraditional = OpenCC.Converter({ from: 'cn', to: 'tw' });
 
+// 定義 global_settings collection 的文件結構
+interface GlobalSetting {
+  _id: string;
+  description: string;
+  template: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // 轉換 AIToolDocument 到 Tools 格式的輔助函數 (現已代理至 utils)
 export function convertAIToolDocumentToTools(
   aiTools: DBToolDocument[]
@@ -21,14 +31,38 @@ export function convertAIToolDocumentToTools(
 // 根據 ID 獲取特定工具 (已重構為直接訪問資料庫)
 export async function getToolById(toolId: string): Promise<Tools | null> {
   try {
-    const tool = await AIToolModel.getById(toolId);
+    const db = await getDb();
 
-    if (tool) {
-      // 模型回傳的是單一物件，但 convertAIToolDocumentToTools 預期的是一個陣列
-      return convertAIToolDocumentToTools([tool])[0] || null;
+    // 定義查詢 global_settings 的過濾器，並明確指定 _id 的型別
+    const systemPromptFilter: Filter<GlobalSetting> = {
+      _id: 'common_tool_system_prompt',
+    };
+
+    const [toolDoc, systemPromptDoc] = await Promise.all([
+      db
+        .collection<DBToolDocument>('ai_tools')
+        .findOne({ id: toolId, isActive: true }),
+      db
+        .collection<GlobalSetting>('global_settings')
+        .findOne(systemPromptFilter),
+    ]);
+
+    if (!toolDoc) {
+      return null;
     }
 
-    return null;
+    // 將通用系統提示詞範本附加到工具物件上
+    const toolWithSystemPrompt = {
+      ...toolDoc,
+      systemPromptTemplate: systemPromptDoc?.template || '', // 提供一個預設空字串以防萬一
+    };
+
+    // 模型回傳的是單一物件，但 convertAIToolDocumentToTools 預期的是一個陣列
+    return (
+      convertAIToolDocumentToTools([
+        toolWithSystemPrompt as DBToolDocument,
+      ])[0] || null
+    );
   } catch (error) {
     console.error(`從資料庫直接按 ID 獲取工具時發生錯誤（${toolId}）：`, error);
     return null;
@@ -74,7 +108,7 @@ export async function searchTools(
     const segmentedQuery = query
       .replace(/([a-zA-Z0-9]+)([\u4e00-\u9fa5]+)/g, '$1 $2')
       .replace(/([\u4e00-\u9fa5]+)([a-zA-Z0-9]+)/g, '$1 $2');
-    
+
     // 多分隔符號處理，並過濾掉空字串
     const keywords = segmentedQuery.split(/[\s,、;_.-]+/).filter(k => k);
 
@@ -129,8 +163,12 @@ export async function searchTools(
               instWhatLower: {
                 $toLower: { $ifNull: ['$instructions.what', ''] },
               },
-              instWhyLower: { $toLower: { $ifNull: ['$instructions.why', ''] } },
-              instHowLower: { $toLower: { $ifNull: ['$instructions.how', ''] } },
+              instWhyLower: {
+                $toLower: { $ifNull: ['$instructions.why', ''] },
+              },
+              instHowLower: {
+                $toLower: { $ifNull: ['$instructions.how', ''] },
+              },
               keywordsLower: traditionalKeywords.map(k => k.toLowerCase()),
             },
             in: {
@@ -143,7 +181,13 @@ export async function searchTools(
                     // Name: +5
                     {
                       $cond: [
-                        { $regexMatch: { input: '$$nameLower', regex: '$$this', options: 'i' } },
+                        {
+                          $regexMatch: {
+                            input: '$$nameLower',
+                            regex: '$$this',
+                            options: 'i',
+                          },
+                        },
                         5,
                         0,
                       ],
@@ -151,21 +195,35 @@ export async function searchTools(
                     // Tags: +3
                     {
                       $cond: [
-                        { $anyElementTrue: {
-                          $map: {
-                            input: '$$tagsLower',
-                            as: 'tag',
-                            in: { $regexMatch: { input: '$$tag', regex: '$$this', options: 'i' } }
-                          }
-                        }},
+                        {
+                          $anyElementTrue: {
+                            $map: {
+                              input: '$$tagsLower',
+                              as: 'tag',
+                              in: {
+                                $regexMatch: {
+                                  input: '$$tag',
+                                  regex: '$$this',
+                                  options: 'i',
+                                },
+                              },
+                            },
+                          },
+                        },
                         3,
-                        0
-                      ]
+                        0,
+                      ],
                     },
                     // Instructions.what: +3
                     {
                       $cond: [
-                        { $regexMatch: { input: '$$instWhatLower', regex: '$$this', options: 'i' } },
+                        {
+                          $regexMatch: {
+                            input: '$$instWhatLower',
+                            regex: '$$this',
+                            options: 'i',
+                          },
+                        },
                         3,
                         0,
                       ],
@@ -173,7 +231,13 @@ export async function searchTools(
                     // Description: +1
                     {
                       $cond: [
-                        { $regexMatch: { input: '$$descLower', regex: '$$this', options: 'i' } },
+                        {
+                          $regexMatch: {
+                            input: '$$descLower',
+                            regex: '$$this',
+                            options: 'i',
+                          },
+                        },
                         1,
                         0,
                       ],
@@ -181,7 +245,13 @@ export async function searchTools(
                     // Instructions.why: +1
                     {
                       $cond: [
-                        { $regexMatch: { input: '$$instWhyLower', regex: '$$this', options: 'i' } },
+                        {
+                          $regexMatch: {
+                            input: '$$instWhyLower',
+                            regex: '$$this',
+                            options: 'i',
+                          },
+                        },
                         1,
                         0,
                       ],
@@ -189,7 +259,13 @@ export async function searchTools(
                     // Instructions.how: +1
                     {
                       $cond: [
-                        { $regexMatch: { input: '$$instHowLower', regex: '$$this', options: 'i' } },
+                        {
+                          $regexMatch: {
+                            input: '$$instHowLower',
+                            regex: '$$this',
+                            options: 'i',
+                          },
+                        },
                         1,
                         0,
                       ],
@@ -277,7 +353,7 @@ export async function searchTools(
             if (isMatch) {
               matchedKeywords.add(keyword);
               // 一旦一個關鍵字在任何欄位中被匹配，我們就可以停止檢查該關鍵字的其他欄位。
-              break; 
+              break;
             }
           }
         });
@@ -309,7 +385,7 @@ export async function searchTools(
         }
 
         // -- 步驟二：計算最終分數 ---
-        const finalScore = (baseScore * multiplier) + exactMatchBonus;
+        const finalScore = baseScore * multiplier + exactMatchBonus;
 
         // --- 步驟三：填充用於 UI 顯示的詳細資訊（不影響分數） ---
         lowerCaseKeywords.forEach(keyword => {
@@ -318,9 +394,7 @@ export async function searchTools(
             if (!fieldValue) return;
 
             const isMatch = Array.isArray(fieldValue)
-              ? fieldValue.some(v =>
-                  String(v).toLowerCase().includes(keyword)
-                )
+              ? fieldValue.some(v => String(v).toLowerCase().includes(keyword))
               : String(fieldValue).toLowerCase().includes(keyword);
 
             if (isMatch) {
@@ -337,15 +411,16 @@ export async function searchTools(
         });
 
         if (exactMatchBonus > 0) {
-          matchDetails.unshift({ // 置於頂部以方便查看
+          matchDetails.unshift({
+            // 置於頂部以方便查看
             field: '完美匹配',
             keyword: originalQuery,
             content: tool.name,
             score: exactMatchBonus,
           });
         }
-        
-        return { 
+
+        return {
           ...tool,
           score: finalScore, // 使用新的最終分數覆蓋原有的分數
           baseScore,
@@ -353,7 +428,14 @@ export async function searchTools(
           totalKeywords: lowerCaseKeywords.length,
           multiplier,
           matchDetails,
-        } as (DBToolDocument & { score: number; matchDetails?: any[], baseScore?: number, matchedKeywordCount?: number, totalKeywords?: number, multiplier?: number });
+        } as DBToolDocument & {
+          score: number;
+          matchDetails?: any[];
+          baseScore?: number;
+          matchedKeywordCount?: number;
+          totalKeywords?: number;
+          multiplier?: number;
+        };
       });
 
       // --- 步驟四：根據新的最終分數重新排序整個結果集 ---

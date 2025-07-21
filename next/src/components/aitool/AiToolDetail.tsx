@@ -200,8 +200,8 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
         </div>
 
         <p className="mb-8 text-lg text-gray-700">{tool.description}</p>
-        
-        <div className="mb-8 mx-auto max-w-2xl space-y-6">
+
+        <div className="mb-8 mx-auto max-w-4xl space-y-6">
           {tool.instructions && (
             <Instructions
               what={tool.instructions.what}

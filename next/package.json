@@ -215,6 +215,7 @@
     "react-dropzone": "^14.3.8",
     "react-markdown": "^10.1.0",
     "react-schemaorg": "^2.0.0",
+    "react-textarea-autosize": "^8.5.9",
     "remark-gfm": "^4.0.1",
     "tar": "^7.4.3",
     "web-vitals": "^5.0.2"

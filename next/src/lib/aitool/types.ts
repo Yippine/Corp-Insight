@@ -27,6 +27,7 @@ export interface Tools {
   };
   score?: number;
   matchDetails?: MatchDetail[];
+  systemPromptTemplate?: string;
 }
 
 // 顏色主題介面

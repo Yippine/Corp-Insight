@@ -1,6 +1,6 @@
 ---
 description: MongoDB 開發與管理指南。當你需要了解本專案的 MongoDB 開發流程、初始化腳本 (`db:init`) 的使用、新增 Collection 的標準作業程序 (SOP)、或進行資料庫故障排除時調用此規則。此指南以 `scripts/init-mongodb-collections.js` 為唯一真實來源，專注於開發規範而非靜態的結構細節。
-globs: 
+globs:
 alwaysApply: false
 ---
 # Business Magnifier MongoDB 架構與開發指南
@@ -36,10 +36,10 @@ alwaysApply: false
 - **包含**: `pcc_api_cache`, `g0v_company_api_cache`, `twincn_api_cache`
 - **設計原則**: 使用 TTL (Time-To-Live) 索引自動清理過期文件，確保資料新鮮度。
 
-#### 3. 系統日誌 (System Logs)
-- **用途**: 記錄應用程式的關鍵事件，便於追蹤、偵錯和分析。
-- **包含**: (目前無，未來可視需求加入，例如：API 請求日誌、錯誤日誌等)
-- **設計原則**: 針對常見查詢（如狀態、時間）建立索引，並可選用 TTL 清理舊日誌。
+#### 3. 系統設定與日誌 (System Settings & Logs)
+- **用途**: 記錄應用程式的關鍵事件、儲存全域設定。
+- **包含**: `global_settings` (以及未來可視需求加入的日誌 collection)
+- **設計原則**: 針對常見查詢（如 `_id`、狀態、時間）建立索引，並可選用 TTL 清理舊日誌。
 
 ---
 
@@ -127,14 +127,14 @@ npm run db:setup
 4.  **終極重置**
     - **問題**: 如果上述方法都無效，可以考慮完全重置資料庫環境。
     - **警告**: 這會刪除所有本地資料！
-    - **指令**: 
+    - **指令**:
         ```bash
         # 1. 停止並移除容器與網路
         npm run stop
-        
+
         # 2. 移除 MongoDB 資料卷 (最關鍵的一步)
         docker volume rm next_mongodb_data
-        
+
         # 3. 重新建立所有服務
         npm run db:setup
         ```
