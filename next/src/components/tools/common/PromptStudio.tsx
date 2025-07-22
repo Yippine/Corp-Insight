@@ -24,9 +24,13 @@ interface PromptStudioProps {
 
   // 新增用於優化器的屬性
   isOptimizing: boolean;
-  onOptimize: (type: 'prefix' | 'suffix' | 'system', philosophy: string, framework:string) => void;
+  onOptimize: (
+    type: 'prefix' | 'suffix' | 'system',
+    philosophy: string,
+    framework: string
+  ) => void;
   // 新增用於復原功能的屬性
-  promptBeforeOptimization: { tool?: PromptConfig, system?: string } | null;
+  promptBeforeOptimization: { tool?: PromptConfig; system?: string } | null;
   handleUndoOptimization: () => void;
 }
 
@@ -98,15 +102,15 @@ const PromptStudio: React.FC<PromptStudioProps> = ({
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/60 p-1 shadow-soft-lg backdrop-blur-lg">
+    <div className="shadow-soft-lg overflow-hidden rounded-2xl border border-slate-200/80 bg-white/60 p-1 backdrop-blur-lg">
       <div className="flex border-b border-slate-200">
         <TabButton
-          label="工具專屬提示詞"
+          label="個性化提示"
           isActive={activeTab === 'tool'}
           onClick={() => setActiveTab('tool')}
         />
         <TabButton
-          label="通用系統範本"
+          label="系統提示詞"
           isActive={activeTab === 'system'}
           onClick={() => setActiveTab('system')}
         />
@@ -118,9 +122,11 @@ const PromptStudio: React.FC<PromptStudioProps> = ({
             <div className="grid grid-cols-1 gap-6">
               <TextareaWithLabel
                 id="prefix"
-                label="Prefix (前綴)"
+                label="角色身分（Prefix）"
                 value={editedConfig.prefix}
-                onChange={e => onConfigChange({ ...editedConfig, prefix: e.target.value })}
+                onChange={e =>
+                  onConfigChange({ ...editedConfig, prefix: e.target.value })
+                }
                 disabled={isGenerating || isOptimizing}
                 placeholder="請輸入工具專屬的前綴提示詞..."
                 minRows={3}
@@ -131,9 +137,11 @@ const PromptStudio: React.FC<PromptStudioProps> = ({
               />
               <TextareaWithLabel
                 id="suffix"
-                label="Suffix (後綴)"
+                label="執行準則（Suffix）"
                 value={editedConfig.suffix}
-                onChange={e => onConfigChange({ ...editedConfig, suffix: e.target.value })}
+                onChange={e =>
+                  onConfigChange({ ...editedConfig, suffix: e.target.value })
+                }
                 disabled={isGenerating || isOptimizing}
                 placeholder="請輸入工具專屬的後綴提示詞..."
                 minRows={3}
@@ -159,7 +167,7 @@ const PromptStudio: React.FC<PromptStudioProps> = ({
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <TextareaWithLabel
               id="system-prompt"
-              label="System Prompt Template"
+              label="通用範本（Template）"
               value={editedSystemPrompt}
               onChange={e => onSystemPromptChange(e.target.value)}
               minRows={8} // 增加通用範本的最小行數
@@ -194,7 +202,7 @@ const TabButton: React.FC<{
 }> = ({ label, isActive, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-1/2 px-4 py-2.5 text-center text-sm font-medium transition-colors duration-200 focus:outline-none ${
+    className={`w-1/2 px-4 py-2.5 text-center font-medium transition-colors duration-200 focus:outline-none ${
       isActive
         ? 'border-b-2 border-indigo-500 text-indigo-600'
         : 'text-slate-500 hover:bg-slate-100/80'
@@ -216,22 +224,34 @@ const TextareaWithLabel: React.FC<{
   onOptimize?: (philosophy: string, framework: string) => void;
   isOptimizing?: boolean;
   // 新增復原功能相關的可選屬性
-  promptBeforeOptimization?: { tool?: PromptConfig, system?: string } | null;
+  promptBeforeOptimization?: { tool?: PromptConfig; system?: string } | null;
   handleUndoOptimization?: () => void;
-}> = ({ id, label, value, onChange, minRows = 4, disabled = false, placeholder = '', onOptimize, isOptimizing, promptBeforeOptimization, handleUndoOptimization }) => {
-
+}> = ({
+  id,
+  label,
+  value,
+  onChange,
+  minRows = 4,
+  disabled = false,
+  placeholder = '',
+  onOptimize,
+  isOptimizing,
+  promptBeforeOptimization,
+  handleUndoOptimization,
+}) => {
   // 判斷當前的 undo 狀態是否與此 Textarea 相關
   const isUndoable =
     promptBeforeOptimization &&
-    (
-      (id.includes('system') && promptBeforeOptimization.system !== undefined) ||
-      (!id.includes('system') && promptBeforeOptimization.tool !== undefined)
-    );
+    ((id.includes('system') && promptBeforeOptimization.system !== undefined) ||
+      (!id.includes('system') && promptBeforeOptimization.tool !== undefined));
 
   return (
     <div>
       <div className="flex items-center justify-between">
-        <label htmlFor={id} className="mb-2 block text-base font-medium text-slate-700">
+        <label
+          htmlFor={id}
+          className="mb-2 block text-base font-medium text-slate-700"
+        >
           {label}
         </label>
         {onOptimize && typeof isOptimizing === 'boolean' && (

@@ -23,7 +23,7 @@ alwaysApply: false
 - **狀態管理**: 新增 `originalConfig`, `editedConfig`, `isDirty`, `comparisonResult`, `isAwaitingFirstDualToken` 等狀態。
 - **元件**:
   - `PromptStudio.tsx`: 可收合的編輯器區塊，僅在開發模式渲染。
-  - **UI 劃分**: `PromptStudio` 內部分為「工具專屬提示詞」和「通用系統範本」兩區，各自擁有獨立的儲存按鈕和 API 呼叫。
+  - **UI 劃分**: `PromptStudio` 內部分為「個性化提示」和「通用系統範本」兩區，各自擁有獨立的儲存按鈕和 API 呼叫。
 - **渲染邏輯**:
   - **雙欄對比**: 當 `isDirty` 為 `true` 時，觸發雙欄對比模式。
   - **等待首字元**: 從舊結果切換至新結果（單欄 -> 雙欄，或 雙欄 -> 雙欄）的渲染時機，必須在任一新串流收到首個 token 後才觸發，以實現無縫轉換。

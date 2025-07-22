@@ -406,13 +406,13 @@ export const usePromptEngine = ({
         }
 
         console.log(
-          `✅ ${type === 'tool' ? '工具提示詞' : '通用系統範本'}儲存成功！`
+          `✅ ${type === 'tool' ? '個性化提示' : '系統提示詞'}儲存成功！`
         );
         // 儲存成功後，清空對話結果，UI聚焦回輸入框
         handleReset();
       } catch (error) {
         console.error(
-          `❌ 儲存${type === 'tool' ? '工具提示詞' : '通用系統範本'}失敗：`,
+          `❌ 儲存${type === 'tool' ? '個性化提示' : '系統提示詞'}失敗：`,
           error
         );
       }

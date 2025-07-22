@@ -8,7 +8,10 @@ import path from 'path';
 // 斷路器與指數退避策略設定
 const MAX_BACKOFF_MINUTES = 120; // 最長冷凍時間 (分鐘) - 根據分析調整為一個更合理的中期值
 // 從環境變數讀取每日失敗次數上限，若未設定則預設為 10
-const DAILY_FAILURE_THRESHOLD = parseInt(process.env.GEMINI_DAILY_FAILURE_THRESHOLD || '10', 10);
+const DAILY_FAILURE_THRESHOLD = parseInt(
+  process.env.GEMINI_DAILY_FAILURE_THRESHOLD || '10',
+  10
+);
 
 // 維護一個 API Key 到 GenAI 實例的映射，避免對同一個 Key 重複初始化
 const genAIInstances = new Map<string, GoogleGenerativeAI>();
@@ -25,18 +28,24 @@ function getApiKeyPool(): { pool: string[]; envType: string } {
   switch (envType) {
     case 'batch':
       console.log('[Gemini] 正在使用 [批次環境] 的 API 金鑰池。');
-      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_BATCH_PRIMARY) pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_BATCH_PRIMARY);
-      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_BATCH_BACKUP) pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_BATCH_BACKUP);
+      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_BATCH_PRIMARY)
+        pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_BATCH_PRIMARY);
+      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_BATCH_BACKUP)
+        pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_BATCH_BACKUP);
       break;
     case 'production':
       console.log('[Gemini] 正在使用 [生產環境] 的 API 金鑰池。');
-      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD_PRIMARY) pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD_PRIMARY);
-      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD_BACKUP) pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD_BACKUP);
+      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD_PRIMARY)
+        pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD_PRIMARY);
+      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD_BACKUP)
+        pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD_BACKUP);
       break;
     default: // 'development' or any other value
       console.log('[Gemini] 正在使用 [開發環境] 的 API 金鑰池。');
-      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_PRIMARY) pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_PRIMARY);
-      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP) pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP);
+      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_PRIMARY)
+        pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_PRIMARY);
+      if (process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP)
+        pool.push(process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP);
       break;
   }
   // 過濾掉任何可能的空字串或 undefined 值
@@ -51,7 +60,10 @@ function getApiKeyPool(): { pool: string[]; envType: string } {
  */
 function getKeyIdentifier(apiKey: string): string | undefined {
   for (const key in process.env) {
-    if (key.startsWith('NEXT_PUBLIC_GEMINI_API_KEY_') && process.env[key] === apiKey) {
+    if (
+      key.startsWith('NEXT_PUBLIC_GEMINI_API_KEY_') &&
+      process.env[key] === apiKey
+    ) {
       return key;
     }
   }
@@ -68,9 +80,17 @@ async function checkKeyState(keyIdentifier: string): Promise<void> {
   const keyStatus = await ApiKeyStatus.findOne({ keyIdentifier }).lean();
 
   if (keyStatus) {
-    console.log(`[CircuitBreaker] 檢查金鑰 ${keyIdentifier} 狀態：${keyStatus.status}, 重試時間：${keyStatus.retryAt}`);
-    if (keyStatus.status === 'UNHEALTHY' && keyStatus.retryAt && new Date() < new Date(keyStatus.retryAt)) {
-      throw new Error(`金鑰 ${keyIdentifier} 目前處於熔斷狀態，將在 ${keyStatus.retryAt} 後重試。`);
+    console.log(
+      `[CircuitBreaker] 檢查金鑰 ${keyIdentifier} 狀態：${keyStatus.status}, 重試時間：${keyStatus.retryAt}`
+    );
+    if (
+      keyStatus.status === 'UNHEALTHY' &&
+      keyStatus.retryAt &&
+      new Date() < new Date(keyStatus.retryAt)
+    ) {
+      throw new Error(
+        `金鑰 ${keyIdentifier} 目前處於熔斷狀態，將在 ${keyStatus.retryAt} 後重試。`
+      );
     }
   }
 }
@@ -81,14 +101,20 @@ async function checkKeyState(keyIdentifier: string): Promise<void> {
  * @param type - 更新類型：'success' 或 'failure'。
  * @param error - (可選) 如果是失敗類型，傳入的錯誤物件。
  */
-export async function updateKeyState(keyIdentifier: string, type: 'success' | 'failure', error?: unknown): Promise<void> {
+export async function updateKeyState(
+  keyIdentifier: string,
+  type: 'success' | 'failure',
+  error?: unknown
+): Promise<void> {
   try {
     await dbConnect();
 
     if (type === 'success') {
       const keyStatus = await ApiKeyStatus.findOne({ keyIdentifier });
       if (keyStatus && keyStatus.status === 'UNHEALTHY') {
-        console.log(`[CircuitBreaker] 金鑰 ${keyIdentifier} 在重試後成功，狀態恢復為 HEALTHY。`);
+        console.log(
+          `[CircuitBreaker] 金鑰 ${keyIdentifier} 在重試後成功，狀態恢復為 HEALTHY。`
+        );
       }
       await ApiKeyStatus.findOneAndUpdate(
         { keyIdentifier },
@@ -98,7 +124,7 @@ export async function updateKeyState(keyIdentifier: string, type: 'success' | 'f
             failureCount: 0,
             // 注意：成功的請求不會重置 dailyFailureCount，它只由每日排程重置
             lastCheckedAt: new Date(),
-          }
+          },
         },
         { upsert: true, new: true }
       );
@@ -129,7 +155,9 @@ export async function updateKeyState(keyIdentifier: string, type: 'success' | 'f
         const targetTimezone = 'America/Los_Angeles';
 
         // 1. 取得在目標時區的 "現在" 是什麼樣子
-        const nowInTargetTimezone = new Date(now.toLocaleString('en-US', { timeZone: targetTimezone }));
+        const nowInTargetTimezone = new Date(
+          now.toLocaleString('en-US', { timeZone: targetTimezone })
+        );
 
         // 2. 建立一個代表目標時區 "今天午夜" 的物件
         const todayMidnightInTargetTimezone = new Date(nowInTargetTimezone);
@@ -137,14 +165,16 @@ export async function updateKeyState(keyIdentifier: string, type: 'success' | 'f
 
         // 3. 計算下一個午夜的時間戳
         let nextMidnightTimestamp = todayMidnightInTargetTimezone.getTime();
-        if (nowInTargetTimezone.getTime() >= todayMidnightInTargetTimezone.getTime()) {
+        if (
+          nowInTargetTimezone.getTime() >=
+          todayMidnightInTargetTimezone.getTime()
+        ) {
           // 如果已經過了今天的午夜，就加 24 小時
           nextMidnightTimestamp += 24 * 60 * 60 * 1000;
         }
 
         finalCooldownMs = nextMidnightTimestamp - nowInTargetTimezone.getTime();
         cooldownReason = `RPD (每日配額) 耗盡`;
-
       } else {
         // Phase 5: 指數退避策略 (臨時錯誤)
         const ONE_MINUTE_MS = 60 * 1000;
@@ -178,16 +208,18 @@ export async function updateKeyState(keyIdentifier: string, type: 'success' | 'f
         status: 'UNHEALTHY', // 只要失敗就標記為不健康，並設定退避
         retryAt: new Date(Date.now() + finalCooldownMs),
         recentErrors: [
-          ...((keyStatus?.recentErrors || []).slice(-2)),
+          ...(keyStatus?.recentErrors || []).slice(-2),
           {
             errorType,
             errorMessage,
             timestamp: new Date(),
-          }
-        ]
+          },
+        ],
       };
 
-      console.error(`🚨 [CircuitBreaker] 金鑰 ${keyIdentifier} 失敗，連續失敗次數: ${newFailureCount}, 每日失敗: ${newDailyFailureCount}。原因: ${cooldownReason}。狀態更新為 UNHEALTHY，將在 ${finalCooldownMinutes.toFixed(2)} 分鐘後重試。`);
+      console.error(
+        `🚨 [CircuitBreaker] 金鑰 ${keyIdentifier} 失敗，連續失敗次數: ${newFailureCount}, 每日失敗: ${newDailyFailureCount}。原因: ${cooldownReason}。狀態更新為 UNHEALTHY，將在 ${finalCooldownMinutes.toFixed(2)} 分鐘後重試。`
+      );
 
       await ApiKeyStatus.findOneAndUpdate(
         { keyIdentifier },
@@ -196,7 +228,10 @@ export async function updateKeyState(keyIdentifier: string, type: 'success' | 'f
       );
     }
   } catch (dbError) {
-    console.error(`[CircuitBreaker] 更新金鑰 ${keyIdentifier} 狀態時發生資料庫錯誤：`, dbError);
+    console.error(
+      `[CircuitBreaker] 更新金鑰 ${keyIdentifier} 狀態時發生資料庫錯誤：`,
+      dbError
+    );
   }
 }
 
@@ -283,7 +318,9 @@ export async function streamGenerateContent(
   const strategy = getApiKeyStrategy();
 
   if (apiKeyPool.length === 0) {
-    console.error(`[Gemini] 在 '${envType}' 環境中找不到任何已設定的 API 金鑰。AI 功能將被停用。`);
+    console.error(
+      `[Gemini] 在 '${envType}' 環境中找不到任何已設定的 API 金鑰。AI 功能將被停用。`
+    );
     const errorMessage = '無法初始化 AI 功能，請檢查對應環境的 API 金鑰設定。';
     onStream(errorMessage);
     return;
@@ -296,10 +333,16 @@ export async function streamGenerateContent(
   if (strategy === 'round-robin') {
     await dbConnect();
     const keyStatusesFromDB = await ApiKeyStatus.find({
-      keyIdentifier: { $in: apiKeyPool.map(k => getKeyIdentifier(k)).filter(Boolean) as string[] }
+      keyIdentifier: {
+        $in: apiKeyPool
+          .map(k => getKeyIdentifier(k))
+          .filter(Boolean) as string[],
+      },
     }).lean();
 
-    const keyStatusMap = new Map(keyStatusesFromDB.map(s => [s.keyIdentifier, s]));
+    const keyStatusMap = new Map(
+      keyStatusesFromDB.map(s => [s.keyIdentifier, s])
+    );
 
     const healthyKeys = apiKeyPool.filter(apiKey => {
       const keyIdentifier = getKeyIdentifier(apiKey);
@@ -322,7 +365,9 @@ export async function streamGenerateContent(
       return;
     }
 
-    console.log(`[RoundRobin] 發現 ${healthyKeys.length} 個健康金鑰，準備輪詢。`);
+    console.log(
+      `[RoundRobin] 發現 ${healthyKeys.length} 個健康金鑰，準備輪詢。`
+    );
 
     const totalHealthyKeys = healthyKeys.length;
     // 確保索引不會超出健康金鑰池的範圍
@@ -334,12 +379,21 @@ export async function streamGenerateContent(
       const keyIdentifier = getKeyIdentifier(apiKey)!;
 
       try {
-        await attemptApiCall(apiKey, keyIdentifier, prompt, onStream, shouldLogTokens);
+        await attemptApiCall(
+          apiKey,
+          keyIdentifier,
+          prompt,
+          onStream,
+          shouldLogTokens
+        );
         roundRobinIndex = (currentIndex + 1) % totalHealthyKeys; // 更新索引
         await updateKeyState(keyIdentifier, 'success'); // 成功後更新狀態
         return; // 成功後立即返回
       } catch (error: any) {
-        console.error(`[RoundRobin] 使用金鑰 ${keyIdentifier} 呼叫 API 時發生錯誤:`, error);
+        console.error(
+          `[RoundRobin] 使用金鑰 ${keyIdentifier} 呼叫 API 時發生錯誤:`,
+          error
+        );
         lastError = error;
         await updateKeyState(keyIdentifier, 'failure', error);
         // 繼續迴圈以嘗試下一個健康的金鑰
@@ -352,7 +406,9 @@ export async function streamGenerateContent(
       const keyIdentifier = getKeyIdentifier(apiKey);
 
       if (!keyIdentifier) {
-        console.warn(`[Gemini] 警告：無法為一個 API 金鑰找到對應的環境變數名稱，將跳過此金鑰。`);
+        console.warn(
+          `[Gemini] 警告：無法為一個 API 金鑰找到對應的環境變數名稱，將跳過此金鑰。`
+        );
         continue;
       }
 
@@ -363,7 +419,13 @@ export async function streamGenerateContent(
         // 1. 呼叫前檢查狀態
         await checkKeyState(keyIdentifier);
 
-        const result = await attemptApiCall(apiKey, keyIdentifier, prompt, onStream, shouldLogTokens);
+        const result = await attemptApiCall(
+          apiKey,
+          keyIdentifier,
+          prompt,
+          onStream,
+          shouldLogTokens
+        );
 
         // 2. 成功後更新狀態
         await updateKeyState(keyIdentifier, 'success');
@@ -373,10 +435,11 @@ export async function streamGenerateContent(
         lastError = error;
 
         // 檢查是否是斷路器跳過的錯誤
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         if (errorMessage.includes('處於熔斷狀態')) {
-            console.warn(`[CircuitBreaker] ${errorMessage}`);
-            continue; // 繼續嘗試下一個金鑰
+          console.warn(`[CircuitBreaker] ${errorMessage}`);
+          continue; // 繼續嘗試下一個金鑰
         }
 
         // 3. 失敗後更新狀態
@@ -384,7 +447,9 @@ export async function streamGenerateContent(
 
         const isRetriable = isRetriableError(error);
         if (isRetriable && i < apiKeyPool.length - 1) {
-          console.warn(`🚨 [Gemini] 金鑰 ${keyIdentifier} 發生可重試錯誤。正在啟動容錯移轉至備用金鑰...`);
+          console.warn(
+            `🚨 [Gemini] 金鑰 ${keyIdentifier} 發生可重試錯誤。正在啟動容錯移轉至備用金鑰...`
+          );
           continue;
         }
         // 如果是不可重試的錯誤，或所有金鑰都已嘗試失敗，則跳出迴圈
@@ -392,7 +457,10 @@ export async function streamGenerateContent(
       }
     }
 
-    console.error(`[Gemini] 所有金鑰嘗試均失敗。最後一個錯誤:`, lastError?.message || lastError?.toString());
+    console.error(
+      `[Gemini] 所有金鑰嘗試均失敗。最後一個錯誤:`,
+      lastError?.message || lastError?.toString()
+    );
     const errorMessage = `[系統訊息] 所有 AI 服務金鑰皆暫時無法使用，請稍後再試或聯繫管理員。`;
     onStream(errorMessage);
     if (lastError) {
@@ -415,7 +483,14 @@ export async function generateOptimizedPrompt(
 ): Promise<string> {
   // 1. 讀取元提示詞
   const isSystemPrompt = type === 'system';
-  const fileName = isSystemPrompt ? 'system-optimizer.txt' : 'dialogue-optimizer.txt';
+  let fileName;
+  if (isSystemPrompt) {
+    fileName = 'system-optimizer.md';
+  } else if (type === 'prefix') {
+    fileName = 'prefix-optimizer.md';
+  } else { // type === 'suffix'
+    fileName = 'suffix-optimizer.md';
+  }
   const filePath = path.join(process.cwd(), 'src', 'data', 'meta-prompts', fileName);
   const metaPromptTemplate = await fs.readFile(filePath, 'utf-8');
 
@@ -434,25 +509,32 @@ export async function generateOptimizedPrompt(
     current_prompt = `// Prefix\n${currentPromptData.prefix}\n\n// Suffix\n${currentPromptData.suffix}`;
     target = currentPromptData.target;
   }
-  const variables = tool.promptTemplate?.prefix.match(/\$\{[^}]+\}/g)?.join(', ') || '無';
+  const variables =
+    tool.promptTemplate?.prefix.match(/\$\{[^}]+\}/g)?.join(', ') || '無';
 
   // 輔助函式：替換模板變數
-  const replacePlaceholders = (template: string, replacements: Record<string, any>): string => {
-      let result = template;
-      for (const key in replacements) {
-          const value = typeof replacements[key] === 'object'
+  const replacePlaceholders = (
+    template: string,
+    replacements: Record<string, any>
+  ): string => {
+    let result = template;
+    for (const key in replacements) {
+      const value =
+        typeof replacements[key] === 'object'
           ? JSON.stringify(replacements[key], null, 2)
           : String(replacements[key]);
-          result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
-      }
-      return result;
+      result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    }
+    return result;
   };
 
   const replacements = {
     'tool.id': tool.id,
     'tool.name': tool.name,
     'tool.description': tool.description,
-    'tool.instructions': tool.instructions,
+    'tool.instructions.what': tool.instructions?.what || '',
+    'tool.instructions.why': tool.instructions?.why || '',
+    'tool.instructions.how': tool.instructions?.how || '',
     'current_prompt': current_prompt,
     'chosen_philosophy': philosophy,
     'chosen_framework': framework,
@@ -462,6 +544,11 @@ export async function generateOptimizedPrompt(
 
   const finalPrompt = replacePlaceholders(metaPromptTemplate, replacements);
 
+  // 根據使用者需求，列印最終發送給 Gemini 的完整提示詞
+  console.log('🚀 --- [Prompt Optimizer] 最終發送的超級提示詞 --- 🚀');
+  console.log(finalPrompt);
+  console.log('----------------------------------------------------');
+
   // 4. 複用金鑰池和斷路器進行非串流生成
   const { pool: apiKeyPool, envType } = getApiKeyPool();
   if (apiKeyPool.length === 0) {
@@ -469,10 +556,17 @@ export async function generateOptimizedPrompt(
   }
 
   // 內部非同步函式，用於單次 API 呼叫
-  const attemptNonStreamApiCall = async (apiKey: string, keyIdentifier: string): Promise<string> => {
-    console.log(`[Gemini Optimizer] 正在嘗試使用金鑰進行生成：${keyIdentifier}`);
+  const attemptNonStreamApiCall = async (
+    apiKey: string,
+    keyIdentifier: string
+  ): Promise<string> => {
+    console.log(
+      `[Gemini Optimizer] 正在嘗試使用金鑰進行生成：${keyIdentifier}`
+    );
     const aiInstance = getGenAIInstance(apiKey);
-    const model = aiInstance.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = aiInstance.getGenerativeModel({
+      model: 'gemini-1.5-flash-latest',
+    });
     const result = await model.generateContent(finalPrompt);
     const response = await result.response;
     const text = response.text();
@@ -494,21 +588,27 @@ export async function generateOptimizedPrompt(
       return resultText;
     } catch (error) {
       lastError = error;
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       if (errorMessage.includes('處於熔斷狀態')) {
-          console.warn(`[CircuitBreaker] ${errorMessage}`);
-          continue;
+        console.warn(`[CircuitBreaker] ${errorMessage}`);
+        continue;
       }
       await updateKeyState(keyIdentifier, 'failure', error);
       if (isRetriableError(error) && i < apiKeyPool.length - 1) {
-        console.warn(`🚨 [Gemini Optimizer] 金鑰 ${keyIdentifier} 發生可重試錯誤。正在啟動容錯移轉...`);
+        console.warn(
+          `🚨 [Gemini Optimizer] 金鑰 ${keyIdentifier} 發生可重試錯誤。正在啟動容錯移轉...`
+        );
         continue;
       }
       break;
     }
   }
 
-  console.error(`[Gemini Optimizer] 所有金鑰嘗試均失敗。最後一個錯誤：`, lastError);
+  console.error(
+    `[Gemini Optimizer] 所有金鑰嘗試均失敗。最後一個錯誤：`,
+    lastError
+  );
   throw new Error('所有 AI 服務金鑰皆暫時無法使用，請稍後再試。');
 }
 
