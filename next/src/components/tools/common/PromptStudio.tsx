@@ -110,7 +110,7 @@ const PromptStudio: React.FC<PromptStudioProps> = ({
           onClick={() => setActiveTab('tool')}
         />
         <TabButton
-          label="系統提示詞"
+          label="提示詞模板"
           isActive={activeTab === 'system'}
           onClick={() => setActiveTab('system')}
         />
@@ -167,7 +167,7 @@ const PromptStudio: React.FC<PromptStudioProps> = ({
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <TextareaWithLabel
               id="system-prompt"
-              label="通用範本（Template）"
+              label="通用模板（Template）"
               value={editedSystemPrompt}
               onChange={e => onSystemPromptChange(e.target.value)}
               minRows={8} // 增加通用範本的最小行數

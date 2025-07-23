@@ -18,7 +18,7 @@ export interface ComparisonResult {
   modified: string;
 }
 
-// 新增：用於凍結UI的狀態類型
+// 用於凍結UI的狀態類型
 type FrozenResult = HistoryItem | ComparisonResult | null;
 
 export interface PromptConfig {
@@ -51,7 +51,7 @@ export const usePromptEngine = ({
     original: '',
     modified: '',
   });
-  // 新增：用於在等待新串流時凍結舊畫面的狀態
+  // 用於在等待新串流時凍結舊畫面的狀態
   const [frozenResult, setFrozenResult] = useState<FrozenResult>(null);
 
   // --- 優化器相關狀態 (新增) ---
@@ -130,28 +130,44 @@ export const usePromptEngine = ({
         return null;
       }
 
+      // --- 動態生成情境感知約束 ---
+      let dynamicLanguageConstraint = '';
+      if (config.id !== 'english-writer') {
+        const location = '台灣';
+        const language = '繁體中文';
+        // 使用 toLocaleString 來產生符合地區習慣的時間格式
+        const time = new Date().toLocaleString('zh-TW', {
+          timeZone: 'Asia/Taipei',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+        });
+
+        const formattedTime = time.replace(
+          /(?<=[0-9])(?=[\u4e00-\u9fa5])|(?<=[\u4e00-\u9fa5])(?=[0-9])/g,
+          ' '
+        );
+
+        dynamicLanguageConstraint = `使用者所處的地區為「${location}」，當前時間為「${formattedTime}」。請以${location}地區的${language}進行回覆，並且適用於${location}道地的字詞和語法。`;
+      }
+      // --- 結束 ---
+
       const systemTemplate = systemPrompt;
       const replacements: { [key: string]: string } = {
         prefix: promptConfig.prefix.trim(),
         suffix: promptConfig.suffix.trim(),
         userInput: prompt,
-        followUpContext: isOptimizingPrompt
-          ? `\n\n這是前一次的生成結果：\n"""${previousResultForPrompt}"""\n\n請根據這個結果，回應使用者的新輸入：`
-          : '',
-        languageConstraint:
-          config.id !== 'english-writer'
-            ? '請以下列語言輸出：\n請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。'
-            : '',
+        followUpContext: isOptimizingPrompt ? `${previousResultForPrompt}` : '',
+        languageConstraint: dynamicLanguageConstraint,
       };
 
       let finalPrompt = systemTemplate;
       for (const key in replacements) {
         finalPrompt = finalPrompt.replace(`\${${key}}`, replacements[key]);
       }
-
-      console.log('🚀 --- 最終生成提示詞 --- 🚀');
-      console.log(finalPrompt);
-      console.log('------------------------------------');
 
       return finalPrompt;
     },

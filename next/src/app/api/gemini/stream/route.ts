@@ -14,6 +14,12 @@ export async function POST(req: Request) {
       });
     }
 
+    // --- 在後端印出最終收到的提示詞，方便除錯 ---
+    console.log('🚀 --- [AI Tool Generation] 最終發送的完整提示詞 --- 🚀');
+    console.log(prompt);
+    console.log('----------------------------------------------------');
+    // --- 結束 ---
+
     const stream = new ReadableStream({
       async start(controller) {
         try {

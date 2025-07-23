@@ -10,7 +10,7 @@ import type {
 } from '@/hooks/usePromptEngine';
 import { Sparkles } from 'lucide-react';
 
-// 新增：FrozenResult 的類型需要從 usePromptEngine 導入
+// FrozenResult 的類型需要從 usePromptEngine 導入
 interface FrozenResultProps {
   frozenResult: HistoryItem | ComparisonResult | null;
 }
@@ -166,7 +166,7 @@ const GenerationResultViewer: React.FC<GenerationResultViewerProps> = ({
       return <SingleResultView item={displayedItem} />;
     }
     return (
-      // 新增：在初始狀態下顯示一個提示區塊
+      // 在初始狀態下顯示一個提示區塊
       <div className="mt-6 flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-6 text-center">
         <Sparkles className="h-10 w-10 text-slate-400" />
         <h3 className="mt-2 text-lg font-medium text-slate-600">

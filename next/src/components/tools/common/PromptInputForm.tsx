@@ -8,14 +8,14 @@ interface PromptInputFormProps {
   isGenerating: boolean;
   isOptimizing: boolean;
   isFollowUpMode: boolean;
-  isDirty: boolean; // 新增：用於判斷提示詞是否被修改
+  isDirty: boolean; // 用於判斷提示詞是否被修改
   placeholder: string;
   promptInputRef: React.RefObject<HTMLTextAreaElement>;
   setPrompt: (value: string) => void;
   handleKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   handleDynamicSubmit: () => void;
   handleReset: () => void;
-  handleDiscardChanges: () => void; // 新增：處理捨棄修改的函式
+  handleDiscardChanges: () => void; // 處理捨棄修改的函式
 }
 
 const PromptInputForm: React.FC<PromptInputFormProps> = ({

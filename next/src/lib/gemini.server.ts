@@ -488,10 +488,17 @@ export async function generateOptimizedPrompt(
     fileName = 'system-optimizer.md';
   } else if (type === 'prefix') {
     fileName = 'prefix-optimizer.md';
-  } else { // type === 'suffix'
+  } else {
+    // type === 'suffix'
     fileName = 'suffix-optimizer.md';
   }
-  const filePath = path.join(process.cwd(), 'src', 'data', 'meta-prompts', fileName);
+  const filePath = path.join(
+    process.cwd(),
+    'src',
+    'data',
+    'meta-prompts',
+    fileName
+  );
   const metaPromptTemplate = await fs.readFile(filePath, 'utf-8');
 
   // 2. 查詢資料庫
@@ -543,11 +550,6 @@ export async function generateOptimizedPrompt(
   };
 
   const finalPrompt = replacePlaceholders(metaPromptTemplate, replacements);
-
-  // 根據使用者需求，列印最終發送給 Gemini 的完整提示詞
-  console.log('🚀 --- [Prompt Optimizer] 最終發送的超級提示詞 --- 🚀');
-  console.log(finalPrompt);
-  console.log('----------------------------------------------------');
 
   // 4. 複用金鑰池和斷路器進行非串流生成
   const { pool: apiKeyPool, envType } = getApiKeyPool();
