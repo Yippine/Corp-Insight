@@ -21,12 +21,6 @@ export async function POST(request: Request) {
       toolId
     );
 
-    // --- 在後端印出最終生成的優化提示詞，方便除錯 ---
-    console.log('🚀 --- [Prompt Optimizer] 最終生成的優化提示詞 --- 🚀');
-    console.log(optimizedText);
-    console.log('----------------------------------------------------');
-    // --- 結束 ---
-
     // 返回純文字結果
     return new Response(optimizedText.trim(), {
       status: 200,

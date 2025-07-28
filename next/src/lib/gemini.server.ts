@@ -551,6 +551,12 @@ export async function generateOptimizedPrompt(
 
   const finalPrompt = replacePlaceholders(metaPromptTemplate, replacements);
 
+  // --- 在後端印出最終生成的優化提示詞，方便除錯 ---
+  console.log('🚀 --- [Prompt Optimizer] 最終發送的完整提示詞 --- 🚀');
+  console.log(finalPrompt);
+  console.log('----------------------------------------------------');
+  // --- 結束 ---
+
   // 4. 複用金鑰池和斷路器進行非串流生成
   const { pool: apiKeyPool, envType } = getApiKeyPool();
   if (apiKeyPool.length === 0) {
