@@ -20,7 +20,9 @@ const { MongoClient } = require('mongodb');
 /**
  * MongoDB 設定
  */
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin';
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  'mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin';
 const DB_NAME = 'business-magnifier';
 
 /**
@@ -30,16 +32,23 @@ const DB_NAME = 'business-magnifier';
 const COLLECTIONS_CONFIG = {
   // 1. 核心業務資料 Collections
   companies: {
-    description: '企業資料集合 - 儲存台灣企業的基本資料、財務資訊、董監事資料等',
+    description:
+      '企業資料集合 - 儲存台灣企業的基本資料、財務資訊、董監事資料等',
     indexes: [
       { keys: { taxId: 1 }, options: { unique: true, name: 'taxId_unique' } },
-      { keys: { name: 'text', fullName: 'text' }, options: { name: 'text_search' } },
+      {
+        keys: { name: 'text', fullName: 'text' },
+        options: { name: 'text_search' },
+      },
       { keys: { industry: 1 }, options: { name: 'industry_1' } },
-      { keys: { establishedDate: -1 }, options: { name: 'establishedDate_-1' } },
+      {
+        keys: { establishedDate: -1 },
+        options: { name: 'establishedDate_-1' },
+      },
       { keys: { searchKeywords: 1 }, options: { name: 'searchKeywords_1' } },
       { keys: { tenderCount: -1 }, options: { name: 'tenderCount_-1' } },
-      { keys: { sitemapIndexed: 1 }, options: { name: 'sitemapIndexed_1' } }
-    ]
+      { keys: { sitemapIndexed: 1 }, options: { name: 'sitemapIndexed_1' } },
+    ],
   },
 
   tenders: {
@@ -52,16 +61,22 @@ const COLLECTIONS_CONFIG = {
       { keys: { unitId: 1 }, options: { name: 'unitId_1' } },
       { keys: { jobNumber: 1 }, options: { name: 'jobNumber_1' } },
       { keys: { title: 'text' }, options: { name: 'title_text' } },
-      { keys: { sitemapIndexed: 1 }, options: { name: 'sitemapIndexed_1' } }
-    ]
+      { keys: { sitemapIndexed: 1 }, options: { name: 'sitemapIndexed_1' } },
+    ],
   },
 
   ai_tools: {
     description: 'AI 工具資料集合 - 儲存 AI 工具和提示詞模板',
     indexes: [
       { keys: { id: 1 }, options: { unique: true, name: 'id_unique' } },
-      { keys: { category: 1, isActive: 1 }, options: { name: 'category_active' } },
-      { keys: { tags: 1, isActive: 1 }, options: { name: 'tags_1_isActive_1' } },
+      {
+        keys: { category: 1, isActive: 1 },
+        options: { name: 'category_active' },
+      },
+      {
+        keys: { tags: 1, isActive: 1 },
+        options: { name: 'tags_1_isActive_1' },
+      },
       {
         keys: {
           name: 'text',
@@ -69,7 +84,7 @@ const COLLECTIONS_CONFIG = {
           tags: 'text',
           'instructions.what': 'text',
           'instructions.why': 'text',
-          'instructions.how': 'text'
+          'instructions.how': 'text',
         },
         options: {
           name: 'weighted_text_search',
@@ -79,64 +94,102 @@ const COLLECTIONS_CONFIG = {
             'instructions.what': 3,
             description: 1,
             'instructions.why': 1,
-            'instructions.how': 1
+            'instructions.how': 1,
           },
-          default_language: 'none'
-        }
-      }
-    ]
+          default_language: 'none',
+        },
+      },
+    ],
   },
 
   feedbacks: {
-    description: '使用者意見回饋 - 儲存結構化的使用者意見回饋，包含狀態、優先級等',
+    description:
+      '使用者意見回饋 - 儲存結構化的使用者意見回饋，包含狀態、優先級等',
     indexes: [
-      { keys: { status: 1, priority: -1 }, options: { name: 'status_priority_index' } },
+      {
+        keys: { status: 1, priority: -1 },
+        options: { name: 'status_priority_index' },
+      },
       { keys: { category: 1 }, options: { name: 'category_index' } },
       { keys: { assignedTo: 1 }, options: { name: 'assignedTo_index' } },
       { keys: { createdAt: -1 }, options: { name: 'createdAt_sort_index' } },
-      { keys: { email: 1 }, options: { name: 'email_lookup_index' } }
-    ]
+      { keys: { email: 1 }, options: { name: 'email_lookup_index' } },
+    ],
+  },
+
+  email_verifications: {
+    description: '郵件驗證日誌 - 記錄意見回饋系統發送的驗證碼郵件狀態',
+    indexes: [
+      { keys: { email: 1 }, options: { name: 'email_1' } },
+      { keys: { sentAt: -1 }, options: { name: 'sentAt_-1' } },
+      {
+        keys: { jwtExpiresAt: 1 },
+        options: { expireAfterSeconds: 0, name: 'jwtExpiresAt_ttl' },
+      },
+    ],
   },
 
   // 2. API 快取 Collections
   pcc_api_cache: {
     description: '政府採購網 API 快取 - 快取外部 API 回應，提升效能',
     indexes: [
-      { keys: { api_key: 1 }, options: { unique: true, name: 'api_key_unique' } },
-      { keys: { expires_at: 1 }, options: { expireAfterSeconds: 0, name: 'expires_at_ttl' } },
+      {
+        keys: { api_key: 1 },
+        options: { unique: true, name: 'api_key_unique' },
+      },
+      {
+        keys: { expires_at: 1 },
+        options: { expireAfterSeconds: 0, name: 'expires_at_ttl' },
+      },
       { keys: { fetched_at: -1 }, options: { name: 'fetched_at_-1' } },
-      { keys: { request_count: -1 }, options: { name: 'request_count_-1' } }
-    ]
+      { keys: { request_count: -1 }, options: { name: 'request_count_-1' } },
+    ],
   },
 
   g0v_company_api_cache: {
     description: 'G0V 企業資料 API 快取 - 快取 G0V 企業資料 API 回應',
     indexes: [
-      { keys: { api_key: 1 }, options: { unique: true, name: 'api_key_unique' } },
+      {
+        keys: { api_key: 1 },
+        options: { unique: true, name: 'api_key_unique' },
+      },
       { keys: { company_id: 1 }, options: { name: 'company_id_1' } },
-      { keys: { expires_at: 1 }, options: { expireAfterSeconds: 0, name: 'expires_at_ttl' } },
+      {
+        keys: { expires_at: 1 },
+        options: { expireAfterSeconds: 0, name: 'expires_at_ttl' },
+      },
       { keys: { fetched_at: -1 }, options: { name: 'fetched_at_-1' } },
-      { keys: { data_source: 1 }, options: { name: 'data_source_1' } }
-    ]
+      { keys: { data_source: 1 }, options: { name: 'data_source_1' } },
+    ],
   },
 
   twincn_api_cache: {
     description: '台灣企業網 API 快取 - 快取台灣企業網股務資訊 API 回應',
     indexes: [
-      { keys: { api_key: 1 }, options: { unique: true, name: 'api_key_unique' } },
+      {
+        keys: { api_key: 1 },
+        options: { unique: true, name: 'api_key_unique' },
+      },
       { keys: { company_taxid: 1 }, options: { name: 'company_taxid_1' } },
-      { keys: { expires_at: 1 }, options: { expireAfterSeconds: 0, name: 'expires_at_ttl' } },
+      {
+        keys: { expires_at: 1 },
+        options: { expireAfterSeconds: 0, name: 'expires_at_ttl' },
+      },
       { keys: { data_type: 1 }, options: { name: 'data_type_1' } },
-      { keys: { fetched_at: -1 }, options: { name: 'fetched_at_-1' } }
-    ]
+      { keys: { fetched_at: -1 }, options: { name: 'fetched_at_-1' } },
+    ],
   },
 
   api_key_statuses: {
-    description: 'LLM API 金鑰狀態追蹤 - 用於斷路器模式，追蹤各類大型語言模型 API 金鑰的健康狀況',
+    description:
+      'LLM API 金鑰狀態追蹤 - 用於斷路器模式，追蹤各類大型語言模型 API 金鑰的健康狀況',
     indexes: [
-      { keys: { keyIdentifier: 1 }, options: { unique: true, name: 'keyIdentifier_unique' } },
+      {
+        keys: { keyIdentifier: 1 },
+        options: { unique: true, name: 'keyIdentifier_unique' },
+      },
       { keys: { status: 1 }, options: { name: 'status_1' } },
-    ]
+    ],
   },
 
   // 3. 系統設定 Collection
@@ -144,20 +197,25 @@ const COLLECTIONS_CONFIG = {
     description: '全域設定 - 儲存共享的系統級設定，如通用提示詞範本',
     indexes: [
       // 此 Collection 僅透過 _id 查詢，故不需額外索引
-    ]
-  }
+    ],
+  },
 };
 
 /**
  * 建立單一 Collection 和其索引
  */
 async function createCollection(db, collectionName, config) {
-  const result = { created: false, indexes: { created: 0, skipped: 0, failed: 0 } };
+  const result = {
+    created: false,
+    indexes: { created: 0, skipped: 0, failed: 0 },
+  };
   try {
     console.log(`\n📁 正在處理 Collection: ${collectionName}`);
     console.log(`   描述: ${config.description}`);
 
-    const collections = await db.listCollections({ name: collectionName }).toArray();
+    const collections = await db
+      .listCollections({ name: collectionName })
+      .toArray();
 
     if (collections.length === 0) {
       await db.createCollection(collectionName);
@@ -169,7 +227,9 @@ async function createCollection(db, collectionName, config) {
 
     const collection = db.collection(collectionName);
     const existingIndexes = await collection.listIndexes().toArray();
-    const existingIndexMap = new Map(existingIndexes.map(idx => [idx.name, idx]));
+    const existingIndexMap = new Map(
+      existingIndexes.map(idx => [idx.name, idx])
+    );
 
     // 檢查並刪除設定檔中不存在的索引
     for (const [indexName, indexDef] of existingIndexMap.entries()) {
@@ -177,7 +237,7 @@ async function createCollection(db, collectionName, config) {
       if (indexName === '_id_') continue;
 
       const isDefinedInConfig = config.indexes.some(
-        (cfg) => cfg.options.name === indexName
+        cfg => cfg.options.name === indexName
       );
 
       if (!isDefinedInConfig) {
@@ -185,7 +245,10 @@ async function createCollection(db, collectionName, config) {
           await collection.dropIndex(indexName);
           console.log(`      - 🗑️  陳舊索引 "${indexName}" 已刪除`);
         } catch (error) {
-          console.log(`      - ⚠️  刪除陳舊索引 "${indexName}" 失敗:`, error.message);
+          console.log(
+            `      - ⚠️  刪除陳舊索引 "${indexName}" 失敗:`,
+            error.message
+          );
         }
       }
     }
@@ -200,7 +263,9 @@ async function createCollection(db, collectionName, config) {
         const b = JSON.stringify(indexConfig.keys);
 
         if (a !== b) {
-          console.log(`      - 🔄 索引 "${indexConfig.options.name}" 定義不一致，將重建...`);
+          console.log(
+            `      - 🔄 索引 "${indexConfig.options.name}" 定義不一致，將重建...`
+          );
           try {
             await collection.dropIndex(indexConfig.options.name);
             console.log(`        - 舊索引已刪除`);
@@ -208,27 +273,40 @@ async function createCollection(db, collectionName, config) {
             console.log(`        - ✅ 新索引已建立`);
             result.indexes.created++;
           } catch (error) {
-            console.log(`      - ❌ 索引 "${indexConfig.options.name}" 重建失敗:`, error.message);
+            console.log(
+              `      - ❌ 索引 "${indexConfig.options.name}" 重建失敗:`,
+              error.message
+            );
             result.indexes.failed++;
           }
         } else {
-          console.log(`      - ℹ️  索引 "${indexConfig.options.name}" 已存在且定義一致，跳過`);
+          console.log(
+            `      - ℹ️  索引 "${indexConfig.options.name}" 已存在且定義一致，跳過`
+          );
           result.indexes.skipped++;
         }
       } else {
         try {
           await collection.createIndex(indexConfig.keys, indexConfig.options);
-          console.log(`      - ✅ 新索引 "${indexConfig.options.name}" 建立成功`);
+          console.log(
+            `      - ✅ 新索引 "${indexConfig.options.name}" 建立成功`
+          );
           result.indexes.created++;
         } catch (error) {
-          console.log(`      - ❌ 索引 "${indexConfig.options.name}" 建立失敗:`, error.message);
+          console.log(
+            `      - ❌ 索引 "${indexConfig.options.name}" 建立失敗:`,
+            error.message
+          );
           result.indexes.failed++;
         }
       }
     }
     return { success: true, result };
   } catch (error) {
-    console.error(`❌ 處理 Collection "${collectionName}" 失敗:`, error.message);
+    console.error(
+      `❌ 處理 Collection "${collectionName}" 失敗:`,
+      error.message
+    );
     return { success: false, result };
   }
 }
@@ -252,12 +330,22 @@ async function initializeMongoDBCollections() {
     const db = client.db(DB_NAME);
     console.log(`🏠 使用資料庫: ${DB_NAME}`);
 
-    const stats = { created: 0, skipped: 0, failed: 0, indexes: { created: 0, skipped: 0, failed: 0 } };
+    const stats = {
+      created: 0,
+      skipped: 0,
+      failed: 0,
+      indexes: { created: 0, skipped: 0, failed: 0 },
+    };
 
     for (const [collectionName, config] of Object.entries(COLLECTIONS_CONFIG)) {
-      const { success, result } = await createCollection(db, collectionName, config);
+      const { success, result } = await createCollection(
+        db,
+        collectionName,
+        config
+      );
       if (success) {
-        if (result.created) stats.created++; else stats.skipped++;
+        if (result.created) stats.created++;
+        else stats.skipped++;
         stats.indexes.created += result.indexes.created;
         stats.indexes.skipped += result.indexes.skipped;
         stats.indexes.failed += result.indexes.failed;
@@ -268,19 +356,26 @@ async function initializeMongoDBCollections() {
 
     console.log('\n' + '='.repeat(60));
     console.log('📊 初始化完成報告:');
-    console.log(`   - Collections: ${stats.created} 個新建, ${stats.skipped} 個已存在, ${stats.failed} 個失敗`);
-    console.log(`   - 索引: ${stats.indexes.created} 個新建, ${stats.indexes.skipped} 個已存在, ${stats.indexes.failed} 個失敗`);
+    console.log(
+      `   - Collections: ${stats.created} 個新建, ${stats.skipped} 個已存在, ${stats.failed} 個失敗`
+    );
+    console.log(
+      `   - 索引: ${stats.indexes.created} 個新建, ${stats.indexes.skipped} 個已存在, ${stats.indexes.failed} 個失敗`
+    );
 
     if (stats.failed === 0) {
       console.log('\n🎉 所有 Collections 均已設定完成！');
     } else {
-      console.log(`\n⚠️  有 ${stats.failed} 個 Collections 處理失敗，請檢查上方日誌`);
+      console.log(
+        `\n⚠️  有 ${stats.failed} 個 Collections 處理失敗，請檢查上方日誌`
+      );
     }
-
   } catch (error) {
     console.error('\n❌ MongoDB 初始化遭遇嚴重錯誤:', error.message);
     if (error.message.includes('ECONNREFUSED')) {
-      console.error('💡 提示: 請確認 MongoDB 服務是否已啟動 (npm run docker:mongo)');
+      console.error(
+        '💡 提示: 請確認 MongoDB 服務是否已啟動 (npm run docker:mongo)'
+      );
     }
     process.exit(1);
   } finally {
@@ -300,5 +395,5 @@ if (require.main === module) {
 
 module.exports = {
   initializeMongoDBCollections,
-  COLLECTIONS_CONFIG
+  COLLECTIONS_CONFIG,
 };

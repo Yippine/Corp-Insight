@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
-import { Buffer } from 'buffer'; // Needed for file buffer
-import Feedback from '@/lib/database/models/Feedback'; // 導入新的 Feedback Model
-import connectToDatabase from '@/lib/database/connection'; // 導入資料庫連接
+import { Buffer } from 'buffer';
+import Feedback from '@/lib/database/models/Feedback';
+import connectToDatabase from '@/lib/database/connection';
+import { feedbackTypes } from '@/lib/feedback/options';
 
 interface VerificationTokenPayload {
   email: string;
@@ -24,7 +25,12 @@ export async function POST(request: NextRequest) {
     const tokenFromClient = formData.get('verificationToken') as string;
     const file = formData.get('file') as File | null;
 
-    // --- 1. Validate required fields ---
+    // --- 尋找完整的意見回饋類型物件 ---
+    const feedbackTypeObject =
+      feedbackTypes.find(ft => ft.id === type) || null;
+    const typeName = feedbackTypeObject ? feedbackTypeObject.name : type; // 如果找不到則回退到 id
+
+    // --- 1. 驗證必要欄位 ---
     if (
       !type ||
       !title ||
@@ -36,7 +42,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: '缺少必要欄位' }, { status: 400 });
     }
 
-    // --- 2. Verify JWT and the code ---
+    // --- 2. 驗證 JWT 與驗證碼 ---
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error('JWT_SECRET 未設定');
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest) {
         jwtSecret
       ) as VerificationTokenPayload;
     } catch (error) {
-      console.error('JWT 驗證失敗:', error);
+      console.error('JWT 驗證失敗：', error);
       if (error instanceof jwt.TokenExpiredError) {
         return NextResponse.json(
           { message: '驗證碼已過期，請重新發送' },
@@ -79,7 +85,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: '驗證碼錯誤' }, { status: 401 });
     }
 
-    // --- 3. Prepare email transporter (same as in send-code) ---
+    // --- 3. 準備郵件傳輸器 (與 send-code API 相同) ---
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SERVER_HOST,
       port: parseInt(process.env.EMAIL_SERVER_PORT || '465', 10),
@@ -96,7 +102,7 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    // --- 4. Handle file attachment ---
+    // --- 4. 處理檔案附件 ---
     const attachmentsArray: nodemailer.SendMailOptions['attachments'] = [];
     if (file && file.size > 0) {
       const fileBuffer = Buffer.from(await file.arrayBuffer());
@@ -107,11 +113,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // --- 5. Send feedback email to developer ---
+    // --- 5. 發送意見回饋郵件給開發者 ---
     const developerEmail = process.env.NEXT_PUBLIC_DEVELOPER_EMAIL;
     if (!developerEmail) {
       console.error('NEXT_PUBLIC_DEVELOPER_EMAIL 未設定');
-      // Decide if this should be a fatal error for the user or just logged
+      // 決定這是否應為使用者的致命錯誤，或僅需記錄
       return NextResponse.json(
         { message: '伺服器內部錯誤：開發者郵箱未配置' },
         { status: 500 }
@@ -121,7 +127,7 @@ export async function POST(request: NextRequest) {
     const feedbackMailOptions = {
       from: `"${process.env.EMAIL_FROM_NAME || 'Business Magnifier 反饋系統'}" <${process.env.EMAIL_FROM}>`,
       to: developerEmail,
-      subject: `📬 新意見回饋（#${Date.now().toString().slice(-6)}）—${type}：${title}`,
+      subject: `📬 新意見回饋（#${Date.now().toString().slice(-6)}）—${typeName}：${title}`,
       html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 700px; margin: 20px auto; padding: 25px; border: 1px solid #ccc; border-radius: 10px; background-color: #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
         <div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #0056b3;">
@@ -136,7 +142,7 @@ export async function POST(request: NextRequest) {
             </tr>
             <tr>
               <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">回饋類型</td>
-              <td style="padding: 10px; border: 1px solid #dee2e6;">${type}</td>
+              <td style="padding: 10px; border: 1px solid #dee2e6;">${typeName}</td>
             </tr>
             <tr style="background-color: #f8f9fa;">
               <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: bold; color: #495057;">問題概要</td>
@@ -166,19 +172,19 @@ export async function POST(request: NextRequest) {
 
     try {
       await transporter.sendMail(feedbackMailOptions);
-      console.log('Feedback email sent to developer:', developerEmail);
+      console.log('意見回饋郵件已發送給開發者：', developerEmail);
     } catch (error) {
-      console.error('Error sending feedback email to developer:', error);
-      // Log this error but don't necessarily fail the whole request yet,
-      // as sending confirmation to user is also important.
-      // However, if this fails, the primary goal is missed.
+      console.error('發送意見回饋郵件給開發者時發生錯誤：', error);
+      // 記錄此錯誤，但不一定要中斷整個請求，
+      // 因為向使用者發送確認郵件也很重要。
+      // 然而，如果此步驟失敗，主要目標就未達成。
       return NextResponse.json(
         { message: '提交回饋時發送給開發者郵件失敗' },
         { status: 500 }
       );
     }
 
-    // --- 6. Send confirmation email to user ---
+    // --- 6. 發送確認郵件給使用者 ---
     const userConfirmationMailOptions = {
       from: `"${process.env.EMAIL_FROM_NAME || 'Business Magnifier 客戶支援'}" <${process.env.EMAIL_FROM}>`,
       to: email,
@@ -192,9 +198,9 @@ export async function POST(request: NextRequest) {
           <p style="font-size: 18px; color: #28a745; font-weight: bold;">感謝您的意見！</p>
           <p style="font-size: 16px; color: #333;">您好 ${email.split('@')[0]}，</p>
           <p style="font-size: 16px; color: #333;">我們已成功收到您提交的意見回饋（ID：#${Date.now().toString().slice(-6)}）。以下是您提交的摘要：</p>
-          
+
           <div style="margin-top: 20px; padding: 15px; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px;">
-            <p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>回饋類型：</strong> ${type}</p>
+            <p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>回饋類型：</strong> ${typeName}</p>
             <p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>問題概要：</strong> ${title}</p>
             <p style="font-size: 15px; color: #333; margin: 5px 0; white-space: pre-wrap; word-wrap: break-word;"><strong>詳細說明：</strong> ${content.replace(/\n/g, '<br>')}</p>
             ${file ? `<p style="font-size: 15px; color: #333; margin: 5px 0;"><strong>附加檔案：</strong> ${file.name}</p>` : ''}
@@ -214,20 +220,23 @@ export async function POST(request: NextRequest) {
 
     try {
       await transporter.sendMail(userConfirmationMailOptions);
-      console.log('Confirmation email sent to user:', email);
+      console.log('確認郵件已發送給使用者：', email);
     } catch (error) {
-      console.error('Error sending confirmation email to user:', error);
-      // Log this error. Even if this fails, the feedback was sent to the developer.
-      // You might want to inform the user that confirmation couldn't be sent but feedback was received.
+      console.error('向使用者發送確認郵件時發生錯誤：', error);
+      // 記錄此錯誤。即使此步驟失敗，意見回饋也已發送給開發者。
+      // 您可能需要通知使用者確認郵件無法發送，但意見回饋已收到。
     }
 
-    // --- 7. Save feedback to the database using the new model ---
+    // --- 7. 將意見回饋儲存至資料庫 ---
     try {
       await connectToDatabase();
 
       const newFeedback = new Feedback({
         submittedByEmail: email,
-        category: type,
+        category: {
+          id: type,
+          name: typeName,
+        },
         title,
         content,
         attachment: file
@@ -237,16 +246,16 @@ export async function POST(request: NextRequest) {
               fileType: file.type,
             }
           : undefined,
-        // The 'status', 'priority', and 'history' fields will be set to their default values
+        // 'status'、'priority' 和 'history' 欄位將被設為其預設值
       });
 
       await newFeedback.save();
-      console.log('Feedback saved to database:', newFeedback._id);
+      console.log('意見回饋已儲存至資料庫：', newFeedback._id);
     } catch (dbError) {
-      console.error('Error saving feedback to database:', dbError);
-      // Even if saving to DB fails, the user has received confirmation and the developer has been notified.
-      // This should be logged for manual follow-up.
-      // We don't return an error to the user here as the primary task (emailing) was successful.
+      console.error('將意見回饋儲存至資料庫時發生錯誤：', dbError);
+      // 即使存入資料庫失敗，使用者已收到確認，開發者也已收到通知。
+      // 此錯誤應被記錄以供手動追蹤。
+      // 我們在這裡不向使用者返回錯誤，因為主要任務（發送郵件）已成功。
     }
 
     return NextResponse.json(
@@ -254,8 +263,8 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('POST /api/feedback/submit error:', error);
-    // Check if it's a known error type, e.g., from formData parsing
+    console.error('POST /api/feedback/submit 錯誤：', error);
+    // 檢查是否為已知錯誤類型，例如來自 formData 解析的錯誤
     if (
       error instanceof TypeError &&
       error.message.includes('Failed to parse')

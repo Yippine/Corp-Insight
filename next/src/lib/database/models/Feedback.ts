@@ -18,7 +18,10 @@ interface IHistory {
 export interface IFeedback extends Document {
   submittedAt: Date;
   submittedByEmail: string;
-  category: '功能建議' | '錯誤回報' | 'UI/UX 問題' | '其他';
+  category: {
+    id: string;
+    name: string;
+  };
   title: string;
   content: string;
   attachment?: IAttachment;
@@ -57,9 +60,8 @@ const FeedbackSchema: Schema<IFeedback> = new Schema(
       match: [/^\S+@\S+\.\S+$/, '請輸入有效的 Email 格式'],
     },
     category: {
-      type: String,
-      enum: ['功能建議', '錯誤回報', 'UI/UX 問題', '其他'],
-      required: [true, '回饋分類為必填項'],
+      id: { type: String, required: true },
+      name: { type: String, required: true },
     },
     title: {
       type: String,

@@ -11,26 +11,7 @@ import {
   Accept,
 } from 'react-dropzone';
 import { trackBusinessEvents } from '@/components/GoogleAnalytics';
-
-const feedbackTypes = [
-  {
-    id: 'data_correction',
-    name: '資料勘誤',
-    description: '回報資料錯誤或不準確的情況',
-  },
-  {
-    id: 'business_cooperation',
-    name: '業務合作',
-    description: '討論商業合作機會',
-  },
-  { id: 'bug_report', name: '系統問題', description: '回報系統錯誤或異常' },
-  {
-    id: 'feature_request',
-    name: '功能建議',
-    description: '提供新功能或改進建議',
-  },
-  { id: 'other', name: '其他', description: '其他意見或建議' },
-];
+import { feedbackTypes } from '@/lib/feedback/options';
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
