@@ -501,12 +501,17 @@ export const usePromptEngine = ({
         modified: modifiedContent || '',
       });
     } else if (originalContent) {
-      // 在單欄模式下，持續更新 displayedItem
-      setHistory(prev =>
-        prev.map((item, index) =>
-          index === currentIndex ? { ...item, result: originalContent } : item
-        )
-      );
+      // 在單欄模式下，持續更新 history 中當前索引項目的 result
+      setHistory(prevHistory => {
+        const newHistory = [...prevHistory];
+        if (newHistory[currentIndex]) {
+          newHistory[currentIndex] = {
+            ...newHistory[currentIndex],
+            result: originalContent,
+          };
+        }
+        return newHistory;
+      });
     }
   }, [originalResult, originalError, modifiedResult, modifiedError]);
 

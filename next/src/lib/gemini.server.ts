@@ -242,9 +242,10 @@ export async function updateKeyState(
  * @returns {'failover' | 'round-robin'} 當前應用的金鑰策略。
  */
 function getApiKeyStrategy(): 'failover' | 'round-robin' {
-  if (process.env.NODE_ENV === 'production') {
-    return 'failover';
-  }
+  // 生產環境強制使用 'failover'
+  // if (process.env.NODE_ENV === 'production') {
+  //   return 'failover';
+  // }
   const strategy = process.env.NEXT_PUBLIC_GEMINI_KEY_STRATEGY;
   if (strategy === 'round-robin') {
     return 'round-robin';
