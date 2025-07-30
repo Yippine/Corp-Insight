@@ -989,7 +989,7 @@ export default function CompanyDetailContent({
               sources={[
                 {
                   name: '標案瀏覽',
-                  url: 'https://pcc.g0v.ronny.tw/',
+                  url: 'https://pcc-api.openfun.app/',
                 },
               ]}
             />

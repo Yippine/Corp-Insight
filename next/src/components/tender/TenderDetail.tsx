@@ -75,9 +75,7 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
   // 修改區塊渲染邏輯
   const renderSection = (section: (typeof sections)[0]) => {
     if (section.title === '最有利標' || section.title === '其他') {
-      return (
-        <TenderSpecialInfo section={section} />
-      );
+      return <TenderSpecialInfo section={section} />;
     }
 
     // 檢查是否包含是/否欄位
@@ -107,11 +105,11 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       {/* GA 標案詳情追蹤 */}
-      <TenderDetailTracker 
-        tenderId={tenderId} 
-        tenderTitle={targetRecord?.brief?.title} 
+      <TenderDetailTracker
+        tenderId={tenderId}
+        tenderTitle={targetRecord?.brief?.title}
       />
-      
+
       <BackButton returnPath="/tender/search" />
 
       <TenderHeader targetRecord={targetRecord} data={data} />
@@ -153,7 +151,7 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <a
-              href="https://pcc.g0v.ronny.tw/"
+              href="https://pcc-api.openfun.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"

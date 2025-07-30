@@ -17,8 +17,12 @@ export async function fetchTenderSearch(
   try {
     const data = await fetchSearchData(searchType, query, page);
 
+    // 如果 API 回應無效或沒有任何紀錄，則返回空結果集，而不是拋出錯誤
     if (!data || !data.records || data.records.length === 0) {
-      throw new Error('找不到符合的標案！');
+      return {
+        results: [],
+        totalPages: 0,
+      };
     }
 
     const results = formatResults(data, searchType, query);
@@ -40,7 +44,7 @@ async function fetchSearchData(
   query: string,
   page: number = 1
 ): Promise<any> {
-  const baseUrl = 'https://pcc.g0v.ronny.tw/api';
+  const baseUrl = 'https://pcc-api.openfun.app/api';
   const endpoints = {
     tender: `${baseUrl}/searchbytitle?query=${encodeURIComponent(query)}&page=${page}`,
     company: /^\d{8}$/.test(query)

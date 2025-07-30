@@ -12,10 +12,10 @@ export function usePaginatedTenders(taxId: string) {
     try {
       console.log(`正在發查第 ${page} 頁的標案資料...`);
       const response = await fetch(
-        `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}&page=${page}`
+        `https://pcc-api.openfun.app/api/searchbycompanyid?query=${taxId}&page=${page}`
       );
       const data = await response.json();
-      
+
       if (!data.records) {
         throw new Error('無法取得標案資料');
       }
@@ -27,7 +27,7 @@ export function usePaginatedTenders(taxId: string) {
           let status = '未得標';
 
           if (companies) {
-            const idKeyEntry = Object.entries(companies.id_key || {}).find(([id]) => id === 
+            const idKeyEntry = Object.entries(companies.id_key || {}).find(([id]) => id ===
             taxId);
             if (idKeyEntry) {
               const companyIndex = companies.ids.indexOf(idKeyEntry[0]);
@@ -35,7 +35,7 @@ export function usePaginatedTenders(taxId: string) {
                 const companyName = companies.names[companyIndex];
                 if (companyName) {
                   const nameKeyStatus = companies.name_key?.[companyName];
-                  if (Array.isArray(nameKeyStatus) && !nameKeyStatus.some(s => s.includes('未得標'))) 
+                  if (Array.isArray(nameKeyStatus) && !nameKeyStatus.some(s => s.includes('未得標')))
                   {
                     status = '得標';
                   }
@@ -62,16 +62,16 @@ export function usePaginatedTenders(taxId: string) {
 
   const loadAllPages = async () => {
     if (isLoadingMore) return;
-    
+
     setIsLoadingMore(true);
     setIsFullyLoaded(false);
     const allTenders = new Map();
-    
+
     try {
       console.log('開始載入所有標案資料...');
       const firstPage = await fetchTenderPage(1);
       setTotalPages(firstPage.totalPages);
-      
+
       firstPage.tenders.forEach((tender: any) => {
         allTenders.set(tender.tenderId, tender);
       });
@@ -79,7 +79,7 @@ export function usePaginatedTenders(taxId: string) {
       if (firstPage.totalPages > 1) {
         const delay = 250;
         const batchSize = 4;
-        
+
         for (let page = 2; page <= firstPage.totalPages; page += batchSize) {
           console.log(`開始載入第 ${page} 到 ${Math.min(page + batchSize - 1, firstPage.totalPages)} 頁`);
           const batch = [];
@@ -93,12 +93,12 @@ export function usePaginatedTenders(taxId: string) {
               allTenders.set(tender.tenderId, tender);
             });
           });
-          
+
           const currentTenders = Array.from(allTenders.values());
           console.log(`目前已載入 ${currentTenders.length} 筆標案資料`);
           setTenders(currentTenders);
           setCurrentPage(Math.min(page + batchSize - 1, firstPage.totalPages));
-          
+
           if (page + batchSize <= firstPage.totalPages) {
             await new Promise(resolve => setTimeout(resolve, delay));
           }

@@ -37,18 +37,18 @@ const tabs = [
 
 const fetchDetailData = async (taxId: string) => {
   const baseUrl = 'https://company.g0v.ronny.tw/api';
-  
+
   try {
     const [basicRes, listedRes] = await Promise.allSettled([
       fetch(`${baseUrl}/show/${taxId}`),
       fetchListedCompany(taxId)
     ]);
 
-    const basicData = basicRes.status === 'fulfilled' 
+    const basicData = basicRes.status === 'fulfilled'
       ? await basicRes.value.json()
       : { data: {} };
-      
-    const listedData = listedRes.status === 'fulfilled' 
+
+    const listedData = listedRes.status === 'fulfilled'
       ? listedRes.value
       : { data: {} };
 
@@ -97,7 +97,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
     // 處理 URL 編碼與參數設定
     const encodedTab = encodeURIComponent(finalTab);
     setSearchParams({ tab: encodedTab }, { replace: true });
-    
+
     // 更新狀態與追蹤事件
     setActiveTab(finalTab);
     trackEvent('company_detail_tab_change', { tab: finalTab });
@@ -144,7 +144,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
       .animate-pulse-slow {
         animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
-      
+
       @keyframes float {
         0% { transform: translateY(0px); }
         50% { transform: translateY(-10px); }
@@ -153,13 +153,13 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
       .animate-float {
         animation: float 5s ease-in-out infinite;
       }
-      
+
       .trend-line {
         stroke-dasharray: 1000;
         stroke-dashoffset: 1000;
         animation: dash 2s ease-in-out forwards;
       }
-      
+
       @keyframes dash {
         from {
           stroke-dashoffset: 1000;
@@ -168,11 +168,11 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
           stroke-dashoffset: 0;
         }
       }
-      
+
       .scale-in-center {
         animation: scale-in-center 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
       }
-      
+
       @keyframes scale-in-center {
         0% {
           transform: scale(0);
@@ -183,14 +183,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
           opacity: 1;
         }
       }
-      
+
       .risk-item-hover:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
       }
     `;
     document.head.appendChild(styleElement);
-    
+
     // 清理函數
     return () => {
       document.head.removeChild(styleElement);
@@ -198,7 +198,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
   }, []);
 
   const seoTitle = SearchData ? `${SearchData.name} - 企業資訊 | 企業放大鏡™` : '企業資訊 | 企業放大鏡™';
-  const seoDescription = SearchData 
+  const seoDescription = SearchData
     ? `查看 ${SearchData.name} 的詳細企業資訊，包含基本資料、財務概況、核心成員和相關標案等完整資訊。統一編號：${SearchData.taxId}。`
     : '查看完整的企業資訊，包含基本資料、財務概況、核心成員和相關標案等詳細內容。';
 
@@ -227,8 +227,8 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
             </h4>
             <div className="grid grid-cols-2 gap-4">
               {codes.map((item: string[], index: number) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="group flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-white p-3 rounded-lg border border-blue-100 hover:shadow-md transition-all duration-200"
                 >
                   <div className="flex-shrink-0 bg-blue-600 text-white px-2 py-1 rounded text-sm font-medium group-hover:bg-blue-700 transition-colors">
@@ -253,15 +253,15 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               {details.map((item: string[], index: number) => {
                 const content = item[1].replace(/^[•·]/, '').trim();
                 const isNewSection = /^[１２３４５６７８９０\d]．/.test(content);
-                
+
                 return (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`${isNewSection ? 'mt-6 first:mt-0' : 'ml-8'} leading-relaxed hover:bg-white rounded-lg p-2 transition-colors duration-200`}
                   >
                     <p className={`${
-                      isNewSection 
-                        ? 'text-blue-800 font-medium' 
+                      isNewSection
+                        ? 'text-blue-800 font-medium'
                         : 'text-gray-600'
                     }`}>
                       {content}
@@ -722,7 +722,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                 </div>
               </div>
 
-              {(!SearchData.directors || SearchData.directors.length === 0) && 
+              {(!SearchData.directors || SearchData.directors.length === 0) &&
                (!SearchData.managers || SearchData.managers.length === 0) ? (
                 <NoDataFound message="查無董事會、經理人資料" />
               ) : (
@@ -734,9 +734,9 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                       <NoDataFound message="查無董事會資料" />
                     )}
                     {SearchData.managers && SearchData.managers.length > 0 ? (
-                      <ManagersTimeline 
-                        managers={SearchData.managers} 
-                        established={SearchData.established} 
+                      <ManagersTimeline
+                        managers={SearchData.managers}
+                        established={SearchData.established}
                       />
                     ) : (
                       <NoDataFound message="查無經理人資料" />
@@ -745,7 +745,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
                     {SearchData.directors && SearchData.directors.length > 0 ? (
-                      <DirectorsTable 
+                      <DirectorsTable
                         directors={SearchData.directors}
                         onViewChange={setView}
                       />
@@ -753,7 +753,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                       <NoDataFound message="查無董事會資料" />
                     )}
                     {SearchData.managers && SearchData.managers.length > 0 ? (
-                      <ManagersTable 
+                      <ManagersTable
                         managers={SearchData.managers}
                         onViewChange={setView}
                       />
@@ -871,7 +871,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                   </table>
                 </div>
                 ) : (
-                  <TenderStatsChart 
+                  <TenderStatsChart
                     tenders={tenders}
                     isLoadingMore={isLoadingMore}
                     progress={progress}
@@ -888,7 +888,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
               sources={[
                 {
                   name: '標案瀏覽',
-                  url: 'https://pcc.g0v.ronny.tw/'
+                  url: 'https://pcc-api.openfun.app/'
                 }
               ]}
             />
@@ -950,30 +950,30 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                           更新於 2024/11/10
                         </div>
                       </div>
-                      
+
                       <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-6 mb-6">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full -mr-16 -mt-16 opacity-40"></div>
                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-100 rounded-full -ml-12 -mb-12 opacity-40"></div>
-                        
+
                         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between">
                           <div className="text-center md:text-left mb-4 md:mb-0">
                             <h5 className="text-lg font-medium text-gray-800 mb-1">整體風險評分</h5>
                             <div className="text-5xl font-bold text-blue-600">36</div>
                             <p className="text-sm text-gray-600 mt-1">低等風險水平</p>
                           </div>
-                          
+
                           <div className="h-52 w-52 relative">
                             <svg className="w-full h-full" viewBox="0 0 100 100">
-                              <circle 
-                                cx="50" cy="50" r="45" 
-                                fill="none" 
-                                stroke="#e5e7eb" 
+                              <circle
+                                cx="50" cy="50" r="45"
+                                fill="none"
+                                stroke="#e5e7eb"
                                 strokeWidth="10"
                               />
-                              <circle 
-                                cx="50" cy="50" r="45" 
-                                fill="none" 
-                                stroke="#3b82f6" 
+                              <circle
+                                cx="50" cy="50" r="45"
+                                fill="none"
+                                stroke="#3b82f6"
                                 strokeWidth="10"
                                 strokeDasharray="100 200"
                                 strokeDashoffset="0"
@@ -981,7 +981,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                                 className="transition-all duration-100 ease-out"
                                 transform="rotate(-90 50 50)"
                               >
-                                <animate 
+                                <animate
                                   attributeName="stroke-dasharray"
                                   values="0 283;102 283"
                                   dur="1.5s"
@@ -991,14 +991,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                               <text x="50" y="55" textAnchor="middle" className="text-2xl font-bold" fill="#1e40af">36%</text>
                             </svg>
                           </div>
-                          
+
                           <div className="text-center md:text-right">
                             <h5 className="text-lg font-medium text-gray-800 mb-1">同行業平均</h5>
                             <div className="text-5xl font-bold text-gray-400">42</div>
                             <p className="text-sm text-gray-600 mt-1">低風險水平</p>
                           </div>
                         </div>
-                        
+
                         <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4">
                           <div className="text-center">
                             <div className="text-sm font-medium text-gray-500">合約糾紛</div>
@@ -1018,7 +1018,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 flex flex-col">
                           <div className="text-xl font-medium text-gray-900 mb-2">案件類型佔比</div>
@@ -1030,57 +1030,57 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                                 </div>
                               </div>
                               <svg className="w-full h-full" viewBox="0 0 100 100">
-                                <circle 
-                                  cx="50" cy="50" r="45" 
-                                  fill="none" 
-                                  stroke="#ddd" 
+                                <circle
+                                  cx="50" cy="50" r="45"
+                                  fill="none"
+                                  stroke="#ddd"
                                   strokeWidth="10"
                                 />
-                                <circle 
-                                  cx="50" cy="50" r="45" 
-                                  fill="none" 
-                                  stroke="#3b82f6" 
+                                <circle
+                                  cx="50" cy="50" r="45"
+                                  fill="none"
+                                  stroke="#3b82f6"
                                   strokeWidth="10"
                                   strokeDasharray="205 283"
                                   strokeDashoffset="0"
                                   strokeLinecap="round"
                                   transform="rotate(-90 50 50)"
                                 >
-                                  <animate 
+                                  <animate
                                     attributeName="stroke-dasharray"
                                     values="0 283;205 283"
                                     dur="1.5s"
                                     fill="freeze"
                                   />
                                 </circle>
-                                <circle 
-                                  cx="50" cy="50" r="45" 
-                                  fill="none" 
-                                  stroke="#10b981" 
+                                <circle
+                                  cx="50" cy="50" r="45"
+                                  fill="none"
+                                  stroke="#10b981"
                                   strokeWidth="10"
                                   strokeDasharray="75 283"
                                   strokeDashoffset="-205"
                                   strokeLinecap="round"
                                   transform="rotate(-90 50 50)"
                                 >
-                                  <animate 
+                                  <animate
                                     attributeName="stroke-dasharray"
                                     values="0 283;75 283"
                                     dur="1.5s"
                                     fill="freeze"
                                   />
                                 </circle>
-                                <circle 
-                                  cx="50" cy="50" r="45" 
-                                  fill="none" 
-                                  stroke="#ef4444" 
+                                <circle
+                                  cx="50" cy="50" r="45"
+                                  fill="none"
+                                  stroke="#ef4444"
                                   strokeWidth="10"
                                   strokeDasharray="3 283"
                                   strokeDashoffset="-280"
                                   strokeLinecap="round"
                                   transform="rotate(-90 50 50)"
                                 >
-                                  <animate 
+                                  <animate
                                     attributeName="stroke-dasharray"
                                     values="0 283;3 283"
                                     dur="1.5s"
@@ -1105,7 +1105,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6">
                           <div className="text-xl font-medium text-gray-900 mb-2">時間趨勢分析</div>
                           <div className="h-64 relative">
@@ -1123,12 +1123,12 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                                     <stop offset="100%" stopColor="rgba(236, 72, 153, 0.2)" />
                                   </linearGradient>
                                 </defs>
-                                
+
                                 <path
                                   d="M0,150 L50,130 L100,140 L150,90 L200,100 L250,70 L300,30 V200 H0 Z"
                                   fill="url(#gradientFill)"
                                 />
-                                
+
                                 <polyline
                                   points="0,150 50,130 100,140 150,90 200,100 250,70 300,30"
                                   fill="none"
@@ -1138,14 +1138,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                                   strokeLinejoin="round"
                                   className="trend-line"
                                 >
-                                  <animate 
+                                  <animate
                                     attributeName="points"
                                     dur="1.5s"
                                     values="0,150 0,150 0,150 0,150 0,150 0,150 0,150;0,150 50,130 100,140 150,90 200,100 250,70 300,30"
                                     fill="freeze"
                                   />
                                 </polyline>
-                                
+
                                 <circle cx="0" cy="150" r="4" fill="#8b5cf6" />
                                 <circle cx="50" cy="130" r="4" fill="#8b5cf6" />
                                 <circle cx="100" cy="140" r="4" fill="#8b5cf6" />
@@ -1173,7 +1173,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col transform hover:scale-105 transition-transform duration-300">
                       <div className="flex justify-between items-center mb-4">
@@ -1198,7 +1198,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                         <span className="text-amber-600 font-medium">需關注：財務爭議、智財權訴訟</span>
                       </div>
                     </div>
-                    
+
                     <div className="bg-white rounded-xl shadow-sm p-6 transform hover:scale-105 transition-transform duration-300">
                       <div className="flex justify-between items-center mb-4">
                         <h4 className="text-lg font-semibold text-gray-800">主要風險類型</h4>
@@ -1217,7 +1217,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                           </div>
                           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                             <div className="h-full bg-blue-500 rounded-full" style={{ width: '42%' }}>
-                              <animate 
+                              <animate
                                 attributeName="width"
                                 values="0%;42%"
                                 dur="1s"
@@ -1236,7 +1236,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                           </div>
                           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                             <div className="h-full bg-green-500 rounded-full" style={{ width: '31%' }}>
-                              <animate 
+                              <animate
                                 attributeName="width"
                                 values="0%;31%"
                                 dur="1s"
@@ -1255,7 +1255,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                           </div>
                           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                             <div className="h-full bg-purple-500 rounded-full" style={{ width: '18%' }}>
-                              <animate 
+                              <animate
                                 attributeName="width"
                                 values="0%;18%"
                                 dur="1s"
@@ -1274,7 +1274,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                           </div>
                           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                             <div className="h-full bg-gray-500 rounded-full" style={{ width: '9%' }}>
-                              <animate 
+                              <animate
                                 attributeName="width"
                                 values="0%;9%"
                                 dur="1s"
@@ -1291,7 +1291,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="bg-white rounded-xl shadow-sm p-6 transform hover:scale-105 transition-transform duration-300">
                       <div className="text-lg font-semibold text-gray-800 mb-4">法院審理分布</div>
                       <div className="space-y-3">
@@ -1357,14 +1357,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                   <div className="px-6 py-4 border-b border-gray-200">
                     <p className="text-sm text-gray-500 mt-1">共有 219 筆資料</p>
                   </div>
-                  
+
                   <div className="p-4 bg-gray-50 border-b border-gray-200">
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="flex-1">
                         <div className="relative">
-                          <input 
-                            type="search" 
-                            placeholder="搜尋判決書關鍵字..." 
+                          <input
+                            type="search"
+                            placeholder="搜尋判決書關鍵字..."
                             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                           />
                           <div className="absolute left-3 top-2.5 text-gray-400">
@@ -1374,7 +1374,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex gap-2">
                         <div className="relative inline-block">
                           <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-300 text-sm font-medium hover:bg-gray-50">
@@ -1382,14 +1382,14 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                             <span>過濾條件</span>
                           </button>
                         </div>
-                        
+
                         <div className="relative inline-block">
                           <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-300 text-sm font-medium hover:bg-gray-50">
                             <Clock className="h-4 w-4 text-gray-500" />
                             <span>日期範圍</span>
                           </button>
                         </div>
-                        
+
                         <div className="relative inline-block">
                           <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-sm font-medium text-blue-600 hover:bg-blue-100">
                             <Download className="h-4 w-4" />
@@ -1399,7 +1399,7 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
@@ -1566,19 +1566,19 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
                     </table>
                   </div>
                   <div className="px-6 py-4">
-                    <Pagination 
-                      currentPage={riskCurrentPage} 
-                      totalPages={riskTotalPages} 
+                    <Pagination
+                      currentPage={riskCurrentPage}
+                      totalPages={riskTotalPages}
                       onPageChange={(page) => {
                         setRiskCurrentPage(page);
                         trackEvent('risk_assessment_page_change', { page });
-                      }} 
+                      }}
                     />
                   </div>
                 </div>
               )}
             </div>
-            
+
             <DataSource
               sources={[
                 {
@@ -1601,9 +1601,9 @@ export default function CompanyDetail({ onTenderSelect }: CompanyDetailProps) {
         description={seoDescription}
         canonicalUrl={`/company/detail/${taxId}`}
       />
-      
+
       <div className="flex items-center justify-between">
-        <BackButton 
+        <BackButton
           returnPath="/company/search"
           sessionKey="companySearchParams"
         />

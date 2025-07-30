@@ -43,7 +43,7 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
         const jobNumber = tenderId.substring(firstUnderscoreIndex + 1);
 
         const response = await fetch(
-          `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`
+          `https://pcc-api.openfun.app/api/tender?unit_id=${unitId}&job_number=${jobNumber}`
         );
         if (!response.ok) throw new Error('無法取得標案資料');
 
@@ -54,8 +54,8 @@ export function useTenderDetail(tenderId: string): UseTenderDetailResult {
         // 精確匹配邏輯
         const findTargetRecord = () => {
           if (date && type) {
-            return result.records.find(record => 
-              formatDate(record.date) === date && 
+            return result.records.find(record =>
+              formatDate(record.date) === date &&
               record.brief.type === decodeURIComponent(type)
             );
           }
@@ -153,10 +153,10 @@ function parseTenderDetail(detail: Record<string, any>): Section[] {
 
   // 以統一的階層處理表現來建立結構
   const hierarchy: Record<string, any> = {};
-  
+
   Object.entries(detail).forEach(([key, value]) => {
     if (excludedKeys.includes(key)) return;
-    
+
     const keys = key.split(':');
     // 使用 buildHierarchyUnified 取代原本的 buildHierarchy
     buildHierarchyUnified(hierarchy, keys, value);
@@ -171,7 +171,7 @@ function parseTenderDetail(detail: Record<string, any>): Section[] {
       }
 
       const fullKey = parentKey ? `${parentKey}:${key}` : key;
-      
+
       // 處理物件型態的資料（優先於陣列處理）
       if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
         const children = processFields(val, fullKey, sectionTitle);
@@ -193,8 +193,8 @@ function parseTenderDetail(detail: Record<string, any>): Section[] {
         return [{
           label: key,
           value: arrayValue,
-          children: val.flatMap((item, index) => 
-            typeof item === 'object' 
+          children: val.flatMap((item, index) =>
+            typeof item === 'object'
               ? processFields(item, `${fullKey}[${index}]`, sectionTitle)
               : []
           )
@@ -211,7 +211,7 @@ function parseTenderDetail(detail: Record<string, any>): Section[] {
 
   // 將階層結構轉換為扁平化的區段
   const sections: Section[] = [];
-  
+
   Object.entries(hierarchy).forEach(([sectionTitle, sectionData]) => {
     const fields = processFields(sectionData, '', sectionTitle);
     sections.push({

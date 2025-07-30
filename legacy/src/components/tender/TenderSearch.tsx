@@ -105,10 +105,10 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   }, [q, searchType, page]);
 
   const fetchSearchData = async (type: 'company' | 'tender', query: string, page: number = 1): Promise<any> => {
-    const baseUrl = 'https://pcc.g0v.ronny.tw/api';
+    const baseUrl = 'https://pcc-api.openfun.app/api';
     const endpoints = {
       tender: `${baseUrl}/searchbytitle?query=${encodeURIComponent(query)}&page=${page}`,
-      company: /^\d{8}$/.test(query) 
+      company: /^\d{8}$/.test(query)
         ? `${baseUrl}/searchbycompanyid?query=${encodeURIComponent(query)}&page=${page}`
         : `${baseUrl}/searchbycompanyname?query=${encodeURIComponent(query)}&page=${page}`
     };
@@ -120,11 +120,11 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
           'Accept': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('API 請求失敗：', error);
@@ -135,7 +135,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   const handleSearch = async (e?: React.FormEvent, page?: number) => {
     e?.preventDefault();
     const targetPage = page || 1;
-    
+
     setSearchParams({
       q: encodeURIComponent(searchQuery),
       type: searchType,
@@ -145,10 +145,10 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
   const formatResults = (data: any, searchType: 'company' | 'tender'): TenderSearchData[] => {
     return data.records.map((record: any, index: number) => {
-      const label = searchType === 'company' 
+      const label = searchType === 'company'
         ? getCompanyLabel(record, searchQuery)
         : getTenderLabel(record.brief.type);
-      
+
       return {
         uniqueId: index,
         tenderId: `${record.unit_id}_${record.job_number}`,
@@ -174,7 +174,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
   const handleTenderSelect = (record: TenderSearchData) => {
     sessionStorage.setItem('tenderSearchParams', searchParams.toString());
     sessionStorage.setItem('tenderSearchScroll', window.scrollY.toString());
-    
+
     // 將完整記錄資料存入 sessionStorage
     sessionStorage.setItem(`tenderRecord_${record.tenderId}`, JSON.stringify({
       date: record.date,
@@ -188,7 +188,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
 
   const handleTypeChange = (newType: 'company' | 'tender') => {
     setSearchType(newType);
-    setSearchParams({ 
+    setSearchParams({
       q: encodeURIComponent(searchQuery),
       type: newType,
       page: '1'
@@ -238,7 +238,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
               type="text"
               className="block w-full h-full rounded-l-lg border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 text-xl"
               placeholder={
-                searchType === 'tender' 
+                searchType === 'tender'
                   ? '輸入標案名稱或關鍵字'
                   : '輸入廠商名稱、統編或關鍵字'
               }
@@ -291,8 +291,8 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
           <InlineLoading />
         </div>
       ) : errorMessage ? (
-        <NoSearchResults 
-          message={errorMessage} 
+        <NoSearchResults
+          message={errorMessage}
           searchTerm={searchQuery}
           onReset={handleReset}
         />
@@ -332,7 +332,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {searchResults.map((tender) => (
-                  <tr 
+                  <tr
                     key={tender.uniqueId}
                     onClick={() => handleTenderSelect(tender)}
                     className="hover:bg-gray-50 cursor-pointer"
@@ -381,7 +381,7 @@ export default function TenderSearch({ onTenderSelect }: TenderSearchProps) {
             sources={[
               {
                 name: '標案瀏覽',
-                url: 'https://pcc.g0v.ronny.tw/'
+                url: 'https://pcc-api.openfun.app/'
               }
             ]}
           />

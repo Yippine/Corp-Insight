@@ -27,11 +27,11 @@ const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: strin
         'Accept': 'application/json'
       }
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('API request failed:', error);
@@ -41,7 +41,7 @@ const fetchSearchData = async (type: 'taxId' | 'name' | 'chairman', query: strin
 
 const fetchTenderInfo = async (taxId: string): Promise<{ count: number; }> => {
   try {
-    const response = await fetch(`https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}`);
+    const response = await fetch(`https://pcc-api.openfun.app/api/searchbycompanyid?query=${taxId}`);
     if (!response.ok) {
       throw new Error(`標案查詢失敗：狀態碼 ${response.status}`);
     }
@@ -63,18 +63,18 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
   const [totalPages, setTotalPages] = useState(1);
 
   const handleSearch = async (
-    e: React.FormEvent | null, 
+    e: React.FormEvent | null,
     page: number = 1,
     customQuery?: string,
-    enableAutoRedirect: boolean = true  
+    enableAutoRedirect: boolean = true
   ) => {
     e?.preventDefault();
     const trimmedQuery = customQuery || searchQuery.trim();
     if (!trimmedQuery) return;
-    
+
     setIsSearching(true);
     setErrorMessage(null);
-    
+
     try {
       const searchType = determineSearchType(trimmedQuery);
       if (searchType === 'taxId') {
@@ -86,7 +86,7 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
         const formattedResults = await formatCompanyResults('taxId', response);
         setSearchResults(formattedResults);
         setTotalPages(1);
-        
+
         if (handleAutoRedirect(formattedResults, enableAutoRedirect)) return;
       } else {
         let response = await fetchSearchData('name', trimmedQuery, page);
@@ -108,7 +108,7 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
         setCurrentPage(page);
       }
 
-      setSearchParams({ 
+      setSearchParams({
         q: encodeURIComponent(trimmedQuery),
         type: searchType,
         page: page.toString()
@@ -131,15 +131,15 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
       onSearchComplete?.()
       return
     }
-    
+
     const decodedQuery = decodeURIComponent(urlQuery)
     setSearchQuery(decodedQuery)
-    
+
     const executeSearch = async () => {
       const isReturningFromDetail = sessionStorage.getItem('companySearchParams') !== null;
       await handleSearch(
-        null, 
-        parseInt(searchParams.get('page') || '1'), 
+        null,
+        parseInt(searchParams.get('page') || '1'),
         decodedQuery,
         !isReturningFromDetail
       );
@@ -168,7 +168,7 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
 
   const formatCompanyResults = async (type: 'taxId' | 'name' | 'chairman', data: any): Promise<SearchData[]> => {
     const companies = data.data;
-    
+
     if (!companies) return [formatSearchData({})];
 
     if (type === 'taxId') {
@@ -181,7 +181,7 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
     }
 
     const formattedResults = await Promise.all(
-      Array.isArray(companies) 
+      Array.isArray(companies)
         ? companies
             .map((company: SearchResponse) => formatSearchData(company))
             .filter(company => company.name !== '未提供')
@@ -263,8 +263,8 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
           <InlineLoading />
         </div>
       ) : errorMessage ? (
-        <NoSearchResults 
-          message={errorMessage} 
+        <NoSearchResults
+          message={errorMessage}
           searchTerm={searchQuery}
           onReset={handleReset}
         />
@@ -292,8 +292,8 @@ export default function CompanySearch({ onCompanySelect, onSearchComplete }: Com
                           {company.name}
                         </h3>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
-                          company.status === '營業中' 
-                            ? 'bg-green-100 text-green-800' 
+                          company.status === '營業中'
+                            ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
                           {company.status}

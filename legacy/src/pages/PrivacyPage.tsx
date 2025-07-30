@@ -29,7 +29,7 @@ const dataSources = [
   {
     id: 'tender',
     name: '標案瀏覽',
-    url: 'https://pcc.g0v.ronny.tw/',
+    url: 'https://pcc-api.openfun.app/',
     description: '彙整中華民國政府電子採購網公開資訊，提供標案查詢與資料分析服務，遵循政府資料開放原則。',
     icon: Shield,
     color: 'orange'
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         {dataSources.map((source, index) => {
           const colors = colorVariants[source.color as keyof typeof colorVariants];
-          
+
           return (
             <motion.div
               key={source.id}

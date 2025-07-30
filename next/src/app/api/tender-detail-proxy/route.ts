@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const externalApiUrl = `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`;
+  const externalApiUrl = `https://pcc-api.openfun.app/api/tender?unit_id=${unitId}&job_number=${jobNumber}`;
   const apiKey = externalApiUrl; // Use the full external URL as the cache key for this specific tender detail
 
   try {

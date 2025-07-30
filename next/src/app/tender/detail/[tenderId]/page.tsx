@@ -21,7 +21,7 @@ export async function generateMetadata({
     const unitId = tenderId.substring(0, firstUnderscoreIndex);
     const jobNumber = tenderId.substring(firstUnderscoreIndex + 1);
 
-    const apiUrl = `https://pcc.g0v.ronny.tw/api/tender?unit_id=${unitId}&job_number=${jobNumber}`;
+    const apiUrl = `https://pcc-api.openfun.app/api/tender?unit_id=${unitId}&job_number=${jobNumber}`;
     const apiKey = apiUrl;
 
     let data: any; // 宣告 data 變數於 try 外部，使其可在 try-catch-finally 中被存取

@@ -241,7 +241,7 @@ export async function fetchTwincnHtml(taxId: string): Promise<string> {
 export async function fetchTenderInfo(
   taxId: string
 ): Promise<{ count: number }> {
-  const apiUrl = `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}`;
+  const apiUrl = `https://pcc-api.openfun.app/api/searchbycompanyid?query=${taxId}`;
   const apiKey = apiUrl;
 
   const cachedData = await getCachedApiData<any>(

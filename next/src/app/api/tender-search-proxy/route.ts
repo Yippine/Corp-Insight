@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const externalApiUrl = `https://pcc.g0v.ronny.tw/api/searchbycompanyid?query=${taxId}&page=${page}`;
+  const externalApiUrl = `https://pcc-api.openfun.app/api/searchbycompanyid?query=${taxId}&page=${page}`;
   const apiKey = externalApiUrl; // Use the full external URL as the cache key
 
   try {

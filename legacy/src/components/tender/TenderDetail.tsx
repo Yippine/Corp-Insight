@@ -40,7 +40,7 @@ export default function TenderDetail() {
       const encodedTab = encodeURIComponent(finalTab);
       setSearchParams({ tab: encodedTab }, { replace: true });
     }
-    
+
     // 更新狀態與追蹤事件
     setActiveTab(finalTab);
     trackEvent('tender_detail_tab_change', { tab: finalTab });
@@ -64,7 +64,7 @@ export default function TenderDetail() {
   }
 
   const seoTitle = targetRecord ? `${targetRecord.brief.title} - 標案資訊 | 企業放大鏡™` : '標案資訊 | 企業放大鏡™';
-  const seoDescription = targetRecord 
+  const seoDescription = targetRecord
     ? `查看 ${targetRecord.brief.title} 的詳細標案資訊，包含基本資料、投標廠商、履約進度等完整內容。招標機關：${data.unit_name || '未提供'}。`
     : '查看完整的政府標案資訊，包含基本資料、投標廠商、履約進度等詳細內容。';
 
@@ -93,26 +93,26 @@ export default function TenderDetail() {
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: rgba(203, 213, 225, 0.8);
           border-radius: 999px;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(148, 163, 184, 0.8);
         }
-        
+
         @media (hover: hover) {
           .custom-scrollbar::-webkit-scrollbar-thumb {
             opacity: 0;
             transition: opacity 0.3s;
           }
-          
+
           .custom-scrollbar:hover::-webkit-scrollbar-thumb {
             opacity: 1;
           }
@@ -137,10 +137,10 @@ export default function TenderDetail() {
 
       <TenderHeader targetRecord={targetRecord} data={data} />
 
-      <TenderTabNavigation 
-        sections={sections} 
-        activeTab={activeTab} 
-        onTabChange={handleTabChange} 
+      <TenderTabNavigation
+        sections={sections}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
       />
 
       {sections.map((section) => (
@@ -165,7 +165,7 @@ export default function TenderDetail() {
           },
           {
             name: '標案瀏覽',
-            url: 'https://pcc.g0v.ronny.tw/'
+            url: 'https://pcc-api.openfun.app/'
           }
         ]}
       />
