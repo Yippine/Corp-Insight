@@ -494,19 +494,34 @@ export const usePromptEngine = ({
       setCurrentIndex(newHistory.length - 1);
     }
 
-    // 更新當前顯示
+    // 更新當前顯示和歷史記錄
     if (isComparisonMode) {
       setComparisonResult({
         original: originalContent || '',
         modified: modifiedContent || '',
       });
-    } else if (originalContent) {
-      // 在單欄模式下，持續更新 history 中當前索引項目的 result
+      
+      // 同時更新歷史記錄中的雙欄結果
       setHistory(prevHistory => {
         const newHistory = [...prevHistory];
-        if (newHistory[currentIndex]) {
-          newHistory[currentIndex] = {
-            ...newHistory[currentIndex],
+        const lastIndex = newHistory.length - 1;
+        if (lastIndex >= 0 && newHistory[lastIndex]) {
+          newHistory[lastIndex] = {
+            ...newHistory[lastIndex],
+            result: `左：${originalContent || ''}\n右：${modifiedContent || ''}`,
+          };
+        }
+        return newHistory;
+      });
+    } else if (originalContent) {
+      // 在單欄模式下，更新最後一個歷史項目（而不是 currentIndex）
+      // 這樣可以確保即使用戶在查看舊記錄時，新的串流內容也能正確保存
+      setHistory(prevHistory => {
+        const newHistory = [...prevHistory];
+        const lastIndex = newHistory.length - 1;
+        if (lastIndex >= 0 && newHistory[lastIndex]) {
+          newHistory[lastIndex] = {
+            ...newHistory[lastIndex],
             result: originalContent,
           };
         }
