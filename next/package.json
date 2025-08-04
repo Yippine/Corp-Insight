@@ -104,7 +104,7 @@
     "// 清理無用的容器和網路": "",
     "docker:clean": "docker container prune -f && docker network prune -f",
     "// 終極清理: 移除所有容器、網路、資料卷和映像檔 (慎用！)": "",
-    "docker:purge": "docker compose down -v --remove-orphans && docker system prune -a --volumes -f",
+    "docker:purge": "docker compose down -v --remove-orphans && docker system prune -a --volumes -f && npm cache clean --force",
     "// 🗃️ DATABASE (資料庫管理)": "",
     "// --- 初始化與設定 ---": "",
     "// 初始化資料庫 collections (需 DB 運行中)": "",
