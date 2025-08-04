@@ -30,6 +30,13 @@ import {
   Flame,
   UserCheck,
   BriefcaseBusiness,
+  Home,
+  Package,
+  Factory,
+  Clapperboard,
+  Star,
+  Church,
+  Zap,
 } from 'lucide-react';
 
 export const TAG_PRIORITY: string[] = [
@@ -78,6 +85,13 @@ export const TAG_PRIORITY: string[] = [
   '圖表',
   '分析',
   '策略',
+  '生活',
+  '產品',
+  '產業',
+  '劇本',
+  '網紅',
+  '宗教',
+  '自動化',
 ];
 
 export const TAG_ICON_MAP: Record<string, LucideIcon> = {
@@ -94,12 +108,16 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   圖表: AreaChart,
   策略: Target,
   創業: Flame,
+  產品: Package,
+  產業: Factory,
 
   // 內容與寫作
   SEO: Search,
   寫作: PenSquare,
   評論: MessageSquare,
   語言: BookOpen,
+  劇本: Clapperboard,
+  網紅: Star,
 
   // 技術與開發
   電腦: Server,
@@ -109,7 +127,7 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   工具: Wrench,
   製造: Wrench,
   工作流: Network,
-  
+
   // 個人與專業發展
   學習: GraduationCap,
   教育: GraduationCap,
@@ -117,6 +135,7 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   求職: Briefcase,
   面試: UserCheck,
   高效: Flame,
+  自動化: Zap,
 
   // 生活與健康
   健康: HeartPulse,
@@ -124,6 +143,7 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   美食: Microwave,
   電影: Film,
   音樂: Music,
+  生活: Home,
 
   // 創意與設計
   設計: Palette,
@@ -139,6 +159,7 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   提示詞: Lightbulb,
   越獄: Flame,
   法律: Scale,
+  宗教: Church,
 };
 
 export const DEFAULT_ICON = HelpCircle;
@@ -177,7 +198,7 @@ function _findPrimaryTag(tags: string[]): string | null {
  */
 export function getIconForTool(tags: string[]): LucideIcon {
   const primaryTag = _findPrimaryTag(tags);
-  
+
   if (primaryTag && TAG_ICON_MAP[primaryTag]) {
     return TAG_ICON_MAP[primaryTag];
   }
