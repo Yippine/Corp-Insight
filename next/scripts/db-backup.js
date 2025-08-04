@@ -21,7 +21,7 @@ const BACKUP_DIR_HOST = path.join(__dirname, '..', 'db', 'backups');
 const MONGO_CONTAINER_BACKUP_PATH = '/data/db-mount/backups';
 
 const COLLECTIONS_CONFIG = {
-  core: ['companies', 'tenders', 'ai_tools', 'feedbacks'],
+  core: ['companies', 'tenders', 'ai_tools', 'email_verifications', 'feedbacks'],
   cache: ['pcc_api_cache', 'g0v_company_api_cache', 'twincn_api_cache'],
   system: ['api_key_statuses', 'global_settings'],
 };

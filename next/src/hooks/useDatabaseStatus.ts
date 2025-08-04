@@ -28,6 +28,7 @@ const collectionInitialState: { name: string; description: string }[] = [
   { name: 'companies', description: '企業資料集合' },
   { name: 'tenders', description: '政府標案資料集合' },
   { name: 'ai_tools', description: 'AI 工具資料集合' },
+  { name: 'email_verifications', description: '郵件驗證日誌' },
   { name: 'feedbacks', description: '使用者意見回饋' },
   { name: 'pcc_api_cache', description: '政府採購網 API 快取' },
   { name: 'g0v_company_api_cache', description: 'G0V 企業資料 API 快取' },
