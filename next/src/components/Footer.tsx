@@ -2,8 +2,19 @@
 
 import SimpleFooter from '@/components/SimpleFooter';
 import NavLink from './common/NavLink';
+import { useAiToolsUrl } from '@/hooks/useAiToolsUrl';
+import { getMainSiteUrl } from '@/config/site';
+import { useEffect, useState } from 'react';
 
 export default function Footer() {
+  const { generateAiToolsUrl } = useAiToolsUrl();
+  const [isAiToolsDomain, setIsAiToolsDomain] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAiToolsDomain(window.location.host.includes('aitools'));
+    }
+  }, []);
   return (
     <footer className="mt-12 border-t border-gray-200 bg-white">
       <div className="mx-auto max-w-7xl px-4 pt-8 text-center sm:px-6 lg:px-8">
@@ -15,7 +26,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-4">
               <li>
                 <NavLink
-                  href="/aitool/search"
+                  href={generateAiToolsUrl('/search')}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >
@@ -24,7 +35,7 @@ export default function Footer() {
               </li>
               <li>
                 <NavLink
-                  href="/company/search"
+                  href={isAiToolsDomain ? getMainSiteUrl('/company/search') : '/company/search'}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >
@@ -33,7 +44,7 @@ export default function Footer() {
               </li>
               <li>
                 <NavLink
-                  href="/tender/search"
+                  href={isAiToolsDomain ? getMainSiteUrl('/tender/search') : '/tender/search'}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >

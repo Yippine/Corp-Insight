@@ -4,10 +4,22 @@ import { usePathname } from 'next/navigation';
 import { Search, Wrench, FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import NavLink from './common/NavLink';
+import { useAiToolsUrl } from '@/hooks/useAiToolsUrl';
+import { getMainSiteUrl } from '@/config/site';
 
 export default function Header() {
   const pathname = usePathname();
   const [showTryText, setShowTryText] = useState(true);
+  const { generateAiToolsUrl } = useAiToolsUrl();
+  
+  // 判斷當前是否在 aitools 域名下
+  const [isAiToolsDomain, setIsAiToolsDomain] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAiToolsDomain(window.location.host.includes('aitools'));
+    }
+  }, []);
 
   // 模擬原來的效果，每 3 秒切換文字
   useEffect(() => {
@@ -23,7 +35,7 @@ export default function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-6">
           <NavLink
-            href="/company/search"
+            href={isAiToolsDomain ? generateAiToolsUrl('/search') : '/company/search'}
             className="flex cursor-pointer items-center"
             smartLoading={true}
             replace={true}
@@ -41,7 +53,7 @@ export default function Header() {
 
           <nav className="flex space-x-8">
             <NavLink
-              href="/aitool/search"
+              href={generateAiToolsUrl('/search')}
               className={`${
                 pathname?.startsWith('/aitool')
                   ? 'border-b-2 border-amber-500 text-amber-500'
@@ -69,7 +81,7 @@ export default function Header() {
             </NavLink>
 
             <NavLink
-              href="/company/search"
+              href={isAiToolsDomain ? getMainSiteUrl('/company/search') : '/company/search'}
               className={`${
                 pathname?.startsWith('/company')
                   ? 'border-b-2 border-blue-600 text-blue-600'
@@ -82,7 +94,7 @@ export default function Header() {
             </NavLink>
 
             <NavLink
-              href="/tender/search"
+              href={isAiToolsDomain ? getMainSiteUrl('/tender/search') : '/tender/search'}
               className={`${
                 pathname?.startsWith('/tender')
                   ? 'border-b-2 border-green-600 text-green-600'

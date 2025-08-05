@@ -4,8 +4,23 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import HeroSection from '@/components/HeroSection';
+import { useEffect, useState } from 'react';
+import { isAiToolsDomain } from '@/config/site';
 
 export default function NotFound() {
+  const [homeUrl, setHomeUrl] = useState('/');
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const currentHost = window.location.host;
+      // 如果在 aitools 域名下，返回首頁應該是 /search
+      if (isAiToolsDomain(currentHost)) {
+        setHomeUrl('/search');
+      } else {
+        setHomeUrl('/company/search');
+      }
+    }
+  }, []);
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 pt-24 text-center">
       <motion.div
@@ -48,7 +63,7 @@ export default function NotFound() {
         transition={{ duration: 0.5, delay: 0.8 }}
         className="mt-8"
       >
-        <Link href="/" legacyBehavior>
+        <Link href={homeUrl} legacyBehavior>
           <a className="group inline-flex transform items-center justify-center rounded-xl bg-gray-900 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
             <ArrowLeft className="mr-3 h-6 w-6 transition-transform duration-300 group-hover:-translate-x-1" />
             返回首頁

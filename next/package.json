@@ -191,6 +191,13 @@
     "nginx:reload": "sudo systemctl reload nginx",
     "// 強制重啟 Nginx 服務": "",
     "nginx:restart": "sudo systemctl restart nginx",
+    "// 🌍 AI TOOLS DOMAIN (AI 工具域名管理)": "",
+    "// 測試 aitools.leopilot.com 域名功能是否正常": "",
+    "// 包含重定向、API 路由、通用頁面等完整功能測試": "",
+    "test:aitools": "bash ./scripts/test-aitools-domain.sh",
+    "// 回滾 AI 工具域名設置到分離前的狀態": "",
+    "// ⚠️ 警告：此操作將移除 aitools 域名的所有設定": "",
+    "rollback:aitools": "bash ./scripts/rollback-aitools.sh",
     "// 列出 pm2 的程式列表": "",
     "pm2:list": "node scripts/format-pm2-list.js"
   },
