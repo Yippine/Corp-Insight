@@ -26,7 +26,7 @@ echo "✓ Nginx 已重載"
 
 # 2. 恢復應用程式碼
 echo "Step 2: 恢復應用程式碼..."
-cd /home/ec2-user/Business-Magnifier
+cd /home/ec2-user/Corp-Insight
 
 # 儲存當前變更（如果有）
 git stash save "Rollback: Stashing changes before rollback"

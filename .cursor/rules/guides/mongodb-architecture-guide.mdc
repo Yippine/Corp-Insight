@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-# Business Magnifier MongoDB 架構與開發指南
+# Corp Insight MongoDB 架構與開發指南
 
 ## 🎯 核心理念
 
@@ -18,14 +18,14 @@ alwaysApply: false
 
 - **主要設定檔**: `.env.local`
 - **連線字串變數**: `MONGODB_URI`
-- **開發環境連線字串**: `mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin`
-- **資料庫名稱**: `business-magnifier`
+- **開發環境連線字串**: `mongodb://admin:password@localhost:27017/corp-insight?authSource=admin`
+- **資料庫名稱**: `corp-insight`
 
 ---
 
 ## 🏗️ 資料庫架構設計
 
-我們的資料庫 `business-magnifier` 圍繞三大核心概念進行組織，以確保可擴展性與維護性。
+我們的資料庫 `corp-insight` 圍繞三大核心概念進行組織，以確保可擴展性與維護性。
 
 #### 1. 核心業務資料 (Core Business Data)
 

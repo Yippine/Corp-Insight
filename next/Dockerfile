@@ -1,4 +1,4 @@
-# Business Magnifier Next.js Dockerfile
+# Corp Insight Next.js Dockerfile
 # 多階段建置，優化映像大小和安全性
 
 FROM node:21-bullseye-slim AS base

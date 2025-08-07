@@ -1,4 +1,4 @@
-# Business Magnifier 開發環境 Dockerfile
+# Corp Insight 開發環境 Dockerfile
 # 專為開發環境設計，支援熱重載和除錯
 
 FROM node:21-bullseye-slim

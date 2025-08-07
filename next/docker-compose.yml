@@ -11,13 +11,13 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: business-magnifier
+      MONGO_INITDB_DATABASE: corp-insight
     volumes:
       - mongodb_data:/data/db
       - ./docker/mongodb/init:/docker-entrypoint-initdb.d:ro
       - ./db:/data/db-mount
     networks:
-      - business-magnifier-network
+      - corp-insight-network
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 30s
@@ -40,7 +40,7 @@ services:
       - "3000:3000"
     restart: unless-stopped
     environment:
-      - MONGODB_URI=mongodb://admin:password@mongodb:27017/business-magnifier?authSource=admin
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/corp-insight?authSource=admin
       - NODE_ENV=development
       - DOCKER_CONTAINER=true
       - NEXT_PUBLIC_GOOGLE_AI_API_KEY=${NEXT_PUBLIC_GOOGLE_AI_API_KEY:-}
@@ -59,7 +59,7 @@ services:
       mongodb:
         condition: service_healthy
     networks:
-      - business-magnifier-network
+      - corp-insight-network
     profiles:
       - dev  # 開發環境 profile
 
@@ -83,7 +83,7 @@ services:
       mongodb:
         condition: service_healthy
     networks:
-      - business-magnifier-network
+      - corp-insight-network
     profiles:
       - prod  # 生產環境測試 profile
 
@@ -106,7 +106,7 @@ services:
       mongodb:
         condition: service_healthy
     networks:
-      - business-magnifier-network
+      - corp-insight-network
     profiles:
       - tools  # 管理工具 profile
     healthcheck:
@@ -123,5 +123,5 @@ volumes:
 
 # 網路
 networks:
-  business-magnifier-network:
+  corp-insight-network:
     driver: bridge

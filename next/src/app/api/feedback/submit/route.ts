@@ -26,8 +26,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File | null;
 
     // --- 尋找完整的意見回饋類型物件 ---
-    const feedbackTypeObject =
-      feedbackTypes.find(ft => ft.id === type) || null;
+    const feedbackTypeObject = feedbackTypes.find(ft => ft.id === type) || null;
     const typeName = feedbackTypeObject ? feedbackTypeObject.name : type; // 如果找不到則回退到 id
 
     // --- 1. 驗證必要欄位 ---
@@ -125,7 +124,7 @@ export async function POST(request: NextRequest) {
     }
 
     const feedbackMailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'Business Magnifier 反饋系統'}" <${process.env.EMAIL_FROM}>`,
+      from: `"${process.env.EMAIL_FROM_NAME || 'Corp Insight 反饋系統'}" <${process.env.EMAIL_FROM}>`,
       to: developerEmail,
       subject: `📬 新意見回饋（#${Date.now().toString().slice(-6)}）—${typeName}：${title}`,
       html: `
@@ -163,7 +162,7 @@ export async function POST(request: NextRequest) {
           </table>
         </div>
         <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #888;">
-          <p>此郵件由 Business Magnifier 意見回饋系統自動產生。</p>
+          <p>此郵件由 Corp Insight 意見回饋系統自動產生。</p>
         </div>
       </div>
       `,
@@ -186,13 +185,13 @@ export async function POST(request: NextRequest) {
 
     // --- 6. 發送確認郵件給使用者 ---
     const userConfirmationMailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'Business Magnifier 客戶支援'}" <${process.env.EMAIL_FROM}>`,
+      from: `"${process.env.EMAIL_FROM_NAME || 'Corp Insight 客戶支援'}" <${process.env.EMAIL_FROM}>`,
       to: email,
-      subject: `我們已收到您的 Business Magnifier 意見回饋（#${Date.now().toString().slice(-6)}）`,
+      subject: `我們已收到您的 Corp Insight 意見回饋（#${Date.now().toString().slice(-6)}）`,
       html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
         <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid #eee;">
-          <h1 style="color: #0056b3; font-size: 28px; margin: 0;">Business Magnifier</h1>
+          <h1 style="color: #0056b3; font-size: 28px; margin: 0;">Corp Insight</h1>
         </div>
         <div style="padding: 20px 0;">
           <p style="font-size: 18px; color: #28a745; font-weight: bold;">感謝您的意見！</p>
@@ -212,7 +211,7 @@ export async function POST(request: NextRequest) {
         <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #888;">
           <p>此郵件為系統自動發送，請勿直接回覆。</p>
           <p>若有任何疑問，歡迎隨時訪問我們的網站或透過其他方式聯繫我們。</p>
-          <p>&copy; ${new Date().getFullYear()} Business Magnifier. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} Corp Insight. All rights reserved.</p>
         </div>
       </div>
       `,

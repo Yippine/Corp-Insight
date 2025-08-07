@@ -1,9 +1,8 @@
 # 🚀 上線前緊急任務追蹤清單 (Pre-Launch Task Plan)
 
 ## 🎯 總體目標
-確保 Business Magnifier 專案在正式上線前，核心功能穩定、無重大錯誤，並提供可靠的使用者體驗。
 
-
+確保 Corp Insight 專案在正式上線前，核心功能穩定、無重大錯誤，並提供可靠的使用者體驗。
 
 ---
 
@@ -15,24 +14,22 @@
 - **狀態**: `已完成`
 - **關鍵路由**: `/aitool/detail/[toolId]`
 - **核心檔案**:
-    - **頁面入口**: `next/src/app/aitool/detail/[toolId]/page.tsx`
-    - **核心組件**: `next/src/components/aitool/AiToolDetail.tsx`
-    - **通用模板**: `next/src/components/tools/common/PromptToolTemplate.tsx` (負責處理 Gemini API 互動)
-    - **資料獲取**: `next/src/lib/aitool/apiHelpers.ts` (內的 `getToolById` 函式)
+  - **頁面入口**: `next/src/app/aitool/detail/[toolId]/page.tsx`
+  - **核心組件**: `next/src/components/aitool/AiToolDetail.tsx`
+  - **通用模板**: `next/src/components/tools/common/PromptToolTemplate.tsx` (負責處理 Gemini API 互動)
+  - **資料獲取**: `next/src/lib/aitool/apiHelpers.ts` (內的 `getToolById` 函式)
 - **核心問題**:
-    - **錯誤訊息**: `TypeError: (0 , ...getToolById) is not a function`
-    - **根本原因**: 在伺服器元件 (`page.tsx`) 中，直接呼叫了被標記為用戶端模組 (`'use client'`) 內的 `getToolById` 函式。
+  - **錯誤訊息**: `TypeError: (0 , ...getToolById) is not a function`
+  - **根本原因**: 在伺服器元件 (`page.tsx`) 中，直接呼叫了被標記為用戶端模組 (`'use client'`) 內的 `getToolById` 函式。
 - **子任務**:
-    1.  **[已完成]** **效能優化**: 在 `page.tsx` 中，將獲取資料的方式從 `getToolsDataFromAPI` (獲取全部) 更改為 `getToolById` (根據 ID 獲取單一)。
-    2.  **[已完成]** **修復 `'use client'` 衝突**:
-        - **行動**: 建立一個新的伺服器端專用的資料獲取檔案 `next/src/lib/aitool/data.ts`。
-        - **行動**: 將 `getToolById` 及其相依的輔助函式從 `apiHelpers.ts` 遷移至新的 `data.ts` 檔案中。
-        - **行動**: 更新 `page.tsx`，使其從新的 `data.ts` 匯入 `getToolById`。
-        - **原理**: 此舉能將伺服器端邏輯與用戶端邏輯分離，解決在伺服器元件中呼叫用戶端模組函式的問題。
-    3.  **[已完成]** **驗證修復**: 重新啟動開發環境，抽樣測試數個 AI 工具詳細頁面，確認錯誤已消失且頁面正常渲染。
-    4.  **[已完成]** **完整功能測試**: 確認頁面不僅能渲染，其內部的 Gemini API 互動功能也正常運作。
-
-
+  1.  **[已完成]** **效能優化**: 在 `page.tsx` 中，將獲取資料的方式從 `getToolsDataFromAPI` (獲取全部) 更改為 `getToolById` (根據 ID 獲取單一)。
+  2.  **[已完成]** **修復 `'use client'` 衝突**:
+      - **行動**: 建立一個新的伺服器端專用的資料獲取檔案 `next/src/lib/aitool/data.ts`。
+      - **行動**: 將 `getToolById` 及其相依的輔助函式從 `apiHelpers.ts` 遷移至新的 `data.ts` 檔案中。
+      - **行動**: 更新 `page.tsx`，使其從新的 `data.ts` 匯入 `getToolById`。
+      - **原理**: 此舉能將伺服器端邏輯與用戶端邏輯分離，解決在伺服器元件中呼叫用戶端模組函式的問題。
+  3.  **[已完成]** **驗證修復**: 重新啟動開發環境，抽樣測試數個 AI 工具詳細頁面，確認錯誤已消失且頁面正常渲染。
+  4.  **[已完成]** **完整功能測試**: 確認頁面不僅能渲染，其內部的 Gemini API 互動功能也正常運作。
 
 ---
 
@@ -41,26 +38,26 @@
 - **目標**: 審慎比對 `legacy` 與 `next` 專案的 AI 工具相關頁面，在保留 `next` 專案效能與 SEO 優勢的前提下，將前端 UI/UX 完美還原至 `legacy` 專案的視覺呈現。
 - **狀態**: `已完成`
 - **核心原則**:
-    - **最小改動原則**: 只針對視覺還原進行必要修改，不對已優化的後端邏輯或 `next` 專案的架構進行不必要的改動。
-    - **保留效能優勢**: 所有修改都不能犧牲 `next` 專案帶來的效能提升，如動態載入、圖片優化、非同步資料獲取等。
+  - **最小改動原則**: 只針對視覺還原進行必要修改，不對已優化的後端邏輯或 `next` 專案的架構進行不必要的改動。
+  - **保留效能優勢**: 所有修改都不能犧牲 `next` 專案帶來的效能提升，如動態載入、圖片優化、非同步資料獲取等。
 - **子任務**:
-    1.  **還原 `/aitool/detail/[toolId]` 頁面 (結構與功能)**:
-        - **[✔] D1. 還原 `instructions` 區塊**: `legacy` 版本會顯示「這是什麼？」、「為什麼需要？」、「如何使用？」的說明區塊。`next` 版本缺失此部分，需將其在工具組件上方重新渲染。
-        - **[✔] D2. 還原雙按鈕外觀**: `legacy` 版本在輸入框下有「開始新對話」和「延續對話並優化」兩個功能不同的按鈕。`next` 版本只有一個「生成」按鈕。必須還原這兩個按鈕及其各自的功能邏輯。
-        - **[✔] D3. 統一輸入框樣式**: 確保輸入框 (`textarea`) 的樣式、`placeholder` 文字與 `legacy` 版本一致。
-        - **[✔] D4. 調整組件渲染邏輯**: `next` 版本錯誤地將 `PromptToolTemplate` 作為頁面主體。需調整渲染邏輯，使其僅作為互動核心（輸入框＋按鈕），並與 D1、D2 還原的 UI 元素正確組合。
-        - **[✔] D5. 返回按鈕樣式**: 參照 `legacy` 的 `<BackButton>` 組件樣式，調整 `next` 版本按鈕外觀。
-        - **[✔] D6. 主體與卡片動畫效果**: 統一將 `legacy` 的 `y: 20` 滑入動畫參數加入到 `next` 的 `AiToolDetail.tsx` 及其內容卡片中。
-        - **[✔] D7. 圖示與標籤顏色一致性**: 檢查並確保 `next` 專案使用的 `categoryThemes` 所呈現的顏色與 `legacy` 的 `fullTagThemes` 完全相同。
-        - **[✔] D8.【緊急】修復按鈕功能**: 還原後的「開始新對話」與「延續對話並優化」按鈕點擊後沒有反應，需修復其 `onClick` 事件處理函式，確保能正確觸發 Gemini API。
 
-    2.  **還原 `/aitool/search` 頁面 (視覺與互動)**:
-        - **[✔] S1. 工具卡片懸停效果**: 移植 `legacy` 版本中完整且豐富的懸停效果，包括 `hoveredTool` 狀態管理，以及對卡片邊框、陰影、圖示背景、文字和圖示顏色的同步變動。
-        - **[✔] S2. 分類標籤按鈕樣式與動效**: 為 `next` 版本的標籤按鈕加上 `framer-motion` 的 `whileHover` 縮放動畫，並還原 `legacy` 的漸層色 (`gradient`) 選中樣式。
-        - **[✔] S3. `FeatureSection` 組件**: 在 `AiToolSearch.tsx` 頁面底部加回 `legacy` 版本中存在的 `<FeatureSection />` 組件。
-        - **[✔] S4. "無結果" 頁面樣式**: 檢查並確保 `next` 專案中的 `<NoSearchResults />` 組件或其替代方案，在視覺上與 `legacy` 的自訂 "無結果" 區塊完全一致。
+  1.  **還原 `/aitool/detail/[toolId]` 頁面 (結構與功能)**:
 
+      - **[✔] D1. 還原 `instructions` 區塊**: `legacy` 版本會顯示「這是什麼？」、「為什麼需要？」、「如何使用？」的說明區塊。`next` 版本缺失此部分，需將其在工具組件上方重新渲染。
+      - **[✔] D2. 還原雙按鈕外觀**: `legacy` 版本在輸入框下有「開始新對話」和「延續對話並優化」兩個功能不同的按鈕。`next` 版本只有一個「生成」按鈕。必須還原這兩個按鈕及其各自的功能邏輯。
+      - **[✔] D3. 統一輸入框樣式**: 確保輸入框 (`textarea`) 的樣式、`placeholder` 文字與 `legacy` 版本一致。
+      - **[✔] D4. 調整組件渲染邏輯**: `next` 版本錯誤地將 `PromptToolTemplate` 作為頁面主體。需調整渲染邏輯，使其僅作為互動核心（輸入框＋按鈕），並與 D1、D2 還原的 UI 元素正確組合。
+      - **[✔] D5. 返回按鈕樣式**: 參照 `legacy` 的 `<BackButton>` 組件樣式，調整 `next` 版本按鈕外觀。
+      - **[✔] D6. 主體與卡片動畫效果**: 統一將 `legacy` 的 `y: 20` 滑入動畫參數加入到 `next` 的 `AiToolDetail.tsx` 及其內容卡片中。
+      - **[✔] D7. 圖示與標籤顏色一致性**: 檢查並確保 `next` 專案使用的 `categoryThemes` 所呈現的顏色與 `legacy` 的 `fullTagThemes` 完全相同。
+      - **[✔] D8.【緊急】修復按鈕功能**: 還原後的「開始新對話」與「延續對話並優化」按鈕點擊後沒有反應，需修復其 `onClick` 事件處理函式，確保能正確觸發 Gemini API。
 
+  2.  **還原 `/aitool/search` 頁面 (視覺與互動)**:
+      - **[✔] S1. 工具卡片懸停效果**: 移植 `legacy` 版本中完整且豐富的懸停效果，包括 `hoveredTool` 狀態管理，以及對卡片邊框、陰影、圖示背景、文字和圖示顏色的同步變動。
+      - **[✔] S2. 分類標籤按鈕樣式與動效**: 為 `next` 版本的標籤按鈕加上 `framer-motion` 的 `whileHover` 縮放動畫，並還原 `legacy` 的漸層色 (`gradient`) 選中樣式。
+      - **[✔] S3. `FeatureSection` 組件**: 在 `AiToolSearch.tsx` 頁面底部加回 `legacy` 版本中存在的 `<FeatureSection />` 組件。
+      - **[✔] S4. "無結果" 頁面樣式**: 檢查並確保 `next` 專案中的 `<NoSearchResults />` 組件或其替代方案，在視覺上與 `legacy` 的自訂 "無結果" 區塊完全一致。
 
 ---
 
@@ -69,22 +66,19 @@
 - **目標**: 移除所有 AI 工具範本中寫死的 (hardcoded) `Instructions` 內容，將其遷移至 MongoDB 資料庫，並確保所有工具的資料結構一致，以實現內容的統一管理與架構的單一化。
 - **狀態**: `已完成`
 - **核心問題**:
-    - **不一致的資料源**: 通用型 AI 工具 (`PromptToolTemplate`) 的 `Instructions` 來自資料庫，而特定工具（如 `DepositCalculator.tsx`）的 `Instructions` 則寫死在組件中。
-    - **資料庫欄位缺失**: 承上，特定工具在 `ai_tools` 集合中的文件缺少 `instructions` 欄位資料，導致 `AiToolDetail.tsx` 無法統一渲染。
-    - **維護困難**: 內容分散在程式碼中，不易更新與管理。
+  - **不一致的資料源**: 通用型 AI 工具 (`PromptToolTemplate`) 的 `Instructions` 來自資料庫，而特定工具（如 `DepositCalculator.tsx`）的 `Instructions` 則寫死在組件中。
+  - **資料庫欄位缺失**: 承上，特定工具在 `ai_tools` 集合中的文件缺少 `instructions` 欄位資料，導致 `AiToolDetail.tsx` 無法統一渲染。
+  - **維護困難**: 內容分散在程式碼中，不易更新與管理。
 - **子任務**:
-    1.  **[已完成]** **[盤點]** 掃描 `next/src/components/tools/` 目錄下的所有子資料夾 (如 `finance`, `health`, `manufacturing` 等)，列出所有寫死 `<Instructions>` 元件內容的 AI 工具範本檔案。
-    2.  **[已完成]** **[資料遷移]** 針對每一個被識別出的工具：
-        - **行動**: 從範本檔案中提取 `what`, `why`, `how` 的字串內容。
-        - **行動**: 建立或執行一個腳本 (`next/scripts/update-instructions.js`)，將提取出的 `instructions` 物件更新至 MongoDB `business-magnifier` 資料庫 `ai_tools` 集合中對應的工具文件 (document)。為此腳本在 `package.json` 中建立對應的 npm script (如 `db:update-instructions`)。
-        - **驗證**: 確認 `ai_tools` 集合中所有工具文件的資料格式都包含一致的 `instructions` 欄位 (`{ what: string, why: string, how: string }`)。
-    3.  **[已完成]** **[程式碼重構]**
-        - **行動**: 修改所有在步驟 1 中識別出的 AI 工具範本檔案，移除內部寫死的 `<Instructions>` 組件。
-        - **行動**: 確保 `next/src/components/aitool/AiToolDetail.tsx` 能為所有類型的 AI 工具（無論是通用型還是特定型）統一渲染來自資料庫的 `instructions` 內容。
-    4.  **[已完成]** **[驗證]** 啟動應用程式，逐一訪問先前寫死內容的 AI 工具詳細頁面，確認 `Instructions` 區塊能正常顯示，且內容與原先一致。
-
-
-
+  1.  **[已完成]** **[盤點]** 掃描 `next/src/components/tools/` 目錄下的所有子資料夾 (如 `finance`, `health`, `manufacturing` 等)，列出所有寫死 `<Instructions>` 元件內容的 AI 工具範本檔案。
+  2.  **[已完成]** **[資料遷移]** 針對每一個被識別出的工具：
+      - **行動**: 從範本檔案中提取 `what`, `why`, `how` 的字串內容。
+      - **行動**: 建立或執行一個腳本 (`next/scripts/update-instructions.js`)，將提取出的 `instructions` 物件更新至 MongoDB `corp-insight` 資料庫 `ai_tools` 集合中對應的工具文件 (document)。為此腳本在 `package.json` 中建立對應的 npm script (如 `db:update-instructions`)。
+      - **驗證**: 確認 `ai_tools` 集合中所有工具文件的資料格式都包含一致的 `instructions` 欄位 (`{ what: string, why: string, how: string }`)。
+  3.  **[已完成]** **[程式碼重構]**
+      - **行動**: 修改所有在步驟 1 中識別出的 AI 工具範本檔案，移除內部寫死的 `<Instructions>` 組件。
+      - **行動**: 確保 `next/src/components/aitool/AiToolDetail.tsx` 能為所有類型的 AI 工具（無論是通用型還是特定型）統一渲染來自資料庫的 `instructions` 內容。
+  4.  **[已完成]** **[驗證]** 啟動應用程式，逐一訪問先前寫死內容的 AI 工具詳細頁面，確認 `Instructions` 區塊能正常顯示，且內容與原先一致。
 
 ---
 
@@ -94,29 +88,31 @@
 - **狀態**: `進行中`
 - **核心原則**: 每個階段都是一個獨立的開發與測試循環。必須在當前階段的**驗收標準**被使用者確認通過後，才能進入下一個階段的開發。
 - **關鍵檔案**:
-    - **頁面組件**: `next/src/components/aitool/AiToolSearch.tsx`
-    - **伺服器端資料函式**: `next/src/lib/aitool/data.ts`
-    - **API 路由**: `next/src/app/api/aitool/route.ts`
+  - **頁面組件**: `next/src/components/aitool/AiToolSearch.tsx`
+  - **伺服器端資料函式**: `next/src/lib/aitool/data.ts`
+  - **API 路由**: `next/src/app/api/aitool/route.ts`
 
 ---
 
 #### **第一階段：基礎錯誤修復 (Baseline Error Fixing)**
+
 - **目標**：修復所有已知的基礎錯誤，確保 AI 工具搜尋頁面的核心功能穩定可靠。
 - **狀態**: `✅ 已完成`
 - **驗收標準**：
-    - ✅ `hasToolSearchResults is not a function` 錯誤徹底消失。
-    - ✅ GA 渲染警告 (`Cannot update a component while rendering a different component`) 已解決。
-    - ✅ 點擊標籤或搜尋時，頁面功能正常，動畫流暢無卡頓。
-    - ✅ 註解已全部中文化。
+  - ✅ `hasToolSearchResults is not a function` 錯誤徹底消失。
+  - ✅ GA 渲染警告 (`Cannot update a component while rendering a different component`) 已解決。
+  - ✅ 點擊標籤或搜尋時，頁面功能正常，動畫流暢無卡頓。
+  - ✅ 註解已全部中文化。
 
 ---
 
 #### **第二階段：單欄位智慧搜尋 (Single-Field Smart Search)**
+
 - **目標**: 實現以 `name` 欄位為核心的智慧搜尋，解決基礎的關鍵字匹配與排序問題。
 - **狀態**: `✅ 已完成`
-- **驗收標準**: 
-    - ✅ 能處理 `name` 欄位中的多關鍵字搜尋 (例如 "創業 密碼")。
-    - ✅ 實作了「部分匹配計分 + 完全匹配獎勵」的基礎排序邏輯。
+- **驗收標準**:
+  - ✅ 能處理 `name` 欄位中的多關鍵字搜尋 (例如 "創業 密碼")。
+  - ✅ 實作了「部分匹配計分 + 完全匹配獎勵」的基礎排序邏輯。
 
 ---
 
@@ -131,42 +127,47 @@
 ##### **[後端] 實作方案：Aggregation Pipeline 加權計分模型**
 
 1.  **關鍵字預處理**:
-    -   **輸入**: 使用者查詢字串，例如 `"結構化 技術壁壘 機器學習"`。
-    -   **處理流程**:
-        1.  **智慧分詞**: 自動處理中英文混合詞 (如 `"AI引擎"` -> `"AI"`, `"引擎"`)。
-        2.  **多分隔符支援**: 根據空格及多種標點符號 (`:：,、;_.-`) 拆分為關鍵字陣列。
-        3.  **簡繁轉換 (優化)**: 只在關鍵字被檢測為簡體時，才轉換為繁體。最終陣列統一為繁體。
-    -   **輸出**: 一個乾淨的關鍵字陣列，例如 `['結構化', '技術壁壘', '機器學習']`。
+
+    - **輸入**: 使用者查詢字串，例如 `"結構化 技術壁壘 機器學習"`。
+    - **處理流程**:
+      1.  **智慧分詞**: 自動處理中英文混合詞 (如 `"AI引擎"` -> `"AI"`, `"引擎"`)。
+      2.  **多分隔符支援**: 根據空格及多種標點符號 (`:：,、;_.-`) 拆分為關鍵字陣列。
+      3.  **簡繁轉換 (優化)**: 只在關鍵字被檢測為簡體時，才轉換為繁體。最終陣列統一為繁體。
+    - **輸出**: 一個乾淨的關鍵字陣列，例如 `['結構化', '技術壁壘', '機器學習']`。
 
 2.  **`$match` 階段 (擴大召回)**:
-    -   使用 `$or` 運算子，配合不分大小寫的 `$regex`。
-    -   查詢任何一個目標欄位 (`name`, `description`, `tags`, etc.) 內容**包含任何一個**處理後關鍵字的工具文件。
-    -   此階段旨在撈出所有可能相關的結果，交由下一階段評分。
+
+    - 使用 `$or` 運算子，配合不分大小寫的 `$regex`。
+    - 查詢任何一個目標欄位 (`name`, `description`, `tags`, etc.) 內容**包含任何一個**處理後關鍵字的工具文件。
+    - 此階段旨在撈出所有可能相關的結果，交由下一階段評分。
 
 3.  **`$addFields` 階段 (加權評分)**:
-    -   **核心邏輯**: 對於 `$match` 階段過濾出的每個工具，遍歷「關鍵字陣列」，檢查每個關鍵字是否出現在各目標欄位中，並進行累加計分。
-    -   **計分規則 (per keyword)**:
-        -   `name` 匹配: `score +5`
-        -   `tags` 或 `instructions.what` 匹配: `score +3`
-        -   `description`, `instructions.why`, `instructions.how` 匹配: `score +1`
-    -   **範例**: 若搜尋 `"SEO 生成器"`，`['seo', '生成器']` 為關鍵字。
-        -   某工具 `name` 為 `"SEO 常見問題生成器"`: 匹配 `seo` (+5), 匹配 `生成器` (+5) -> `score = 10`
-        -   某工具 `description` 為 `"生成優質 SEO 內容"`: 匹配 `seo` (+1), 但不匹配 `"生成器"`。 -> `score = 1`
+
+    - **核心邏輯**: 對於 `$match` 階段過濾出的每個工具，遍歷「關鍵字陣列」，檢查每個關鍵字是否出現在各目標欄位中，並進行累加計分。
+    - **計分規則 (per keyword)**:
+      - `name` 匹配: `score +5`
+      - `tags` 或 `instructions.what` 匹配: `score +3`
+      - `description`, `instructions.why`, `instructions.how` 匹配: `score +1`
+    - **範例**: 若搜尋 `"SEO 生成器"`，`['seo', '生成器']` 為關鍵字。
+      - 某工具 `name` 為 `"SEO 常見問題生成器"`: 匹配 `seo` (+5), 匹配 `生成器` (+5) -> `score = 10`
+      - 某工具 `description` 為 `"生成優質 SEO 內容"`: 匹配 `seo` (+1), 但不匹配 `"生成器"`。 -> `score = 1`
 
 4.  **`$addFields` 階段 (完美匹配)**:
-    -   在完成上述計分後，額外檢查。
-    -   若工具的 `name` (經過去除標點與空格的正規化處理後) 與使用者原始查詢 (同樣正規化後) **完全相同**，則 `score +10`。
+
+    - 在完成上述計分後，額外檢查。
+    - 若工具的 `name` (經過去除標點與空格的正規化處理後) 與使用者原始查詢 (同樣正規化後) **完全相同**，則 `score +10`。
 
 5.  **`$sort` 階段 (最終排序)**:
-    -   `score`: `-1` (降序)
-    -   `name`: `1` (升序，分數相同時使用)
+    - `score`: `-1` (降序)
+    - `name`: `1` (升序，分數相同時使用)
 
 ##### **[驗收標準] 必須通過所有已知測試案例**
--   **分詞問題**: 搜尋 `"智慧引擎"` 或 `"創業密碼"` 必須能找到對應工具。
--   **部分匹配**: 搜尋 `"商業想像力"` 或 `"商業"` 必須能找到 `description` 為 `"重塑商業想像力"` 的工具。
--   **排序準確性**: 搜尋 `"SEO 生成器 功能 描述"` 時，`"SEO 功能描述生成器"` 的排名必須高於僅搜尋 `"SEO 生成器"` 時的排名。
--   **無序關鍵字**: 搜尋 `"結構化 技術壁壘 技術洞察 機器學習 類比 面紗"` (亂序) 必須能找到對應工具。
--   **單詞搜尋**: 搜尋 `"洞察"` 必須能找到 `instructions` 中包含 `"技術洞察力"` 的工具。
+
+- **分詞問題**: 搜尋 `"智慧引擎"` 或 `"創業密碼"` 必須能找到對應工具。
+- **部分匹配**: 搜尋 `"商業想像力"` 或 `"商業"` 必須能找到 `description` 為 `"重塑商業想像力"` 的工具。
+- **排序準確性**: 搜尋 `"SEO 生成器 功能 描述"` 時，`"SEO 功能描述生成器"` 的排名必須高於僅搜尋 `"SEO 生成器"` 時的排名。
+- **無序關鍵字**: 搜尋 `"結構化 技術壁壘 技術洞察 機器學習 類比 面紗"` (亂序) 必須能找到對應工具。
+- **單詞搜尋**: 搜尋 `"洞察"` 必須能找到 `instructions` 中包含 `"技術洞察力"` 的工具。
 
 ---
 
@@ -185,10 +186,16 @@
 3.  **`matchDetails` 結構**:
     ```typescript
     interface MatchDetail {
-      field: 'name' | 'description' | 'tags' | 'instructions.what' | 'instructions.why' | 'instructions.how';
+      field:
+        | "name"
+        | "description"
+        | "tags"
+        | "instructions.what"
+        | "instructions.why"
+        | "instructions.how";
       keyword: string; // 匹配到的關鍵字
       content: string; // 該欄位的完整內容
-      score: number;   // 該次匹配獲得的分數
+      score: number; // 該次匹配獲得的分數
     }
     ```
 4.  **實現方式**: 在 Node.js 層，於從資料庫取得結果後，再次遍歷結果集與關鍵字陣列，建構出 `matchDetails` 資料並附加到回傳物件上。
@@ -196,32 +203,34 @@
 ##### **[前端] 視覺化介面實作**
 
 1.  **觸發元件**:
-    -   **位置**: 在 `/aitool/search` 頁面的**搜尋框**與**工具總數**之間。
-    -   **元件**: 一個僅在開發模式下可見的按鈕。
-    -   **名稱**: 「顯示搜尋分析」，點擊後變為「隱藏搜尋分析」。
-    -   **狀態**: 預設為隱藏分析結果。
+
+    - **位置**: 在 `/aitool/search` 頁面的**搜尋框**與**工具總數**之間。
+    - **元件**: 一個僅在開發模式下可見的按鈕。
+    - **名稱**: 「顯示搜尋分析」，點擊後變為「隱藏搜尋分析」。
+    - **狀態**: 預設為隱藏分析結果。
 
 2.  **分析資訊卡片**:
-    -   **觸發**: 當使用者點擊「顯示搜尋分析」按鈕後，每個搜尋結果卡片下方都會出現分析區塊。
-    -   **佈局**: 在卡片原有的 `tags` 列表下方，新增一條分隔線 (`<hr>`)，再顯示詳細分析內容。
-    -   **內容 (列表)**:
-        -   **欄位名稱 (中文)**: 將 `field` 的英文代號映射為易懂的中文標籤 (如 `name` -> `工具名稱`)。
-        -   **匹配內容**: 顯示該欄位的完整字串，其中所有匹配到的 `keyword` **必須標示為紅色**。
-        -   **單項得分**: 在右側顯示該次匹配的 `score`。
-    -   **總分**: 在列表最下方，顯示該卡片的 `score` 總分。
+
+    - **觸發**: 當使用者點擊「顯示搜尋分析」按鈕後，每個搜尋結果卡片下方都會出現分析區塊。
+    - **佈局**: 在卡片原有的 `tags` 列表下方，新增一條分隔線 (`<hr>`)，再顯示詳細分析內容。
+    - **內容 (列表)**:
+      - **欄位名稱 (中文)**: 將 `field` 的英文代號映射為易懂的中文標籤 (如 `name` -> `工具名稱`)。
+      - **匹配內容**: 顯示該欄位的完整字串，其中所有匹配到的 `keyword` **必須標示為紅色**。
+      - **單項得分**: 在右側顯示該次匹配的 `score`。
+    - **總分**: 在列表最下方，顯示該卡片的 `score` 總分。
 
 3.  **UI/UX 設計要求**:
-    -   嚴格遵循 `.cursor/rules/guides/ui-ux-aesthetic-guide.mdc` 的設計原則。
-    -   整體風格應簡潔、優雅，資訊清晰易讀。
-    -   可為分析區塊設定一個淺灰色背景，以區別於卡片的主要內容，並營造出除錯面板的專業感。
+    - 嚴格遵循 `.cursor/rules/guides/ui-ux-aesthetic-guide.mdc` 的設計原則。
+    - 整體風格應簡潔、優雅，資訊清晰易讀。
+    - 可為分析區塊設定一個淺灰色背景，以區別於卡片的主要內容，並營造出除錯面板的專業感。
 
 ##### **[驗收標準]**
--   ✅ 搜尋分析按鈕僅在開發模式下出現。
--   ✅ 按鈕能正確切換顯示/隱藏狀態。
--   ✅ 分析卡片能準確顯示所有匹配項的欄位、內容、高亮關鍵字和分數。
--   ✅ 總分與後端回傳的 `score` 一致。
--   ✅ UI/UX 設計精緻、易用，符合專案美學標準。
 
+- ✅ 搜尋分析按鈕僅在開發模式下出現。
+- ✅ 按鈕能正確切換顯示/隱藏狀態。
+- ✅ 分析卡片能準確顯示所有匹配項的欄位、內容、高亮關鍵字和分數。
+- ✅ 總分與後端回傳的 `score` 一致。
+- ✅ UI/UX 設計精緻、易用，符合專案美學標準。
 
 #### **第四階段：部署前最終驗證與清理 (Final Validation & Cleanup)**
 
@@ -230,52 +239,55 @@
 **已完成的重構任務 (Completed Refactors):**
 
 1.  **✅ 廢棄欄位清理 (`subCategory`, `icon`):**
-    -   **目標**: 從 `ai_tools` 集合中，徹底移除不再使用的 `subCategory` 和 `icon` 欄位。
-    -   **執行**: 透過 `001-remove-subcategory-from-aitools.js` 和 `002-remove-icon-from-aitools.js` 遷移腳本完成資料庫清理，並同步更新了後端的 Mongoose Schema (`AITool.ts`) 和相關的 TypeScript 型別定義。
+
+    - **目標**: 從 `ai_tools` 集合中，徹底移除不再使用的 `subCategory` 和 `icon` 欄位。
+    - **執行**: 透過 `001-remove-subcategory-from-aitools.js` 和 `002-remove-icon-from-aitools.js` 遷移腳本完成資料庫清理，並同步更新了後端的 Mongoose Schema (`AITool.ts`) 和相關的 TypeScript 型別定義。
 
 2.  **✅ 圖示系統重構 (Icon System Refactoring):**
-    -   **目標**: 建立一個基於「標籤 (Tag)」而非單一工具的動態圖示系統，以提升維護性與視覺一致性。
-    -   **執行**:
-        -   在前端建立了 `tagIconMap.ts`，定義了 `TAG_PRIORITY`（標籤優先級）和 `TAG_ICON_MAP`（標籤與圖示的對應）。
-        -   實作了 `getIconForTool` 輔助函式，根據標籤優先級為工具動態選擇最合適的圖示。
-        -   重構了 `ToolCard.tsx` 和 `AiToolDetail.tsx`，使其使用新的圖示系統。
-        -   移除了所有舊的、寫死的圖示邏輯及相關檔案 (`iconMap.ts`)。
+    - **目標**: 建立一個基於「標籤 (Tag)」而非單一工具的動態圖示系統，以提升維護性與視覺一致性。
+    - **執行**:
+      - 在前端建立了 `tagIconMap.ts`，定義了 `TAG_PRIORITY`（標籤優先級）和 `TAG_ICON_MAP`（標籤與圖示的對應）。
+      - 實作了 `getIconForTool` 輔助函式，根據標籤優先級為工具動態選擇最合適的圖示。
+      - 重構了 `ToolCard.tsx` 和 `AiToolDetail.tsx`，使其使用新的圖示系統。
+      - 移除了所有舊的、寫死的圖示邏輯及相關檔案 (`iconMap.ts`)。
 
 ---
 
 **待辦任務與臭蟲修復 (Bugs & Tasks):**
 
 1.  **標籤圖示化 (Tag Iconography):**
-    -   **問題**: 標籤 (Tag) 僅為純文字，缺乏視覺提示，與卡片標題的豐富圖示感不協調。
-    -   **目標**: 在所有出現標籤列表的地方，為每個標籤藥丸 (Pill) 的文字左側，增加其對應的圖示，並確保樣式絕對統一。
-    -   **實施範圍 (3個位置):**
-        -   `/aitool/search` 頁面的**標籤篩選器**。
-        -   `/aitool/search` 頁面中，每個**AI 工具卡片下方**的標籤列表。
-        -   `/aitool/detail/[toolId]` 頁面中的標籤列表。
-    -   **實作細節**:
-        -   **圖示**: 圖示大小應與標籤文字大小保持一致 (約 `1em`)。
-        -   **邏輯**: 需建立一個新的 `getIconForTag(tag: string)` 輔助函式，根據單一標籤獲取其對應的圖示。
-        -   **樣式**: 所有位置的標籤藥丸樣式（背景色、邊框、文字顏色、間距、圓角等）必須完全統一，不能有任何特例。
+
+    - **問題**: 標籤 (Tag) 僅為純文字，缺乏視覺提示，與卡片標題的豐富圖示感不協調。
+    - **目標**: 在所有出現標籤列表的地方，為每個標籤藥丸 (Pill) 的文字左側，增加其對應的圖示，並確保樣式絕對統一。
+    - **實施範圍 (3 個位置):**
+      - `/aitool/search` 頁面的**標籤篩選器**。
+      - `/aitool/search` 頁面中，每個**AI 工具卡片下方**的標籤列表。
+      - `/aitool/detail/[toolId]` 頁面中的標籤列表。
+    - **實作細節**:
+      - **圖示**: 圖示大小應與標籤文字大小保持一致 (約 `1em`)。
+      - **邏輯**: 需建立一個新的 `getIconForTag(tag: string)` 輔助函式，根據單一標籤獲取其對應的圖示。
+      - **樣式**: 所有位置的標籤藥丸樣式（背景色、邊框、文字顏色、間距、圓角等）必須完全統一，不能有任何特例。
 
 2.  **標籤顏色統一 (Tag Color Consistency):**
-    -   **問題**: 不同位置的標籤列表，其顏色計算邏輯分散，導致同一個標籤在不同地方顯示不同顏色。
-    -   **目標**: 統一所有標籤的顏色邏輯，確保同一個標籤在任何地方都顯示完全相同的顏色。
-    -   **實施範圍 (同上，3個位置):**
-        -   `/aitool/search` 頁面的**標籤篩選器**。
-        -   `/aitool/search` 頁面中，每個**AI 工具卡片下方**的標籤列表。
-        -   `/aitool/detail/[toolId]` 頁面中的標籤列表。
-    -   **實作細節**:
-        -   需建立一個共享的、唯一的顏色映射邏輯（例如，一個 `getTagColor(tag: string)` 函式或 `tagColorMap.ts` 檔案）。
-        -   上述三個位置的元件都**必須**從此單一來源獲取標籤顏色。
-        -   需確保顏色在不同狀態 (預設, hover, active) 下的視覺呈現邏輯也是一致的。
+
+    - **問題**: 不同位置的標籤列表，其顏色計算邏輯分散，導致同一個標籤在不同地方顯示不同顏色。
+    - **目標**: 統一所有標籤的顏色邏輯，確保同一個標籤在任何地方都顯示完全相同的顏色。
+    - **實施範圍 (同上，3 個位置):**
+      - `/aitool/search` 頁面的**標籤篩選器**。
+      - `/aitool/search` 頁面中，每個**AI 工具卡片下方**的標籤列表。
+      - `/aitool/detail/[toolId]` 頁面中的標籤列表。
+    - **實作細節**:
+      - 需建立一個共享的、唯一的顏色映射邏輯（例如，一個 `getTagColor(tag: string)` 函式或 `tagColorMap.ts` 檔案）。
+      - 上述三個位置的元件都**必須**從此單一來源獲取標籤顏色。
+      - 需確保顏色在不同狀態 (預設, hover, active) 下的視覺呈現邏輯也是一致的。
 
 3.  **動態標籤造成的圖示不一致 (Icon Inconsistency from Dynamic Tagging):**
-    -   **問題**: 詳情頁與搜尋頁因資料處理流程不同，導致同一個通用 AI 工具的 `tags` 陣列內容不一致，進而使 `getIconForTool` 函式產生不同的圖示結果。
-    -   **目標**: 確保任何一個 AI 工具，無論是在搜尋頁還是詳情頁，其主圖示必須是穩定且絕對一致的。
-    -   **實作細節 (採納方案 A):**
-        -   **重構 `getIconForTool`**: 修改此函式，使其接收整個 `tool` 物件（至少包含 `tags` 和 `componentId`）而非僅 `tags` 陣列。
-        -   **內聚邏輯**: 在函式內部，根據 `tool.componentId` 是否存在，來動態、臨時地決定是否要將 "AI" 標籤納入圖示判斷的邏輯中。
-        -   **保持資料純淨**: 此過程**絕不**修改傳入的原始 `tool` 物件的 `tags` 屬性，僅在函式作用域內進行邏輯判斷。
+    - **問題**: 詳情頁與搜尋頁因資料處理流程不同，導致同一個通用 AI 工具的 `tags` 陣列內容不一致，進而使 `getIconForTool` 函式產生不同的圖示結果。
+    - **目標**: 確保任何一個 AI 工具，無論是在搜尋頁還是詳情頁，其主圖示必須是穩定且絕對一致的。
+    - **實作細節 (採納方案 A):**
+      - **重構 `getIconForTool`**: 修改此函式，使其接收整個 `tool` 物件（至少包含 `tags` 和 `componentId`）而非僅 `tags` 陣列。
+      - **內聚邏輯**: 在函式內部，根據 `tool.componentId` 是否存在，來動態、臨時地決定是否要將 "AI" 標籤納入圖示判斷的邏輯中。
+      - **保持資料純淨**: 此過程**絕不**修改傳入的原始 `tool` 物件的 `tags` 屬性，僅在函式作用域內進行邏輯判斷。
 
 ---
 
@@ -284,20 +296,18 @@
 - **目標**: 確保所有 AI 工具的 Prompt 和標籤內容準確無誤，且生成效果令人滿意，避免出現不相關或品質低落的回答。同時，規劃自動化測試流程。
 - **狀態**: `未開始`
 - **核心檔案**:
-    - **資料模型**: `next/src/lib/database/models/AITool.ts` (定義 AI 工具的 Schema)
-    - **測試腳本 (需建立)**: `next/scripts/test-ai-tools.js`
-    - **npm 腳本設定**: `next/package.json`
+  - **資料模型**: `next/src/lib/database/models/AITool.ts` (定義 AI 工具的 Schema)
+  - **測試腳本 (需建立)**: `next/scripts/test-ai-tools.js`
+  - **npm 腳本設定**: `next/package.json`
 - **子任務**:
-    1.  **[手動驗證]** 逐一審查資料庫中 95 個 AI 工具的 `prompt` 和 `tags` 欄位，修正不恰當或錯誤的內容。
-    2.  **[手動測試]** 手動測試每個 AI 工具，評估生成結果的品質。
-    3.  **[自動化規劃]** 建立 `next/scripts/test-ai-tools.js` 腳本，用於自動化測試：
-        - 腳本需能連接資料庫，遍歷所有 AI 工具。
-        - 為每個工具設計一個或多個標準的測試輸入 (Test Case)。
-        - 呼叫 Gemini API 執行測試，並記錄結果。
-        - (可選) 設計基本的結果驗證機制，例如檢查回應是否為空、是否包含錯誤訊息等。
-    4.  **[整合]** 在 `next/package.json` 的 `scripts` 中新增指令 (如 `"test:aitools": "node scripts/test-ai-tools.js"`)，方便執行自動化測試。
-
-
+  1.  **[手動驗證]** 逐一審查資料庫中 95 個 AI 工具的 `prompt` 和 `tags` 欄位，修正不恰當或錯誤的內容。
+  2.  **[手動測試]** 手動測試每個 AI 工具，評估生成結果的品質。
+  3.  **[自動化規劃]** 建立 `next/scripts/test-ai-tools.js` 腳本，用於自動化測試：
+      - 腳本需能連接資料庫，遍歷所有 AI 工具。
+      - 為每個工具設計一個或多個標準的測試輸入 (Test Case)。
+      - 呼叫 Gemini API 執行測試，並記錄結果。
+      - (可選) 設計基本的結果驗證機制，例如檢查回應是否為空、是否包含錯誤訊息等。
+  4.  **[整合]** 在 `next/package.json` 的 `scripts` 中新增指令 (如 `"test:aitools": "node scripts/test-ai-tools.js"`)，方便執行自動化測試。
 
 ---
 
@@ -307,42 +317,44 @@
 - **狀態**: `未開始`
 - **關鍵路由**: `/tender/detail/[tenderId]`
 - **核心檔案**:
-    - **Next.js 版本**:
-        - **頁面入口**: `next/src/app/tender/detail/[tenderId]/page.tsx`
-        - **核心組件**: `next/src/components/tender/TenderDetail.tsx`
-        - **子組件**: `next/src/components/tender/detail/*`
-    - **Legacy 參考版本**:
-        - **核心組件**: `legacy/src/components/tender/TenderDetail.tsx`
-        - **子組件**: `legacy/src/components/tender/detail/*`
+  - **Next.js 版本**:
+    - **頁面入口**: `next/src/app/tender/detail/[tenderId]/page.tsx`
+    - **核心組件**: `next/src/components/tender/TenderDetail.tsx`
+    - **子組件**: `next/src/components/tender/detail/*`
+  - **Legacy 參考版本**:
+    - **核心組件**: `legacy/src/components/tender/TenderDetail.tsx`
+    - **子組件**: `legacy/src/components/tender/detail/*`
 - **子任務**:
-    1.  **[分析]** 詳細比對 `legacy` 與 `next` 專案中相關檔案的程式碼，梳理出資料結構、API 呼叫方式、及組件渲染邏輯的差異。
-    2.  **[實作]** 調整 `next` 專案的 `
+  1.  **[分析]** 詳細比對 `legacy` 與 `next` 專案中相關檔案的程式碼，梳理出資料結構、API 呼叫方式、及組件渲染邏輯的差異。
+  2.  **[實作]** 調整 `next` 專案的 `
 
 ---
 
 ## 7. 當前進度與後續步驟 (Current Status & Next Steps)
 
--   **當前狀態**: `開發中` - 正在根據最新的共識，實作「第三階段：多欄位加權搜尋」。
--   **後續步驟**:
-    1.  **完成搜尋邏輯開發**: 由 AI 完成 `next/src/lib/aitool/data.ts` 中 `searchTools` 函式的重構。
-    2.  **使用者驗收**: 由您根據計畫中定義的「驗收標準」進行完整測試。
-    3.  **上線部署**: 在所有測試通過後，將功能部署至正式環境。
+- **當前狀態**: `開發中` - 正在根據最新的共識，實作「第三階段：多欄位加權搜尋」。
+- **後續步驟**:
+  1.  **完成搜尋邏輯開發**: 由 AI 完成 `next/src/lib/aitool/data.ts` 中 `searchTools` 函式的重構。
+  2.  **使用者驗收**: 由您根據計畫中定義的「驗收標準」進行完整測試。
+  3.  **上線部署**: 在所有測試通過後，將功能部署至正式環境。
 
 ---
 
 ## 8. 開發進度追蹤 (Development Log)
 
--   **2025-07-04**:
-    -   **行動**: 根據使用者回饋與上線時程壓力，共同決策暫緩遷移至 MongoDB Atlas，採用純程式控制的 `$regex` 方案。
-    -   **行動**: 重構了 `pre-launch-tasks-plan.mdc`，明確了第三階段的開發細節、權重、以及基於實際測試案例的驗收標準。
-    -   **決策**: 確認了此方案為當前風險最低、成功率最高的路徑，並將以此藍圖為唯一真實來源進行開發。
+- **2025-07-04**:
 
--   **2025-07-04**:
-    -   **行動**: 根據使用者回饋與上線時程壓力，共同決策暫緩遷移至 MongoDB Atlas，採用純程式控制的 `$regex` 方案。
-    -   **行動**: 重構了 `pre-launch-tasks-plan.mdc`，明確了第三階段的開發細節、權重、以及基於實際測試案例的驗收標準。
-    -   **決策**: 確認了此方案為當前風險最低、成功率最高的路徑，並將以此藍圖為唯一真實來源進行開發。
+  - **行動**: 根據使用者回饋與上線時程壓力，共同決策暫緩遷移至 MongoDB Atlas，採用純程式控制的 `$regex` 方案。
+  - **行動**: 重構了 `pre-launch-tasks-plan.mdc`，明確了第三階段的開發細節、權重、以及基於實際測試案例的驗收標準。
+  - **決策**: 確認了此方案為當前風險最低、成功率最高的路徑，並將以此藍圖為唯一真實來源進行開發。
 
--   **2025-07-04**:
-    -   **行動**: 根據使用者回饋與上線時程壓力，共同決策暫緩遷移至 MongoDB Atlas，採用純程式控制的 `$regex` 方案。
-    -   **行動**: 重構了 `pre-launch-tasks-plan.mdc`，明確了第三階段的開發細節、權重、以及基於實際測試案例的驗收標準。
-    -   **決策**: 確認了此方案為當前風險最低、成功率最高的路徑，並將以此藍圖為唯一真實來源進行開發。
+- **2025-07-04**:
+
+  - **行動**: 根據使用者回饋與上線時程壓力，共同決策暫緩遷移至 MongoDB Atlas，採用純程式控制的 `$regex` 方案。
+  - **行動**: 重構了 `pre-launch-tasks-plan.mdc`，明確了第三階段的開發細節、權重、以及基於實際測試案例的驗收標準。
+  - **決策**: 確認了此方案為當前風險最低、成功率最高的路徑，並將以此藍圖為唯一真實來源進行開發。
+
+- **2025-07-04**:
+  - **行動**: 根據使用者回饋與上線時程壓力，共同決策暫緩遷移至 MongoDB Atlas，採用純程式控制的 `$regex` 方案。
+  - **行動**: 重構了 `pre-launch-tasks-plan.mdc`，明確了第三階段的開發細節、權重、以及基於實際測試案例的驗收標準。
+  - **決策**: 確認了此方案為當前風險最低、成功率最高的路徑，並將以此藍圖為唯一真實來源進行開發。

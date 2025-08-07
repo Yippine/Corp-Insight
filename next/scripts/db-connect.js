@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Business Magnifier MongoDB Connection Test Script
- * 
+ * Corp Insight MongoDB Connection Test Script
+ *
  * 執行方式: node scripts/db-connect.js
  * 注意: 此腳本預期環境變數 `MONGODB_URI` 已由 Docker Compose 或其他方式注入。
  */
@@ -16,7 +16,7 @@ const colors = {
   green: '\x1b[32m',
   red: '\x1b[31m',
   cyan: '\x1b[36m',
-  yellow: '\x1b[33m'
+  yellow: '\x1b[33m',
 };
 
 const colorize = (text, color) => `${colors[color]}${text}${colors.reset}`;
@@ -36,7 +36,9 @@ async function testMongoConnection() {
   }
 
   try {
-    console.log(`📡 嘗試連線至: ${MONGODB_URI.replace(/\/\/.*@/, '//***:***@')}`);
+    console.log(
+      `📡 嘗試連線至: ${MONGODB_URI.replace(/\/\/.*@/, '//***:***@')}`
+    );
     await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
     console.log(colorize('✅ 連線成功！MongoDB is ready.', 'green'));
   } catch (error) {
@@ -67,16 +69,31 @@ async function hostDispatch() {
     const containerName = stdout.trim().split('\n')[0]; // 取第一個找到的容器
 
     if (!containerName) {
-      console.error(colorize('\n❌ 錯誤: 找不到任何正在運行的 `app-dev` 或 `app-prod` 容器。', 'red'));
-      console.error(colorize('💡 提示: 請先執行 `npm run start:dev` 或 `npm run start:prod`。', 'cyan'));
+      console.error(
+        colorize(
+          '\n❌ 錯誤: 找不到任何正在運行的 `app-dev` 或 `app-prod` 容器。',
+          'red'
+        )
+      );
+      console.error(
+        colorize(
+          '💡 提示: 請先執行 `npm run start:dev` 或 `npm run start:prod`。',
+          'cyan'
+        )
+      );
       process.exit(1);
     }
 
-    console.log(colorize(`✅ 成功偵測到運行中的容器: ${colorize(containerName, 'bright')}`, 'green'));
-    
+    console.log(
+      colorize(
+        `✅ 成功偵測到運行中的容器: ${colorize(containerName, 'bright')}`,
+        'green'
+      )
+    );
+
     // 透過 docker exec 呼叫本腳本，並傳入 --execute-directly 旗標
     const execCommand = `docker exec ${containerName} node scripts/db-connect.js --execute-directly`;
-    
+
     console.log(colorize(`▶️  準備在容器內執行核心測試...`, 'cyan'));
     console.log(colorize(`  $ ${execCommand}`, 'bright'));
     console.log(colorize('='.repeat(50), 'cyan'));
@@ -95,7 +112,7 @@ async function hostDispatch() {
 function main() {
   // 檢查是否由 docker exec 呼叫，並帶有特定旗標
   const isDirectExecution = process.argv.includes('--execute-directly');
-  
+
   // 檢查是否在 Docker 環境中 (由 Admin Console 呼叫)
   const isInDocker = require('fs').existsSync('/.dockerenv');
 

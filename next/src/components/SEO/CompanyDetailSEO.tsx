@@ -25,7 +25,7 @@ export function generateCompanyDetailMetadata(
     openGraph: {
       title: dynamicTitles.companyDetail(companyData.name),
       description: `查看 ${companyData.name} 的詳細企業資訊，包含基本資料、財務概況、核心成員和相關標案等完整資訊。統一編號：${companyData.taxId}。`,
-      url: `https://business-magnifier.vercel.app/company/detail/${companyData.taxId}`,
+      url: `https://corp-insight.vercel.app/company/detail/${companyData.taxId}`,
       type: 'website',
     },
   };
@@ -42,7 +42,7 @@ export function CompanyDetailStructuredData({
     '@type': 'Organization',
     name: companyData.name,
     identifier: companyData.taxId,
-    url: `https://business-magnifier.vercel.app/company/detail/${companyData.taxId}`,
+    url: `https://corp-insight.vercel.app/company/detail/${companyData.taxId}`,
   };
 
   return (

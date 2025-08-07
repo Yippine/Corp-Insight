@@ -1,7 +1,7 @@
 import { MongoClient, Db } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-const DB_NAME = 'business-magnifier';
+const DB_NAME = 'corp-insight';
 
 let client: MongoClient | null = null;
 let dbInstance: Db | null = null;

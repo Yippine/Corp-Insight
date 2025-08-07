@@ -16,7 +16,7 @@ function getMongoURI(): string {
 
   if (!MONGODB_URI) {
     // 預設本地開發環境連線
-    const defaultURI = 'mongodb://localhost:27017/business-magnifier';
+    const defaultURI = 'mongodb://localhost:27017/corp-insight';
     console.log('⚠️ 未設定 MONGODB_URI，使用預設本地連線:', defaultURI);
     return defaultURI;
   }

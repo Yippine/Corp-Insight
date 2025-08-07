@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Business Magnifier MongoDB Collections 初始化腳本
+ * Corp Insight MongoDB Collections 初始化腳本
  *
  * 用途: 根據專案架構規則重建所有必要的 MongoDB Collections 和索引
  * 執行方式: node scripts/init-mongodb-collections.js
@@ -22,8 +22,8 @@ const { MongoClient } = require('mongodb');
  */
 const MONGODB_URI =
   process.env.MONGODB_URI ||
-  'mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin';
-const DB_NAME = 'business-magnifier';
+  'mongodb://admin:password@localhost:27017/corp-insight?authSource=admin';
+const DB_NAME = 'corp-insight';
 
 /**
  * Collections 定義和索引配置
@@ -315,7 +315,7 @@ async function createCollection(db, collectionName, config) {
  * 主要初始化函式
  */
 async function initializeMongoDBCollections() {
-  console.log('🚀 Business Magnifier MongoDB Collections 初始化開始');
+  console.log('🚀 Corp Insight MongoDB Collections 初始化開始');
   const totalCollections = Object.keys(COLLECTIONS_CONFIG).length;
   console.log(`🎯 目標：檢查並設定 ${totalCollections} 個 Collections`);
 

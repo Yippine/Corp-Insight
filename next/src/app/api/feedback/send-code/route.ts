@@ -65,13 +65,13 @@ export async function POST(request: NextRequest) {
     });
 
     const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'Business Magnifier 客戶支援'}" <${process.env.EMAIL_FROM}>`,
+      from: `"${process.env.EMAIL_FROM_NAME || 'Corp Insight 客戶支援'}" <${process.env.EMAIL_FROM}>`,
       to: email,
-      subject: '您的 Business Magnifier 意見回饋系統驗證碼',
+      subject: '您的 Corp Insight 意見回饋系統驗證碼',
       html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
         <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid #eee;">
-          <h1 style="color: #0056b3; font-size: 28px; margin: 0;">Business Magnifier</h1>
+          <h1 style="color: #0056b3; font-size: 28px; margin: 0;">Corp Insight</h1>
           <p style="color: #555; font-size: 14px; margin-top: 5px;">意見回饋驗證</p>
         </div>
         <div style="padding: 20px 0;">
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         </div>
         <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #888;">
           <p>此郵件為系統自動發送，請勿直接回覆。</p>
-          <p>&copy; ${new Date().getFullYear()} Business Magnifier. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} Corp Insight. All rights reserved.</p>
         </div>
       </div>
       `,

@@ -5,30 +5,31 @@ import { BASE_URL } from '@/config/site';
 export const dynamic = 'force-dynamic';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-const DB_NAME = 'business-magnifier';
+const DB_NAME = 'corp-insight';
 
 export async function GET() {
   const baseUrl = BASE_URL;
   const currentDate = new Date().toISOString();
-  
+
   let aiTools: any[] = [];
-  
+
   try {
     const client = new MongoClient(MONGODB_URI);
     await client.connect();
     const db = client.db(DB_NAME);
 
     // 獲取所有 AI 工具
-    aiTools = await db.collection('ai_tools')
+    aiTools = await db
+      .collection('ai_tools')
       .find({
         _id: { $exists: true },
         // 可以添加過濾條件，如工具狀態等
-        status: { $in: ['active', 'published'] }
+        status: { $in: ['active', 'published'] },
       })
-      .sort({ 
+      .sort({
         usageCount: -1, // 按使用次數排序
-        rating: -1,     // 按評分排序
-        updatedAt: -1 
+        rating: -1, // 按評分排序
+        updatedAt: -1,
       })
       .limit(5000) // AI 工具數量相對較少
       .toArray();
@@ -51,19 +52,22 @@ export async function GET() {
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${aiTools
-    .map(tool => `  <url>
+  .map(
+    tool => `  <url>
     <loc>${baseUrl}/aitool/detail/${tool._id}</loc>
     <lastmod>${tool.updatedAt || currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-  </url>`)
-    .join('\n')}
+  </url>`
+  )
+  .join('\n')}
 </urlset>`;
 
   return new NextResponse(sitemap, {
     headers: {
       'Content-Type': 'text/xml',
-      'Cache-Control': 'public, max-age=10800, s-maxage=10800, stale-while-revalidate=86400',
+      'Cache-Control':
+        'public, max-age=10800, s-maxage=10800, stale-while-revalidate=86400',
       'X-Robots-Tag': 'noindex',
     },
   });

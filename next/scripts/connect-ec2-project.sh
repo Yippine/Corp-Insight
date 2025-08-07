@@ -10,7 +10,7 @@ ENV_FILE="./.env.production"
 
 # --- 設定 ---
 # 專案在 EC2 上的絕對路徑
-PROJECT_DIR="/home/ec2-user/Business-Magnifier/next"
+PROJECT_DIR="/home/ec2-user/Corp-Insight/next"
 
 # 檢查 .env.production 檔案是否存在
 if [ ! -f "$ENV_FILE" ]; then

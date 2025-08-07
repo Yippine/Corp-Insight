@@ -13,10 +13,10 @@ interface GlobalSetting {
 async function getDb() {
   const uri =
     process.env.MONGODB_URI ||
-    'mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin';
+    'mongodb://admin:password@localhost:27017/corp-insight?authSource=admin';
   const client = new MongoClient(uri);
   await client.connect();
-  return client.db('business-magnifier');
+  return client.db('corp-insight');
 }
 
 export async function POST(request: Request) {

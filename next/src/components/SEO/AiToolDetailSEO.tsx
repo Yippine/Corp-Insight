@@ -23,7 +23,7 @@ export function AiToolDetailStructuredData({ tool }: AiToolDetailSEOProps) {
     },
     provider: {
       '@type': 'Organization',
-      name: 'Business Magnifier',
+      name: 'Corp Insight',
       url: 'https://magnifier.tw',
     },
   };
@@ -55,7 +55,7 @@ export function generateAiToolDetailMetadata({
       description,
       type: 'website',
       url: `/aitool/detail/${tool.id}`,
-      siteName: 'Business Magnifier',
+      siteName: 'Corp Insight',
     },
     twitter: {
       card: 'summary_large_image',

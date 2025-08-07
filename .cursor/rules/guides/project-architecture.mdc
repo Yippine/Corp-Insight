@@ -1,9 +1,10 @@
 ---
-description: Business Magnifier 專案宏觀架構指南。當需要了解專案的整體藍圖時調用，涵蓋技術棧、核心目錄結構、渲染與SEO策略、高層級API架構、AWS EC2 的 Docker 部署模型，以及未來發展藍圖。此規則提供高層次概覽，並會視情況指引至更專門的規則（如 mongodb-architecture-guide 或 development-conventions）以獲取實施細節。
-globs: 
+description: Corp Insight 專案宏觀架構指南。當需要了解專案的整體藍圖時調用，涵蓋技術棧、核心目錄結構、渲染與SEO策略、高層級API架構、AWS EC2 的 Docker 部署模型，以及未來發展藍圖。此規則提供高層次概覽，並會視情況指引至更專門的規則（如 mongodb-architecture-guide 或 development-conventions）以獲取實施細節。
+globs:
 alwaysApply: false
 ---
-# Business Magnifier 專案架構指南
+
+# Corp Insight 專案架構指南
 
 ## 1. 專案概述
 
@@ -11,14 +12,15 @@ alwaysApply: false
 - **核心技術**: Next.js + MongoDB + Docker。
 - **主要分支**: `main`。
 - **延伸閱讀**:
-    - 若要了解詳細的開發SOP，請參閱 `./development-conventions.mdc`。
-    - 若要了解 SEO 的具體實施策略，請參閱 `./seo-optimization-guide.mdc`。
+  - 若要了解詳細的開發 SOP，請參閱 `./development-conventions.mdc`。
+  - 若要了解 SEO 的具體實施策略，請參閱 `./seo-optimization-guide.mdc`。
 
 ---
 
 ## 2. 技術棧與目錄結構
 
 ### 2.1 核心技術棧
+
 - **框架**: Next.js 14.1 / React 18
 - **資料庫**: MongoDB 7.0 (詳細規範請見 `./mongodb-architecture-guide.mdc`)
 - **樣式**: Tailwind CSS / Framer Motion (美學標準請見 `./ui-ux-aesthetic-guide.mdc`)
@@ -26,6 +28,7 @@ alwaysApply: false
 - **部署**: AWS EC2
 
 ### 2.2 核心目錄結構 (`next/src/`)
+
 ```
 src/
 ├── app/         # 核心路由: 包含頁面 (e.g., /company) 與 API (/api)
@@ -35,7 +38,8 @@ src/
 ├── types/       # 全域 TypeScript 型別
 └── config/      # 應用程式配置
 ```
-*此結構的具體使用方式，請遵循 `./development-conventions.mdc` 中的指導原則。*
+
+_此結構的具體使用方式，請遵循 `./development-conventions.mdc` 中的指導原則。_
 
 ---
 
@@ -53,7 +57,9 @@ src/
 ## 4. API 架構
 
 ### 4.1 RESTful 路由結構
+
 API 路由定義於 `src/app/api/`，並按功能模組劃分。其實作應遵循 `./development-conventions.mdc` 中的 API 設計規範。
+
 ```
 /api/
 ├── company/
@@ -68,13 +74,15 @@ API 路由定義於 `src/app/api/`，並按功能模組劃分。其實作應遵�
 ```
 
 ### 4.2 API 回應格式
+
 所有 API 遵循統一的回應結構，以簡化前端的資料處理與錯誤管理。
+
 ```typescript
 interface APIResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
-  pagination?: { total: number; page: number; limit: number; };
+  pagination?: { total: number; page: number; limit: number };
 }
 ```
 
@@ -88,8 +96,8 @@ interface APIResponse<T> {
 - **部署環境**: 生產環境部署於 **AWS EC2** 實例上，透過 Docker 容器運行應用程式。
 - **管理中心 (規劃中)**: 規劃建立一個獨立的 Docker 化管理中心服務。此服務將提供 Web 介面，用於執行資料庫備份、腳本管理等後台任務，取代直接在伺服器後台操作，提升維運的便利性與安全性。詳細的資料庫腳本使用方式請參閱 `./mongodb-architecture-guide.mdc`。
 - **效能監控**:
-    - **資料庫**: 使用 MongoDB Compass 和 Mongo Express (可選 Docker 服務) 進行監控。
-    - **應用程式**: 整合 Next.js 內建分析工具，並透過 Core Web Vitals 指標（FCP, LCP, CLS）追蹤前端效能。數據分析策略請參考 `./google-analytics-strategy.mdc`。
+  - **資料庫**: 使用 MongoDB Compass 和 Mongo Express (可選 Docker 服務) 進行監控。
+  - **應用程式**: 整合 Next.js 內建分析工具，並透過 Core Web Vitals 指標（FCP, LCP, CLS）追蹤前端效能。數據分析策略請參考 `./google-analytics-strategy.mdc`。
 
 ---
 
@@ -98,18 +106,21 @@ interface APIResponse<T> {
 本路線圖的實施，應結合 `./development-conventions.mdc` 的開發流程與 `./git-workflow-guide.mdc` 的版本控制規範。
 
 ### 短期目標 (1-2 個月)
+
 - 🎯 完善 AI 工具分類系統
 - 📊 增強視覺化圖表功能
 - 🔍 改進搜尋演算法精準度
 - 📱 行動端體驗優化
 
 ### 中期目標 (3-6 個月)
+
 - 🤖 整合更多 AI 服務
 - 📈 建立資料分析儀表板
 - 🌐 多語言支援 (i18n)
 - 🔐 進階使用者權限系統
 
 ### 長期目標 (6-12 個月)
+
 - 🏗️ 探索微服務架構遷移可能性
 - 🤖 建立智能推薦系統
 - 🌍 國際化擴展

@@ -5,7 +5,7 @@
 
 // 網站及各功能區塊基礎名稱
 export const SITE_TITLE = '企業放大鏡™ × 企業洞察平台™';
-export const ENGLISH_TITLE = `Business Magnifier`;
+export const ENGLISH_TITLE = `Corp Insight`;
 export const COMPANY_TITLE = `企業資訊查詢`;
 export const TENDER_TITLE = `標案資訊查詢`;
 export const AI_TOOL_TITLE = `AI 助理生產力`;

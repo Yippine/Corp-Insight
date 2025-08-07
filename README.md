@@ -1,6 +1,6 @@
-# Business Magnifier
+# Corp Insight
 
-`Business Magnifier` 是一個先進的商業分析儀表板，旨在透過數據視覺化、AI 洞察和自動化工具，為企業決策者提供強大的支援。本專案採用現代化的技術棧，並擁有高度整合的開發與部署流程。
+`Corp Insight` 是一個先進的商業分析儀表板，旨在透過數據視覺化、AI 洞察和自動化工具，為企業決策者提供強大的支援。本專案採用現代化的技術棧，並擁有高度整合的開發與部署流程。
 
 <div align="center">
   <a href="https://youtu.be/EMedbGk9KlI" target="_blank" rel="noopener noreferrer">
@@ -22,17 +22,17 @@
 
 ## 🛠️ 技術棧（Tech Stack）
 
-| 類別 | 技術 |
-| :--- | :--- |
-| **框架** | Next.js 14+（App Router）, React 18 |
-| **語言** | TypeScript |
-| **樣式** | Tailwind CSS, Framer Motion |
-| **資料庫** | MongoDB（with Mongoose） |
-| **AI 整合** | Google Generative AI（Gemini） |
+| 類別           | 技術                                      |
+| :------------- | :---------------------------------------- |
+| **框架**       | Next.js 14+（App Router）, React 18       |
+| **語言**       | TypeScript                                |
+| **樣式**       | Tailwind CSS, Framer Motion               |
+| **資料庫**     | MongoDB（with Mongoose）                  |
+| **AI 整合**    | Google Generative AI（Gemini）            |
 | **API & 驗證** | Next.js API Routes, JSON Web Token（JWT） |
-| **部署/環境** | Docker, Docker Compose, Netlify |
-| **程式碼品質** | ESLint, Prettier |
-| **核心依賴**| Chart.js, Google Maps API, Nodemailer |
+| **部署/環境**  | Docker, Docker Compose, Netlify           |
+| **程式碼品質** | ESLint, Prettier                          |
+| **核心依賴**   | Chart.js, Google Maps API, Nodemailer     |
 
 ## 🚀 快速上手（Getting Started）
 
@@ -49,7 +49,7 @@
 ```bash
 # Clone 專案庫
 git clone <your-repository-url>
-cd business-magnifier
+cd corp-insight
 
 # 進入 Next.js 專案目錄
 cd next
@@ -69,7 +69,7 @@ npm install
 
 # 💡 --- 核心基礎設施 ---
 # MongoDB 資料庫連線字串
-MONGODB_URI=mongodb://admin:password@localhost:27017/business-magnifier?authSource=admin
+MONGODB_URI=mongodb://admin:password@localhost:27017/corp-insight?authSource=admin
 
 # 網站的公開基礎 URL (用於 SEO, Sitemap, CORS 等)
 # 開發時使用 http://localhost:3000, 生產環境請填寫您的域名
@@ -101,7 +101,7 @@ EMAIL_SERVER_PORT=465
 EMAIL_SERVER_USER=
 EMAIL_SERVER_PASSWORD=
 EMAIL_FROM=
-EMAIL_FROM_NAME="Business Magnifier 客戶支援"
+EMAIL_FROM_NAME="Corp Insight 客戶支援"
 # 開發人員聯絡信箱 (用於接收系統錯誤通知)
 NEXT_PUBLIC_DEVELOPER_EMAIL=
 
@@ -129,6 +129,7 @@ npm run db:init
 ```
 
 現在，您可以透過以下連結訪問服務：
+
 - **應用程式**: [http://localhost:3000](http://localhost:3000)
 - **Mongo Express**: [http://localhost:8081](http://localhost:8081)（使用 `admin`/`password` 登入）
 
@@ -137,12 +138,14 @@ npm run db:init
 所有指令皆在 `next/` 目錄下執行。
 
 ### 核心開發
+
 - `npm run dev`: 在本地（非 Docker）啟動 Next.js 開發伺服器。
 - `npm run build`: 建置生產版本的應用程式。
 - `npm run lint`: 執行 ESLint 程式碼檢查。
 - `npm run format:fix`: 使用 Prettier 和 ESLint 自動修復格式與問題。
 
 ### Docker 環境管理
+
 - `npm run start:dev`: 啟動完整的開發環境。
 - `npm run start:prod`: 啟動完整的生產環境。
 - `npm run stop`: 停止所有 Docker 容器並進行清理。
@@ -151,6 +154,7 @@ npm run db:init
 - `npm run docker:down`: 停止並移除所有容器。
 
 ### 資料庫
+
 - `npm run db:init`: 初始化資料庫 Collections。
 - `npm run db:backup`: 備份 AI Tools 相關資料。
 - `npm run db:restore`: 還原 AI Tools 相關資料。
@@ -179,6 +183,7 @@ npm run db:init
 ## 🗄️ 資料庫架構
 
 ### MongoDB Collections
+
 - **`companies`** - 企業基本資料與詳細資訊
 - **`ai_tools`** - AI 工具定義與使用統計
 - **`tenders`** - 政府標案資料與查詢記錄
