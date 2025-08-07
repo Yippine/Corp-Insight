@@ -12,11 +12,11 @@ export function middleware(request: NextRequest) {
   requestHeaders.set('x-original-host', originalHost);
 
   // 如果是 aitools 域名但訪問的不是工具相關路徑，重定向到主域名
-  const isAiToolsPath = pathname.startsWith('/search') || 
-                       pathname.startsWith('/detail') || 
+  const isAiToolsPath = pathname.startsWith('/search') ||
+                       pathname.startsWith('/detail') ||
                        pathname.startsWith('/aitool') ||
-                       pathname.startsWith('/api/aitool') || 
-                       pathname.startsWith('/api/gemini') || 
+                       pathname.startsWith('/api/aitool') ||
+                       pathname.startsWith('/api/gemini') ||
                        pathname.startsWith('/api/prompt') ||
                        pathname.startsWith('/api/feedback') ||
                        pathname.startsWith('/_next') ||
@@ -24,15 +24,16 @@ export function middleware(request: NextRequest) {
                        pathname.startsWith('/feedback') ||
                        pathname.startsWith('/privacy') ||
                        pathname === '/';
-                       
+
   if (isAiToolsDomain(originalHost) && !isAiToolsPath) {
     const mainDomain = SITE_CONFIG.main.domain;
     const mainUrl = `${mainDomain}${pathname}${search}`;
     return NextResponse.redirect(mainUrl, 301);
   }
 
-  // 如果是主域名訪問 /aitool/*，重定向到 aitools 域名
-  if (!isAiToolsDomain(originalHost) && pathname.startsWith('/aitool')) {
+  // 如果是主域名訪問 /aitool/*，重定向到 aitools 域名（僅在生產環境）
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  if (!isDevelopment && !isAiToolsDomain(originalHost) && pathname.startsWith('/aitool')) {
     const aiToolsDomain = SITE_CONFIG.aitools.domain;
     const aiToolsUrl = `${aiToolsDomain}${pathname.replace('/aitool', '')}${search}`;
     return NextResponse.redirect(aiToolsUrl, 301);

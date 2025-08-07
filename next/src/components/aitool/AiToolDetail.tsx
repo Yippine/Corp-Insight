@@ -151,7 +151,9 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
 
   const handleBackClick = () => {
     const savedSearch = sessionStorage.getItem('toolSearchParams');
-    router.push(`/search${savedSearch ? `?${savedSearch}` : ''}`);
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const searchPath = isDevelopment ? '/aitool/search' : '/search';
+    router.push(`${searchPath}${savedSearch ? `?${savedSearch}` : ''}`);
   };
 
   // 選擇標籤的主題
@@ -179,7 +181,7 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
       }}
     >
       <BackButton
-        returnPath="/search"
+        returnPath={process.env.NODE_ENV === 'development' ? '/aitool/search' : '/search'}
         sessionKey="toolSearchParams"
         buttonText="返回工具列表"
       />
