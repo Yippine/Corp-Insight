@@ -62,8 +62,8 @@ export default async function CompanyDetailPage({
     { id: 'basic', name: '基本資料', icon: 'Building2' },
     { id: 'financial', name: '財務概況', icon: 'BarChart3' },
     { id: 'directors', name: '核心成員', icon: 'Users' },
-    { id: 'tenders', name: '標案資料', icon: 'FileText' },
-    { id: 'risk', name: '風險評估', icon: 'AlertTriangle' },
+    // { id: 'tenders', name: '標案資料', icon: 'FileText' },
+    // { id: 'risk', name: '風險評估', icon: 'AlertTriangle' },
   ];
 
   return (

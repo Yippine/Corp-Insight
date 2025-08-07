@@ -856,873 +856,873 @@ export default function CompanyDetailContent({
           </div>
         );
 
-      case 'tenders':
-        return (
-          <div className="space-y-6">
-            <div className="rounded-2xl bg-white p-8 shadow-lg transition-all duration-500 hover:shadow-2xl">
-              <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-                <div>
-                  <h3 className="mb-2 text-3xl font-bold text-gray-900">
-                    標案全景
-                  </h3>
-                  <p className="text-gray-600">
-                    深入解析企業的採購生態圖，追蹤每一筆關鍵商機
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button
-                    onClick={() => setTenderView('chart')}
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all duration-300 ${
-                      tenderView === 'chart'
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <BarChart3 className="h-5 w-5" />
-                    <span className="font-medium">視覺圖表</span>
-                  </button>
-                  <button
-                    onClick={() => setTenderView('list')}
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all duration-300 ${
-                      tenderView === 'list'
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Table className="h-5 w-5" />
-                    <span className="font-medium">詳細資訊</span>
-                  </button>
-                </div>
-              </div>
+      // case 'tenders':
+      //   return (
+      //     <div className="space-y-6">
+      //       <div className="rounded-2xl bg-white p-8 shadow-lg transition-all duration-500 hover:shadow-2xl">
+      //         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+      //           <div>
+      //             <h3 className="mb-2 text-3xl font-bold text-gray-900">
+      //               標案全景
+      //             </h3>
+      //             <p className="text-gray-600">
+      //               深入解析企業的採購生態圖，追蹤每一筆關鍵商機
+      //             </p>
+      //           </div>
+      //           <div className="flex flex-col gap-3 sm:flex-row">
+      //             <button
+      //               onClick={() => setTenderView('chart')}
+      //               className={`flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all duration-300 ${
+      //                 tenderView === 'chart'
+      //                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+      //                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+      //               }`}
+      //             >
+      //               <BarChart3 className="h-5 w-5" />
+      //               <span className="font-medium">視覺圖表</span>
+      //             </button>
+      //             <button
+      //               onClick={() => setTenderView('list')}
+      //               className={`flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all duration-300 ${
+      //                 tenderView === 'list'
+      //                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+      //                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+      //               }`}
+      //             >
+      //               <Table className="h-5 w-5" />
+      //               <span className="font-medium">詳細資訊</span>
+      //             </button>
+      //           </div>
+      //         </div>
 
-              {fetchTenderError ? (
-                <div className="py-12 text-center">
-                  <p className="text-gray-500">{fetchTenderError}</p>
-                </div>
-              ) : tenders.length > 0 ? (
-                tenderView === 'list' ? (
-                  <div className="overflow-hidden bg-white shadow sm:rounded-lg">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th
-                            scope="col"
-                            className="w-[10%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
-                          >
-                            得標日期
-                          </th>
-                          <th
-                            scope="col"
-                            className="w-[35%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
-                          >
-                            採購專案名稱
-                          </th>
-                          <th
-                            scope="col"
-                            className="w-[20%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
-                          >
-                            招標機關
-                          </th>
-                          <th
-                            scope="col"
-                            className="w-[10%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
-                          >
-                            得標狀態
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 bg-white">
-                        {tenders.map((tender, index) => (
-                          <tr
-                            key={`${tender.tenderId}-${index}`}
-                            className="cursor-pointer hover:bg-gray-50"
-                            onClick={() => {
-                              router.push(`/tender/detail/${tender.tenderId}`);
-                            }}
-                          >
-                            <td className="px-6 py-4 text-base text-gray-500">
-                              {tender.date}
-                            </td>
-                            <td className="px-6 py-4 text-base text-gray-900">
-                              <div className="line-clamp-2">{tender.title}</div>
-                            </td>
-                            <td className="px-6 py-4 text-base text-gray-900">
-                              <div className="line-clamp-2">
-                                {tender.unitName}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${
-                                  tender.status === '得標'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}
-                              >
-                                {tender.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <TenderStatsChart
-                    tenders={tenders}
-                    isLoadingMore={isLoadingMore}
-                    progress={progress}
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    isFullyLoaded={isFullyLoaded}
-                  />
-                )
-              ) : isFullyLoaded ? (
-                <NoDataFound message="查無標案資料" />
-              ) : (
-                <div className="py-8">
-                  <InlineLoading />
-                </div>
-              )}
-            </div>
-            <DataSource
-              sources={[
-                {
-                  name: '標案瀏覽',
-                  url: 'https://pcc-api.openfun.app/',
-                },
-              ]}
-            />
-          </div>
-        );
+      //         {fetchTenderError ? (
+      //           <div className="py-12 text-center">
+      //             <p className="text-gray-500">{fetchTenderError}</p>
+      //           </div>
+      //         ) : tenders.length > 0 ? (
+      //           tenderView === 'list' ? (
+      //             <div className="overflow-hidden bg-white shadow sm:rounded-lg">
+      //               <table className="min-w-full divide-y divide-gray-200">
+      //                 <thead className="bg-gray-50">
+      //                   <tr>
+      //                     <th
+      //                       scope="col"
+      //                       className="w-[10%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
+      //                     >
+      //                       得標日期
+      //                     </th>
+      //                     <th
+      //                       scope="col"
+      //                       className="w-[35%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
+      //                     >
+      //                       採購專案名稱
+      //                     </th>
+      //                     <th
+      //                       scope="col"
+      //                       className="w-[20%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
+      //                     >
+      //                       招標機關
+      //                     </th>
+      //                     <th
+      //                       scope="col"
+      //                       className="w-[10%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
+      //                     >
+      //                       得標狀態
+      //                     </th>
+      //                   </tr>
+      //                 </thead>
+      //                 <tbody className="divide-y divide-gray-200 bg-white">
+      //                   {tenders.map((tender, index) => (
+      //                     <tr
+      //                       key={`${tender.tenderId}-${index}`}
+      //                       className="cursor-pointer hover:bg-gray-50"
+      //                       onClick={() => {
+      //                         router.push(`/tender/detail/${tender.tenderId}`);
+      //                       }}
+      //                     >
+      //                       <td className="px-6 py-4 text-base text-gray-500">
+      //                         {tender.date}
+      //                       </td>
+      //                       <td className="px-6 py-4 text-base text-gray-900">
+      //                         <div className="line-clamp-2">{tender.title}</div>
+      //                       </td>
+      //                       <td className="px-6 py-4 text-base text-gray-900">
+      //                         <div className="line-clamp-2">
+      //                           {tender.unitName}
+      //                         </div>
+      //                       </td>
+      //                       <td className="px-6 py-4">
+      //                         <span
+      //                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${
+      //                             tender.status === '得標'
+      //                               ? 'bg-green-100 text-green-800'
+      //                               : 'bg-yellow-100 text-yellow-800'
+      //                           }`}
+      //                         >
+      //                           {tender.status}
+      //                         </span>
+      //                       </td>
+      //                     </tr>
+      //                   ))}
+      //                 </tbody>
+      //               </table>
+      //             </div>
+      //           ) : (
+      //             <TenderStatsChart
+      //               tenders={tenders}
+      //               isLoadingMore={isLoadingMore}
+      //               progress={progress}
+      //               totalPages={totalPages}
+      //               currentPage={currentPage}
+      //               isFullyLoaded={isFullyLoaded}
+      //             />
+      //           )
+      //         ) : isFullyLoaded ? (
+      //           <NoDataFound message="查無標案資料" />
+      //         ) : (
+      //           <div className="py-8">
+      //             <InlineLoading />
+      //           </div>
+      //         )}
+      //       </div>
+      //       <DataSource
+      //         sources={[
+      //           {
+      //             name: '標案瀏覽',
+      //             url: 'https://pcc-api.openfun.app/',
+      //           },
+      //         ]}
+      //       />
+      //     </div>
+      //   );
 
-      case 'risk':
-        return (
-          <div className="space-y-6">
-            <div className="rounded-2xl bg-white p-8 shadow-lg transition-all duration-500 hover:shadow-2xl">
-              <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-                <div>
-                  <h3 className="mb-2 text-3xl font-bold text-gray-900">
-                    風險評估
-                  </h3>
-                  <div className="flex items-center">
-                    <p className="mr-2 text-gray-600">
-                      企業法律風險全景分析與深度洞察
-                    </p>
-                    <div className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-                      機密情報
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button
-                    onClick={() => {
-                      setView('chart');
-                    }}
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all duration-300 ${
-                      view === 'chart'
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <BarChart3 className="h-5 w-5" />
-                    <span className="font-medium">視覺圖表</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setView('table');
-                    }}
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all duration-300 ${
-                      view === 'table'
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Table className="h-5 w-5" />
-                    <span className="font-medium">詳細資訊</span>
-                  </button>
-                </div>
-              </div>
+      // case 'risk':
+      //   return (
+      //     <div className="space-y-6">
+      //       <div className="rounded-2xl bg-white p-8 shadow-lg transition-all duration-500 hover:shadow-2xl">
+      //         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+      //           <div>
+      //             <h3 className="mb-2 text-3xl font-bold text-gray-900">
+      //               風險評估
+      //             </h3>
+      //             <div className="flex items-center">
+      //               <p className="mr-2 text-gray-600">
+      //                 企業法律風險全景分析與深度洞察
+      //               </p>
+      //               <div className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+      //                 機密情報
+      //               </div>
+      //             </div>
+      //           </div>
+      //           <div className="flex flex-col gap-3 sm:flex-row">
+      //             <button
+      //               onClick={() => {
+      //                 setView('chart');
+      //               }}
+      //               className={`flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all duration-300 ${
+      //                 view === 'chart'
+      //                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+      //                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+      //               }`}
+      //             >
+      //               <BarChart3 className="h-5 w-5" />
+      //               <span className="font-medium">視覺圖表</span>
+      //             </button>
+      //             <button
+      //               onClick={() => {
+      //                 setView('table');
+      //               }}
+      //               className={`flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all duration-300 ${
+      //                 view === 'table'
+      //                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+      //                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+      //               }`}
+      //             >
+      //               <Table className="h-5 w-5" />
+      //               <span className="font-medium">詳細資訊</span>
+      //             </button>
+      //           </div>
+      //         </div>
 
-              {view === 'chart' ? (
-                <div className="space-y-6">
-                  {/* 風險評估圖表視圖內容 */}
-                  <div className="rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1">
-                    <div className="rounded-xl bg-white p-6">
-                      <div className="mb-6 flex items-center justify-between">
-                        <h4 className="text-xl font-semibold text-gray-800">
-                          法律風險概覽
-                        </h4>
-                        <div className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800">
-                          更新於 {new Date().toLocaleDateString()}
-                        </div>
-                      </div>
+      //         {view === 'chart' ? (
+      //           <div className="space-y-6">
+      //             {/* 風險評估圖表視圖內容 */}
+      //             <div className="rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1">
+      //               <div className="rounded-xl bg-white p-6">
+      //                 <div className="mb-6 flex items-center justify-between">
+      //                   <h4 className="text-xl font-semibold text-gray-800">
+      //                     法律風險概覽
+      //                   </h4>
+      //                   <div className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800">
+      //                     更新於 {new Date().toLocaleDateString()}
+      //                   </div>
+      //                 </div>
 
-                      <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
-                        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-32 w-32 rounded-full bg-blue-100 opacity-40"></div>
-                        <div className="absolute bottom-0 left-0 -mb-12 -ml-12 h-24 w-24 rounded-full bg-indigo-100 opacity-40"></div>
+      //                 <div className="relative mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+      //                   <div className="absolute right-0 top-0 -mr-16 -mt-16 h-32 w-32 rounded-full bg-blue-100 opacity-40"></div>
+      //                   <div className="absolute bottom-0 left-0 -mb-12 -ml-12 h-24 w-24 rounded-full bg-indigo-100 opacity-40"></div>
 
-                        <div className="relative z-10 flex flex-col items-center justify-between md:flex-row">
-                          <div className="mb-4 text-center md:mb-0 md:text-left">
-                            <h5 className="mb-1 text-lg font-medium text-gray-800">
-                              整體風險評分
-                            </h5>
-                            <div className="text-5xl font-bold text-blue-600">
-                              36
-                            </div>
-                            <p className="mt-1 text-sm text-gray-600">
-                              低等風險水平
-                            </p>
-                          </div>
+      //                   <div className="relative z-10 flex flex-col items-center justify-between md:flex-row">
+      //                     <div className="mb-4 text-center md:mb-0 md:text-left">
+      //                       <h5 className="mb-1 text-lg font-medium text-gray-800">
+      //                         整體風險評分
+      //                       </h5>
+      //                       <div className="text-5xl font-bold text-blue-600">
+      //                         36
+      //                       </div>
+      //                       <p className="mt-1 text-sm text-gray-600">
+      //                         低等風險水平
+      //                       </p>
+      //                     </div>
 
-                          <div className="relative h-52 w-52">
-                            <svg
-                              className="h-full w-full"
-                              viewBox="0 0 100 100"
-                            >
-                              <circle
-                                cx="50"
-                                cy="50"
-                                r="45"
-                                fill="none"
-                                stroke="#e5e7eb"
-                                strokeWidth="10"
-                              />
-                              <circle
-                                cx="50"
-                                cy="50"
-                                r="45"
-                                fill="none"
-                                stroke="#3b82f6"
-                                strokeWidth="10"
-                                strokeDasharray="100 200"
-                                strokeDashoffset="0"
-                                strokeLinecap="round"
-                                className="transition-all duration-100 ease-out"
-                                transform="rotate(-90 50 50)"
-                              />
-                              <text
-                                x="50"
-                                y="55"
-                                textAnchor="middle"
-                                className="text-2xl font-bold"
-                                fill="#1e40af"
-                              >
-                                36%
-                              </text>
-                            </svg>
-                          </div>
+      //                     <div className="relative h-52 w-52">
+      //                       <svg
+      //                         className="h-full w-full"
+      //                         viewBox="0 0 100 100"
+      //                       >
+      //                         <circle
+      //                           cx="50"
+      //                           cy="50"
+      //                           r="45"
+      //                           fill="none"
+      //                           stroke="#e5e7eb"
+      //                           strokeWidth="10"
+      //                         />
+      //                         <circle
+      //                           cx="50"
+      //                           cy="50"
+      //                           r="45"
+      //                           fill="none"
+      //                           stroke="#3b82f6"
+      //                           strokeWidth="10"
+      //                           strokeDasharray="100 200"
+      //                           strokeDashoffset="0"
+      //                           strokeLinecap="round"
+      //                           className="transition-all duration-100 ease-out"
+      //                           transform="rotate(-90 50 50)"
+      //                         />
+      //                         <text
+      //                           x="50"
+      //                           y="55"
+      //                           textAnchor="middle"
+      //                           className="text-2xl font-bold"
+      //                           fill="#1e40af"
+      //                         >
+      //                           36%
+      //                         </text>
+      //                       </svg>
+      //                     </div>
 
-                          <div className="text-center md:text-right">
-                            <h5 className="mb-1 text-lg font-medium text-gray-800">
-                              同行業平均
-                            </h5>
-                            <div className="text-5xl font-bold text-gray-400">
-                              42
-                            </div>
-                            <p className="mt-1 text-sm text-gray-600">
-                              低風險水平
-                            </p>
-                          </div>
-                        </div>
+      //                     <div className="text-center md:text-right">
+      //                       <h5 className="mb-1 text-lg font-medium text-gray-800">
+      //                         同行業平均
+      //                       </h5>
+      //                       <div className="text-5xl font-bold text-gray-400">
+      //                         42
+      //                       </div>
+      //                       <p className="mt-1 text-sm text-gray-600">
+      //                         低風險水平
+      //                       </p>
+      //                     </div>
+      //                   </div>
 
-                        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-200 pt-6 md:grid-cols-4">
-                          <div className="text-center">
-                            <div className="text-sm font-medium text-gray-500">
-                              合約糾紛
-                            </div>
-                            <div className="text-xl font-bold text-blue-600">
-                              45
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-sm font-medium text-gray-500">
-                              財務爭議
-                            </div>
-                            <div className="text-xl font-bold text-purple-600">
-                              38
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-sm font-medium text-gray-500">
-                              智財風險
-                            </div>
-                            <div className="text-xl font-bold text-pink-600">
-                              22
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-sm font-medium text-gray-500">
-                              合規指數
-                            </div>
-                            <div className="text-xl font-bold text-green-600">
-                              60
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+      //                   <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-200 pt-6 md:grid-cols-4">
+      //                     <div className="text-center">
+      //                       <div className="text-sm font-medium text-gray-500">
+      //                         合約糾紛
+      //                       </div>
+      //                       <div className="text-xl font-bold text-blue-600">
+      //                         45
+      //                       </div>
+      //                     </div>
+      //                     <div className="text-center">
+      //                       <div className="text-sm font-medium text-gray-500">
+      //                         財務爭議
+      //                       </div>
+      //                       <div className="text-xl font-bold text-purple-600">
+      //                         38
+      //                       </div>
+      //                     </div>
+      //                     <div className="text-center">
+      //                       <div className="text-sm font-medium text-gray-500">
+      //                         智財風險
+      //                       </div>
+      //                       <div className="text-xl font-bold text-pink-600">
+      //                         22
+      //                       </div>
+      //                     </div>
+      //                     <div className="text-center">
+      //                       <div className="text-sm font-medium text-gray-500">
+      //                         合規指數
+      //                       </div>
+      //                       <div className="text-xl font-bold text-green-600">
+      //                         60
+      //                       </div>
+      //                     </div>
+      //                   </div>
+      //                 </div>
 
-                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <div className="flex flex-col rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
-                          <div className="mb-2 text-xl font-medium text-gray-900">
-                            案件類型佔比
-                          </div>
-                          <div className="flex flex-1 items-center justify-center">
-                            <div className="relative h-64 w-full">
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="flex h-32 w-32 items-center justify-center rounded-full bg-white shadow-md">
-                                  <span className="text-lg font-semibold text-gray-800">
-                                    219
-                                  </span>
-                                </div>
-                              </div>
-                              <svg
-                                className="h-full w-full"
-                                viewBox="0 0 100 100"
-                              >
-                                <circle
-                                  cx="50"
-                                  cy="50"
-                                  r="45"
-                                  fill="none"
-                                  stroke="#ddd"
-                                  strokeWidth="10"
-                                />
-                                <circle
-                                  cx="50"
-                                  cy="50"
-                                  r="45"
-                                  fill="none"
-                                  stroke="#3b82f6"
-                                  strokeWidth="10"
-                                  strokeDasharray="205 283"
-                                  strokeDashoffset="0"
-                                  strokeLinecap="round"
-                                  transform="rotate(-90 50 50)"
-                                >
-                                  <animate
-                                    attributeName="stroke-dasharray"
-                                    values="0 283;205 283"
-                                    dur="1.5s"
-                                    fill="freeze"
-                                  />
-                                </circle>
-                                <circle
-                                  cx="50"
-                                  cy="50"
-                                  r="45"
-                                  fill="none"
-                                  stroke="#10b981"
-                                  strokeWidth="10"
-                                  strokeDasharray="75 283"
-                                  strokeDashoffset="-205"
-                                  strokeLinecap="round"
-                                  transform="rotate(-90 50 50)"
-                                >
-                                  <animate
-                                    attributeName="stroke-dasharray"
-                                    values="0 283;75 283"
-                                    dur="1.5s"
-                                    fill="freeze"
-                                  />
-                                </circle>
-                                <circle
-                                  cx="50"
-                                  cy="50"
-                                  r="45"
-                                  fill="none"
-                                  stroke="#ef4444"
-                                  strokeWidth="10"
-                                  strokeDasharray="3 283"
-                                  strokeDashoffset="-280"
-                                  strokeLinecap="round"
-                                  transform="rotate(-90 50 50)"
-                                >
-                                  <animate
-                                    attributeName="stroke-dasharray"
-                                    values="0 283;3 283"
-                                    dur="1.5s"
-                                    fill="freeze"
-                                  />
-                                </circle>
-                              </svg>
-                            </div>
-                          </div>
-                          <div className="mt-4 grid grid-cols-3 gap-4">
-                            <div className="flex items-center">
-                              <span className="mr-2 h-4 w-4 rounded-full bg-blue-500"></span>
-                              <span className="text-sm font-medium">
-                                民事 (85%)
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="mr-2 h-4 w-4 rounded-full bg-red-500"></span>
-                              <span className="text-sm font-medium">
-                                刑事 (12%)
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="mr-2 h-4 w-4 rounded-full bg-green-500"></span>
-                              <span className="text-sm font-medium">
-                                行政 (3%)
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+      //                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      //                   <div className="flex flex-col rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
+      //                     <div className="mb-2 text-xl font-medium text-gray-900">
+      //                       案件類型佔比
+      //                     </div>
+      //                     <div className="flex flex-1 items-center justify-center">
+      //                       <div className="relative h-64 w-full">
+      //                         <div className="absolute inset-0 flex items-center justify-center">
+      //                           <div className="flex h-32 w-32 items-center justify-center rounded-full bg-white shadow-md">
+      //                             <span className="text-lg font-semibold text-gray-800">
+      //                               219
+      //                             </span>
+      //                           </div>
+      //                         </div>
+      //                         <svg
+      //                           className="h-full w-full"
+      //                           viewBox="0 0 100 100"
+      //                         >
+      //                           <circle
+      //                             cx="50"
+      //                             cy="50"
+      //                             r="45"
+      //                             fill="none"
+      //                             stroke="#ddd"
+      //                             strokeWidth="10"
+      //                           />
+      //                           <circle
+      //                             cx="50"
+      //                             cy="50"
+      //                             r="45"
+      //                             fill="none"
+      //                             stroke="#3b82f6"
+      //                             strokeWidth="10"
+      //                             strokeDasharray="205 283"
+      //                             strokeDashoffset="0"
+      //                             strokeLinecap="round"
+      //                             transform="rotate(-90 50 50)"
+      //                           >
+      //                             <animate
+      //                               attributeName="stroke-dasharray"
+      //                               values="0 283;205 283"
+      //                               dur="1.5s"
+      //                               fill="freeze"
+      //                             />
+      //                           </circle>
+      //                           <circle
+      //                             cx="50"
+      //                             cy="50"
+      //                             r="45"
+      //                             fill="none"
+      //                             stroke="#10b981"
+      //                             strokeWidth="10"
+      //                             strokeDasharray="75 283"
+      //                             strokeDashoffset="-205"
+      //                             strokeLinecap="round"
+      //                             transform="rotate(-90 50 50)"
+      //                           >
+      //                             <animate
+      //                               attributeName="stroke-dasharray"
+      //                               values="0 283;75 283"
+      //                               dur="1.5s"
+      //                               fill="freeze"
+      //                             />
+      //                           </circle>
+      //                           <circle
+      //                             cx="50"
+      //                             cy="50"
+      //                             r="45"
+      //                             fill="none"
+      //                             stroke="#ef4444"
+      //                             strokeWidth="10"
+      //                             strokeDasharray="3 283"
+      //                             strokeDashoffset="-280"
+      //                             strokeLinecap="round"
+      //                             transform="rotate(-90 50 50)"
+      //                           >
+      //                             <animate
+      //                               attributeName="stroke-dasharray"
+      //                               values="0 283;3 283"
+      //                               dur="1.5s"
+      //                               fill="freeze"
+      //                             />
+      //                           </circle>
+      //                         </svg>
+      //                       </div>
+      //                     </div>
+      //                     <div className="mt-4 grid grid-cols-3 gap-4">
+      //                       <div className="flex items-center">
+      //                         <span className="mr-2 h-4 w-4 rounded-full bg-blue-500"></span>
+      //                         <span className="text-sm font-medium">
+      //                           民事 (85%)
+      //                         </span>
+      //                       </div>
+      //                       <div className="flex items-center">
+      //                         <span className="mr-2 h-4 w-4 rounded-full bg-red-500"></span>
+      //                         <span className="text-sm font-medium">
+      //                           刑事 (12%)
+      //                         </span>
+      //                       </div>
+      //                       <div className="flex items-center">
+      //                         <span className="mr-2 h-4 w-4 rounded-full bg-green-500"></span>
+      //                         <span className="text-sm font-medium">
+      //                           行政 (3%)
+      //                         </span>
+      //                       </div>
+      //                     </div>
+      //                   </div>
 
-                        <div className="rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-6">
-                          <div className="mb-2 text-xl font-medium text-gray-900">
-                            時間趨勢分析
-                          </div>
-                          <div className="relative h-64">
-                            <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200"></div>
-                            <div className="absolute bottom-0 left-0 top-0 w-px bg-gray-200"></div>
-                            <div className="absolute inset-0 flex items-end pb-6 pl-6">
-                              <svg
-                                viewBox="0 0 300 200"
-                                className="h-full w-full overflow-visible"
-                              >
-                                <defs>
-                                  <linearGradient
-                                    id="gradient"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="0%"
-                                  >
-                                    <stop offset="0%" stopColor="#8b5cf6" />
-                                    <stop offset="100%" stopColor="#ec4899" />
-                                  </linearGradient>
-                                  <linearGradient
-                                    id="gradientFill"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="0%"
-                                  >
-                                    <stop
-                                      offset="0%"
-                                      stopColor="rgba(139, 92, 246, 0.2)"
-                                    />
-                                    <stop
-                                      offset="100%"
-                                      stopColor="rgba(236, 72, 153, 0.2)"
-                                    />
-                                  </linearGradient>
-                                </defs>
+      //                   <div className="rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-6">
+      //                     <div className="mb-2 text-xl font-medium text-gray-900">
+      //                       時間趨勢分析
+      //                     </div>
+      //                     <div className="relative h-64">
+      //                       <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200"></div>
+      //                       <div className="absolute bottom-0 left-0 top-0 w-px bg-gray-200"></div>
+      //                       <div className="absolute inset-0 flex items-end pb-6 pl-6">
+      //                         <svg
+      //                           viewBox="0 0 300 200"
+      //                           className="h-full w-full overflow-visible"
+      //                         >
+      //                           <defs>
+      //                             <linearGradient
+      //                               id="gradient"
+      //                               x1="0%"
+      //                               y1="0%"
+      //                               x2="100%"
+      //                               y2="0%"
+      //                             >
+      //                               <stop offset="0%" stopColor="#8b5cf6" />
+      //                               <stop offset="100%" stopColor="#ec4899" />
+      //                             </linearGradient>
+      //                             <linearGradient
+      //                               id="gradientFill"
+      //                               x1="0%"
+      //                               y1="0%"
+      //                               x2="100%"
+      //                               y2="0%"
+      //                             >
+      //                               <stop
+      //                                 offset="0%"
+      //                                 stopColor="rgba(139, 92, 246, 0.2)"
+      //                               />
+      //                               <stop
+      //                                 offset="100%"
+      //                                 stopColor="rgba(236, 72, 153, 0.2)"
+      //                               />
+      //                             </linearGradient>
+      //                           </defs>
 
-                                <path
-                                  d="M0,150 L50,130 L100,140 L150,90 L200,100 L250,70 L300,30 V200 H0 Z"
-                                  fill="url(#gradientFill)"
-                                />
+      //                           <path
+      //                             d="M0,150 L50,130 L100,140 L150,90 L200,100 L250,70 L300,30 V200 H0 Z"
+      //                             fill="url(#gradientFill)"
+      //                           />
 
-                                <polyline
-                                  points="0,150 50,130 100,140 150,90 200,100 250,70 300,30"
-                                  fill="none"
-                                  stroke="url(#gradient)"
-                                  strokeWidth="3"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="trend-line"
-                                >
-                                  <animate
-                                    attributeName="points"
-                                    dur="1.5s"
-                                    values="0,150 0,150 0,150 0,150 0,150 0,150 0,150;0,150 50,130 100,140 150,90 200,100 250,70 300,30"
-                                    fill="freeze"
-                                  />
-                                </polyline>
+      //                           <polyline
+      //                             points="0,150 50,130 100,140 150,90 200,100 250,70 300,30"
+      //                             fill="none"
+      //                             stroke="url(#gradient)"
+      //                             strokeWidth="3"
+      //                             strokeLinecap="round"
+      //                             strokeLinejoin="round"
+      //                             className="trend-line"
+      //                           >
+      //                             <animate
+      //                               attributeName="points"
+      //                               dur="1.5s"
+      //                               values="0,150 0,150 0,150 0,150 0,150 0,150 0,150;0,150 50,130 100,140 150,90 200,100 250,70 300,30"
+      //                               fill="freeze"
+      //                             />
+      //                           </polyline>
 
-                                <circle cx="0" cy="150" r="4" fill="#8b5cf6" />
-                                <circle cx="50" cy="130" r="4" fill="#8b5cf6" />
-                                <circle
-                                  cx="100"
-                                  cy="140"
-                                  r="4"
-                                  fill="#8b5cf6"
-                                />
-                                <circle cx="150" cy="90" r="4" fill="#8b5cf6" />
-                                <circle
-                                  cx="200"
-                                  cy="100"
-                                  r="4"
-                                  fill="#ec4899"
-                                />
-                                <circle cx="250" cy="70" r="4" fill="#ec4899" />
-                                <circle cx="300" cy="30" r="4" fill="#ec4899" />
-                              </svg>
-                            </div>
-                            <div className="absolute bottom-0 left-0 flex w-full justify-between px-6 text-xs text-gray-500">
-                              <span>2018</span>
-                              <span>2019</span>
-                              <span>2020</span>
-                              <span>2021</span>
-                              <span>2022</span>
-                              <span>2023</span>
-                              <span>2024</span>
-                            </div>
-                          </div>
-                          <div className="mt-4 text-sm text-gray-600">
-                            <p className="font-medium">
-                              近3年案件數量增長
-                              <span className="font-bold text-red-500">
-                                25%
-                              </span>
-                            </p>
-                            <p className="mt-1 text-xs text-gray-500">
-                              趨勢預測：未來一年可能增加15-20件新案件
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+      //                           <circle cx="0" cy="150" r="4" fill="#8b5cf6" />
+      //                           <circle cx="50" cy="130" r="4" fill="#8b5cf6" />
+      //                           <circle
+      //                             cx="100"
+      //                             cy="140"
+      //                             r="4"
+      //                             fill="#8b5cf6"
+      //                           />
+      //                           <circle cx="150" cy="90" r="4" fill="#8b5cf6" />
+      //                           <circle
+      //                             cx="200"
+      //                             cy="100"
+      //                             r="4"
+      //                             fill="#ec4899"
+      //                           />
+      //                           <circle cx="250" cy="70" r="4" fill="#ec4899" />
+      //                           <circle cx="300" cy="30" r="4" fill="#ec4899" />
+      //                         </svg>
+      //                       </div>
+      //                       <div className="absolute bottom-0 left-0 flex w-full justify-between px-6 text-xs text-gray-500">
+      //                         <span>2018</span>
+      //                         <span>2019</span>
+      //                         <span>2020</span>
+      //                         <span>2021</span>
+      //                         <span>2022</span>
+      //                         <span>2023</span>
+      //                         <span>2024</span>
+      //                       </div>
+      //                     </div>
+      //                     <div className="mt-4 text-sm text-gray-600">
+      //                       <p className="font-medium">
+      //                         近3年案件數量增長
+      //                         <span className="font-bold text-red-500">
+      //                           25%
+      //                         </span>
+      //                       </p>
+      //                       <p className="mt-1 text-xs text-gray-500">
+      //                         趨勢預測：未來一年可能增加15-20件新案件
+      //                       </p>
+      //                     </div>
+      //                   </div>
+      //                 </div>
+      //               </div>
+      //             </div>
 
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    {/* 風險評估指數卡片 */}
-                    <div className="flex transform flex-col rounded-xl bg-white p-6 shadow-sm transition-transform duration-300 hover:scale-105">
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="text-lg font-semibold text-gray-800">
-                          風險評估指數
-                        </h4>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-                          <AlertTriangle className="h-5 w-5 text-amber-600" />
-                        </div>
-                      </div>
-                      <div className="relative flex-1 pt-2">
-                        <div className="mb-4 text-3xl font-bold text-amber-500">
-                          36
-                        </div>
-                        <div className="h-3 overflow-hidden rounded-full bg-gray-200">
-                          <div
-                            className="animate-pulse-slow h-full rounded-full bg-gradient-to-r from-green-500 via-amber-500 to-red-500"
-                            style={{ width: '36%' }}
-                          ></div>
-                        </div>
-                        <div className="mt-1 flex justify-between text-xs text-gray-500">
-                          <span>低風險</span>
-                          <span>中等風險</span>
-                          <span>高風險</span>
-                        </div>
-                      </div>
-                      <div className="mt-4 text-sm text-gray-600">
-                        基於判決書分析的綜合風險評估
-                        <br />
-                        <span className="font-medium text-amber-600">
-                          需關注：財務爭議、智財權訴訟
-                        </span>
-                      </div>
-                    </div>
+      //             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      //               {/* 風險評估指數卡片 */}
+      //               <div className="flex transform flex-col rounded-xl bg-white p-6 shadow-sm transition-transform duration-300 hover:scale-105">
+      //                 <div className="mb-4 flex items-center justify-between">
+      //                   <h4 className="text-lg font-semibold text-gray-800">
+      //                     風險評估指數
+      //                   </h4>
+      //                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+      //                     <AlertTriangle className="h-5 w-5 text-amber-600" />
+      //                   </div>
+      //                 </div>
+      //                 <div className="relative flex-1 pt-2">
+      //                   <div className="mb-4 text-3xl font-bold text-amber-500">
+      //                     36
+      //                   </div>
+      //                   <div className="h-3 overflow-hidden rounded-full bg-gray-200">
+      //                     <div
+      //                       className="animate-pulse-slow h-full rounded-full bg-gradient-to-r from-green-500 via-amber-500 to-red-500"
+      //                       style={{ width: '36%' }}
+      //                     ></div>
+      //                   </div>
+      //                   <div className="mt-1 flex justify-between text-xs text-gray-500">
+      //                     <span>低風險</span>
+      //                     <span>中等風險</span>
+      //                     <span>高風險</span>
+      //                   </div>
+      //                 </div>
+      //                 <div className="mt-4 text-sm text-gray-600">
+      //                   基於判決書分析的綜合風險評估
+      //                   <br />
+      //                   <span className="font-medium text-amber-600">
+      //                     需關注：財務爭議、智財權訴訟
+      //                   </span>
+      //                 </div>
+      //               </div>
 
-                    {/* 主要風險類型卡片 */}
-                    <div className="transform rounded-xl bg-white p-6 shadow-sm transition-transform duration-300 hover:scale-105">
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="text-lg font-semibold text-gray-800">
-                          主要風險類型
-                        </h4>
-                        <div className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-600">
-                          關鍵指標
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="mb-1 flex items-center justify-between">
-                            <span className="flex items-center text-sm font-medium">
-                              <span className="mr-2 inline-block h-2 w-2 rounded-full bg-blue-500"></span>
-                              合約糾紛
-                            </span>
-                            <span className="text-sm font-medium">32%</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                            <div
-                              className="h-full rounded-full bg-blue-500"
-                              style={{ width: '42%' }}
-                            ></div>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="mb-1 flex items-center justify-between">
-                            <span className="flex items-center text-sm font-medium">
-                              <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-500"></span>
-                              財務爭議
-                            </span>
-                            <span className="text-sm font-medium">31%</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                            <div
-                              className="h-full rounded-full bg-green-500"
-                              style={{ width: '31%' }}
-                            ></div>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="mb-1 flex items-center justify-between">
-                            <span className="flex items-center text-sm font-medium">
-                              <span className="mr-2 inline-block h-2 w-2 rounded-full bg-purple-500"></span>
-                              智慧財產
-                            </span>
-                            <span className="text-sm font-medium">18%</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                            <div
-                              className="h-full rounded-full bg-purple-500"
-                              style={{ width: '18%' }}
-                            ></div>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="mb-1 flex items-center justify-between">
-                            <span className="flex items-center text-sm font-medium">
-                              <span className="mr-2 inline-block h-2 w-2 rounded-full bg-gray-500"></span>
-                              其他
-                            </span>
-                            <span className="text-sm font-medium">9%</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                            <div
-                              className="h-full rounded-full bg-gray-500"
-                              style={{ width: '9%' }}
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-4 border-t border-gray-100 pt-2 text-xs text-gray-500">
-                        <div className="flex items-center">
-                          <div className="mr-1 h-1.5 w-1.5 rounded-full bg-red-500"></div>
-                          <span>同行業合約糾紛平均僅為27%</span>
-                        </div>
-                      </div>
-                    </div>
+      //               {/* 主要風險類型卡片 */}
+      //               <div className="transform rounded-xl bg-white p-6 shadow-sm transition-transform duration-300 hover:scale-105">
+      //                 <div className="mb-4 flex items-center justify-between">
+      //                   <h4 className="text-lg font-semibold text-gray-800">
+      //                     主要風險類型
+      //                   </h4>
+      //                   <div className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-600">
+      //                     關鍵指標
+      //                   </div>
+      //                 </div>
+      //                 <div className="space-y-4">
+      //                   <div>
+      //                     <div className="mb-1 flex items-center justify-between">
+      //                       <span className="flex items-center text-sm font-medium">
+      //                         <span className="mr-2 inline-block h-2 w-2 rounded-full bg-blue-500"></span>
+      //                         合約糾紛
+      //                       </span>
+      //                       <span className="text-sm font-medium">32%</span>
+      //                     </div>
+      //                     <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+      //                       <div
+      //                         className="h-full rounded-full bg-blue-500"
+      //                         style={{ width: '42%' }}
+      //                       ></div>
+      //                     </div>
+      //                   </div>
+      //                   <div>
+      //                     <div className="mb-1 flex items-center justify-between">
+      //                       <span className="flex items-center text-sm font-medium">
+      //                         <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-500"></span>
+      //                         財務爭議
+      //                       </span>
+      //                       <span className="text-sm font-medium">31%</span>
+      //                     </div>
+      //                     <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+      //                       <div
+      //                         className="h-full rounded-full bg-green-500"
+      //                         style={{ width: '31%' }}
+      //                       ></div>
+      //                     </div>
+      //                   </div>
+      //                   <div>
+      //                     <div className="mb-1 flex items-center justify-between">
+      //                       <span className="flex items-center text-sm font-medium">
+      //                         <span className="mr-2 inline-block h-2 w-2 rounded-full bg-purple-500"></span>
+      //                         智慧財產
+      //                       </span>
+      //                       <span className="text-sm font-medium">18%</span>
+      //                     </div>
+      //                     <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+      //                       <div
+      //                         className="h-full rounded-full bg-purple-500"
+      //                         style={{ width: '18%' }}
+      //                       ></div>
+      //                     </div>
+      //                   </div>
+      //                   <div>
+      //                     <div className="mb-1 flex items-center justify-between">
+      //                       <span className="flex items-center text-sm font-medium">
+      //                         <span className="mr-2 inline-block h-2 w-2 rounded-full bg-gray-500"></span>
+      //                         其他
+      //                       </span>
+      //                       <span className="text-sm font-medium">9%</span>
+      //                     </div>
+      //                     <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+      //                       <div
+      //                         className="h-full rounded-full bg-gray-500"
+      //                         style={{ width: '9%' }}
+      //                       ></div>
+      //                     </div>
+      //                   </div>
+      //                 </div>
+      //                 <div className="mt-4 border-t border-gray-100 pt-2 text-xs text-gray-500">
+      //                   <div className="flex items-center">
+      //                     <div className="mr-1 h-1.5 w-1.5 rounded-full bg-red-500"></div>
+      //                     <span>同行業合約糾紛平均僅為27%</span>
+      //                   </div>
+      //                 </div>
+      //               </div>
 
-                    <div className="transform rounded-xl bg-white p-6 shadow-sm transition-transform duration-300 hover:scale-105">
-                      <div className="mb-4 text-lg font-semibold text-gray-800">
-                        法院審理分布
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
-                          <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-medium text-blue-600">
-                            1
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">
-                              臺灣臺北地方法院
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              89 件案件
-                            </div>
-                          </div>
-                          <div className="text-sm font-medium">31%</div>
-                        </div>
-                        <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
-                          <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-medium text-blue-600">
-                            2
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">
-                              臺灣士林地方法院
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              58 件案件
-                            </div>
-                          </div>
-                          <div className="text-sm font-medium">21%</div>
-                        </div>
-                        <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
-                          <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-medium text-blue-600">
-                            3
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">
-                              臺灣新北地方法院
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              34 件案件
-                            </div>
-                          </div>
-                          <div className="text-sm font-medium">16%</div>
-                        </div>
-                        <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
-                          <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-medium text-gray-600">
-                            4+
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">其他法院</div>
-                            <div className="text-xs text-gray-500">
-                              76 件案件
-                            </div>
-                          </div>
-                          <div className="text-sm font-medium">35%</div>
-                        </div>
-                        <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
-                          <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-medium text-gray-600">
-                            5
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">
-                              臺灣桃園地方法院
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              35 件案件
-                            </div>
-                          </div>
-                          <div className="text-sm font-medium">12%</div>
-                        </div>
-                      </div>
-                      <button className="mt-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800">
-                        查看所有法院分佈 →
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-xl bg-white shadow-sm">
-                  <div className="border-b border-gray-200 px-6 py-4">
-                    <p className="mt-1 text-sm text-gray-500">
-                      共有 219 筆資料
-                    </p>
-                  </div>
+      //               <div className="transform rounded-xl bg-white p-6 shadow-sm transition-transform duration-300 hover:scale-105">
+      //                 <div className="mb-4 text-lg font-semibold text-gray-800">
+      //                   法院審理分布
+      //                 </div>
+      //                 <div className="space-y-3">
+      //                   <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
+      //                     <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-medium text-blue-600">
+      //                       1
+      //                     </div>
+      //                     <div className="flex-1">
+      //                       <div className="text-sm font-medium">
+      //                         臺灣臺北地方法院
+      //                       </div>
+      //                       <div className="text-xs text-gray-500">
+      //                         89 件案件
+      //                       </div>
+      //                     </div>
+      //                     <div className="text-sm font-medium">31%</div>
+      //                   </div>
+      //                   <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
+      //                     <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-medium text-blue-600">
+      //                       2
+      //                     </div>
+      //                     <div className="flex-1">
+      //                       <div className="text-sm font-medium">
+      //                         臺灣士林地方法院
+      //                       </div>
+      //                       <div className="text-xs text-gray-500">
+      //                         58 件案件
+      //                       </div>
+      //                     </div>
+      //                     <div className="text-sm font-medium">21%</div>
+      //                   </div>
+      //                   <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
+      //                     <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-medium text-blue-600">
+      //                       3
+      //                     </div>
+      //                     <div className="flex-1">
+      //                       <div className="text-sm font-medium">
+      //                         臺灣新北地方法院
+      //                       </div>
+      //                       <div className="text-xs text-gray-500">
+      //                         34 件案件
+      //                       </div>
+      //                     </div>
+      //                     <div className="text-sm font-medium">16%</div>
+      //                   </div>
+      //                   <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
+      //                     <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-medium text-gray-600">
+      //                       4+
+      //                     </div>
+      //                     <div className="flex-1">
+      //                       <div className="text-sm font-medium">其他法院</div>
+      //                       <div className="text-xs text-gray-500">
+      //                         76 件案件
+      //                       </div>
+      //                     </div>
+      //                     <div className="text-sm font-medium">35%</div>
+      //                   </div>
+      //                   <div className="flex items-center rounded-lg p-2 transition-colors hover:bg-blue-50">
+      //                     <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-medium text-gray-600">
+      //                       5
+      //                     </div>
+      //                     <div className="flex-1">
+      //                       <div className="text-sm font-medium">
+      //                         臺灣桃園地方法院
+      //                       </div>
+      //                       <div className="text-xs text-gray-500">
+      //                         35 件案件
+      //                       </div>
+      //                     </div>
+      //                     <div className="text-sm font-medium">12%</div>
+      //                   </div>
+      //                 </div>
+      //                 <button className="mt-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800">
+      //                   查看所有法院分佈 →
+      //                 </button>
+      //               </div>
+      //             </div>
+      //           </div>
+      //         ) : (
+      //           <div className="rounded-xl bg-white shadow-sm">
+      //             <div className="border-b border-gray-200 px-6 py-4">
+      //               <p className="mt-1 text-sm text-gray-500">
+      //                 共有 219 筆資料
+      //               </p>
+      //             </div>
 
-                  <div className="border-b border-gray-200 bg-gray-50 p-4">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div className="flex-1">
-                        <div className="relative">
-                          <input
-                            type="search"
-                            placeholder="搜尋判決書關鍵字..."
-                            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                          <div className="absolute left-3 top-2.5 text-gray-400">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                              />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
+      //             <div className="border-b border-gray-200 bg-gray-50 p-4">
+      //               <div className="flex flex-wrap items-center gap-3">
+      //                 <div className="flex-1">
+      //                   <div className="relative">
+      //                     <input
+      //                       type="search"
+      //                       placeholder="搜尋判決書關鍵字..."
+      //                       className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-blue-500"
+      //                     />
+      //                     <div className="absolute left-3 top-2.5 text-gray-400">
+      //                       <svg
+      //                         xmlns="http://www.w3.org/2000/svg"
+      //                         className="h-5 w-5"
+      //                         fill="none"
+      //                         viewBox="0 0 24 24"
+      //                         stroke="currentColor"
+      //                       >
+      //                         <path
+      //                           strokeLinecap="round"
+      //                           strokeLinejoin="round"
+      //                           strokeWidth={2}
+      //                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      //                         />
+      //                       </svg>
+      //                     </div>
+      //                   </div>
+      //                 </div>
 
-                      <div className="flex gap-2">
-                        <div className="relative inline-block">
-                          <button className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-50">
-                            <Filter className="h-4 w-4 text-gray-500" />
-                            <span>過濾條件</span>
-                          </button>
-                        </div>
+      //                 <div className="flex gap-2">
+      //                   <div className="relative inline-block">
+      //                     <button className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-50">
+      //                       <Filter className="h-4 w-4 text-gray-500" />
+      //                       <span>過濾條件</span>
+      //                     </button>
+      //                   </div>
 
-                        <div className="relative inline-block">
-                          <button className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-50">
-                            <Clock className="h-4 w-4 text-gray-500" />
-                            <span>日期範圍</span>
-                          </button>
-                        </div>
+      //                   <div className="relative inline-block">
+      //                     <button className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-50">
+      //                       <Clock className="h-4 w-4 text-gray-500" />
+      //                       <span>日期範圍</span>
+      //                     </button>
+      //                   </div>
 
-                        <div className="relative inline-block">
-                          <button className="flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100">
-                            <Download className="h-4 w-4" />
-                            <span>匯出報告</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+      //                   <div className="relative inline-block">
+      //                     <button className="flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100">
+      //                       <Download className="h-4 w-4" />
+      //                       <span>匯出報告</span>
+      //                     </button>
+      //                   </div>
+      //                 </div>
+      //               </div>
+      //             </div>
 
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th
-                            scope="col"
-                            className="w-[15%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
-                          >
-                            日期
-                          </th>
-                          <th
-                            scope="col"
-                            className="w-[85%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
-                          >
-                            內容
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 bg-white">
-                        {/* 風險項目列表 */}
-                        <tr className="risk-item-hover transition-colors hover:bg-gray-50">
-                          <td className="whitespace-nowrap px-6 py-4 text-base text-gray-500">
-                            <div className="flex flex-col">
-                              <span className="font-medium">2024/11/08</span>
-                              <span className="text-xs text-gray-400">
-                                5天前
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-start gap-3">
-                              <div className="mt-1 flex-shrink-0">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-                                  <FileText className="h-4 w-4 text-blue-600" />
-                                </div>
-                              </div>
-                              <div className="flex-1">
-                                <div className="mb-1 text-base font-medium text-gray-900">
-                                  給付買賣價金等
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  <p>
-                                    <span className="font-medium">
-                                      法院案號：
-                                    </span>
-                                    臺灣新竹地方法院 113年度補字1196號
-                                  </p>
-                                  <p>
-                                    <span className="font-medium">
-                                      案件類別：
-                                    </span>
-                                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                      民事
-                                    </span>
-                                  </p>
-                                  <p>
-                                    <span className="font-medium">
-                                      相關人員：
-                                    </span>
-                                    彭義,楊明,超群,彭義誠,楊明箴,王超群,葉欣宜,郭家慧,聲明第二項,國眾電腦股份有限公司
-                                  </p>
-                                </div>
-                                <div className="mt-2">
-                                  <button className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-800">
-                                    查看詳情 →
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
+      //             <div className="overflow-x-auto">
+      //               <table className="min-w-full divide-y divide-gray-200">
+      //                 <thead className="bg-gray-50">
+      //                   <tr>
+      //                     <th
+      //                       scope="col"
+      //                       className="w-[15%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
+      //                     >
+      //                       日期
+      //                     </th>
+      //                     <th
+      //                       scope="col"
+      //                       className="w-[85%] px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-500"
+      //                     >
+      //                       內容
+      //                     </th>
+      //                   </tr>
+      //                 </thead>
+      //                 <tbody className="divide-y divide-gray-200 bg-white">
+      //                   {/* 風險項目列表 */}
+      //                   <tr className="risk-item-hover transition-colors hover:bg-gray-50">
+      //                     <td className="whitespace-nowrap px-6 py-4 text-base text-gray-500">
+      //                       <div className="flex flex-col">
+      //                         <span className="font-medium">2024/11/08</span>
+      //                         <span className="text-xs text-gray-400">
+      //                           5天前
+      //                         </span>
+      //                       </div>
+      //                     </td>
+      //                     <td className="px-6 py-4">
+      //                       <div className="flex items-start gap-3">
+      //                         <div className="mt-1 flex-shrink-0">
+      //                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+      //                             <FileText className="h-4 w-4 text-blue-600" />
+      //                           </div>
+      //                         </div>
+      //                         <div className="flex-1">
+      //                           <div className="mb-1 text-base font-medium text-gray-900">
+      //                             給付買賣價金等
+      //                           </div>
+      //                           <div className="text-sm text-gray-500">
+      //                             <p>
+      //                               <span className="font-medium">
+      //                                 法院案號：
+      //                               </span>
+      //                               臺灣新竹地方法院 113年度補字1196號
+      //                             </p>
+      //                             <p>
+      //                               <span className="font-medium">
+      //                                 案件類別：
+      //                               </span>
+      //                               <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+      //                                 民事
+      //                               </span>
+      //                             </p>
+      //                             <p>
+      //                               <span className="font-medium">
+      //                                 相關人員：
+      //                               </span>
+      //                               彭義,楊明,超群,彭義誠,楊明箴,王超群,葉欣宜,郭家慧,聲明第二項,國眾電腦股份有限公司
+      //                             </p>
+      //                           </div>
+      //                           <div className="mt-2">
+      //                             <button className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-800">
+      //                               查看詳情 →
+      //                             </button>
+      //                           </div>
+      //                         </div>
+      //                       </div>
+      //                     </td>
+      //                   </tr>
+      //                 </tbody>
+      //               </table>
+      //             </div>
+      //           </div>
+      //         )}
+      //       </div>
 
-            <DataSource
-              sources={[
-                {
-                  name: '司法院全球資訊網',
-                  url: 'https://www.judicial.gov.tw/tw/np-117-1.html',
-                },
-              ]}
-            />
-          </div>
-        );
+      //       <DataSource
+      //         sources={[
+      //           {
+      //             name: '司法院全球資訊網',
+      //             url: 'https://www.judicial.gov.tw/tw/np-117-1.html',
+      //           },
+      //         ]}
+      //       />
+      //     </div>
+      //   );
 
       default:
         return (
