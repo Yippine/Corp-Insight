@@ -4,20 +4,16 @@ import { usePathname } from 'next/navigation';
 import { Search, Wrench, FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import NavLink from './common/NavLink';
-import { useAiToolsUrl } from '@/hooks/useAiToolsUrl';
-import { getMainSiteUrl } from '@/config/site';
+import { generateUrl } from '@/config/site';
 
 export default function Header() {
   const pathname = usePathname();
   const [showTryText, setShowTryText] = useState(true);
-  const { generateAiToolsUrl } = useAiToolsUrl();
-  
-  // 判斷當前是否在 aitools 域名下
-  const [isAiToolsDomain, setIsAiToolsDomain] = useState(false);
+  const [currentHost, setCurrentHost] = useState<string>('');
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setIsAiToolsDomain(window.location.host.includes('aitools'));
+      setCurrentHost(window.location.host);
     }
   }, []);
 
@@ -30,12 +26,18 @@ export default function Header() {
     return () => clearInterval(interval);
   }, []);
 
+  // 判斷當前是否在 aitools 域名下，決定 Logo 點擊行為
+  const isOnAiTools = currentHost.includes('aitools');
+  const logoHref = isOnAiTools 
+    ? generateUrl('aitools', '/search', currentHost)
+    : generateUrl('company', '/company/search', currentHost);
+
   return (
     <header className="bg-white shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-6">
           <NavLink
-            href={isAiToolsDomain ? generateAiToolsUrl('/search') : '/company/search'}
+            href={logoHref}
             className="flex cursor-pointer items-center"
             smartLoading={true}
             replace={true}
@@ -53,9 +55,9 @@ export default function Header() {
 
           <nav className="flex space-x-8">
             <NavLink
-              href={generateAiToolsUrl('/search')}
+              href={generateUrl('aitools', '/search', currentHost)}
               className={`${
-                pathname?.startsWith('/aitool')
+                pathname?.startsWith('/aitool') || pathname?.startsWith('/search') || pathname?.startsWith('/detail')
                   ? 'border-b-2 border-amber-500 text-amber-500'
                   : 'text-gray-500 hover:text-amber-600'
               } group relative -mb-4 flex cursor-pointer items-center px-1 pb-4 text-base font-medium focus:outline-none`}
@@ -81,7 +83,7 @@ export default function Header() {
             </NavLink>
 
             <NavLink
-              href={isAiToolsDomain ? getMainSiteUrl('/company/search') : '/company/search'}
+              href={generateUrl('company', '/company/search', currentHost)}
               className={`${
                 pathname?.startsWith('/company')
                   ? 'border-b-2 border-blue-600 text-blue-600'
@@ -94,7 +96,7 @@ export default function Header() {
             </NavLink>
 
             <NavLink
-              href={isAiToolsDomain ? getMainSiteUrl('/tender/search') : '/tender/search'}
+              href={generateUrl('tender', '/tender/search', currentHost)}
               className={`${
                 pathname?.startsWith('/tender')
                   ? 'border-b-2 border-green-600 text-green-600'

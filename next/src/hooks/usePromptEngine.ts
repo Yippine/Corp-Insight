@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Tools } from '@/lib/aitool/types';
 import { useGeminiStream } from '@/hooks/useGeminiStream';
+import { SITE_CONFIG } from '@/config/site';
 
 // ============================================================================
 // Types and Interfaces
@@ -304,7 +305,15 @@ export const usePromptEngine = ({
           };
         }
 
-        const response = await fetch('/api/prompt/optimize', {
+        // 檢查是否為本地測試環境
+        const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
+        
+        // 檢查當前是否在 aitools 域名下（非本地測試時）
+        const apiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
+          ? `${SITE_CONFIG.main.domain}/api/prompt/optimize`
+          : '/api/prompt/optimize';
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -398,7 +407,15 @@ export const usePromptEngine = ({
             prefix: editedConfig.prefix.trim(),
             suffix: editedConfig.suffix.trim(),
           };
-          response = await fetch('/api/aitool/update-prompt', {
+          // 檢查是否為本地測試環境
+          const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
+          
+          // 檢查當前是否在 aitools 域名下（非本地測試時）
+          const updateApiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
+            ? `${SITE_CONFIG.main.domain}/api/aitool/update-prompt`
+            : '/api/aitool/update-prompt';
+          
+          response = await fetch(updateApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -409,7 +426,15 @@ export const usePromptEngine = ({
           if (response.ok) setOriginalConfig(cleanedConfig);
         } else {
           // type === 'system'
-          response = await fetch('/api/settings/update-system-prompt', {
+          // 檢查是否為本地測試環境
+          const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
+          
+          // 檢查當前是否在 aitools 域名下（非本地測試時）
+          const settingsApiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
+            ? `${SITE_CONFIG.main.domain}/api/settings/update-system-prompt`
+            : '/api/settings/update-system-prompt';
+          
+          response = await fetch(settingsApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ template: editedSystemPrompt }),

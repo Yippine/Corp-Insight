@@ -2,19 +2,18 @@
 
 import SimpleFooter from '@/components/SimpleFooter';
 import NavLink from './common/NavLink';
-import { useAiToolsUrl } from '@/hooks/useAiToolsUrl';
-import { getMainSiteUrl } from '@/config/site';
+import { generateUrl } from '@/config/site';
 import { useEffect, useState } from 'react';
 
 export default function Footer() {
-  const { generateAiToolsUrl } = useAiToolsUrl();
-  const [isAiToolsDomain, setIsAiToolsDomain] = useState(false);
-  
+  const [currentHost, setCurrentHost] = useState<string>('');
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setIsAiToolsDomain(window.location.host.includes('aitools'));
+      setCurrentHost(window.location.host);
     }
   }, []);
+
   return (
     <footer className="mt-12 border-t border-gray-200 bg-white">
       <div className="mx-auto max-w-7xl px-4 pt-8 text-center sm:px-6 lg:px-8">
@@ -26,7 +25,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-4">
               <li>
                 <NavLink
-                  href={generateAiToolsUrl('/search')}
+                  href={generateUrl('aitools', '/search', currentHost)}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >
@@ -35,7 +34,7 @@ export default function Footer() {
               </li>
               <li>
                 <NavLink
-                  href={isAiToolsDomain ? getMainSiteUrl('/company/search') : '/company/search'}
+                  href={generateUrl('company', '/company/search', currentHost)}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >
@@ -44,7 +43,7 @@ export default function Footer() {
               </li>
               <li>
                 <NavLink
-                  href={isAiToolsDomain ? getMainSiteUrl('/tender/search') : '/tender/search'}
+                  href={generateUrl('tender', '/tender/search', currentHost)}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >
@@ -61,7 +60,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-4">
               <li>
                 <NavLink
-                  href="/faq"
+                  href={generateUrl('universal', '/faq', currentHost)}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >
@@ -70,7 +69,7 @@ export default function Footer() {
               </li>
               <li>
                 <NavLink
-                  href="/feedback?type=data_correction"
+                  href={generateUrl('universal', '/feedback?type=data_correction', currentHost)}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >
@@ -79,7 +78,7 @@ export default function Footer() {
               </li>
               <li>
                 <NavLink
-                  href="/privacy"
+                  href={generateUrl('universal', '/privacy', currentHost)}
                   className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                   smartLoading={true}
                 >
@@ -97,7 +96,7 @@ export default function Footer() {
               <ul className="mt-4 space-y-4">
                 <li>
                   <NavLink
-                    href="/feedback?type=business_cooperation"
+                    href={generateUrl('universal', '/feedback?type=business_cooperation', currentHost)}
                     className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                     smartLoading={true}
                   >
@@ -106,7 +105,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <NavLink
-                    href="/feedback"
+                    href={generateUrl('universal', '/feedback', currentHost)}
                     className="cursor-pointer text-lg text-gray-500 hover:text-gray-900"
                     smartLoading={true}
                   >

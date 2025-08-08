@@ -1,11 +1,42 @@
 "use client";
 
 import type { Tools, ColorTheme, TagStats } from "./types";
+import { SITE_CONFIG } from "@/config/site";
+
+// 獲取 API 基礎 URL
+function getApiBaseUrl(): string {
+  // 檢查是否為本地測試環境
+  const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
+
+  // 如果是本地測試環境，永遠使用相對路徑
+  if (isLocalProd) {
+    return '';
+  }
+
+  // 在客戶端環境中，檢查當前域名
+  if (typeof window !== 'undefined') {
+    const currentHost = window.location.host;
+
+    // 如果是 aitools 域名，API 需要指向主域名
+    if (currentHost.includes('aitools.leopilot.com')) {
+      return SITE_CONFIG.main.domain;
+    }
+
+    // 開發環境或主域名，使用相對路徑
+    return '';
+  }
+
+  // 服務端渲染時使用相對路徑
+  return '';
+}
 
 // 從 API 獲取所有工具資料
 export async function getToolsDataFromAPI(): Promise<Tools[]> {
   try {
-    const response = await fetch("/api/aitool");
+    const apiBase = getApiBaseUrl();
+    const apiUrl = apiBase ? `${apiBase}/api/aitool` : '/api/aitool';
+
+    const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error("Failed to fetch tools from MongoDB");
     }
@@ -25,7 +56,10 @@ export async function searchToolsFromAPI(query: string, tag: string): Promise<To
     if (query) params.set("q", query);
     if (tag) params.set("tag", tag);
 
-    const response = await fetch(`/api/aitool?${params.toString()}`);
+    const apiBase = getApiBaseUrl();
+    const apiUrl = apiBase ? `${apiBase}/api/aitool?${params.toString()}` : `/api/aitool?${params.toString()}`;
+
+    const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error("Failed to search tools from API");
     }

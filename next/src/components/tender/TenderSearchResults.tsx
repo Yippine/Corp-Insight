@@ -1,10 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { TenderSearchResult, SearchType } from '@/lib/tender/types';
 import Pagination from '@/components/Pagination';
 import DataSource from '@/components/common/DataSource';
 import TenderResultRow from './search-components/TenderResultRow';
+import { generateUrl } from '@/config/site';
 
 interface TenderSearchResultsProps {
   results: TenderSearchResult[];
@@ -22,12 +24,18 @@ export default function TenderSearchResults({
   searchType,
 }: TenderSearchResultsProps) {
   const router = useRouter();
+  const [currentHost, setCurrentHost] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentHost(window.location.host);
+    }
+  }, []);
 
   const handlePageChange = (page: number) => {
     const encodedQuery = encodeURIComponent(searchQuery);
-    router.push(
-      `/tender/search?q=${encodedQuery}&type=${searchType}&page=${page}`
-    );
+    const url = generateUrl('tender', `/tender/search?q=${encodedQuery}&type=${searchType}&page=${page}`, currentHost);
+    router.push(url);
   };
 
   const handleTenderSelect = (tenderId: string) => {
@@ -40,7 +48,7 @@ export default function TenderSearchResults({
       sessionStorage.setItem('tenderSearchScroll', window.scrollY.toString());
     }
 
-    router.push(`/tender/detail/${tenderId}`);
+    router.push(generateUrl('tender', `/tender/detail/${tenderId}`, currentHost));
   };
 
   return (

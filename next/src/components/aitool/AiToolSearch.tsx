@@ -18,7 +18,7 @@ import { useLoading } from '@/components/common/loading/LoadingProvider';
 import { trackBusinessEvents } from '../GoogleAnalytics';
 import LineBotBanner from './LineBotBanner';
 import FeatureSection from '@/components/FeatureSection';
-import { useAiToolsUrl } from '@/hooks/useAiToolsUrl';
+import { generateUrl } from '@/config/site';
 import SearchAnalysis from './SearchAnalysis';
 import ToolCard from './ToolCard';
 
@@ -35,7 +35,13 @@ export default function AiToolSearch({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { startLoading } = useLoading();
-  const { generateAiToolsUrl } = useAiToolsUrl();
+  const [currentHost, setCurrentHost] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentHost(window.location.host);
+    }
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedTag, setSelectedTag] = useState(initialTag);
@@ -157,7 +163,7 @@ export default function AiToolSearch({
     sessionStorage.setItem('toolSearchParams', searchParams.toString());
     sessionStorage.setItem('toolSearchScroll', window.scrollY.toString());
     startLoading();
-    router.push(generateAiToolsUrl(`/detail/${toolId}`));
+    router.push(generateUrl('aitools', `/detail/${toolId}`, currentHost));
   };
 
   const handleToggleExpand = (toolId: string) => {

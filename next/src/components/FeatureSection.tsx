@@ -2,23 +2,21 @@
 
 import Link from 'next/link';
 import { Building2, FileSpreadsheet, Calculator } from 'lucide-react';
-import { useAiToolsUrl } from '@/hooks/useAiToolsUrl';
-import { getMainSiteUrl } from '@/config/site';
+import { generateUrl } from '@/config/site';
 import { useEffect, useState } from 'react';
 
 export default function FeatureSection() {
-  const { generateAiToolsUrl } = useAiToolsUrl();
-  const [isAiToolsDomain, setIsAiToolsDomain] = useState(false);
+  const [currentHost, setCurrentHost] = useState<string>('');
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setIsAiToolsDomain(window.location.host.includes('aitools'));
+      setCurrentHost(window.location.host);
     }
   }, []);
   return (
     <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-3">
       <Link
-        href={generateAiToolsUrl('/search')}
+        href={generateUrl('aitools', '/search', currentHost)}
         className="flex cursor-pointer items-start space-x-4 rounded-lg bg-white p-6 shadow-sm transition-colors hover:bg-gray-50"
       >
         <div className="flex-shrink-0">
@@ -36,7 +34,7 @@ export default function FeatureSection() {
       </Link>
 
       <Link
-        href={isAiToolsDomain ? getMainSiteUrl('/company/search') : '/company/search'}
+        href={generateUrl('company', '/company/search', currentHost)}
         className="flex cursor-pointer items-start space-x-4 rounded-lg bg-white p-6 shadow-sm transition-colors hover:bg-gray-50"
       >
         <div className="flex-shrink-0">
@@ -52,7 +50,7 @@ export default function FeatureSection() {
       </Link>
 
       <Link
-        href={isAiToolsDomain ? getMainSiteUrl('/tender/search') : '/tender/search'}
+        href={generateUrl('tender', '/tender/search', currentHost)}
         className="flex cursor-pointer items-start space-x-4 rounded-lg bg-white p-6 shadow-sm transition-colors hover:bg-gray-50"
       >
         <div className="flex-shrink-0">

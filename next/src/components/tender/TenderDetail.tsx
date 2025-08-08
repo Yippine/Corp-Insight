@@ -12,6 +12,7 @@ import YesNoSection from './detail/YesNoSection';
 import TenderBasicInfo from './detail/TenderBasicInfo';
 import TenderSpecialInfo from './detail/TenderSpecialInfo';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
+import { generateUrl } from '@/config/site';
 
 interface TenderDetailProps {
   tenderId: string;
@@ -38,7 +39,8 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
     if (finalTab) {
       const params = new URLSearchParams(searchParams.toString());
       params.set('tab', encodeURIComponent(finalTab));
-      router.replace(`/tender/detail/${tenderId}?${params.toString()}`, {
+      const url = generateUrl('tender', `/tender/detail/${tenderId}?${params.toString()}`);
+      router.replace(url, {
         scroll: false,
       });
     }

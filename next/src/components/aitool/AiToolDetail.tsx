@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { getTagColor } from '@/lib/aitool/tagColorMap';
+import { generateUrl } from '@/config/site';
 import {
   getIconForTool,
   getIconForTag,
   getPrimaryTagForTool,
   sortTagsByPriority,
 } from '@/lib/aitool/tagIconMap';
-import type { Tools, ColorTheme } from '@/lib/aitool/types';
+import type { Tools } from '@/lib/aitool/types';
 import { trackBusinessEvents } from '../GoogleAnalytics';
 import dynamic from 'next/dynamic';
 import { SimpleSpinner } from '@/components/common/loading/LoadingTypes';
@@ -120,7 +120,6 @@ interface AiToolDetailProps {
 }
 
 export default function AiToolDetail({ tool }: AiToolDetailProps) {
-  const router = useRouter();
   const { stopLoading, checkAndStopLoading } = useLoading();
 
   useEffect(() => {
@@ -149,12 +148,6 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
     });
   }, [checkAndStopLoading]);
 
-  const handleBackClick = () => {
-    const savedSearch = sessionStorage.getItem('toolSearchParams');
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    const searchPath = isDevelopment ? '/aitool/search' : '/search';
-    router.push(`${searchPath}${savedSearch ? `?${savedSearch}` : ''}`);
-  };
 
   // 選擇標籤的主題
   const primaryTag = getPrimaryTagForTool(tool.tags) || 'AI';
@@ -181,7 +174,7 @@ export default function AiToolDetail({ tool }: AiToolDetailProps) {
       }}
     >
       <BackButton
-        returnPath={process.env.NODE_ENV === 'development' ? '/aitool/search' : '/search'}
+        returnPath={generateUrl('aitools', '/search', typeof window !== 'undefined' ? window.location.host : '')}
         sessionKey="toolSearchParams"
         buttonText="返回工具列表"
       />

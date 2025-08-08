@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { flushSync } from 'react-dom';
+import { SITE_CONFIG } from '@/config/site';
 
 interface UseGeminiStreamOptions {
   onSuccess?: (result: string) => void;
@@ -51,7 +52,15 @@ export function useGeminiStream(options?: UseGeminiStreamOptions): GeminiStreamR
     try {
       setResult(''); // 從一個空字串開始
 
-      const response = await fetch('/api/gemini/stream', {
+      // 檢查是否為本地測試環境
+      const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
+      
+      // 檢查當前是否在 aitools 域名下（非本地測試時）
+      const apiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
+        ? `${SITE_CONFIG.main.domain}/api/gemini/stream`
+        : '/api/gemini/stream';
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),

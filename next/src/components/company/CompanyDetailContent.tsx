@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { generateUrl } from '@/config/site';
 import {
   Building2,
   FileText,
@@ -63,7 +64,14 @@ export default function CompanyDetailContent({
 }: CompanyDetailContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [currentHost, setCurrentHost] = useState<string>('');
   const [view, setView] = useState<'chart' | 'table'>('chart');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentHost(window.location.host);
+    }
+  }, []);
   const [tenderView, setTenderView] = useState<'chart' | 'list'>('chart');
   const [tenders, setTenders] = useState<any[]>([]);
 
@@ -90,7 +98,8 @@ export default function CompanyDetailContent({
     newParams.set('tab', finalTab);
 
     // 更新URL
-    router.push(`/company/detail/${SearchData.taxId}?${newParams.toString()}`);
+    const url = generateUrl('company', `/company/detail/${SearchData.taxId}?${newParams.toString()}`, currentHost);
+    router.push(url);
   };
 
   // 處理標案資料

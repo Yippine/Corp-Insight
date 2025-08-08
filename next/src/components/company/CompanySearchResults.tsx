@@ -7,9 +7,10 @@ import Pagination from '@/components/Pagination';
 import NoSearchResults from '@/components/common/NoSearchResults';
 import DataSource from '@/components/common/DataSource';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useTransition, useEffect, useState } from 'react';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
 import { useLoadingState } from '@/components/common/loading/LoadingHooks';
+import { generateUrl } from '@/config/site';
 
 interface CompanySearchResultsProps {
   companies: CompanyData[];
@@ -27,6 +28,13 @@ export default function CompanySearchResults({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const { isLoading: isPageChangingState, setLoading } = useLoadingState(false);
+  const [currentHost, setCurrentHost] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentHost(window.location.host);
+    }
+  }, []);
 
   // 結合兩種狀態，創建單一isPageChanging變量
   const isPageChanging = isPending || isPageChangingState;
@@ -41,7 +49,7 @@ export default function CompanySearchResults({
     // 設置loading狀態，使其更一致
     setLoading(true);
 
-    const url = `/company/search?q=${encodeURIComponent(searchQuery)}&page=${page}`;
+    const url = generateUrl('company', `/company/search?q=${encodeURIComponent(searchQuery)}&page=${page}`, currentHost);
     startTransition(() => {
       router.push(url);
       // 路由變化會自動重置loading狀態
@@ -69,7 +77,7 @@ export default function CompanySearchResults({
             {companies.map(company => (
               <li key={company.taxId}>
                 <Link
-                  href={`/company/detail/${encodeURIComponent(company.taxId)}`}
+                  href={generateUrl('company', `/company/detail/${encodeURIComponent(company.taxId)}`, currentHost)}
                   className="block w-full p-6 text-left transition-colors duration-200 hover:bg-gray-50"
                 >
                   <div className="mb-4 flex items-center justify-between">

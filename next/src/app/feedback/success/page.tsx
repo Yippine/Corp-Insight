@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { generateUrl } from '@/config/site';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,13 +13,25 @@ const REDIRECT_DELAY_SECONDS = 10;
 
 export default function FeedbackSuccessPage() {
   const router = useRouter();
+  const [currentHost, setCurrentHost] = useState<string>('');
   const [secondsRemaining, setSecondsRemaining] = useState(
     REDIRECT_DELAY_SECONDS
   );
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentHost(window.location.host);
+    }
+  }, []);
+
+  // 決定首頁 URL
+  const homeUrl = currentHost.includes('aitools') 
+    ? generateUrl('aitools', '/search', currentHost)
+    : generateUrl('company', '/company/search', currentHost);
+
+  useEffect(() => {
     if (secondsRemaining <= 0) {
-      router.replace('/'); // 使用 replace 避免返回此頁面
+      router.replace(homeUrl);
       return;
     }
 
@@ -27,7 +40,7 @@ export default function FeedbackSuccessPage() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [secondsRemaining, router]);
+  }, [secondsRemaining, router, homeUrl]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
@@ -66,7 +79,7 @@ export default function FeedbackSuccessPage() {
         </p>
 
         <div className="space-y-4">
-          <Link href="/" legacyBehavior>
+          <Link href={homeUrl} legacyBehavior>
             <a className="inline-flex w-full transform items-center justify-center rounded-xl border border-transparent bg-blue-600 px-8 py-3 text-base font-medium text-white shadow-md transition-transform duration-150 hover:scale-105 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
               返回首頁
             </a>
