@@ -37,6 +37,7 @@ import {
   Star,
   Church,
   Zap,
+  UserCircle,
 } from 'lucide-react';
 
 export const TAG_PRIORITY: string[] = [
@@ -92,6 +93,7 @@ export const TAG_PRIORITY: string[] = [
   '網紅',
   '宗教',
   '自動化',
+  '專家',
 ];
 
 export const TAG_ICON_MAP: Record<string, LucideIcon> = {
@@ -160,6 +162,7 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   越獄: Flame,
   法律: Scale,
   宗教: Church,
+  專家: UserCircle,
 };
 
 export const DEFAULT_ICON = HelpCircle;
