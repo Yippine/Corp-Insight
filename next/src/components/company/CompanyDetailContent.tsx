@@ -29,7 +29,7 @@ import ManagersTimeline from '@/components/company/charts/ManagersTimeline';
 import ManagersTable from '@/components/company/charts/ManagersTable';
 import TenderStatsChart from '@/components/company/charts/TenderStatsChart';
 import NoDataFound from '../common/NoDataFound';
-import { usePaginatedTenders } from '@/lib/hooks/usePaginatedTenders';
+// import { usePaginatedTenders } from '@/lib/hooks/usePaginatedTenders';
 
 // 圖標映射函數
 const getIconComponent = (iconName: string) => {
@@ -75,15 +75,16 @@ export default function CompanyDetailContent({
   const [tenderView, setTenderView] = useState<'chart' | 'list'>('chart');
   const [tenders, setTenders] = useState<any[]>([]);
 
-  const {
-    tenders: paginatedTenders,
-    isLoadingMore,
-    error: fetchTenderError,
-    progress,
-    totalPages,
-    currentPage,
-    isFullyLoaded,
-  } = usePaginatedTenders(SearchData?.taxId || '');
+  // 註解掉標案資料載入
+  // const {
+  //   tenders: paginatedTenders,
+  //   isLoadingMore,
+  //   error: fetchTenderError,
+  //   progress,
+  //   totalPages,
+  //   currentPage,
+  //   isFullyLoaded,
+  // } = usePaginatedTenders(SearchData?.taxId || '');
 
   // 處理頁籤變更
   const handleTabChange = (tab: string) => {
@@ -103,12 +104,12 @@ export default function CompanyDetailContent({
   };
 
   // 處理標案資料
-  useEffect(() => {
-    // 當獲取到標案資料時更新本地狀態
-    if (paginatedTenders.length > 0) {
-      setTenders(paginatedTenders);
-    }
-  }, [paginatedTenders, isLoadingMore, fetchTenderError]);
+  // useEffect(() => {
+  //   // 當獲取到標案資料時更新本地狀態
+  //   if (paginatedTenders.length > 0) {
+  //     setTenders(paginatedTenders);
+  //   }
+  // }, [paginatedTenders, isLoadingMore, fetchTenderError]);
 
   // 渲染營業項目
   const renderBusinessScope = () => {
