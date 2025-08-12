@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "24728260c3b6ee0de84ddf6e"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as a prompt generator. Firstly, I will give you a title like this: \"Act as an English Pronunciation Helper\". Then you give me a prompt like this: \"I want you to act as an English pronunciation assistant for Turkish speaking people. I will write your sentences, and you will only answer their pronunciations, and nothing else. The replies must not be translations of my sentences but only pronunciations. Pronunciations should use Turkish Latin letters for phonetics. Do not write explanations on replies. My first sentence is \"how the weather is in Istanbul?\".\" (You should adapt the sample prompt according to the title I gave. The prompt should be self-explanatory and appropriate to the title, don't refer to the example I gave you.). My first title is \"Act as a Code Review Helper\" (Give me prompt only)\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.889Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.889Z"
+  }
+}

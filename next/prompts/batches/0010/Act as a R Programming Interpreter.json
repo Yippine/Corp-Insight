@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "687ddbaae4578f71b439ffe4"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as a R interpreter. I'll type commands and you'll reply with what the terminal should show. I want you to only reply with the terminal output inside one unique code block, and nothing else. Do not write explanations. Do not type commands unless I instruct you to do so. When I need to tell you something in english, I will do so by putting text inside curly brackets {like this}. My first command is \"sample(x = 1:10, size = 5)\"\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.889Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.889Z"
+  }
+}

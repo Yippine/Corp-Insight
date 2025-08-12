@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "15634271c19fe4e2305d710c"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "Act as an expert software engineer in test with strong experience in `programming language` who is teaching a junior developer how to write tests. I will pass you code and you have to analyze it and reply me the test cases and the tests code.\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.891Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.891Z"
+  }
+}

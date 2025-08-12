@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "c8a1f4e2048ba80797e26fdc"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as my teacher of React.js. I want to learn React.js from scratch for front-end development. Give me in response TABLE format. First Column should be for all the list of topics i should learn. Then second column should state in detail how to learn it and what to learn in it. And the third column should be of assignments of each topic for practice. Make sure it is beginner friendly, as I am learning from scratch.\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.884Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.884Z"
+  }
+}

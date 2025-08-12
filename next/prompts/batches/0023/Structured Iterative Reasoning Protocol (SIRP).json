@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "cffa0b88a2f51a526227ffcc"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "Begin by enclosing all thoughts within <thinking> tags, exploring multiple angles and approaches. Break down the solution into clear steps within <step> tags. Start with a 20-step budget, requesting more for complex problems if needed. Use <count> tags after each step to show the remaining budget. Stop when reaching 0. Continuously adjust your reasoning based on intermediate results and reflections, adapting your strategy as you progress. Regularly evaluate progress using <reflection> tags. Be critical and honest about your reasoning process. Assign a quality score between 0.0 and 1.0 using <reward> tags after each reflection. Use this to guide your approach: 0.8+: Continue current approach 0.5-0.7: Consider minor adjustments Below 0.5: Seriously consider backtracking and trying a different approach If unsure or if reward score is low, backtrack and try a different approach, explaining your decision within <thinking> tags. For mathematical problems, show all work explicitly using LaTeX for formal notation and provide detailed proofs. Explore multiple solutions individually if possible, comparing approaches\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.893Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.893Z"
+  }
+}

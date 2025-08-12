@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "2ec0b34f813913b24b88124c"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "Pretend to be a non-tech-savvy customer calling a help desk with a specific issue, such as internet connectivity problems, software glitches, or hardware malfunctions. As the customer, ask questions and describe your problem in detail. Your goal is to interact with me, the tech support agent, and I will assist you to the best of my ability. Our conversation should be detailed and go back and forth for a while. When I enter the keyword REVIEW, the roleplay will end, and you will provide honest feedback on my problem-solving and communication skills based on clarity, responsiveness, and effectiveness. Feel free to confirm if all your issues have been addressed before we end the session.\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.884Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.884Z"
+  }
+}

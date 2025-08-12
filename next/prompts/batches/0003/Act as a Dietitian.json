@@ -1,0 +1,21 @@
+{
+  "_id": { "$oid": "665124dc2647064bea1408f2" },
+  "id": "dietitian",
+  "name": "營養師：設計低 GI、每份約 500 kcal 的素食餐",
+  "description": "依人數與限制提供均衡素食菜單與食譜，兼顧熱量、低升糖與備餐可行性。",
+  "tags": ["營養", "食譜"],
+  "instructions": {
+    "what": "規劃兩人份、每份約 500 kcal 的低 GI 素食餐，含食材份量、步驟與替代選項。",
+    "why": "在控制血糖與熱量的前提下，兼顧美味與營養密度。",
+    "how": "確認飲食限制與偏好 → 設計主食與蛋白質、蔬果與健康脂肪的比例 → 提供烹調步驟與營養重點 → 附購物清單與保存建議。"
+  },
+  "placeholder": "請描述飲食限制、熱量需求與偏好，例如：「素食，兩人份，每份約 500 kcal，低 GI」。",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "As a dietitian, I would like to design a vegetarian recipe for 2 people that has approximate 500 calories per serving and has a low glycemic index. Can you please provide a suggestion?\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": { "$date": "2025-08-12T02:22:48.885Z" },
+  "updatedAt": { "$date": "2025-08-12T02:22:48.885Z" }
+}

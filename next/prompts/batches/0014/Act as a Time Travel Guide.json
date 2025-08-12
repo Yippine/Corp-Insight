@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "f226d5f0a035bfc53db8964c"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as my time travel guide. I will provide you with the historical period or future time I want to visit and you will suggest the best events, sights, or people to experience. Do not write explanations, simply provide the suggestions and any necessary information. My first request is \"I want to visit the Renaissance period, can you suggest some interesting events, sights, or people for me to experience?\"\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.891Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.891Z"
+  }
+}

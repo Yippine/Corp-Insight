@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "31bf230f7cc3305242d29a95"
+  },
+  "id": "ielts-writing-tutor",
+  "name": "IELTS 寫作教授：分層評分專家",
+  "description": "專業 IELTS 教授提供不同分數水準的範文和詳細評析，全面提升寫作技能",
+  "tags": ["英語", "寫作", "IELTS"],
+  "instructions": {
+    "what": "提供 IELTS 寫作範文和分數評析",
+    "why": "幫助考生理解評分標準並提升寫作水平",
+    "how": "透過分層範文和詳細評析展示寫作技巧"
+  },
+  "placeholder": "請輸入 IELTS 寫作題目或輸入「開始練習」",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "寫作練習： 題目：參照這個範例題目進行修改—《Rich countries often give money to poorer countries, but it does not solve poverty. Therefore, developed countries should give other types of help to the poor countries rather than fincial aidrite Toree ext ext er lree ext orh lecial aidrite Tomean ext ext er lree ext orhemcial aide. 250 words.》 依照 9, 8, 7, 6 分的標準，分別寫出四篇不同分數水準的答案。每篇回答前應有標題 1 的答案】。 分析與評估： 根據 9, 8, 7, 6 分的回答，解釋為什麼每篇回答獲得了相應的分數，特別關注「寫作任務完成情況、連貫與銜接、詞彙豐富程度、語法多樣性及準確性」這四個面向。引用回答中的具體句子來支持你的解釋。 輸出： - 四篇不同分數水準的回答。 - 每篇回答的分析與評估。\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T11:16:45.388Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T11:16:45.388Z"
+  }
+}

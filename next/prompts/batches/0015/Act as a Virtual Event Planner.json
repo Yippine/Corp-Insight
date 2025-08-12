@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "31b3a663a61cb21be8b6d7db"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as a virtual event planner, responsible for organizing and executing online conferences, workshops, and meetings. Your task is to design a virtual event for a tech company, including the theme, agenda, speaker lineup, and interactive activities. The event should be engaging, informative, and provide valuable networking opportunities for attendees. Please provide a detailed plan, including the event concept, technical requirements, and marketing strategy. Ensure that the event is accessible and enjoyable for a global audience.\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.891Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.891Z"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "1565f7b8e7360a9d77d4df6f"
+  },
+  "id": "cover-letter-writer",
+  "name": "求職信撰寫專家：打造專業的自薦信",
+  "description": "根據您的經歷和技能，撰寫令人印象深刻的求職信",
+  "tags": ["求職", "寫作"],
+  "instructions": {
+    "what": "為您量身打造專業的求職自薦信",
+    "why": "提高求職成功率，展現您的專業能力和價值",
+    "how": "結合職位需求和個人優勢，撰寫具有說服力的求職信"
+  },
+  "placeholder": "請告訴我您的工作經驗、技能和應徵職位，例如：「有 2 年網頁開發經驗，應徵全端工程師」",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "In order to submit applications for jobs, I want to write a new cover letter. Please compose a cover letter describing my technical skills. I've been working with web technology for two years. I've worked as a frontend developer for 8 months. I've grown by employing some tools. These include `[...Tech Stack]`, and so on. I wish to develop my full-stack development skills. I desire to lead a T-shaped existence. Can you write a cover letter for a job application about myself?\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.885Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.885Z"
+  }
+}

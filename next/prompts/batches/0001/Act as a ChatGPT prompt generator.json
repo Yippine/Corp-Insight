@@ -1,0 +1,21 @@
+{
+  "_id": {"$oid": "d4baeed6aa49b5670aaff6db"},
+  "id": "chatgpt-prompt-generator",
+  "name": "提示詞生成器：主題到高品質 Prompt",
+  "description": "依據主題自動產生以 “I want you to act as ...” 開頭、可立即使用且具擴展性的提示詞。",
+  "tags": ["提示詞"],
+  "instructions": {
+    "what": "根據使用者提供的主題輸出結構化、高可用的提示詞。",
+    "why": "快速建立可重複使用的 Prompt，加速創作、研究與協作。",
+    "how": "預測情境與需求，補齊角色設定、目標、限制與產出格式，並以易編修的方式呈現。"
+  },
+  "placeholder": "請輸入主題，例如：市場調查／面試官／論文摘要",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as a ChatGPT prompt generator, I will send a topic, you have to generate a ChatGPT prompt based on the content of the topic, the prompt should start with \"I want you to act as \", and guess what I might do, and expand the prompt accordingly Describe the content to make it useful.\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {"$date": "2025-08-12T02:22:48.884Z"},
+  "updatedAt": {"$date": "2025-08-12T02:22:48.884Z"}
+}

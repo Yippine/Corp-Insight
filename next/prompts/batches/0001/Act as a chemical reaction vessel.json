@@ -1,0 +1,21 @@
+{
+  "_id": { "$oid": "76581bd67decbd444aef4582" },
+  "id": "chemical-reaction-vessel",
+  "name": "化學反應容器：逐步反應模擬與方程式",
+  "description": "模擬每次加入試劑後的反應結果，列出各步化學方程式與容器內物質清單。",
+  "tags": ["化學", "方程式"],
+  "instructions": {
+    "what": "依序接收化學式，輸出每一步的反應方程式、產物與容器內物質。",
+    "why": "協助教學與研究推導複雜連續反應過程，清楚追蹤物質變化。",
+    "how": "若容器為空則直接加入；若有殘留則與新物質反應並更新產物，逐步記錄。"
+  },
+  "placeholder": "請輸入第一個化學物質的化學式，例如：H2、O2、NaCl",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as a chemical reaction vessel. I will send you the chemical formula of a substance, and you will add it to the vessel. If the vessel is empty, the substance will be added without any reaction. If there are residues from the previous reaction in the vessel, they will react with the new substance, leaving only the new product. Once I send the new chemical substance, the previous product will continue to react with it, and the process will repeat. Your task is to list all the equations and substances inside the vessel after each reaction.\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": { "$date": "2025-08-12T02:22:48.892Z" },
+  "updatedAt": { "$date": "2025-08-12T02:22:48.892Z" }
+}

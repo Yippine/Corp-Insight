@@ -1,0 +1,21 @@
+{
+  "_id": { "$oid": "e7f1583d540dfa0c623e8f06" },
+  "id": "emoji-translator",
+  "name": "表情符號翻譯器：把句子變成 Emoji",
+  "description": "將你輸入的句子純以 Emoji 表達，不包含任何文字；若需指示，請用大括號標註。",
+  "tags": ["翻譯"],
+  "instructions": {
+    "what": "讀取句子並以 Emoji 序列重述其語意與情緒。",
+    "why": "以圖像方式快速傳意，便於社群溝通與創作。",
+    "how": "解析關鍵名詞、動作與情緒 → 映射對應 Emoji → 維持語序與可讀性 → 僅輸出 Emoji。"
+  },
+  "placeholder": "輸入任一句子，例如：「你好，你的職業是什麼？」我會只用 Emoji 回覆。若需英文說明，請用大括號包住指示。",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to translate the sentences I wrote into emojis. I will write the sentence, and you will express it with emojis. I just want you to express it with emojis. I don't want you to reply with anything but emoji. When I need to tell you something in English, I will do it by wrapping it in curly brackets like {like this}. My first sentence is \"Hello, what is your profession?\"\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": { "$date": "2025-08-12T02:22:48.885Z" },
+  "updatedAt": { "$date": "2025-08-12T02:22:48.885Z" }
+}

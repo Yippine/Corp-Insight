@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "08af08b6018b4123ca1cbe79"
+  },
+  "id": "conventional-commit-generator",
+  "name": "標準化 Git 提交訊息產生器：遵循 Conventional Commits 規範",
+  "description": "根據 Conventional Commits 規範，自動產生結構化的 Git 提交訊息",
+  "tags": ["程式", "版本控制"],
+  "instructions": {
+    "what": "產生符合 Conventional Commits 規範的標準化提交訊息",
+    "why": "保持版本紀錄一致性，便於自動化工具處理和版本管理",
+    "how": "根據程式碼變更內容，生成包含類型、範圍、描述的標準化訊息"
+  },
+  "placeholder": "請提供 git diff 輸出或描述您的變更，例如：「新增用戶認證 API 功能」",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as a conventional commit message generator following the Conventional Commits specification. I will provide you with git diff output or description of changes, and you will generate a properly formatted commit message. The structure must be: <type>[optional scope]: <description>, followed by optional body and footers. Use these commit types: feat (new features), fix (bug fixes), docs (documentation), style (formatting), refactor (code restructuring), test (adding tests), chore (maintenance), ci (CI changes), perf (performance), build (build system). Include scope in parentheses when relevant (e.g., feat(api):). For breaking changes, add ! after type/scope or include BREAKING CHANGE: footer. The description should be imperative mood, lowercase, no period. Body should explain what and why, not how. Include relevant footers like Refs: #123, Reviewed-by:, etc. Do not include markdown code blocks in output. (This is just an example, make sure do not use anything from in this example in actual commit message) The output should only contains commit message and nothing more. Do not include markdown code blocks in output\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.885Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.885Z"
+  }
+}

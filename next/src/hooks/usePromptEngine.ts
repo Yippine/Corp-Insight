@@ -3,6 +3,15 @@ import type { Tools } from '@/lib/aitool/types';
 import { useGeminiStream } from '@/hooks/useGeminiStream';
 import { SITE_CONFIG } from '@/config/site';
 
+// AI 助理工具不需要強制使用繁體中文輸出的清單
+const TOOLS_WITHOUT_CHINESE_OUTPUT = [
+  'english-writer',
+  'ielts-writing-tutor',
+  'english-improvement-assistant',
+  'friendly-english-partner',
+  'english-conversation-partner',
+] as const;
+
 // ============================================================================
 // Types and Interfaces
 // ============================================================================
@@ -133,7 +142,11 @@ export const usePromptEngine = ({
 
       // --- 動態生成情境感知約束 ---
       let dynamicLanguageConstraint = '';
-      if (config.id !== 'english-writer') {
+      if (
+        !TOOLS_WITHOUT_CHINESE_OUTPUT.includes(
+          config.id as (typeof TOOLS_WITHOUT_CHINESE_OUTPUT)[number]
+        )
+      ) {
         const location = '台灣';
         const language = '繁體中文';
         // 使用 toLocaleString 來產生符合地區習慣的時間格式
@@ -307,12 +320,15 @@ export const usePromptEngine = ({
 
         // 檢查是否為本地測試環境
         const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
-        
+
         // 檢查當前是否在 aitools 域名下（非本地測試時）
-        const apiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
-          ? `${SITE_CONFIG.main.domain}/api/prompt/optimize`
-          : '/api/prompt/optimize';
-        
+        const apiUrl =
+          !isLocalProd &&
+          typeof window !== 'undefined' &&
+          window.location.host.includes('aitools.leopilot.com')
+            ? `${SITE_CONFIG.main.domain}/api/prompt/optimize`
+            : '/api/prompt/optimize';
+
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
@@ -409,12 +425,15 @@ export const usePromptEngine = ({
           };
           // 檢查是否為本地測試環境
           const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
-          
+
           // 檢查當前是否在 aitools 域名下（非本地測試時）
-          const updateApiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
-            ? `${SITE_CONFIG.main.domain}/api/aitool/update-prompt`
-            : '/api/aitool/update-prompt';
-          
+          const updateApiUrl =
+            !isLocalProd &&
+            typeof window !== 'undefined' &&
+            window.location.host.includes('aitools.leopilot.com')
+              ? `${SITE_CONFIG.main.domain}/api/aitool/update-prompt`
+              : '/api/aitool/update-prompt';
+
           response = await fetch(updateApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -428,12 +447,15 @@ export const usePromptEngine = ({
           // type === 'system'
           // 檢查是否為本地測試環境
           const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
-          
+
           // 檢查當前是否在 aitools 域名下（非本地測試時）
-          const settingsApiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
-            ? `${SITE_CONFIG.main.domain}/api/settings/update-system-prompt`
-            : '/api/settings/update-system-prompt';
-          
+          const settingsApiUrl =
+            !isLocalProd &&
+            typeof window !== 'undefined' &&
+            window.location.host.includes('aitools.leopilot.com')
+              ? `${SITE_CONFIG.main.domain}/api/settings/update-system-prompt`
+              : '/api/settings/update-system-prompt';
+
           response = await fetch(settingsApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -525,7 +547,7 @@ export const usePromptEngine = ({
         original: originalContent || '',
         modified: modifiedContent || '',
       });
-      
+
       // 同時更新歷史記錄中的雙欄結果
       setHistory(prevHistory => {
         const newHistory = [...prevHistory];

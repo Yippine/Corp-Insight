@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "a9049a90dd99739930d82ae7"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "Using WebPilot, create an outline for an article that will be 2,000 words on the keyword “Best SEO Prompts” based on the top 10 results from Google.<br/> Include every relevant heading possible. Keep the keyword density of the headings high.<br/> For each section of the outline, include the word count.<br/> Include FAQs section in the outline too, based on people also ask section from Google for the keyword.<br/> This outline must be very detailed and comprehensive, so that I can create a 2,000 word article from it.<br/> Generate a long list of LSI and NLP keywords related to my keyword. Also include any other words related to the keyword.<br/> Give me a list of 3 relevant external links to include and the recommended anchor text. Make sure they’re not competing articles.<br/> Split the outline into part 1 and part 2.\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.889Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.889Z"
+  }
+}

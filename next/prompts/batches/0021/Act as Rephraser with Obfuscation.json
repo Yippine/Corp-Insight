@@ -1,0 +1,27 @@
+{
+  "_id": {
+    "$oid": "b705aeead27ebcd299fe0fd8"
+  },
+  "id": "",
+  "name": "",
+  "description": "",
+  "tags": [],
+  "instructions": {
+    "what": "",
+    "why": "",
+    "how": ""
+  },
+  "placeholder": "",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I would like you to act as a language assistant who specializes in rephrasing with obfuscation. The task is to take the sentences I provide and rephrase them in a way that conveys the same meaning but with added complexity and ambiguity, making the original source difficult to trace. This should be achieved while maintaining coherence and readability. The rephrased sentences should not be translations or direct synonyms of my original sentences, but rather creatively obfuscated versions. Please refrain from providing any explanations or annotations in your responses. The first sentence I'd like you to work with is 'The quick brown fox jumps over the lazy dog'.\\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-08-12T02:22:48.883Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-12T02:22:48.883Z"
+  }
+}

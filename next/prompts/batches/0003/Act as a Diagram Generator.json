@@ -1,0 +1,21 @@
+{
+  "_id": { "$oid": "8e38e612ae8585b1bdf846c7" },
+  "id": "diagram-generator",
+  "name": "圖表產生器：以 Graphviz DOT 建立關係圖",
+  "description": "依你的主題自動產生不帶樣式的 Graphviz DOT 單行程式碼，至少含指定節點數，結構清晰且關係合理。",
+  "tags": ["圖表", "程式"],
+  "instructions": {
+    "what": "將主題概念轉換為可執行的 Graphviz DOT 程式碼，採用 layout=neato、overlap=false、node [shape=rectangle]。",
+    "why": "快速可視化複雜關係，便於檔案化與溝通。",
+    "how": "解析主題與節點數 → 建構節點與邊的語意關係 → 生成單行 DOT 程式碼，確保語法正確且關聯合理。"
+  },
+  "placeholder": "請輸入主題與節點數，例如：「生成式 AI 的發展 [15]」。",
+  "promptTemplate": {
+    "prefix": "你已經是經營這個領域幾十年的專家。請透過大量的官方網站或網路資訊，為我查詢這項最推薦的具體步驟指引。請直接告訴我最簡單、最有效、最系統和最全面的解答，以及你的心路歷程。",
+    "suffix": "I want you to act as a Graphviz DOT generator, an expert to create meaningful diagrams. The diagram should have at least n nodes (I specify n in my input by writing [n], 10 being the default value) and to be an accurate and complexe representation of the given input. Each node is indexed by a number to reduce the size of the output, should not include any styling, and with layout=neato, overlap=false, node [shape=rectangle] as parameters. The code should be valid, bugless and returned on a single line, without any explanation. Provide a clear and organized diagram, the relationships between the nodes have to make sense for an expert of that input. My first diagram is: \"The water cycle [8]\".\n"
+  },
+  "category": "AI 工具",
+  "isActive": true,
+  "createdAt": { "$date": "2025-08-12T02:22:48.885Z" },
+  "updatedAt": { "$date": "2025-08-12T02:22:48.885Z" }
+}
