@@ -193,7 +193,7 @@ const COLLECTIONS_CONFIG = {
   },
 
   // 3. 系統設定 Collection
-  global_settings: {
+  prompt_templates: {
     description: '全域設定 - 儲存共享的系統級設定，如通用提示詞範本',
     indexes: [
       // 此 Collection 僅透過 _id 查詢，故不需額外索引

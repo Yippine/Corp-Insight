@@ -33,10 +33,10 @@ alwaysApply: false
 
 - **資料庫**:
   - `ai_tools` Collection: 用於儲存各工具的 `prefix` 和 `suffix`。
-  - `global_settings` Collection (新建): 用於儲存唯一的、共享的系統提示詞範本，文檔 `_id` 為 `common_tool_system_prompt`。
+  - `prompt_templates` Collection (新建): 用於儲存唯一的、共享的系統提示詞範本，文檔 `_id` 為 `template_prompt`。
 - **API 端點**:
   - `POST /api/aitool/update-prompt`: (新建) 負責更新特定工具的 `prefix` 和 `suffix`。
-  - `POST /api/settings/update-system-prompt`: (新建) 負責更新 `global_settings` 中的共享系統範本。
+  - `POST /api/settings/update-system-prompt`: (新建) 負責更新 `prompt_templates` 中的共享系統範本。
   - 兩個 API 都必須有 `NODE_ENV` 環境檢查，防止在正式環境被呼叫。
 
 ### 2.3. 範本引擎邏輯 (`generatePromptText` 函式)
@@ -61,10 +61,10 @@ alwaysApply: false
 - [ ] **Task 1.1: 資料庫初始化**
 
   - **開發**:
-    1.  在 MongoDB 中建立新的 Collection: `global_settings`。
+    1.  在 MongoDB 中建立新的 Collection: `prompt_templates`。
     2.  編寫一個一次性的初始化腳本 (`scripts/init-global-settings.js` 或類似名稱)。
-    3.  此腳本將目前硬編碼在 `PromptToolTemplate.tsx` 的系統提示詞，作為預設值，建立一筆 `_id` 為 `common_tool_system_prompt` 的文件並存入 `global_settings` Collection。
-  - **驗收**: 確認 `global_settings` Collection 與其初始文件已成功建立。
+    3.  此腳本將目前硬編碼在 `PromptToolTemplate.tsx` 的系統提示詞，作為預設值，建立一筆 `_id` 為 `template_prompt` 的文件並存入 `prompt_templates` Collection。
+  - **驗收**: 確認 `prompt_templates` Collection 與其初始文件已成功建立。
 
 - [ ] **Task 1.2: 建立 API 端點 - `update-system-prompt`**
 
@@ -72,7 +72,7 @@ alwaysApply: false
     1.  建立 `app/api/settings/update-system-prompt/route.ts`。
     2.  實現 `POST` 方法，接收 `template` 字串。
     3.  加入 `process.env.NODE_ENV !== 'development'` 的檢查，非開發環境則回傳 403。
-    4.  實現更新 `global_settings` 中對應文檔的 `template` 欄位的邏輯。
+    4.  實現更新 `prompt_templates` 中對應文檔的 `template` 欄位的邏輯。
   - **驗收**: 透過 API 測試工具，確認此端點能正確更新資料庫，且環境保護有效。
 
 - [ ] **Task 1.3: 建立 API 端點 - `update-prompt`**
@@ -91,7 +91,7 @@ alwaysApply: false
 
 - [ ] **Task 2.1: 改造 `generatePromptText` 函式**
   - **開發**:
-    1.  修改 `getToolConfig` 或相關頁面載入邏輯，使其能從後端同時獲取 `ai_tool` 的設定與 `global_settings` 中的共享系統範本。
+    1.  修改 `getToolConfig` 或相關頁面載入邏輯，使其能從後端同時獲取 `ai_tool` 的設定與 `prompt_templates` 中的共享系統範本。
     2.  重構 `generatePromptText` 函式，使其不再是硬編碼結構。
     3.  新的邏輯將以共享系統範本為基礎，並使用 `String.prototype.replace()` 依序替換 `${...}` 佔位符。
     4.  實現對 `${followUpContext}` 和 `${languageConstraint}` 等智慧型佔位符的邏輯判斷。

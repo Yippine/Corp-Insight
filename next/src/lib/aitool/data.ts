@@ -12,7 +12,7 @@ const OpenCC = require('opencc-js');
 const toSimplified = OpenCC.Converter({ from: 'tw', to: 'cn' });
 const toTraditional = OpenCC.Converter({ from: 'cn', to: 'tw' });
 
-// 定義 global_settings collection 的文件結構
+// 定義 prompt_templates collection 的文件結構
 interface GlobalSetting {
   _id: string;
   description: string;
@@ -33,9 +33,9 @@ export async function getToolById(toolId: string): Promise<Tools | null> {
   try {
     const db = await getDb();
 
-    // 定義查詢 global_settings 的過濾器，並明確指定 _id 的型別
+    // 定義查詢 prompt_templates 的過濾器，並明確指定 _id 的型別
     const systemPromptFilter: Filter<GlobalSetting> = {
-      _id: 'common_tool_system_prompt',
+      _id: 'template_prompt',
     };
 
     const [toolDoc, systemPromptDoc] = await Promise.all([
@@ -43,7 +43,7 @@ export async function getToolById(toolId: string): Promise<Tools | null> {
         .collection<DBToolDocument>('ai_tools')
         .findOne({ id: toolId, isActive: true }),
       db
-        .collection<GlobalSetting>('global_settings')
+        .collection<GlobalSetting>('prompt_templates')
         .findOne(systemPromptFilter),
     ]);
 

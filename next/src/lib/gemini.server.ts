@@ -2,8 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import dbConnect from './database/connection';
 import ApiKeyStatus, { IApiKeyStatus } from './database/models/ApiKeyStatus';
 import { AIToolModel } from './database/models/AITool';
-import fs from 'fs/promises';
-import path from 'path';
+import { getDb } from '@/lib/mongodbUtils';
 
 // 斷路器與指數退避策略設定
 const MAX_BACKOFF_MINUTES = 120; // 最長冷凍時間 (分鐘) - 根據分析調整為一個更合理的中期值
@@ -482,25 +481,28 @@ export async function generateOptimizedPrompt(
   framework: string,
   toolId: string
 ): Promise<string> {
-  // 1. 讀取元提示詞
+  // 1. 從資料庫讀取元提示詞範本
   const isSystemPrompt = type === 'system';
-  let fileName;
+  let templateId;
   if (isSystemPrompt) {
-    fileName = 'system-optimizer.md';
+    templateId = 'template_optimizer';
   } else if (type === 'prefix') {
-    fileName = 'prefix-optimizer.md';
+    templateId = 'prefix_optimizer';
   } else {
     // type === 'suffix'
-    fileName = 'suffix-optimizer.md';
+    templateId = 'suffix_optimizer';
   }
-  const filePath = path.join(
-    process.cwd(),
-    'src',
-    'data',
-    'meta-prompts',
-    fileName
-  );
-  const metaPromptTemplate = await fs.readFile(filePath, 'utf-8');
+  
+  const db = await getDb();
+  const templateDoc = await db
+    .collection('prompt_templates')
+    .findOne({ _id: templateId as any });
+  
+  if (!templateDoc) {
+    throw new Error(`找不到提示詞範本: ${templateId}`);
+  }
+  
+  const metaPromptTemplate = templateDoc.template;
 
   // 2. 查詢資料庫
   const tool = await AIToolModel.getById(toolId);

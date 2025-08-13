@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 
-// 定義 global_settings collection 的文件結構
+// 定義 prompt_templates collection 的文件結構
 interface GlobalSetting {
   _id: string;
   description: string;
@@ -40,8 +40,8 @@ export async function POST(request: Request) {
     }
 
     const db = await getDb();
-    const collection = db.collection<GlobalSetting>('global_settings');
-    const documentId = 'common_tool_system_prompt';
+    const collection = db.collection<GlobalSetting>('prompt_templates');
+    const documentId = 'template_prompt';
 
     // 3. 更新資料庫
     const result = await collection.updateOne(
