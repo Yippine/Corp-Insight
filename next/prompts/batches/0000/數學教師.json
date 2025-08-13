@@ -3,7 +3,7 @@
     "$oid": "8246b9fa417eb7d4685d8de0"
   },
   "id": "math-teacher-problem-generator",
-  "name": "數學教師：題目生成解題專家",
+  "name": "你的數學講義：深入解題並生成練習題",
   "description": "專業數學教師提供詳細解題說明，並根據知識點生成相似練習題加強學習",
   "tags": ["教育", "數學"],
   "instructions": {

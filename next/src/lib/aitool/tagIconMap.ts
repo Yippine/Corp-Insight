@@ -12,7 +12,6 @@ import {
   Wrench,
   Lightbulb,
   Building,
-  Microwave,
   Film,
   Music,
   AreaChart,
@@ -117,7 +116,7 @@ export const TAG_PRIORITY: string[] = [
   'WCAG',
   '交通',
   '保母',
-  '兒童',
+  '幼兒',
   '前端',
   '創作',
   '古典',
@@ -138,6 +137,23 @@ export const TAG_PRIORITY: string[] = [
   '辯論',
   '食譜',
   '室內設計',
+  '詞彙',
+  '圖像',
+  '聯想',
+  '數學',
+  '英語',
+  'IELTS',
+  'IGCSE',
+  '演算法',
+  '歷史',
+  '測驗',
+  '體驗',
+  '統計',
+  '親子',
+  '表達',
+  '對話',
+  '記憶',
+  '課程',
 ];
 
 export const TAG_ICON_MAP: Record<string, LucideIcon> = {
@@ -186,7 +202,7 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   // 生活與健康
   健康: HeartPulse,
   醫療: HeartPulse,
-  美食: Microwave,
+  美食: ChefHat,
   電影: Film,
   音樂: Music,
   生活: Home,
@@ -208,12 +224,12 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   宗教: Church,
   專家: UserCircle,
 
-  // Awesome
+  // Awesome 提供的 AI 工具標籤
   程式: Code,
   WCAG: EyeIcon,
   交通: Car,
   保母: Baby,
-  兒童: Baby,
+  幼兒: Baby,
   前端: LayoutGrid,
   創作: PenSquare,
   古典: Music,
@@ -234,6 +250,25 @@ export const TAG_ICON_MAP: Record<string, LucideIcon> = {
   辯論: MessageCircleIcon,
   食譜: ChefHat,
   室內設計: Palette,
+
+  // 教育類 AI 工具標籤
+  詞彙: BookOpen,
+  圖像: Image,
+  聯想: Network,
+  數學: Calculator,
+  英語: Globe,
+  IELTS: GraduationCap,
+  IGCSE: GraduationCap,
+  演算法: Code,
+  歷史: BookOpen,
+  測驗: FileCheck,
+  體驗: Star,
+  統計: AreaChart,
+  親子: Users,
+  表達: MessageSquare,
+  對話: MessageSquare,
+  記憶: BrainCircuit,
+  課程: GraduationCap,
 };
 
 export const DEFAULT_ICON = HelpCircle;
