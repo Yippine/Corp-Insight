@@ -136,3 +136,11 @@ dist
 **/.sitemap-status.json
 **/.sitemap-monitor.pid
 **/.sitemap-monitor.lock
+
+# BMad Method installation package
+.bmad-core/
+.claude/
+.cursor/rules/*
+!.cursor/rules/blueprints/
+!.cursor/rules/guides/
+web-bundles/
