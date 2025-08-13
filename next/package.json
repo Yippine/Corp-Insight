@@ -213,7 +213,9 @@
     "// ⚠️ 警告：此操作將移除 aitools 域名的所有設定": "",
     "rollback:aitools": "bash ./scripts/rollback-aitools.sh",
     "// 列出 pm2 的程式列表": "",
-    "pm2:list": "node scripts/format-pm2-list.js"
+    "pm2:list": "node scripts/format-pm2-list.js",
+    "// 🗂️ CODEBASE TOOLS（程式碼整理工具）": "",
+    "flatten": "node scripts/bmad-flatten.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
