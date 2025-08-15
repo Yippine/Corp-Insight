@@ -150,3 +150,6 @@ web-bundles/
 
 # VSCode workspace file
 Corp-Insight.code-workspace
+
+# Claude specific files
+**/CLAUDE.md
