@@ -37,15 +37,11 @@ echo "✅ MongoDB 已就緒。"
 echo "🔧 正在修正 /app 的擁有者權限..."
 chown -R node:node /app
 
-# 步驟 2：執行一次性的資料庫完整還原與索引重建（以 node 使用者身份）
-echo "🔧 正在執行資料庫完整還原（db:full-restore）..."
-gosu node npm run db:full-restore
-
-# 步驟 3：在背景啟動 Sitemap 監控器（以 node 使用者身份）
+# 步驟 2：在背景啟動 Sitemap 監控器（以 node 使用者身份）
 echo "📡 正在背景啟動 Sitemap 監控器（sitemap:monitor）..."
 gosu node npm run sitemap:monitor &
 
-# 步驟 3.5：在背景啟動 API 金鑰每日重置排程（以 node 使用者身份）
+# 步驟 3：在背景啟動 API 金鑰每日重置排程（以 node 使用者身份）
 echo "🔑 正在背景啟動 API 金鑰每日重置排程（db:reset-keys）..."
 gosu node npm run db:reset-keys &
 
