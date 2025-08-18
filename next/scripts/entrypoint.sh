@@ -2,13 +2,13 @@
 # 讓腳本在發生錯誤時立即終止
 set -e
 
-echo "🚀 執行應用程式啟動腳本 (以 Root 身份)..."
+echo "🚀 執行應用程式啟動腳本（以 Root 身份）..."
 
 # --- 動態處理 Docker Socket 權限 ---
 DOCKER_SOCKET=/var/run/docker.sock
 if [ -S "$DOCKER_SOCKET" ]; then
     DOCKER_GID=$(stat -c '%g' $DOCKER_SOCKET)
-    echo "🔧 偵測到 Docker Socket，主機 GID 為: $DOCKER_GID"
+    echo "🔧 偵測到 Docker Socket，主機 GID 為：$DOCKER_GID"
 
     # 檢查具有該 GID 的群組是否已存在
     if ! getent group $DOCKER_GID >/dev/null 2>&1; then
@@ -33,23 +33,23 @@ fi
 
 echo "✅ MongoDB 已就緒。"
 
-# 新增步驟: 修正掛載的 /app 目錄權限 (包含 /app/db 和 sitemap 狀態檔)
+# 步驟 1：修正掛載的 /app 目錄權限（包含 /app/db 和 sitemap 狀態檔）
 echo "🔧 正在修正 /app 的擁有者權限..."
 chown -R node:node /app
 
-# 步驟 2: 執行一次性的資料庫初始化/索引重建 (以 node 使用者身份)
-echo "🔧 正在執行資料庫初始化 (db:init)..."
-gosu node npm run db:init
+# 步驟 2：執行一次性的資料庫完整還原與索引重建（以 node 使用者身份）
+echo "🔧 正在執行資料庫完整還原（db:full-restore）..."
+gosu node npm run db:full-restore
 
-# 步驟 3: 在背景啟動 Sitemap 監控器 (以 node 使用者身份)
-echo "📡 正在背景啟動 Sitemap 監控器 (sitemap:monitor)..."
+# 步驟 3：在背景啟動 Sitemap 監控器（以 node 使用者身份）
+echo "📡 正在背景啟動 Sitemap 監控器（sitemap:monitor）..."
 gosu node npm run sitemap:monitor &
 
-# 步驟 3.5: 在背景啟動 API 金鑰每日重置排程 (以 node 使用者身份)
-echo "🔑 正在背景啟動 API 金鑰每日重置排程 (db:reset-keys)..."
+# 步驟 3.5：在背景啟動 API 金鑰每日重置排程（以 node 使用者身份）
+echo "🔑 正在背景啟動 API 金鑰每日重置排程（db:reset-keys）..."
 gosu node npm run db:reset-keys &
 
-# 步驟 4: 執行傳遞給此腳本的主指令 (例如 "npm run dev" 或 "npm run start")
+# 步驟 4：執行傳遞給此腳本的主指令（例如 "npm run dev" 或 "npm run start"）
 echo "🏁 啟動腳本執行完畢，正在以 'node' 使用者身份啟動主應用程式..."
 echo "----------------------------------------------------"
 
