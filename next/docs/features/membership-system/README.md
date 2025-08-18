@@ -1,5 +1,16 @@
 # 會員管理系統
 
+## 🚨 **BROWNFIELD 開發約束** 🚨
+
+**⚠️ 此功能開發必須遵循全專案 Brownfield 約束：**
+**[../../BROWNFIELD-DEVELOPMENT-CONSTRAINTS.md](../../BROWNFIELD-DEVELOPMENT-CONSTRAINTS.md)**
+
+**快速約束摘要：**
+- ❌ 絕不修改任何既有程式碼、API、資料庫
+- ❌ 絕不刪除任何既有檔案或功能  
+- ✅ 僅允許新增會員功能相關的內容
+- ✅ 必須遵循既有架構與風格
+
 ## 功能概述
 
 第三方登入與會員管理系統，整合 Google OAuth、Email/密碼註冊、後台管理等完整會員功能。
