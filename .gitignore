@@ -138,7 +138,7 @@ dist
 **/.sitemap-monitor.lock
 
 # BMad Method installation package
-.bmad-core/
+.bmad-*/
 .claude/
 .cursor/
 web-bundles/
