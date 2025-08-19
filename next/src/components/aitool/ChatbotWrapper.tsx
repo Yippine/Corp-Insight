@@ -15,7 +15,12 @@ const ChatbotWrapper = () => {
 
   useEffect(() => {
     // 只在 AI 工具相關頁面顯示聊天機器人
-    const isAiToolPage = pathname.startsWith('/aitool');
+    // 支援不同環境的路由格式：
+    // - 開發環境: /aitool/search, /aitool/detail
+    // - 正式環境: /search, /detail
+    const isAiToolPage = pathname.startsWith('/aitool') || 
+                        pathname.startsWith('/search') || 
+                        pathname.startsWith('/detail');
     setShouldRender(isAiToolPage);
   }, [pathname]);
 

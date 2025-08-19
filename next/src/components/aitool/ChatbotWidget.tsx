@@ -3,10 +3,16 @@
 import { useState, useEffect } from 'react';
 import { MessageCircle, X, Minimize, Maximize } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const pathname = usePathname();
+
+  // 檢測是否需要為 GA Debug 按鈕讓出空間
+  const shouldAdjustForDebug = process.env.NODE_ENV === 'development' &&
+    (pathname.startsWith('/aitool/search') || pathname.startsWith('/search'));
 
   // 添加 useEffect 來監控狀態變化
   useEffect(() => {
@@ -33,14 +39,14 @@ const ChatbotWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className={`fixed z-50 ${shouldAdjustForDebug ? 'bottom-[4.5rem] right-4' : 'bottom-5 right-4'}`}>
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, height: '60px' }}
-            animate={{ 
-              opacity: 1, 
-              y: 0, 
+            animate={{
+              opacity: 1,
+              y: 0,
               height: isMinimized ? '60px' : '600px',
               width: isMinimized ? '300px' : '400px'
             }}
@@ -71,9 +77,9 @@ const ChatbotWidget = () => {
                 </button>
               </div>
             </div>
-            
-            <div 
-              className="relative w-full" 
+
+            <div
+              className="relative w-full"
               style={{ height: 'calc(100% - 60px)' }}
               ref={(el) => {
                 if (el) {
@@ -83,14 +89,14 @@ const ChatbotWidget = () => {
               <iframe
                 src="https://kmgpt.leopilot.com/chat/share?shared_id=0d6127e85d5a11f0a1450242ac130006&from=agent&auth=UwMjUzMzM2NTcxZTExZjBhMTIwMDI0Mm&visible_avatar=1&locale=zh-TRADITIONAL"
                 className={`absolute inset-0 w-full h-full transition-all duration-300 ${
-                  isMinimized 
-                    ? 'invisible opacity-0 pointer-events-none' 
+                  isMinimized
+                    ? 'invisible opacity-0 pointer-events-none'
                     : 'visible opacity-100 pointer-events-auto'
                 }`}
                 frameBorder="0"
                 title="聊天機器人"
-                style={{ 
-                  width: '100%', 
+                style={{
+                  width: '100%',
                   height: '100%',
                   display: 'block'
                 }}
