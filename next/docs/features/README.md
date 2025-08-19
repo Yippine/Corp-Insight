@@ -65,10 +65,26 @@ feature-name/
 4. **Dev**：根據 stories/ 進行開發實作
 5. **QA**：建立 testing/ 驗收標準
 
-### Git 工作流程整合
-- **開發階段**：使用 `.claude/commands/git/wip.md` 暫存進度
-- **完成階段**：使用 `.claude/commands/git/release.md` 正式上版
-- **規範遵循**：`docs/guidelines/coding-standards.md` 編碼規範
+### 智能開發工具整合
+
+#### Git 版本控制
+- **開發階段**：`/wip` - 暫存開發進度 
+- **完成階段**：`/release` - 正式上版流程
+- **詳細說明**：參閱 `.claude/commands/git/README.md`
+
+#### 智能治理系統  
+- **規範建立**：`/govern-spec` - 智能建立功能規範
+- **健康檢查**：`/govern-audit` - 全方位專案掃描
+- **版本管理**：`/govern-tag` - Epic 完成自動標記版本
+- **規範同步**：`/govern-sync` - 智能同步規範更新
+- **智能入口**：`/govern` - 自然語言意圖識別
+- **詳細說明**：參閱 `.claude/commands/governance/README.md`
+
+#### BMad Method 整合
+- **智能協調**：`/bmad-orchestrator` - Agent 智能建議
+- **角色協作**：各專業 Agent (pm/dev/qa/architect)
+- **任務執行**：`/bmad-master` - 直接任務執行
+- **詳細說明**：參閱 `.claude/commands/BMad/README.md`
 
 ### 狀態管理
 - 功能開發狀態追蹤：`docs/project-status.yml`

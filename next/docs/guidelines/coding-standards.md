@@ -172,8 +172,10 @@ architecture-guide.md →
 - **WIP 提交**：使用台灣繁體中文簡潔描述
 - **正式提交**：使用英文，遵循專案既有 Git 工作流程規範
 - **完整 Git 工作流程**：
-  - WIP 暫存：`.claude/commands/git/wip.md`
-  - Release 上版：`.claude/commands/git/release.md`
+  - WIP 暫存：`/wip` - 參閱 `.claude/commands/git/README.md`
+  - Release 上版：`/release` - 參閱 `.claude/commands/git/README.md`
+  - 智能治理：`/govern` - 參閱 `.claude/commands/governance/README.md`
+  - BMad 整合：`/bmad-orchestrator` - 參閱 `.claude/commands/BMad/README.md`
 - **BMad Method 整合**：符合 `docs/features/README.md` 開發流程
 
 ### 範例
