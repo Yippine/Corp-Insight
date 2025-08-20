@@ -2,7 +2,6 @@
 
 import {
   Cylinder,
-  BarChart,
   CircleHelp,
   Loader2,
   AlertTriangle,

@@ -50,7 +50,7 @@ async function analyzeBackupFile(filePath: string): Promise<BackupAnalysis> {
                         if (Array.isArray(data)) {
                           recordCount = data.length;
                         }
-                      } catch (e) {
+                      } catch {
                         recordCount = fileContent
                           .split('\n')
                           .filter(line => line.trim().startsWith('{')).length;
@@ -76,7 +76,7 @@ async function analyzeBackupFile(filePath: string): Promise<BackupAnalysis> {
         try {
           await Promise.all(entryPromises);
           resolve();
-        } catch (error) {
+        } catch {
           reject(error);
         }
       });
@@ -92,7 +92,7 @@ async function analyzeBackupFile(filePath: string): Promise<BackupAnalysis> {
       totalRecords,
       modifiedTime: stats.mtime,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`Failed to analyze backup file ${filePath}:`, error);
     const stats = await fs.promises.stat(filePath).catch(() => null);
     return {
@@ -117,7 +117,7 @@ export async function GET(req: NextRequest) {
 
   try {
     await fs.promises.access(BACKUP_DIR);
-  } catch (error) {
+  } catch {
     return NextResponse.json([]);
   }
 
@@ -138,7 +138,7 @@ export async function GET(req: NextRequest) {
     );
 
     return NextResponse.json(analyses);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return new NextResponse(
       JSON.stringify({
         error: 'Failed to analyze backup files',

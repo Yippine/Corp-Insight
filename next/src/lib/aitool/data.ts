@@ -1,7 +1,6 @@
 import { getDb } from '@/lib/mongodbUtils';
 import { Filter } from 'mongodb';
 import {
-  AIToolModel,
   AIToolDocument as DBToolDocument,
 } from '@/lib/database/models/AITool';
 import type { Tools } from './types';
@@ -9,7 +8,7 @@ import { mapAiToolDocumentsToTools } from './utils';
 const OpenCC = require('opencc-js');
 
 // 初始化 OpenCC 轉換器
-const toSimplified = OpenCC.Converter({ from: 'tw', to: 'cn' });
+const _toSimplified = OpenCC.Converter({ from: 'tw', to: 'cn' });
 const toTraditional = OpenCC.Converter({ from: 'cn', to: 'tw' });
 
 // 定義 prompt_templates collection 的文件結構

@@ -6,14 +6,14 @@ import { usePathname, useSearchParams } from 'next/navigation';
 interface GAEvent {
   timestamp: string;
   type: string;
-  data: any;
+  data: unknown;
 }
 
 export default function GoogleAnalyticsDebug() {
   const [events, setEvents] = useState<GAEvent[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const _searchParams = useSearchParams();
 
   useEffect(() => {
     // 只在開發環境顯示
@@ -22,7 +22,7 @@ export default function GoogleAnalyticsDebug() {
     // 監聽 GA 事件
     const originalGtag = window.gtag;
     if (originalGtag) {
-      window.gtag = function (...args: any[]) {
+      window.gtag = function (...args: unknown[]) {
         // 記錄事件
         const event: GAEvent = {
           timestamp: new Date().toLocaleTimeString(),

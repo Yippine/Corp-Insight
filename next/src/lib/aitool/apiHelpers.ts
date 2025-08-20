@@ -1,6 +1,6 @@
 "use client";
 
-import type { Tools, ColorTheme, TagStats } from "./types";
+import type { Tools, TagStats } from "./types";
 import { SITE_CONFIG } from "@/config/site";
 
 // 獲取 API 基礎 URL

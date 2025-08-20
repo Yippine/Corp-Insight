@@ -156,7 +156,7 @@ export async function generateMetadata({
     searchType,
     1
   );
-  const hasResults = searchResults.results.length > 0;
+  const _hasResults = searchResults.results.length > 0;
 
   // 使用 SEO 組件生成元數據
   const metadata = generateTenderSearchMetadata({

@@ -71,7 +71,7 @@ export async function GET() {
   ];
 
   // 動態頁面 - 從資料庫獲取熱門企業和標案
-  let dynamicPages: SitemapUrl[] = [];
+  const dynamicPages: SitemapUrl[] = [];
 
   try {
     const client = new MongoClient(MONGODB_URI);

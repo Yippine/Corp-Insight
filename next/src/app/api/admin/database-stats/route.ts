@@ -2,14 +2,13 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/database/connection';
 import fs from 'fs/promises';
 import path from 'path';
-import { Collection } from 'mongodb';
 
 async function getLatestBackupInfo() {
   const backupDir = path.join(process.cwd(), 'db', 'backups');
   try {
     try {
       await fs.access(backupDir);
-    } catch (e) {
+    } catch {
       console.log('Backup directory does not exist, creating it.');
       await fs.mkdir(backupDir, { recursive: true });
       return { latestBackupDate: null, backupCount: 0 };
