@@ -138,10 +138,10 @@ export default async function CompanySearchPage({
 
       {/* GA 搜尋結果追蹤 */}
       {decodedQuery && (
-        <CompanySearchTracker 
-          query={decodedQuery} 
-          totalResults={companies.length} 
-          hasError={!!error} 
+        <CompanySearchTracker
+          query={decodedQuery}
+          totalResults={companies.length}
+          hasError={!!error}
         />
       )}
 
@@ -160,7 +160,7 @@ export default async function CompanySearchPage({
             isSingleResult={isSingleResult}
           />
         </Suspense>
-        
+
         {renderSearchResults()}
 
         {/* 未搜索時顯示功能介紹 */}

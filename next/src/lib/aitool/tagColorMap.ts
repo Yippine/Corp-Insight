@@ -11,8 +11,8 @@ export const colorPalettes: Omit<ColorTheme, 'name'>[] = [
     shadow: 'shadow-pink-500/10',
     gradient: {
       from: 'from-pink-500 bg-opacity-85',
-      to: 'to-rose-500'
-    }
+      to: 'to-rose-500',
+    },
   },
   {
     primary: 'bg-rose-400 bg-opacity-85',
@@ -23,8 +23,8 @@ export const colorPalettes: Omit<ColorTheme, 'name'>[] = [
     shadow: 'shadow-rose-400/20',
     gradient: {
       from: 'from-rose-400 bg-opacity-85',
-      to: 'to-rose-300'
-    }
+      to: 'to-rose-300',
+    },
   },
   {
     primary: 'bg-amber-500 bg-opacity-75',
@@ -35,8 +35,8 @@ export const colorPalettes: Omit<ColorTheme, 'name'>[] = [
     shadow: 'shadow-amber-500/10',
     gradient: {
       from: 'from-amber-500 bg-opacity-85',
-      to: 'to-yellow-500'
-    }
+      to: 'to-yellow-500',
+    },
   },
   {
     primary: 'bg-emerald-500 bg-opacity-85',
@@ -47,8 +47,8 @@ export const colorPalettes: Omit<ColorTheme, 'name'>[] = [
     shadow: 'shadow-emerald-500/10',
     gradient: {
       from: 'from-emerald-500 bg-opacity-85',
-      to: 'to-green-500'
-    }
+      to: 'to-green-500',
+    },
   },
   {
     primary: 'bg-sky-400 bg-opacity-85',
@@ -59,8 +59,8 @@ export const colorPalettes: Omit<ColorTheme, 'name'>[] = [
     shadow: 'shadow-sky-400/20',
     gradient: {
       from: 'from-sky-400 bg-opacity-85',
-      to: 'to-sky-500'
-    }
+      to: 'to-sky-500',
+    },
   },
   {
     primary: 'bg-indigo-500 bg-opacity-85',
@@ -71,8 +71,8 @@ export const colorPalettes: Omit<ColorTheme, 'name'>[] = [
     shadow: 'shadow-indigo-300/20',
     gradient: {
       from: 'from-indigo-300 bg-opacity-85',
-      to: 'to-indigo-400'
-    }
+      to: 'to-indigo-400',
+    },
   },
   {
     primary: 'bg-purple-500 bg-opacity-90',
@@ -83,9 +83,9 @@ export const colorPalettes: Omit<ColorTheme, 'name'>[] = [
     shadow: 'shadow-purple-500/10',
     gradient: {
       from: 'from-purple-500 bg-opacity-90',
-      to: 'to-fuchsia-500'
-    }
-  }
+      to: 'to-fuchsia-500',
+    },
+  },
 ];
 
 const tagColorMap = new Map<string, ColorTheme>();
@@ -125,7 +125,7 @@ export function getTagColor(tag: string, forceHash = false): ColorTheme {
   if (!forceHash && tagColorMap.has(tag)) {
     return tagColorMap.get(tag)!;
   }
-  
+
   // 為「全部」標籤提供一個固定的、中性的主題
   if (tag === '全部') {
     const theme: ColorTheme = {
@@ -142,7 +142,7 @@ export function getTagColor(tag: string, forceHash = false): ColorTheme {
     tagColorMap.set(tag, theme);
     return theme;
   }
-  
+
   let hash = 0;
   for (let i = 0; i < tag.length; i++) {
     hash = (hash << 5) - hash + tag.charCodeAt(i);
@@ -151,7 +151,7 @@ export function getTagColor(tag: string, forceHash = false): ColorTheme {
 
   const index = Math.abs(hash) % colorPalettes.length;
   const palette = colorPalettes[index];
-  
+
   const theme: ColorTheme = {
     name: tag,
     ...palette,

@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import Instructions from '../Instructions';
-import { questions, constitutions } from '../../../data/tcm';
-import { streamGenerateContent } from '../../../lib/gemini';
-import { formatConstitutionTitle } from '../../../utils/tcmFormatter';
-import type { ConstitutionScore } from 'tcm-types';
-import { ButtonLoading } from '../../common/loading';
-
+import { useState } from "react";
+import Instructions from "../Instructions";
+import { questions, constitutions } from "../../../data/tcm";
+import { streamGenerateContent } from "../../../lib/gemini";
+import { formatConstitutionTitle } from "../../../utils/tcmFormatter";
+import type { ConstitutionScore } from "tcm-types";
+import { ButtonLoading } from "../../common/loading";
 
 interface GenerationResult {
   content: string;
@@ -18,52 +17,56 @@ export default function TCMCheck() {
   const [result, setResult] = useState<GenerationResult | null>(null);
 
   const handleAnswerChange = (questionId: string, value: number) => {
-    setAnswers(prev => ({
+    setAnswers((prev) => ({
       ...prev,
-      [questionId]: value
+      [questionId]: value,
     }));
   };
 
   const generatePrompt = (isOptimizing: boolean) => {
-    if (isOptimizing && !result?.content) return '';
+    if (isOptimizing && !result?.content) return "";
 
     // 計算各體質得分
     const scores: Record<string, number> = {};
-    constitutions.forEach(constitution => {
+    constitutions.forEach((constitution) => {
       scores[constitution.id] = 0;
     });
 
     Object.entries(answers).forEach(([questionId, value]) => {
-      const question = questions.find(q => q.id === questionId);
+      const question = questions.find((q) => q.id === questionId);
       if (question) {
-        Object.entries(question.constitutions).forEach(([constitutionId, weight]) => {
-          // 引入非線性加權公式
-          const adjustedValue = Math.pow(value, 1.5) * (weight / 2);
-          scores[constitutionId] += constitutionId === 'balanced' 
-            ? adjustedValue * 0.8  // 降低平和質權重
-            : adjustedValue * 1.2; // 提高其他體質權重
-        });
+        Object.entries(question.constitutions).forEach(
+          ([constitutionId, weight]) => {
+            // 引入非線性加權公式
+            const adjustedValue = Math.pow(value, 1.5) * (weight / 2);
+            scores[constitutionId] +=
+              constitutionId === "balanced"
+                ? adjustedValue * 0.8 // 降低平和質權重
+                : adjustedValue * 1.2; // 提高其他體質權重
+          }
+        );
       }
     });
 
     // 計算所有體質原始分數
-    const allScores = constitutions.map(c => ({
+    const allScores = constitutions.map((c) => ({
       id: c.id,
       score: scores[c.id],
-      threshold: c.threshold
+      threshold: c.threshold,
     }));
 
     // 排除平和質後排序
     const sortedConstitutions = allScores
-      .filter(c => c.id !== 'balanced')
+      .filter((c) => c.id !== "balanced")
       .sort((a, b) => b.score - a.score);
 
     // 主要體質判定條件
     const primaryConstitutions = sortedConstitutions
-      .filter(c => {
-        const threshold = c.id === 'balanced' 
-          ? c.threshold * 1.2  // 提高平和質門檻
-          : c.threshold * 0.9; // 降低其他體質門檻
+      .filter((c) => {
+        const threshold =
+          c.id === "balanced"
+            ? c.threshold * 1.2 // 提高平和質門檻
+            : c.threshold * 0.9; // 降低其他體質門檻
         return c.score >= threshold;
       })
       .slice(0, 3) // 最多三種體質
@@ -73,7 +76,7 @@ export default function TCMCheck() {
       });
 
     // 平和質特殊條件
-    const balancedScore = allScores.find(c => c.id === 'balanced')!;
+    const balancedScore = allScores.find((c) => c.id === "balanced")!;
     if (
       balancedScore.score >= balancedScore.threshold &&
       balancedScore.score > (sortedConstitutions[0]?.score || 0)
@@ -82,12 +85,11 @@ export default function TCMCheck() {
     }
 
     // 最終判定結果
-    const matchedConstitutions: ConstitutionScore[] = primaryConstitutions.length > 0 
-      ? primaryConstitutions 
-      : [balancedScore]; // 預設平和質
+    const matchedConstitutions: ConstitutionScore[] =
+      primaryConstitutions.length > 0 ? primaryConstitutions : [balancedScore]; // 預設平和質
 
     const title = formatConstitutionTitle(
-      matchedConstitutions.map(c => c.id)
+      matchedConstitutions.map((c) => c.id)
     );
 
     const basePrompt = `您是一位專業的中醫師，請根據以下體質評估結果，提供結構化的養生指南：
@@ -95,12 +97,16 @@ export default function TCMCheck() {
 # ${title}
 
 ## 基礎體質分析
-${matchedConstitutions.map(c => {
-  const constitution = constitutions.find(ct => ct.id === c.id)!;
-  return `### ${constitution.name}特徵\n` +
-  `• 體質描述：${constitution.description}\n` +
-  `• 基礎調理建議：\n${constitution.recommendations.map(r => `  - ${r}`).join('\n')}`;
-}).join('\n\n')}
+${matchedConstitutions
+  .map((c) => {
+    const constitution = constitutions.find((ct) => ct.id === c.id)!;
+    return (
+      `### ${constitution.name}特徵\n` +
+      `• 體質描述：${constitution.description}\n` +
+      `• 基礎調理建議：\n${constitution.recommendations.map((r) => `  - ${r}`).join("\n")}`
+    );
+  })
+  .join("\n\n")}
 
 ## 進階調理建議
 ### 中藥調理
@@ -140,7 +146,7 @@ ${matchedConstitutions.map(c => {
 ## 養生箴言
 > {{根據體質類型撰寫50字內重點提醒}}
 
-${isOptimizing ? '\n需基於現有建議優化：\n' + result?.content + '\n\n參考方向：\n1. 補充台灣在地化食材\n2. 增加穴位按摩圖示說明\n3. 強化季節適應要點' : ''}
+${isOptimizing ? "\n需基於現有建議優化：\n" + result?.content + "\n\n參考方向：\n1. 補充台灣在地化食材\n2. 增加穴位按摩圖示說明\n3. 強化季節適應要點" : ""}
 
 ### CRITICAL WARNING ###
 The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
@@ -157,26 +163,26 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
 
     setIsGenerating(true);
     if (result) {
-      setResult(prev => {
+      setResult((prev) => {
         if (!prev) return null;
         return {
           ...prev,
-          isOptimizing: true
+          isOptimizing: true,
         };
       });
     }
 
     try {
       const prompt = generatePrompt(isOptimizing);
-      
+
       await streamGenerateContent(prompt, (text) => {
         setResult({
           content: text,
-          isOptimizing: false
+          isOptimizing: false,
         });
       });
     } catch (error) {
-      console.error('Generation failed:', error);
+      console.error("Generation failed:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -191,12 +197,18 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
       />
 
       <div className="space-y-6">
-        {questions.map(question => (
-          <div key={question.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+        {questions.map((question) => (
+          <div
+            key={question.id}
+            className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+          >
             <p className="text-lg text-gray-800 mb-4">{question.text}</p>
             <div className="flex items-center justify-between px-4">
-              {[0, 1, 2, 3, 4].map(value => (
-                <label key={value} className="flex flex-col items-center space-y-2 cursor-pointer group">
+              {[0, 1, 2, 3, 4].map((value) => (
+                <label
+                  key={value}
+                  className="flex flex-col items-center space-y-2 cursor-pointer group"
+                >
                   <input
                     type="radio"
                     name={question.id}
@@ -224,42 +236,51 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
         <div className="flex space-x-4">
           <button
             onClick={() => handleGenerate(false)}
-            disabled={isGenerating || Object.keys(answers).length !== questions.length}
+            disabled={
+              isGenerating || Object.keys(answers).length !== questions.length
+            }
             className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
           >
             {isGenerating && !result?.isOptimizing ? (
               <ButtonLoading text="分析中..." />
             ) : (
-              '開始分析'
+              "開始分析"
             )}
           </button>
 
           <button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !result || Object.keys(answers).length !== questions.length}
+            disabled={
+              isGenerating ||
+              !result ||
+              Object.keys(answers).length !== questions.length
+            }
             className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
               result
-                ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
-                : 'border-gray-300 text-gray-400'
+                ? "border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500"
+                : "border-gray-300 text-gray-400"
             }`}
           >
             {result?.isOptimizing ? (
               <ButtonLoading text="優化中..." />
             ) : (
-              '延續分析並優化'
+              "延續分析並優化"
             )}
           </button>
         </div>
 
         {result && (
           <div className="bg-white rounded-lg p-6 shadow-lg">
-            <h3 className="text-xl font-medium text-gray-900 mb-4">體質分析結果</h3>
+            <h3 className="text-xl font-medium text-gray-900 mb-4">
+              體質分析結果
+            </h3>
             <div className="prose prose-blue max-w-none">
               <div className="space-y-4 whitespace-pre-wrap font-mono text-base">
-                {typeof result.content === 'string' ? 
-                 result.content.split('\n').map((line, i) => (
-                   <p key={i}>{line}</p>
-                 )) : null}
+                {typeof result.content === "string"
+                  ? result.content
+                      .split("\n")
+                      .map((line, i) => <p key={i}>{line}</p>)
+                  : null}
               </div>
             </div>
           </div>

@@ -4,10 +4,7 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListFilter, Search, TestTube2 } from 'lucide-react';
-import {
-  searchToolsFromAPI,
-  getTagStatistics,
-} from '@/lib/aitool/apiHelpers';
+import { searchToolsFromAPI, getTagStatistics } from '@/lib/aitool/apiHelpers';
 import { initializeTagColorMap, getTagColor } from '@/lib/aitool/tagColorMap';
 import { getIconForTag } from '@/lib/aitool/tagIconMap';
 import type { Tools } from '@/lib/aitool/types';
@@ -126,9 +123,15 @@ export default function AiToolSearch({
     if (typeof window !== 'undefined' && !isLoading) {
       const hasResults = tools.length > 0;
       if (!hasResults) {
-        document.title = dynamicTitles.aiToolSearchNoResult(searchQuery, selectedTag);
+        document.title = dynamicTitles.aiToolSearchNoResult(
+          searchQuery,
+          selectedTag
+        );
       } else if (searchQuery && selectedTag) {
-        document.title = dynamicTitles.aiToolSearchWithQueryAndTag(searchQuery, selectedTag);
+        document.title = dynamicTitles.aiToolSearchWithQueryAndTag(
+          searchQuery,
+          selectedTag
+        );
       } else if (searchQuery) {
         document.title = dynamicTitles.aiToolSearchWithQuery(searchQuery);
       } else if (selectedTag) {
@@ -145,7 +148,7 @@ export default function AiToolSearch({
       return newTag;
     });
   };
-  
+
   // 當 selectedTag 改變時，觸發 GA 事件
   useEffect(() => {
     if (!isLoading && selectedTag) {
@@ -153,11 +156,13 @@ export default function AiToolSearch({
     }
   }, [selectedTag, tools, isLoading]);
 
-
   const handleToolClick = (toolId: string) => {
     const clickedTool = tools.find(tool => tool.id === toolId);
     if (clickedTool) {
-      trackBusinessEvents.aiToolUse(clickedTool.name, clickedTool.tags[0] || 'unknown');
+      trackBusinessEvents.aiToolUse(
+        clickedTool.name,
+        clickedTool.tags[0] || 'unknown'
+      );
     }
 
     sessionStorage.setItem('toolSearchParams', searchParams.toString());
@@ -188,7 +193,8 @@ export default function AiToolSearch({
   };
 
   const currentTag = searchParams.get('tag') || '';
-  const isDebugButtonDisabled = !searchQuery || (!isLoading && tools.length === 0);
+  const isDebugButtonDisabled =
+    !searchQuery || (!isLoading && tools.length === 0);
 
   return (
     <div className="space-y-8">
@@ -212,7 +218,9 @@ export default function AiToolSearch({
             <motion.button
               onClick={() => setShowDebugInfo(prev => !prev)}
               disabled={isDebugButtonDisabled}
-              whileHover={isDebugButtonDisabled ? {} : { filter: 'brightness(90%)' }}
+              whileHover={
+                isDebugButtonDisabled ? {} : { filter: 'brightness(90%)' }
+              }
               whileTap={{ filter: 'brightness(80%)' }}
               className={`ml-4 flex items-center rounded-lg px-4 py-2 font-medium transition-all duration-200 ${
                 isDebugButtonDisabled
@@ -236,56 +244,52 @@ export default function AiToolSearch({
         <div className="mb-6 flex flex-wrap items-center gap-2">
           {tagsForFilter.length > 0 ? (
             <>
-              {tagsForFilter
-                .slice(0, 12)
-                .map(tag => {
-                  const theme = getTagColor(tag);
-                  const TagIcon = getIconForTag(tag);
-                  return (
-                    <motion.button
-                      key={tag}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleTagSelect(tag)}
-                      className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-medium transition-all duration-300 ${
-                        currentTag === tag || (!currentTag && tag === '全部')
-                          ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
-                          : `${theme.secondary} ${theme.text} ${theme.hover}`
-                      }`}
-                    >
-                      <TagIcon className="h-4 w-4" />
-                      <span>{tag}</span>
-                    </motion.button>
-                  );
-                })}
+              {tagsForFilter.slice(0, 12).map(tag => {
+                const theme = getTagColor(tag);
+                const TagIcon = getIconForTag(tag);
+                return (
+                  <motion.button
+                    key={tag}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleTagSelect(tag)}
+                    className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-medium transition-all duration-300 ${
+                      currentTag === tag || (!currentTag && tag === '全部')
+                        ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
+                        : `${theme.secondary} ${theme.text} ${theme.hover}`
+                    }`}
+                  >
+                    <TagIcon className="h-4 w-4" />
+                    <span>{tag}</span>
+                  </motion.button>
+                );
+              })}
               <AnimatePresence>
                 {isTagsExpanded &&
-                  tagsForFilter
-                    .slice(12)
-                    .map(tag => {
-                      const theme = getTagColor(tag);
-                      const TagIcon = getIconForTag(tag);
-                      return (
-                        <motion.button
-                          key={tag}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.2 }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleTagSelect(tag)}
-                          className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-medium transition-all duration-300 ${
-                            currentTag === tag
-                              ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
-                              : `${theme.secondary} ${theme.text} ${theme.hover}`
-                          }`}
-                        >
-                          <TagIcon className="h-4 w-4" />
-                          <span>{tag}</span>
-                        </motion.button>
-                      );
-                    })}
+                  tagsForFilter.slice(12).map(tag => {
+                    const theme = getTagColor(tag);
+                    const TagIcon = getIconForTag(tag);
+                    return (
+                      <motion.button
+                        key={tag}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.2 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleTagSelect(tag)}
+                        className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-medium transition-all duration-300 ${
+                          currentTag === tag
+                            ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
+                            : `${theme.secondary} ${theme.text} ${theme.hover}`
+                        }`}
+                      >
+                        <TagIcon className="h-4 w-4" />
+                        <span>{tag}</span>
+                      </motion.button>
+                    );
+                  })}
               </AnimatePresence>
               {tagsForFilter.length > 12 && (
                 <motion.button
@@ -294,7 +298,9 @@ export default function AiToolSearch({
                   whileTap={{ scale: 0.95 }}
                   className="rounded-full border-2 border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-600"
                 >
-                  {isTagsExpanded ? '收合部分標籤' : `+ ${tagsForFilter.length - 12} 個其他標籤`}
+                  {isTagsExpanded
+                    ? '收合部分標籤'
+                    : `+ ${tagsForFilter.length - 12} 個其他標籤`}
                 </motion.button>
               )}
             </>

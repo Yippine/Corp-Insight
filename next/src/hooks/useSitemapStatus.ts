@@ -29,7 +29,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 分鐘緩存
 const DATA_EXPECTATIONS = {
   companies: { min: 10000, target: 50000 },
   tenders: { min: 5000, target: 25000 },
-  aitools: { min: 1000, target: 5000 }
+  aitools: { min: 1000, target: 5000 },
 };
 
 // 初始狀態定義 - 改為未檢測狀態
@@ -40,7 +40,7 @@ const createInitialStatus = (): SitemapStatusState => ({
     url: '/sitemap.xml',
     status: 'testing',
     description: '靜態頁面 + 動態內容',
-    statusText: '準備檢測...'
+    statusText: '準備檢測...',
   },
   index: {
     id: 'index',
@@ -48,7 +48,7 @@ const createInitialStatus = (): SitemapStatusState => ({
     url: '/sitemap-index.xml',
     status: 'testing',
     description: '管理所有 sitemap 索引',
-    statusText: '準備檢測...'
+    statusText: '準備檢測...',
   },
   companies: {
     id: 'companies',
@@ -58,7 +58,7 @@ const createInitialStatus = (): SitemapStatusState => ({
     description: '企業詳情頁面',
     statusText: '準備檢測...',
     expectedMin: DATA_EXPECTATIONS.companies.min,
-    expectedTarget: DATA_EXPECTATIONS.companies.target
+    expectedTarget: DATA_EXPECTATIONS.companies.target,
   },
   tenders: {
     id: 'tenders',
@@ -68,7 +68,7 @@ const createInitialStatus = (): SitemapStatusState => ({
     description: '標案詳情頁面',
     statusText: '準備檢測...',
     expectedMin: DATA_EXPECTATIONS.tenders.min,
-    expectedTarget: DATA_EXPECTATIONS.tenders.target
+    expectedTarget: DATA_EXPECTATIONS.tenders.target,
   },
   aitools: {
     id: 'aitools',
@@ -78,7 +78,7 @@ const createInitialStatus = (): SitemapStatusState => ({
     description: 'AI 工具詳情頁面',
     statusText: '準備檢測...',
     expectedMin: DATA_EXPECTATIONS.aitools.min,
-    expectedTarget: DATA_EXPECTATIONS.aitools.target
+    expectedTarget: DATA_EXPECTATIONS.aitools.target,
   },
   robots: {
     id: 'robots',
@@ -86,12 +86,14 @@ const createInitialStatus = (): SitemapStatusState => ({
     url: '/robots.txt',
     status: 'testing',
     description: '搜索引擎爬蟲指令',
-    statusText: '準備檢測...'
-  }
+    statusText: '準備檢測...',
+  },
 });
 
 export function useSitemapStatus() {
-  const [statusMap, setStatusMap] = useState<SitemapStatusState>(() => createInitialStatus());
+  const [statusMap, setStatusMap] = useState<SitemapStatusState>(() =>
+    createInitialStatus()
+  );
   const [isLoading, setIsLoading] = useState(true); // 改為默認 loading
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -99,14 +101,14 @@ export function useSitemapStatus() {
   useEffect(() => {
     const initializeStatus = async () => {
       console.log('🚀 正在初始化 Sitemap 狀態...');
-      
+
       const loadFromStorage = () => {
         try {
           const cached = localStorage.getItem(STORAGE_KEY);
           if (cached) {
             const { data, timestamp } = JSON.parse(cached);
             const now = Date.now();
-            
+
             // 檢查緩存是否過期
             if (now - timestamp < CACHE_DURATION) {
               // 轉換日期字符串回 Date 對象
@@ -115,8 +117,10 @@ export function useSitemapStatus() {
                   key,
                   {
                     ...item,
-                    lastChecked: item.lastChecked ? new Date(item.lastChecked) : undefined
-                  }
+                    lastChecked: item.lastChecked
+                      ? new Date(item.lastChecked)
+                      : undefined,
+                  },
                 ])
               );
               setStatusMap(parsedData);
@@ -139,30 +143,39 @@ export function useSitemapStatus() {
           if (response.ok) {
             const serverData = await response.json();
             const now = Date.now();
-            
+
             // 檢查服務器數據是否比本地緩存新
             const localData = localStorage.getItem(STORAGE_KEY);
-            const localTimestamp = localData ? JSON.parse(localData).timestamp : 0;
-            
+            const localTimestamp = localData
+              ? JSON.parse(localData).timestamp
+              : 0;
+
             if (serverData.timestamp > localTimestamp) {
               // 服務器數據更新，同步到本地
               const parsedData = Object.fromEntries(
-                Object.entries(serverData.statusMap).map(([key, item]: [string, any]) => [
-                  key,
-                  {
-                    ...item,
-                    lastChecked: item.lastChecked ? new Date(item.lastChecked) : undefined
-                  }
-                ])
+                Object.entries(serverData.statusMap).map(
+                  ([key, item]: [string, any]) => [
+                    key,
+                    {
+                      ...item,
+                      lastChecked: item.lastChecked
+                        ? new Date(item.lastChecked)
+                        : undefined,
+                    },
+                  ]
+                )
               );
               setStatusMap(parsedData);
-              
+
               // 更新本地緩存
-              localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                data: parsedData,
-                timestamp: now
-              }));
-              
+              localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify({
+                  data: parsedData,
+                  timestamp: now,
+                })
+              );
+
               console.log('📡 從服務器載入最新狀態');
               return true;
             } else {
@@ -179,7 +192,7 @@ export function useSitemapStatus() {
       // 🎯 首次自動檢測邏輯
       const performInitialTest = async () => {
         console.log('🔍 執行首次自動檢測...');
-        
+
         // 更新狀態為檢測中
         setStatusMap(prev => {
           const newStatus = { ...prev };
@@ -187,7 +200,7 @@ export function useSitemapStatus() {
             newStatus[id] = {
               ...newStatus[id],
               status: 'testing',
-              statusText: '檢測中...'
+              statusText: '檢測中...',
             };
           });
           return newStatus;
@@ -195,7 +208,7 @@ export function useSitemapStatus() {
 
         try {
           // 並行測試所有項目
-          const testPromises = Object.keys(statusMap).map(async (id) => {
+          const testPromises = Object.keys(statusMap).map(async id => {
             const item = statusMap[id];
             if (!item) return;
 
@@ -208,8 +221,11 @@ export function useSitemapStatus() {
 
               if (response.ok) {
                 // 分析內容並判斷狀態
-                const { dataCount, dataStatus, statusText } = analyzeContent(text, id);
-                
+                const { dataCount, dataStatus, statusText } = analyzeContent(
+                  text,
+                  id
+                );
+
                 // 根據資料狀態決定整體狀態
                 let overallStatus: 'success' | 'warning' | 'error';
                 if (dataStatus === 'empty' || dataStatus === 'low') {
@@ -227,8 +243,8 @@ export function useSitemapStatus() {
                     contentLength,
                     dataCount,
                     dataStatus: dataStatus as any,
-                    lastChecked: new Date()
-                  }
+                    lastChecked: new Date(),
+                  },
                 };
               } else {
                 return {
@@ -239,8 +255,8 @@ export function useSitemapStatus() {
                     responseTime,
                     dataCount: 0,
                     dataStatus: 'empty' as any,
-                    lastChecked: new Date()
-                  }
+                    lastChecked: new Date(),
+                  },
                 };
               }
             } catch (error) {
@@ -252,14 +268,14 @@ export function useSitemapStatus() {
                   responseTime: undefined,
                   dataCount: 0,
                   dataStatus: 'empty' as any,
-                  lastChecked: new Date()
-                }
+                  lastChecked: new Date(),
+                },
               };
             }
           });
 
           const results = await Promise.all(testPromises);
-          
+
           // 批量更新狀態
           setStatusMap(prev => {
             const newStatus = { ...prev };
@@ -267,21 +283,21 @@ export function useSitemapStatus() {
               if (result) {
                 newStatus[result.id] = {
                   ...prev[result.id],
-                  ...result.updates
+                  ...result.updates,
                 };
               }
             });
-            
+
             // 保存到緩存
             const cacheData = {
               data: newStatus,
-              timestamp: Date.now()
+              timestamp: Date.now(),
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(cacheData));
-            
+
             return newStatus;
           });
-          
+
           console.log('✅ 自動檢測完成');
         } catch (error) {
           console.error('❌ 自動檢測失敗:', error);
@@ -292,7 +308,7 @@ export function useSitemapStatus() {
               newStatus[id] = {
                 ...newStatus[id],
                 status: 'error',
-                statusText: '❌ 檢測失敗'
+                statusText: '❌ 檢測失敗',
               };
             });
             return newStatus;
@@ -303,12 +319,12 @@ export function useSitemapStatus() {
       // 執行載入邏輯
       const hasCache = loadFromStorage();
       const hasServerData = await loadFromServer();
-      
+
       // 如果沒有任何快取資料，執行首次自動檢測
       if (!hasCache && !hasServerData) {
         await performInitialTest();
       }
-      
+
       setIsInitialized(true);
       setIsLoading(false);
     };
@@ -323,7 +339,7 @@ export function useSitemapStatus() {
     try {
       const cacheData = {
         data,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cacheData));
     } catch (error) {
@@ -332,34 +348,42 @@ export function useSitemapStatus() {
   }, []);
 
   // 更新單個項目狀態
-  const updateStatus = useCallback((id: string, updates: Partial<SitemapStatusItem>) => {
-    setStatusMap(prev => {
-      const newStatus = {
-        ...prev,
-        [id]: {
-          ...prev[id],
-          ...updates,
-          lastChecked: new Date()
-        }
-      };
-      saveToCache(newStatus);
-      return newStatus;
-    });
-  }, [saveToCache]);
+  const updateStatus = useCallback(
+    (id: string, updates: Partial<SitemapStatusItem>) => {
+      setStatusMap(prev => {
+        const newStatus = {
+          ...prev,
+          [id]: {
+            ...prev[id],
+            ...updates,
+            lastChecked: new Date(),
+          },
+        };
+        saveToCache(newStatus);
+        return newStatus;
+      });
+    },
+    [saveToCache]
+  );
 
   // 分析內容並計算資料量 (支援 XML 和 robots.txt)
-  const analyzeContent = (text: string, id: string): { dataCount: number; dataStatus: string; statusText: string } => {
+  const analyzeContent = (
+    text: string,
+    id: string
+  ): { dataCount: number; dataStatus: string; statusText: string } => {
     // 🎯 robots.txt 特殊處理
     if (id === 'robots') {
       return analyzeRobotsTxt(text);
     }
-    
+
     // XML 檔案處理
     return analyzeXmlContent(text, id);
   };
 
   // 分析 robots.txt 內容
-  const analyzeRobotsTxt = (text: string): { dataCount: number; dataStatus: string; statusText: string } => {
+  const analyzeRobotsTxt = (
+    text: string
+  ): { dataCount: number; dataStatus: string; statusText: string } => {
     try {
       const lines = text.trim().split('\n');
       const errors: string[] = [];
@@ -370,10 +394,10 @@ export function useSitemapStatus() {
 
       for (const line of lines) {
         const trimmedLine = line.trim();
-        
+
         // 跳過空行和註釋
         if (!trimmedLine || trimmedLine.startsWith('#')) continue;
-        
+
         const lowerLine = trimmedLine.toLowerCase();
         if (lowerLine.startsWith('user-agent:')) {
           userAgentCount++;
@@ -397,20 +421,21 @@ export function useSitemapStatus() {
       }
 
       if (errors.length > 0) {
-        return { 
-          dataCount: 0, 
-          dataStatus: 'empty', 
-          statusText: `❌ 格式錯誤：${errors[0]}` 
+        return {
+          dataCount: 0,
+          dataStatus: 'empty',
+          statusText: `❌ 格式錯誤：${errors[0]}`,
         };
       }
 
       // 計算總指令數
-      const totalDirectives = userAgentCount + allowCount + disallowCount + sitemapCount;
-      
-      return { 
-        dataCount: totalDirectives, 
-        dataStatus: 'normal', 
-        statusText: `✅ 格式正確 (${totalDirectives} 個指令)` 
+      const totalDirectives =
+        userAgentCount + allowCount + disallowCount + sitemapCount;
+
+      return {
+        dataCount: totalDirectives,
+        dataStatus: 'normal',
+        statusText: `✅ 格式正確 (${totalDirectives} 個指令)`,
       };
     } catch (error) {
       return { dataCount: 0, dataStatus: 'empty', statusText: '❌ 解析失敗' };
@@ -418,38 +443,49 @@ export function useSitemapStatus() {
   };
 
   // 分析 XML 內容並計算資料量
-  const analyzeXmlContent = (text: string, id: string): { dataCount: number; dataStatus: string; statusText: string } => {
+  const analyzeXmlContent = (
+    text: string,
+    id: string
+  ): { dataCount: number; dataStatus: string; statusText: string } => {
     try {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(text, 'text/xml');
       const parseError = xmlDoc.getElementsByTagName('parsererror');
-      
+
       if (parseError.length > 0) {
-        return { dataCount: 0, dataStatus: 'empty', statusText: '❌ XML 格式錯誤' };
+        return {
+          dataCount: 0,
+          dataStatus: 'empty',
+          statusText: '❌ XML 格式錯誤',
+        };
       }
 
       const urls = xmlDoc.getElementsByTagName('url');
       const sitemaps = xmlDoc.getElementsByTagName('sitemap');
       const totalItems = urls.length + sitemaps.length;
-      
+
       // 對於靜態檔案（非動態資料），直接回傳成功
       if (!['companies', 'tenders', 'aitools'].includes(id)) {
-        return { 
-          dataCount: totalItems, 
-          dataStatus: 'normal', 
-          statusText: `✅ 正常 (${totalItems} 個項目)` 
+        return {
+          dataCount: totalItems,
+          dataStatus: 'normal',
+          statusText: `✅ 正常 (${totalItems} 個項目)`,
         };
       }
 
       // 動態資料的業務邏輯判斷
       const expected = DATA_EXPECTATIONS[id as keyof typeof DATA_EXPECTATIONS];
       if (!expected) {
-        return { dataCount: totalItems, dataStatus: 'normal', statusText: `✅ 正常 (${totalItems} 個項目)` };
+        return {
+          dataCount: totalItems,
+          dataStatus: 'normal',
+          statusText: `✅ 正常 (${totalItems} 個項目)`,
+        };
       }
 
       let dataStatus: string;
       let statusText: string;
-      
+
       if (totalItems === 0) {
         dataStatus = 'empty';
         statusText = '⚠️ 資料為空，需要資料庫';
@@ -474,66 +510,74 @@ export function useSitemapStatus() {
   };
 
   // 測試單個 sitemap
-  const testSingleSitemap = useCallback(async (id: string): Promise<void> => {
-    const item = statusMap[id];
-    if (!item) return;
+  const testSingleSitemap = useCallback(
+    async (id: string): Promise<void> => {
+      const item = statusMap[id];
+      if (!item) return;
 
-    updateStatus(id, { status: 'testing', statusText: '測試中...' });
+      updateStatus(id, { status: 'testing', statusText: '測試中...' });
 
-    try {
-      const startTime = Date.now();
-      const response = await fetch(item.url);
-      const responseTime = Date.now() - startTime;
-      const text = await response.text();
-      const contentLength = text.length;
+      try {
+        const startTime = Date.now();
+        const response = await fetch(item.url);
+        const responseTime = Date.now() - startTime;
+        const text = await response.text();
+        const contentLength = text.length;
 
-      if (response.ok) {
-        // 分析內容並判斷狀態
-        const { dataCount, dataStatus, statusText } = analyzeContent(text, id);
-        
-        // 根據資料狀態決定整體狀態
-        let overallStatus: 'success' | 'warning' | 'error';
-        if (dataStatus === 'empty' || dataStatus === 'low') {
-          overallStatus = 'warning';
+        if (response.ok) {
+          // 分析內容並判斷狀態
+          const { dataCount, dataStatus, statusText } = analyzeContent(
+            text,
+            id
+          );
+
+          // 根據資料狀態決定整體狀態
+          let overallStatus: 'success' | 'warning' | 'error';
+          if (dataStatus === 'empty' || dataStatus === 'low') {
+            overallStatus = 'warning';
+          } else {
+            overallStatus = 'success';
+          }
+
+          updateStatus(id, {
+            status: overallStatus,
+            statusText: `${statusText} (${responseTime}ms)`,
+            responseTime,
+            contentLength,
+            dataCount,
+            dataStatus: dataStatus as any,
+          });
         } else {
-          overallStatus = 'success';
+          updateStatus(id, {
+            status: 'error',
+            statusText: `❌ HTTP 錯誤 ${response.status}`,
+            responseTime,
+            dataCount: 0,
+            dataStatus: 'empty',
+          });
         }
-
-        updateStatus(id, {
-          status: overallStatus,
-          statusText: `${statusText} (${responseTime}ms)`,
-          responseTime,
-          contentLength,
-          dataCount,
-          dataStatus: dataStatus as any
-        });
-      } else {
+      } catch (error) {
         updateStatus(id, {
           status: 'error',
-          statusText: `❌ HTTP 錯誤 ${response.status}`,
-          responseTime,
+          statusText: '❌ 連接失敗',
+          responseTime: undefined,
           dataCount: 0,
-          dataStatus: 'empty'
+          dataStatus: 'empty',
         });
       }
-    } catch (error) {
-      updateStatus(id, {
-        status: 'error',
-        statusText: '❌ 連接失敗',
-        responseTime: undefined,
-        dataCount: 0,
-        dataStatus: 'empty'
-      });
-    }
-  }, [statusMap, updateStatus]);
+    },
+    [statusMap, updateStatus]
+  );
 
   // 測試所有 sitemap
   const testAllSitemaps = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-    
+
     try {
       // 並行測試所有項目
-      const testPromises = Object.keys(statusMap).map(id => testSingleSitemap(id));
+      const testPromises = Object.keys(statusMap).map(id =>
+        testSingleSitemap(id)
+      );
       await Promise.all(testPromises);
     } finally {
       setIsLoading(false);
@@ -555,7 +599,7 @@ export function useSitemapStatus() {
     success: statusList.filter(item => item.status === 'success').length,
     warning: statusList.filter(item => item.status === 'warning').length,
     error: statusList.filter(item => item.status === 'error').length,
-    testing: statusList.filter(item => item.status === 'testing').length
+    testing: statusList.filter(item => item.status === 'testing').length,
   };
 
   return {
@@ -567,6 +611,6 @@ export function useSitemapStatus() {
     updateStatus,
     testSingleSitemap,
     testAllSitemaps,
-    resetStatus
+    resetStatus,
   };
 }

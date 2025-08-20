@@ -1,13 +1,13 @@
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 // 修改所有元件的漸層色系為藍色調組合
 const colorPalette = {
-  primary: 'hsl(210, 60%, 55%)',      // 主藍色
-  secondary: 'hsl(240, 50%, 60%)',   // 靛藍色
-  accent1: 'hsl(190, 70%, 60%)',     // 青藍色
-  accent2: 'hsl(270, 50%, 65%)',     // 淡紫色
-  highlight: 'hsl(180, 70%, 65%)'    // 青綠色
+  primary: "hsl(210, 60%, 55%)", // 主藍色
+  secondary: "hsl(240, 50%, 60%)", // 靛藍色
+  accent1: "hsl(190, 70%, 60%)", // 青藍色
+  accent2: "hsl(270, 50%, 65%)", // 淡紫色
+  highlight: "hsl(180, 70%, 65%)", // 青綠色
 };
 
 // 內聯 Loading - 用於內容區塊
@@ -15,22 +15,22 @@ export const InlineLoading = () => (
   <div className="flex items-center justify-center p-8 flex-col">
     <div className="relative w-40 h-40">
       {/* 核心光環動畫 - 使用 will-change 優化效能 */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 rounded-full"
         style={{
           background: `conic-gradient(from 0deg, ${colorPalette.primary}, ${colorPalette.highlight}, ${colorPalette.secondary})`,
           opacity: 0.5,
-          willChange: 'transform'
+          willChange: "transform",
         }}
-        animate={{ 
+        animate={{
           rotate: 360,
         }}
         transition={{
           rotate: {
             duration: 4, // 降低動畫頻率以提升效能
             repeat: Infinity,
-            ease: "linear"
-          }
+            ease: "linear",
+          },
         }}
       />
 
@@ -39,9 +39,9 @@ export const InlineLoading = () => (
         className="absolute -inset-8 opacity-30 animate-spin-slow"
         style={{
           background: `radial-gradient(circle, ${colorPalette.primary}, transparent 70%)`,
-          filter: 'blur(20px)',
-          willChange: 'transform',
-          animation: 'spin 6s linear infinite'
+          filter: "blur(20px)",
+          willChange: "transform",
+          animation: "spin 6s linear infinite",
         }}
       />
 
@@ -50,18 +50,18 @@ export const InlineLoading = () => (
         className="absolute inset-0"
         style={{
           background: `radial-gradient(circle at center, transparent 30%, ${colorPalette.primary}22 40%, ${colorPalette.secondary}33 60%, transparent 70%)`,
-          filter: 'blur(8px)',
-          transform: 'rotate(0deg) scale(1.5)'
+          filter: "blur(8px)",
+          transform: "rotate(0deg) scale(1.5)",
         }}
         animate={{
-          rotate: 360
+          rotate: 360,
         }}
         transition={{
           rotate: {
             duration: 15,
             repeat: Infinity,
-            ease: "linear"
-          }
+            ease: "linear",
+          },
         }}
       />
 
@@ -69,23 +69,23 @@ export const InlineLoading = () => (
       <motion.div
         className="absolute inset-0"
         style={{
-          background: `conic-gradient(from 0deg, 
-            ${colorPalette.primary}00, 
+          background: `conic-gradient(from 0deg,
+            ${colorPalette.primary}00,
             ${colorPalette.primary}ff,
             ${colorPalette.secondary}ff,
             ${colorPalette.primary}ff,
             ${colorPalette.primary}00
           )`,
-          borderRadius: '50%',
-          filter: 'blur(1px)'
+          borderRadius: "50%",
+          filter: "blur(1px)",
         }}
         animate={{
-          rotate: [0, 360]
+          rotate: [0, 360],
         }}
         transition={{
           duration: 3,
           repeat: Infinity,
-          ease: "linear"
+          ease: "linear",
         }}
       />
 
@@ -96,24 +96,24 @@ export const InlineLoading = () => (
           className="absolute inset-0 rounded-full"
           style={{
             border: `2px solid ${colorPalette.primary}`,
-            opacity: 0.3
+            opacity: 0.3,
           }}
           animate={{
             rotate: 360,
-            opacity: [0.3, 0]
+            opacity: [0.3, 0],
           }}
           transition={{
             rotate: {
               duration: 2,
               repeat: Infinity,
-              ease: "linear"
+              ease: "linear",
             },
             opacity: {
               duration: 2,
               repeat: Infinity,
               delay: i * 0.3,
-              ease: "easeOut"
-            }
+              ease: "easeOut",
+            },
           }}
         />
       ))}
@@ -123,17 +123,17 @@ export const InlineLoading = () => (
         className="absolute inset-0 m-auto w-16 h-16"
         style={{
           background: `radial-gradient(circle, white, ${colorPalette.primary})`,
-          borderRadius: '50%',
-          filter: 'blur(2px)',
-          boxShadow: `0 0 30px ${colorPalette.primary}`
+          borderRadius: "50%",
+          filter: "blur(2px)",
+          boxShadow: `0 0 30px ${colorPalette.primary}`,
         }}
         animate={{
-          rotate: 360
+          rotate: 360,
         }}
         transition={{
           duration: 3,
           repeat: Infinity,
-          ease: "linear"
+          ease: "linear",
         }}
       />
 
@@ -141,9 +141,9 @@ export const InlineLoading = () => (
       <div
         className="absolute inset-0 m-auto w-8 h-8 rounded-full"
         style={{
-          background: 'radial-gradient(circle, white, rgba(255,255,255,0.8))',
-          boxShadow: '0 0 20px rgba(255,255,255,0.8)',
-          filter: 'blur(1px)'
+          background: "radial-gradient(circle, white, rgba(255,255,255,0.8))",
+          boxShadow: "0 0 20px rgba(255,255,255,0.8)",
+          filter: "blur(1px)",
         }}
       />
     </div>
@@ -158,15 +158,15 @@ export const InlineLoading = () => (
             0 0 15px ${colorPalette.primary}60,
             0 0 30px ${colorPalette.primary}40
           `,
-          WebkitTextStroke: `1px ${colorPalette.primary}40`
+          WebkitTextStroke: `1px ${colorPalette.primary}40`,
         }}
         animate={{
-          opacity: [0.7, 1, 0.7]
+          opacity: [0.7, 1, 0.7],
         }}
         transition={{
           duration: 2,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: "easeInOut",
         }}
       >
         Loading
@@ -179,17 +179,17 @@ export const InlineLoading = () => (
             style={{
               background: colorPalette.primary,
               boxShadow: `0 0 10px ${colorPalette.primary}`,
-              willChange: 'transform, opacity'
+              willChange: "transform, opacity",
             }}
             animate={{
               opacity: [0, 1, 0],
-              scale: [0.8, 1.2, 0.8]
+              scale: [0.8, 1.2, 0.8],
             }}
             transition={{
               duration: 1.5,
               repeat: Infinity,
               delay: i * 0.3,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
         ))}
@@ -200,7 +200,7 @@ export const InlineLoading = () => (
 
 // 按鈕 Loading - 用於表單提交
 export const ButtonLoading = ({ text = "處理中..." }: { text?: string }) => (
-  <motion.span 
+  <motion.span
     className="flex items-center justify-center space-x-2 relative"
     initial={{ opacity: 0.8 }}
   >
@@ -211,7 +211,7 @@ export const ButtonLoading = ({ text = "處理中..." }: { text?: string }) => (
       transition={{
         duration: 1,
         repeat: Infinity,
-        ease: "linear"
+        ease: "linear",
       }}
     >
       <Loader2 className="w-5 h-5" />
@@ -220,12 +220,12 @@ export const ButtonLoading = ({ text = "處理中..." }: { text?: string }) => (
     {/* 文字 */}
     <motion.span
       animate={{
-        opacity: [0.7, 1, 0.7]
+        opacity: [0.7, 1, 0.7],
       }}
       transition={{
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut",
       }}
       className="relative"
     >
@@ -233,14 +233,15 @@ export const ButtonLoading = ({ text = "處理中..." }: { text?: string }) => (
       <motion.div
         className="absolute bottom-0 left-0 right-0 h-[1px]"
         style={{
-          background: 'linear-gradient(90deg, transparent, currentColor, transparent)'
+          background:
+            "linear-gradient(90deg, transparent, currentColor, transparent)",
         }}
         initial={{ scaleX: 0 }}
         animate={{ scaleX: [0, 1, 0] }}
         transition={{
           duration: 2,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: "easeInOut",
         }}
       />
     </motion.span>
@@ -257,17 +258,17 @@ export const FullscreenLoading = () => (
   >
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ 
-        scale: 1, 
+      animate={{
+        scale: 1,
         opacity: 1,
-        rotate: 360
+        rotate: 360,
       }}
       transition={{
         rotate: {
           duration: 2,
           repeat: Infinity,
-          ease: "linear"
-        }
+          ease: "linear",
+        },
       }}
       className="relative w-24 h-24 flex items-center justify-center"
     >
@@ -276,7 +277,7 @@ export const FullscreenLoading = () => (
         className="absolute inset-0 rounded-full"
         style={{
           background: `conic-gradient(
-            from 0deg, 
+            from 0deg,
             ${colorPalette.primary},
             ${colorPalette.accent1},
             ${colorPalette.highlight},
@@ -284,7 +285,7 @@ export const FullscreenLoading = () => (
             ${colorPalette.secondary},
             ${colorPalette.primary}
           )`,
-          filter: 'blur(15px)',
+          filter: "blur(15px)",
         }}
         animate={{
           rotate: 360,
@@ -294,10 +295,10 @@ export const FullscreenLoading = () => (
         transition={{
           duration: 3,
           repeat: Infinity,
-          ease: "linear"
+          ease: "linear",
         }}
       />
-      
+
       {/* 中層光環 */}
       <motion.div
         className="absolute inset-0 rounded-full"
@@ -309,7 +310,7 @@ export const FullscreenLoading = () => (
             ${colorPalette.highlight} 70%,
             ${colorPalette.accent2}
           )`,
-          backdropFilter: 'blur(5px)',
+          backdropFilter: "blur(5px)",
         }}
         animate={{
           rotate: -360,
@@ -318,16 +319,16 @@ export const FullscreenLoading = () => (
         transition={{
           duration: 2.5,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: "easeInOut",
         }}
       />
-      
+
       {/* 主要載入區域 */}
       <div className="relative w-24 h-24 flex items-center justify-center">
         <motion.div
           className="absolute inset-0 rounded-full"
           style={{
-            border: '4px solid transparent',
+            border: "4px solid transparent",
             borderImage: `linear-gradient(
               45deg,
               ${colorPalette.primary},
@@ -335,7 +336,7 @@ export const FullscreenLoading = () => (
               ${colorPalette.highlight} 70%,
               ${colorPalette.accent2}
             ) 1`,
-            filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))'
+            filter: "drop-shadow(0 0 10px rgba(255,255,255,0.3))",
           }}
           animate={{
             rotate: -360,
@@ -343,7 +344,7 @@ export const FullscreenLoading = () => (
           transition={{
             duration: 2,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
         />
         <motion.div
@@ -353,11 +354,11 @@ export const FullscreenLoading = () => (
           transition={{
             duration: 1.5,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
           className="text-white font-medium"
           style={{
-            textShadow: '0 0 10px rgba(255,255,255,0.5)'
+            textShadow: "0 0 10px rgba(255,255,255,0.5)",
           }}
         >
           Loading
@@ -377,7 +378,7 @@ export const BlockLoading = ({ overlay = false }: { overlay?: boolean }) => {
         transition={{
           duration: 2,
           repeat: Infinity,
-          ease: "linear"
+          ease: "linear",
         }}
       >
         {/* 彩虹光環 */}
@@ -385,7 +386,7 @@ export const BlockLoading = ({ overlay = false }: { overlay?: boolean }) => {
           className="absolute inset-0 rounded-full"
           style={{
             background: `conic-gradient(
-              from 0deg, 
+              from 0deg,
               ${colorPalette.primary},
               ${colorPalette.accent1},
               ${colorPalette.highlight},
@@ -393,47 +394,48 @@ export const BlockLoading = ({ overlay = false }: { overlay?: boolean }) => {
               ${colorPalette.secondary},
               ${colorPalette.primary}
             )`,
-            filter: 'blur(8px)',
+            filter: "blur(8px)",
           }}
-          animate={{ 
+          animate={{
             rotate: -360,
             scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3]
+            opacity: [0.3, 0.5, 0.3],
           }}
           transition={{
             rotate: {
               duration: 3,
               repeat: Infinity,
-              ease: "linear"
+              ease: "linear",
             },
             scale: {
               duration: 2,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             },
             opacity: {
               duration: 1.5,
               repeat: Infinity,
-              ease: "easeInOut"
-            }
+              ease: "easeInOut",
+            },
           }}
         />
-        
+
         {/* 中心光點 */}
         <motion.div
           className="absolute inset-0 m-auto w-8 h-8 rounded-full"
           style={{
-            background: 'radial-gradient(circle, white 30%, rgba(255,255,255,0))',
-            boxShadow: '0 0 20px rgba(255,255,255,0.5)'
+            background:
+              "radial-gradient(circle, white 30%, rgba(255,255,255,0))",
+            boxShadow: "0 0 20px rgba(255,255,255,0.5)",
           }}
           animate={{
             scale: [0.8, 1, 0.8],
-            opacity: [0.5, 1, 0.5]
+            opacity: [0.5, 1, 0.5],
           }}
           transition={{
             duration: 1.5,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
       </motion.div>
@@ -442,10 +444,13 @@ export const BlockLoading = ({ overlay = false }: { overlay?: boolean }) => {
 
   if (overlay) {
     return (
-      <div className="absolute inset-0 backdrop-blur-[2px] flex items-center justify-center z-10"
-           style={{
-             background: 'radial-gradient(circle at center, rgba(255,255,255,0.1), rgba(255,255,255,0.05))'
-           }}>
+      <div
+        className="absolute inset-0 backdrop-blur-[2px] flex items-center justify-center z-10"
+        style={{
+          background:
+            "radial-gradient(circle at center, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
+        }}
+      >
         {content}
       </div>
     );
@@ -468,7 +473,7 @@ export const MiniLoading = () => (
           duration: 0.8,
           repeat: Infinity,
           delay: i * 0.2,
-          ease: "easeInOut"
+          ease: "easeInOut",
         }}
       />
     ))}
@@ -479,7 +484,7 @@ export const MiniLoading = () => (
 export const ProgressLoading = ({ progress = 0 }: { progress: number }) => (
   <div className="w-full space-y-2">
     <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden relative">
-      <div 
+      <div
         style={{
           background: `linear-gradient(
             90deg,
@@ -489,8 +494,8 @@ export const ProgressLoading = ({ progress = 0 }: { progress: number }) => (
             ${colorPalette.accent2},
             ${colorPalette.secondary}
           )`,
-          filter: 'blur(4px)',
-          opacity: 0.3
+          filter: "blur(4px)",
+          opacity: 0.3,
         }}
       />
       <motion.div
@@ -502,13 +507,13 @@ export const ProgressLoading = ({ progress = 0 }: { progress: number }) => (
             ${colorPalette.accent1} 50%,
             ${colorPalette.highlight} 80%
           )`,
-          boxShadow: '0 0 10px rgba(255,255,255,0.5)'
+          boxShadow: "0 0 10px rgba(255,255,255,0.5)",
         }}
         initial={{ width: 0 }}
         animate={{ width: `${progress}%` }}
         transition={{
           duration: 0.5,
-          ease: "easeInOut"
+          ease: "easeInOut",
         }}
       />
     </div>
@@ -523,17 +528,17 @@ export const ProgressLoading = ({ progress = 0 }: { progress: number }) => (
           ${colorPalette.accent2},
           ${colorPalette.secondary}
         )`,
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        textShadow: '0 0 5px rgba(255,255,255,0.3)'
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        textShadow: "0 0 5px rgba(255,255,255,0.3)",
       }}
       animate={{
-        opacity: [0.6, 1, 0.6]
+        opacity: [0.6, 1, 0.6],
       }}
       transition={{
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut",
       }}
     >
       {progress}%

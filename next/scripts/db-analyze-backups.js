@@ -54,7 +54,7 @@ async function analyzeBackupFile(filePath) {
         if (entry.type === 'File' && entry.path.endsWith('.json')) {
           const collectionName = path.basename(entry.path, '.json');
           let recordCount = 0;
-          
+
           const content = [];
           entry.on('data', chunk => {
             content.push(chunk);
@@ -67,9 +67,11 @@ async function analyzeBackupFile(filePath) {
                 recordCount = data.length;
               }
             } catch (e) {
-                // Not a valid JSON array, might be JSONL or malformed
-                const fileContent = Buffer.concat(content).toString('utf8');
-                recordCount = fileContent.split('\n').filter(line => line.trim().startsWith('{')).length;
+              // Not a valid JSON array, might be JSONL or malformed
+              const fileContent = Buffer.concat(content).toString('utf8');
+              recordCount = fileContent
+                .split('\n')
+                .filter(line => line.trim().startsWith('{')).length;
             }
             collections[collectionName] = recordCount;
             totalRecords += recordCount;
@@ -124,7 +126,7 @@ async function main() {
       `   📏 檔案大小: ${colorize(formatBytes(analysis.fileSize), 'cyan')}`
     );
     console.log(
-        `   📅 修改時間: ${colorize(new Date(analysis.modifiedTime).toLocaleString(), 'magenta')}`
+      `   📅 修改時間: ${colorize(new Date(analysis.modifiedTime).toLocaleString(), 'magenta')}`
     );
 
     if (analysis.error) {
@@ -137,7 +139,9 @@ async function main() {
         if (type === 'core') typeColor = 'cyan';
         if (type === 'cache') typeColor = 'green';
         if (type === 'system') typeColor = 'magenta';
-        console.log(`     - ${colorize(name, 'yellow')} (${colorize(type, typeColor)}): ${colorize(count.toString(), 'green')} 筆記錄`);
+        console.log(
+          `     - ${colorize(name, 'yellow')} (${colorize(type, typeColor)}): ${colorize(count.toString(), 'green')} 筆記錄`
+        );
       }
     }
     console.log(); // 空行分隔

@@ -1,6 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
-import { SearchData } from '../utils/companyUtils';
-import { DEFAULT_SEARCH_STATE, STORAGE_KEYS } from '../constants/searchDefaults';
+import { useState, useMemo, useEffect } from "react";
+import { SearchData } from "../utils/companyUtils";
+import {
+  DEFAULT_SEARCH_STATE,
+  STORAGE_KEYS,
+} from "../constants/searchDefaults";
 
 interface SearchState {
   results: SearchData[];
@@ -16,61 +19,67 @@ export function useCompanySearch() {
       if (!cached) {
         return DEFAULT_SEARCH_STATE;
       }
-      
+
       const parsedCache = JSON.parse(cached);
       return {
         ...DEFAULT_SEARCH_STATE,
-        ...parsedCache
+        ...parsedCache,
       };
     } catch (error) {
-      console.error('Error parsing cached search state:', error);
+      console.error("Error parsing cached search state:", error);
       return DEFAULT_SEARCH_STATE;
     }
   });
 
   // 當搜尋狀態改變時，更新本地儲存
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.COMPANY_SEARCH, JSON.stringify(searchState));
+    localStorage.setItem(
+      STORAGE_KEYS.COMPANY_SEARCH,
+      JSON.stringify(searchState)
+    );
   }, [searchState]);
 
   const setSearchResults = (results: SearchData[]) => {
-    setSearchState(prev => ({
+    setSearchState((prev) => ({
       ...prev,
-      results
+      results,
     }));
   };
 
   const setSearchQuery = (query: string) => {
-    setSearchState(prev => ({
+    setSearchState((prev) => ({
       ...prev,
-      query
+      query,
     }));
   };
 
   const setCurrentPage = (page: number) => {
-    setSearchState(prev => ({
+    setSearchState((prev) => ({
       ...prev,
-      currentPage: page
+      currentPage: page,
     }));
   };
 
   const setTotalPages = (pages: number) => {
-    setSearchState(prev => ({
+    setSearchState((prev) => ({
       ...prev,
-      totalPages: pages
+      totalPages: pages,
     }));
   };
 
   const resetCompanySearch = () => {
     setSearchResults([]);
-    setSearchQuery('');
+    setSearchQuery("");
     setCurrentPage(1);
     setTotalPages(1);
     localStorage.removeItem(STORAGE_KEYS.COMPANY_SEARCH);
   };
 
   // 使用 useMemo 快取搜尋結果
-  const memoizedResults = useMemo(() => searchState.results, [searchState.results]);
+  const memoizedResults = useMemo(
+    () => searchState.results,
+    [searchState.results]
+  );
 
   return {
     searchResults: memoizedResults,
@@ -81,6 +90,6 @@ export function useCompanySearch() {
     setCurrentPage,
     totalPages: searchState.totalPages,
     setTotalPages,
-    resetCompanySearch
+    resetCompanySearch,
   };
 }

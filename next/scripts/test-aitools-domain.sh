@@ -16,11 +16,11 @@ test_url() {
     local url=$1
     local description=$2
     local expected_code=$3
-    
+
     echo -n "測試 $description: "
     response=$(curl -s -o /dev/null -w "%{http_code} -> %{url_effective}" -L "$url")
     actual_code=$(echo $response | cut -d' ' -f1)
-    
+
     if [ "$actual_code" == "$expected_code" ]; then
         echo -e "${GREEN}✓ 通過${NC} ($response)"
     else
@@ -33,11 +33,11 @@ test_redirect() {
     local url=$1
     local description=$2
     local expected_final_url=$3
-    
+
     echo -n "測試 $description: "
     response=$(curl -s -o /dev/null -w "%{http_code} -> %{url_effective}" -L "$url")
     actual_final_url=$(echo $response | cut -d' ' -f3)
-    
+
     if [ "$actual_final_url" == "$expected_final_url" ]; then
         echo -e "${GREEN}✓ 通過${NC} (重定向到 $actual_final_url)"
     else

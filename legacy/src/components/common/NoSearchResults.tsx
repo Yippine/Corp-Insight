@@ -1,4 +1,4 @@
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw } from "lucide-react";
 
 interface NoSearchResultsProps {
   message?: string;
@@ -6,10 +6,10 @@ interface NoSearchResultsProps {
   onReset?: () => void;
 }
 
-export default function NoSearchResults({ 
-  message = '很抱歉，我們找不到符合您搜尋條件的結果。',
+export default function NoSearchResults({
+  message = "很抱歉，我們找不到符合您搜尋條件的結果。",
   searchTerm,
-  onReset
+  onReset,
 }: NoSearchResultsProps) {
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg p-12">
@@ -25,9 +25,7 @@ export default function NoSearchResults({
               <br />
             </>
           )}
-          {searchTerm && (
-            <span className="font-medium">「{searchTerm}」</span>
-          )}
+          {searchTerm && <span className="font-medium">「{searchTerm}」</span>}
         </p>
         <div className="space-y-4">
           <p className="text-gray-500 text-sm">您可以：</p>
@@ -37,7 +35,7 @@ export default function NoSearchResults({
             <li>• 使用較寬鬆的搜尋條件</li>
           </ul>
         </div>
-        <button 
+        <button
           className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800"
           onClick={onReset}
         >
@@ -47,4 +45,4 @@ export default function NoSearchResults({
       </div>
     </div>
   );
-} 
+}

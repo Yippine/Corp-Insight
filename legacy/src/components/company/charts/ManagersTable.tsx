@@ -10,7 +10,7 @@ interface Manager {
 
 interface ManagersTableProps {
   managers: Manager[];
-  onViewChange: (view: 'chart' | 'table') => void;
+  onViewChange: (view: "chart" | "table") => void;
 }
 
 export default function ManagersTable({ managers }: ManagersTableProps) {
@@ -27,18 +27,24 @@ export default function ManagersTable({ managers }: ManagersTableProps) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider"
+                >
                   姓名
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider"
+                >
                   到職日期
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {managers.map((manager) => (
-                <tr 
-                  key={manager.序號} 
+                <tr
+                  key={manager.序號}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -50,7 +56,7 @@ export default function ManagersTable({ managers }: ManagersTableProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-base text-gray-900">
-                      {`${manager.到職日期.year}/${String(manager.到職日期.month).padStart(2, '0')}/${String(manager.到職日期.day).padStart(2, '0')}`}
+                      {`${manager.到職日期.year}/${String(manager.到職日期.month).padStart(2, "0")}/${String(manager.到職日期.day).padStart(2, "0")}`}
                     </div>
                   </td>
                 </tr>

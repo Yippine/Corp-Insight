@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: SITEMAP_ADMIN_TITLE,
 };
 
-export default function SitemapLayout({ children }: { children: React.ReactNode }) {
+export default function SitemapLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
-} 
+}

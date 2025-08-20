@@ -10,17 +10,17 @@ interface TenderSearchTrackerProps {
   hasError?: boolean;
 }
 
-export default function TenderSearchTracker({ 
-  query, 
+export default function TenderSearchTracker({
+  query,
   searchType,
-  totalResults, 
-  hasError = false 
+  totalResults,
+  hasError = false,
 }: TenderSearchTrackerProps) {
   useEffect(() => {
     if (query && !hasError) {
       const timer = setTimeout(() => {
         trackBusinessEvents.tenderSearch(query, totalResults);
-        
+
         // 額外追蹤搜尋類型
         trackEvent('search_type', 'tender', searchType, totalResults);
       }, 100);

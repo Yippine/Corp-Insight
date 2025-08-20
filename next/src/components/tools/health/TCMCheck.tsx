@@ -20,11 +20,11 @@ interface GenerationResult {
 export default function TCMCheck() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<GenerationResult | null>(null);
-  const { 
-    isLoading: isGenerating, 
-    error: generationError, 
-    result: generationResult, 
-    generate 
+  const {
+    isLoading: isGenerating,
+    error: generationError,
+    result: generationResult,
+    generate,
   } = useGeminiStream();
 
   useEffect(() => {
@@ -33,7 +33,10 @@ export default function TCMCheck() {
       setResult({ content: generationResult, isOptimizing: false });
     }
     if (generationError) {
-        setResult({ content: `生成失敗：${generationError}`, isOptimizing: false });
+      setResult({
+        content: `生成失敗：${generationError}`,
+        isOptimizing: false,
+      });
     }
   }, [generationResult, generationError]);
 
@@ -184,7 +187,8 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
   };
 
   const handleGenerate = async (isOptimizing: boolean = false) => {
-    if (isGenerating || Object.keys(answers).length !== questions.length) return;
+    if (isGenerating || Object.keys(answers).length !== questions.length)
+      return;
 
     // 如果是優化模式，先更新 UI 狀態以顯示"優化中"
     if (isOptimizing && result) {

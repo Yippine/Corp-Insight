@@ -1,14 +1,19 @@
-import { useState, useCallback, memo } from 'react';
-import { MapPin, Navigation, Map, Info } from 'lucide-react';
-import { GoogleMap, useLoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { useState, useCallback, memo } from "react";
+import { MapPin, Navigation, Map, Info } from "lucide-react";
+import {
+  GoogleMap,
+  useLoadScript,
+  Marker,
+  InfoWindow,
+} from "@react-google-maps/api";
 
 interface CompanyMapProps {
   address: string;
 }
 
 const defaultCenter = {
-  lat: 25.0330,
-  lng: 121.5654
+  lat: 25.033,
+  lng: 121.5654,
 };
 
 const { VITE_GOOGLE_MAPS_API_KEY } = import.meta.env;
@@ -16,36 +21,36 @@ const { VITE_GOOGLE_MAPS_API_KEY } = import.meta.env;
 const CompanyMap = memo(({ address }: CompanyMapProps) => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: VITE_GOOGLE_MAPS_API_KEY,
-    language: 'zh-TW',
-    region: 'TW'
+    language: "zh-TW",
+    region: "TW",
   });
 
   const [mapState, setMapState] = useState({
     center: defaultCenter,
     isLoaded: false,
-    showInfo: false
+    showInfo: false,
   });
 
   const handleGeocoding = useCallback(async () => {
     if (!window.google) return;
-    
+
     try {
       const geocoder = new window.google.maps.Geocoder();
       const results = await geocoder.geocode({ address });
-      
+
       if (results.results[0]) {
         const location = results.results[0].geometry.location;
-        setMapState(prev => ({
+        setMapState((prev) => ({
           ...prev,
           center: {
             lat: location.lat(),
-            lng: location.lng()
+            lng: location.lng(),
           },
-          isLoaded: true
+          isLoaded: true,
         }));
       }
     } catch (error) {
-      console.error('地址解析錯誤:', error);
+      console.error("地址解析錯誤:", error);
     }
   }, [address]);
 
@@ -56,21 +61,21 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
   const handleOpenDirections = () => {
     window.open(
       `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`,
-      '_blank'
+      "_blank"
     );
   };
 
   const handleOpenFullMap = () => {
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-      '_blank'
+      "_blank"
     );
   };
 
   const toggleInfo = () => {
-    setMapState(prev => ({
+    setMapState((prev) => ({
       ...prev,
-      showInfo: !prev.showInfo
+      showInfo: !prev.showInfo,
     }));
   };
 
@@ -79,7 +84,9 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
   }
 
   if (!isLoaded) {
-    return <div className="animate-pulse bg-gray-200 aspect-[16/9] w-full rounded-lg"></div>;
+    return (
+      <div className="animate-pulse bg-gray-200 aspect-[16/9] w-full rounded-lg"></div>
+    );
   }
 
   return (
@@ -92,7 +99,9 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
                 <MapPin className="h-4 w-4 text-blue-600" />
               </div>
               <div>
-                <h4 className="text-xs font-medium text-gray-500 mb-0.5">公司地址</h4>
+                <h4 className="text-xs font-medium text-gray-500 mb-0.5">
+                  公司地址
+                </h4>
                 <p className="text-sm text-gray-900 font-medium leading-relaxed">
                   {address}
                 </p>
@@ -130,8 +139,8 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
       <div className="aspect-[16/9] w-full rounded-lg overflow-hidden">
         <GoogleMap
           mapContainerStyle={{
-            width: '100%',
-            height: '100%'
+            width: "100%",
+            height: "100%",
           }}
           center={mapState.center}
           zoom={16}
@@ -140,7 +149,7 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
             zoomControl: true,
             mapTypeControl: false,
             streetViewControl: false,
-            fullscreenControl: true
+            fullscreenControl: true,
           }}
         >
           {mapState.isLoaded && (
@@ -148,8 +157,8 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
               position={mapState.center}
               onClick={toggleInfo}
               icon={{
-                url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                scaledSize: new window.google.maps.Size(40, 40)
+                url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                scaledSize: new window.google.maps.Size(40, 40),
               }}
             >
               {mapState.showInfo && (
@@ -170,6 +179,6 @@ const CompanyMap = memo(({ address }: CompanyMapProps) => {
   );
 });
 
-CompanyMap.displayName = 'CompanyMap';
+CompanyMap.displayName = "CompanyMap";
 
 export default CompanyMap;

@@ -1,30 +1,30 @@
-import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { fullTagThemes } from '../../config/theme'
-import { tools } from '../../config/tools'
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
-import BackButton from '../common/BackButton'
-import SEOHead from '../SEOHead';
-import { SitemapCollector } from '../../services/SitemapCollector'
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { fullTagThemes } from "../../config/theme";
+import { tools } from "../../config/tools";
+import { useGoogleAnalytics } from "../../hooks/useGoogleAnalytics";
+import BackButton from "../common/BackButton";
+import SEOHead from "../SEOHead";
+import { SitemapCollector } from "../../services/SitemapCollector";
 
 export default function ToolDetail() {
-  const { toolId } = useParams()
-  const navigate = useNavigate()
+  const { toolId } = useParams();
+  const navigate = useNavigate();
   const { trackUrlError } = useGoogleAnalytics();
-  const tool = tools.find(t => t.id === toolId)
+  const tool = tools.find((t) => t.id === toolId);
 
   useEffect(() => {
     if (!tool) {
-      const savedSearch = sessionStorage.getItem('toolSearchParams')
-      trackUrlError(location.pathname)
-      navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ''}`)
+      const savedSearch = sessionStorage.getItem("toolSearchParams");
+      trackUrlError(location.pathname);
+      navigate(`/aitool/search${savedSearch ? `?${savedSearch}` : ""}`);
     }
 
-    window.scrollTo(0, 0)
-  }, [tool, navigate])
+    window.scrollTo(0, 0);
+  }, [tool, navigate]);
 
-  if (!tool) return null
+  if (!tool) return null;
 
   useEffect(() => {
     if (toolId) {
@@ -32,10 +32,12 @@ export default function ToolDetail() {
     }
   }, [toolId]);
 
-  const seoTitle = tool ? `${tool.name} | AI 助理工具 | 企業放大鏡™` : 'AI 助理工具 | 企業放大鏡™';
-  const seoDescription = tool 
+  const seoTitle = tool
+    ? `${tool.name} | AI 助理工具 | 企業放大鏡™`
+    : "AI 助理工具 | 企業放大鏡™";
+  const seoDescription = tool
     ? `${tool.description} 立即使用這個強大的 AI 助理工具，提升您的工作效率。`
-    : '探索我們豐富的 AI 助理工具集，助您提升工作效率。';
+    : "探索我們豐富的 AI 助理工具集，助您提升工作效率。";
 
   return (
     <motion.div
@@ -60,7 +62,9 @@ export default function ToolDetail() {
         className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
       >
         <div className="flex items-center mb-6">
-          <div className={`p-3 rounded-lg ${fullTagThemes[tool.tags[0]].primary}`}>
+          <div
+            className={`p-3 rounded-lg ${fullTagThemes[tool.tags[0]].primary}`}
+          >
             <tool.icon className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold ml-4 text-gray-900">{tool.name}</h2>
@@ -87,5 +91,5 @@ export default function ToolDetail() {
         </div>
       </motion.div>
     </motion.div>
-  )
+  );
 }

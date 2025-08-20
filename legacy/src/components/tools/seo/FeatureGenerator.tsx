@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import Instructions from '../Instructions';
-import { productCategories, targetAudiences } from '../../../config/gemini';
-import { streamGenerateContent } from '../../../lib/gemini';
-import { ButtonLoading } from '../../common/loading';
+import { useState } from "react";
+import Instructions from "../Instructions";
+import { productCategories, targetAudiences } from "../../../config/gemini";
+import { streamGenerateContent } from "../../../lib/gemini";
+import { ButtonLoading } from "../../common/loading";
 
 interface GenerationResult {
   content: string;
@@ -10,23 +10,27 @@ interface GenerationResult {
 }
 
 export default function FeatureGenerator() {
-  const [productName, setProductName] = useState('');
-  const [targetProblem, setTargetProblem] = useState('');
-  const [uniquePoints, setUniquePoints] = useState('');
-  const [techSpecs, setTechSpecs] = useState('');
+  const [productName, setProductName] = useState("");
+  const [targetProblem, setTargetProblem] = useState("");
+  const [uniquePoints, setUniquePoints] = useState("");
+  const [techSpecs, setTechSpecs] = useState("");
   const [category, setCategory] = useState<string>(productCategories[0].id);
   const [audience, setAudience] = useState<string>(targetAudiences[0].id);
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
 
   const generatePrompt = (isOptimizing: boolean) => {
-    if (isOptimizing && !result?.content) return '';
+    if (isOptimizing && !result?.content) return "";
 
-    const selectedCategory = productCategories.find(c => c.id === category)?.name;
-    const selectedAudience = targetAudiences.find(a => a.id === audience)?.name;
+    const selectedCategory = productCategories.find(
+      (c) => c.id === category
+    )?.name;
+    const selectedAudience = targetAudiences.find(
+      (a) => a.id === audience
+    )?.name;
 
     const basePrompt = `你是一位專業的產品功能描述專家。
-${isOptimizing ? '請基於以下現有功能描述進行優化：\n' + result?.content + '\n\n以及參考以下資訊：\n' : ''}
+${isOptimizing ? "請基於以下現有功能描述進行優化：\n" + result?.content + "\n\n以及參考以下資訊：\n" : ""}
 請根據以下輸入：
 產品名稱：${productName}
 目標問題：${targetProblem}
@@ -65,27 +69,28 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
   };
 
   const handleGenerate = async (isOptimizing: boolean = false) => {
-    if (!productName.trim() || !targetProblem.trim() || !uniquePoints.trim()) return;
+    if (!productName.trim() || !targetProblem.trim() || !uniquePoints.trim())
+      return;
 
     setIsGenerating(true);
     if (result) {
       setResult({
         ...result,
-        isOptimizing: true
+        isOptimizing: true,
       });
     }
 
     try {
       const prompt = generatePrompt(isOptimizing);
-      
+
       await streamGenerateContent(prompt, (text) => {
         setResult({
           content: text,
-          isOptimizing: false
+          isOptimizing: false,
         });
       });
     } catch (error) {
-      console.error('Generation failed:', error);
+      console.error("Generation failed:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -193,29 +198,40 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
         <div className="flex space-x-4">
           <button
             onClick={() => handleGenerate(false)}
-            disabled={isGenerating || !productName.trim() || !targetProblem.trim() || !uniquePoints.trim()}
+            disabled={
+              isGenerating ||
+              !productName.trim() ||
+              !targetProblem.trim() ||
+              !uniquePoints.trim()
+            }
             className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isGenerating && !result?.isOptimizing ? (
               <ButtonLoading text="生成中..." />
             ) : (
-              '開始新對話'
+              "開始新對話"
             )}
           </button>
 
           <button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !result || !productName.trim() || !targetProblem.trim() || !uniquePoints.trim()}
+            disabled={
+              isGenerating ||
+              !result ||
+              !productName.trim() ||
+              !targetProblem.trim() ||
+              !uniquePoints.trim()
+            }
             className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
               result
-                ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
-                : 'border-gray-300 text-gray-400'
+                ? "border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500"
+                : "border-gray-300 text-gray-400"
             }`}
           >
             {result?.isOptimizing ? (
               <ButtonLoading text="優化中..." />
             ) : (
-              '延續對話並優化'
+              "延續對話並優化"
             )}
           </button>
         </div>

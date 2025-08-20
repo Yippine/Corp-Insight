@@ -26,13 +26,13 @@ export interface TenderDetail {
   records: TenderRecord[];
 }
 
-export type TenderStatus = 
-  | '已決標'  // 決標公告
-  | '招標中'  // 招標公告
-  | '無法決標' // 無法決標公告
-  | '資訊'    // 其他資訊公告
-  | '未得標'  // 企業查詢用
-  | '得標';   // 企業查詢用
+export type TenderStatus =
+  | "已決標" // 決標公告
+  | "招標中" // 招標公告
+  | "無法決標" // 無法決標公告
+  | "資訊" // 其他資訊公告
+  | "未得標" // 企業查詢用
+  | "得標"; // 企業查詢用
 
 export interface TenderSection {
   title: string;

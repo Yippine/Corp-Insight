@@ -1,4 +1,4 @@
-declare module 'tcm-types' {
+declare module "tcm-types" {
   export interface Constitution {
     id: string;
     name: string;
@@ -18,4 +18,4 @@ declare module 'tcm-types' {
     text: string;
     constitutions: Record<string, number>;
   }
-} 
+}

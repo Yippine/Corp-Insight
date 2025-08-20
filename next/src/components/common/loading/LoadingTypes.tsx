@@ -76,8 +76,8 @@ export const InlineLoading = () => (
       <motion.div
         className="absolute inset-0"
         style={{
-          background: `conic-gradient(from 0deg, 
-            ${colorPalette.primary}00, 
+          background: `conic-gradient(from 0deg,
+            ${colorPalette.primary}00,
             ${colorPalette.primary}ff,
             ${colorPalette.secondary}ff,
             ${colorPalette.primary}ff,

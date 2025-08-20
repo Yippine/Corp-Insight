@@ -10,7 +10,7 @@ export default function Header() {
   const pathname = usePathname();
   const [showTryText, setShowTryText] = useState(true);
   const [currentHost, setCurrentHost] = useState<string>('');
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setCurrentHost(window.location.host);
@@ -28,7 +28,7 @@ export default function Header() {
 
   // 判斷當前是否在 aitools 域名下，決定 Logo 點擊行為
   const isOnAiTools = currentHost.includes('aitools');
-  const logoHref = isOnAiTools 
+  const logoHref = isOnAiTools
     ? generateUrl('aitools', '/search', currentHost)
     : generateUrl('company', '/company/search', currentHost);
 
@@ -57,7 +57,9 @@ export default function Header() {
             <NavLink
               href={generateUrl('aitools', '/search', currentHost)}
               className={`${
-                pathname?.startsWith('/aitool') || pathname?.startsWith('/search') || pathname?.startsWith('/detail')
+                pathname?.startsWith('/aitool') ||
+                pathname?.startsWith('/search') ||
+                pathname?.startsWith('/detail')
                   ? 'border-b-2 border-amber-500 text-amber-500'
                   : 'text-gray-500 hover:text-amber-600'
               } group relative -mb-4 flex cursor-pointer items-center px-1 pb-4 text-base font-medium focus:outline-none`}

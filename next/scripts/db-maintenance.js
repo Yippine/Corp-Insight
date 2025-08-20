@@ -8,9 +8,8 @@ const fs = require('fs');
 // 2. 如果沒有，則根據 NODE_ENV 載入對應的 .env 檔案。
 // 3. 這是為了同時兼顧「容器內執行(由 Docker 注入變數)」和「本地終端機執行(需自行讀取 .env)」。
 if (!process.env.MONGODB_URI) {
-  const envFile = process.env.NODE_ENV === 'production' 
-    ? '.env.production' 
-    : '.env.local';
+  const envFile =
+    process.env.NODE_ENV === 'production' ? '.env.production' : '.env.local';
   const envPath = path.resolve(__dirname, '..', envFile);
 
   if (fs.existsSync(envPath)) {
@@ -26,7 +25,9 @@ const MONGODB_URI = process.env.MONGODB_URI;
 // 如果缺少 URI，則立即拋出錯誤並終止程式
 if (!MONGODB_URI) {
   console.error('\x1b[31m❌ 錯誤：找不到 MONGODB_URI 環境變數。\x1b[0m');
-  console.error('\x1b[33m請確保在 /next 目錄下有名為 .env.local 或 .env.production 的檔案，或該變數已由執行環境提供。\x1b[0m');
+  console.error(
+    '\x1b[33m請確保在 /next 目錄下有名為 .env.local 或 .env.production 的檔案，或該變數已由執行環境提供。\x1b[0m'
+  );
   process.exit(1);
 }
 
@@ -109,10 +110,19 @@ async function main() {
     if (scope === 'cache' || scope === 'all') {
       console.log(colorize('\n🧹 開始清理快取 (Caches)...', 'magenta'));
       for (const [name, config] of Object.entries(CACHE_COLLECTIONS)) {
-        totalDeleted += await cleanCollection(name, config.days, config.dateField);
+        totalDeleted += await cleanCollection(
+          name,
+          config.days,
+          config.dateField
+        );
       }
     } else {
-      console.log(colorize(`\n⚠️  無效的 scope: "${scope}"。只接受 'cache' 或 'all'。`, 'yellow'));
+      console.log(
+        colorize(
+          `\n⚠️  無效的 scope: "${scope}"。只接受 'cache' 或 'all'。`,
+          'yellow'
+        )
+      );
     }
 
     console.log(colorize('\n🎉 維護作業完成！', 'bright'));

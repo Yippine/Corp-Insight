@@ -82,7 +82,10 @@ export default async function TenderSearchPage({
   return (
     <>
       {/* SEO 數據標記 */}
-      <TenderSearchStructuredData query={decodedQuery} searchType={searchType} />
+      <TenderSearchStructuredData
+        query={decodedQuery}
+        searchType={searchType}
+      />
 
       <Suspense
         fallback={
@@ -101,7 +104,7 @@ export default async function TenderSearchPage({
               hasError={!!error}
             />
           )}
-          
+
           <div className="space-y-8">
             <HeroSection
               title="快速查詢"
@@ -145,12 +148,16 @@ export async function generateMetadata({
   const query = searchParams?.q || '';
   const searchType = (searchParams?.type || 'tender') as 'company' | 'tender';
   const decodedQuery = decodeURIComponent(query);
-  
+
   // 為了判斷是否有結果，我們需要執行一次搜尋
   // 這會從快取中讀取，不會造成額外請求
-  const searchResults = await getCachedTenderSearch(decodedQuery, searchType, 1);
+  const searchResults = await getCachedTenderSearch(
+    decodedQuery,
+    searchType,
+    1
+  );
   const hasResults = searchResults.results.length > 0;
-  
+
   // 使用 SEO 組件生成元數據
   const metadata = generateTenderSearchMetadata({
     query: decodedQuery,

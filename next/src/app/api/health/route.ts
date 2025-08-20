@@ -13,16 +13,16 @@ export async function GET() {
       uptime: process.uptime(),
       memory: process.memoryUsage(),
       node_version: process.version,
-      platform: process.platform
+      platform: process.platform,
     };
 
     return NextResponse.json(healthStatus);
   } catch (error) {
     return NextResponse.json(
-      { 
-        status: 'unhealthy', 
+      {
+        status: 'unhealthy',
         error: (error as Error).message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     );

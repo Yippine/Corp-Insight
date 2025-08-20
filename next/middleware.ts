@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
   // 環境檢測
   const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
   const isDevelopment = process.env.NODE_ENV === 'development';
-  
+
   // 🏠 dev-local 環境：網域和路由都不變，/aitool/* 正常使用
   if (isDevelopment) {
     const response = NextResponse.next({
@@ -46,19 +46,20 @@ export function middleware(request: NextRequest) {
   }
 
   // 🌐 prod-production 環境：跨域重定向邏輯
-  
+
   // 如果是 aitools 域名但訪問的不是工具相關路徑，重定向到主域名
-  const isAiToolsPath = pathname.startsWith('/search') ||
-                       pathname.startsWith('/detail') ||
-                       pathname.startsWith('/api/aitool') ||
-                       pathname.startsWith('/api/gemini') ||
-                       pathname.startsWith('/api/prompt') ||
-                       pathname.startsWith('/api/feedback') ||
-                       pathname.startsWith('/_next') ||
-                       pathname.startsWith('/faq') ||
-                       pathname.startsWith('/feedback') ||
-                       pathname.startsWith('/privacy') ||
-                       pathname === '/';
+  const isAiToolsPath =
+    pathname.startsWith('/search') ||
+    pathname.startsWith('/detail') ||
+    pathname.startsWith('/api/aitool') ||
+    pathname.startsWith('/api/gemini') ||
+    pathname.startsWith('/api/prompt') ||
+    pathname.startsWith('/api/feedback') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/faq') ||
+    pathname.startsWith('/feedback') ||
+    pathname.startsWith('/privacy') ||
+    pathname === '/';
 
   if (isAiToolsDomain(originalHost) && !isAiToolsPath) {
     const mainDomain = SITE_CONFIG.main.domain;

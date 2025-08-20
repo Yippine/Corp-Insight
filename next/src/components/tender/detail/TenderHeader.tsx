@@ -46,26 +46,26 @@ export default function TenderHeader({
         </div>
         <div className="flex space-x-3">
           <button
-            className="inline-flex items-center whitespace-nowrap rounded-md border 
-            border-transparent bg-orange-400 px-4 py-2 text-base 
-            font-medium text-white hover:bg-orange-500 focus:outline-none 
+            className="inline-flex items-center whitespace-nowrap rounded-md border
+            border-transparent bg-orange-400 px-4 py-2 text-base
+            font-medium text-white hover:bg-orange-500 focus:outline-none
             focus:ring-2 focus:ring-orange-300 focus:ring-offset-2"
           >
             一鍵生成洞察報告
           </button>
           <button
-            className="ml-3 inline-flex items-center whitespace-nowrap rounded-md 
-            border border-gray-300 bg-white px-4 py-2 
-            text-base font-medium text-gray-700 shadow-sm 
-            hover:bg-gray-50 focus:outline-none focus:ring-2 
+            className="ml-3 inline-flex items-center whitespace-nowrap rounded-md
+            border border-gray-300 bg-white px-4 py-2
+            text-base font-medium text-gray-700 shadow-sm
+            hover:bg-gray-50 focus:outline-none focus:ring-2
             focus:ring-blue-500 focus:ring-offset-2"
           >
             加入追蹤
           </button>
           <button
-            className="inline-flex items-center whitespace-nowrap rounded-md border 
-            border-transparent bg-blue-600 px-4 py-2 text-base 
-            font-medium text-white hover:bg-blue-700 focus:outline-none 
+            className="inline-flex items-center whitespace-nowrap rounded-md border
+            border-transparent bg-blue-600 px-4 py-2 text-base
+            font-medium text-white hover:bg-blue-700 focus:outline-none
             focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             下載報表

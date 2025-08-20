@@ -152,12 +152,15 @@ export default function FeedbackForm() {
     try {
       // 檢查是否為本地測試環境
       const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
-      
+
       // 檢查當前是否在 aitools 域名下（非本地測試時）
-      const apiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
-        ? `${SITE_CONFIG.main.domain}/api/feedback/send-code`
-        : '/api/feedback/send-code';
-      
+      const apiUrl =
+        !isLocalProd &&
+        typeof window !== 'undefined' &&
+        window.location.host.includes('aitools.leopilot.com')
+          ? `${SITE_CONFIG.main.domain}/api/feedback/send-code`
+          : '/api/feedback/send-code';
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -219,12 +222,15 @@ export default function FeedbackForm() {
     try {
       // 檢查是否為本地測試環境
       const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL_PROD === 'true';
-      
+
       // 檢查當前是否在 aitools 域名下（非本地測試時）
-      const apiUrl = !isLocalProd && typeof window !== 'undefined' && window.location.host.includes('aitools.leopilot.com')
-        ? `${SITE_CONFIG.main.domain}/api/feedback/submit`
-        : '/api/feedback/submit';
-      
+      const apiUrl =
+        !isLocalProd &&
+        typeof window !== 'undefined' &&
+        window.location.host.includes('aitools.leopilot.com')
+          ? `${SITE_CONFIG.main.domain}/api/feedback/submit`
+          : '/api/feedback/submit';
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,

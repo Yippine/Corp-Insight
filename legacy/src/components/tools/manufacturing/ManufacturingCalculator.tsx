@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import Instructions from '../Instructions';
+import { useState } from "react";
+import Instructions from "../Instructions";
 
 interface CalculationResult {
   spindleSpeed: number;
@@ -7,29 +7,31 @@ interface CalculationResult {
 }
 
 const materials = [
-  { id: 'steel', name: '碳鋼', cuttingSpeed: 30 },
-  { id: 'stainless', name: '不鏽鋼', cuttingSpeed: 25 },
-  { id: 'aluminum', name: '鋁合金', cuttingSpeed: 100 },
-  { id: 'brass', name: '黃銅', cuttingSpeed: 90 },
-  { id: 'cast-iron', name: '鑄鐵', cuttingSpeed: 40 }
+  { id: "steel", name: "碳鋼", cuttingSpeed: 30 },
+  { id: "stainless", name: "不鏽鋼", cuttingSpeed: 25 },
+  { id: "aluminum", name: "鋁合金", cuttingSpeed: 100 },
+  { id: "brass", name: "黃銅", cuttingSpeed: 90 },
+  { id: "cast-iron", name: "鑄鐵", cuttingSpeed: 40 },
 ];
 
 export default function ManufacturingCalculator() {
   const [material, setMaterial] = useState(materials[0].id);
-  const [toolDiameter, setToolDiameter] = useState('10');
-  const [cuttingDepth, setCuttingDepth] = useState('1');
+  const [toolDiameter, setToolDiameter] = useState("10");
+  const [cuttingDepth, setCuttingDepth] = useState("1");
   const [result, setResult] = useState<CalculationResult | null>(null);
 
   const calculateParameters = () => {
-    const selectedMaterial = materials.find(m => m.id === material);
+    const selectedMaterial = materials.find((m) => m.id === material);
     if (!selectedMaterial) return;
 
     const diameter = parseFloat(toolDiameter);
     const depth = parseFloat(cuttingDepth);
-    
+
     // 計算主軸轉速 (RPM) = (切削速度 × 1000) / (π × 刀具直徑)
-    const spindleSpeed = Math.round((selectedMaterial.cuttingSpeed * 1000) / (Math.PI * diameter));
-    
+    const spindleSpeed = Math.round(
+      (selectedMaterial.cuttingSpeed * 1000) / (Math.PI * diameter)
+    );
+
     // 計算進給速度 (mm/min) = 轉速 × 每刃進給 × 刀具刃數
     // 假設每刃進給為0.1mm，4刃刀具
     const feedRate = Math.round(spindleSpeed * 0.1 * 4);

@@ -1,41 +1,41 @@
-import { useState, useEffect } from 'react';
-import Instructions from '../Instructions';
+import { useState, useEffect } from "react";
+import Instructions from "../Instructions";
 
 interface ExchangeRates {
   [key: string]: number;
 }
 
 const currencies = [
-  { code: 'TWD', name: '新台幣' },
-  { code: 'USD', name: '美元' },
-  { code: 'EUR', name: '歐元' },
-  { code: 'JPY', name: '日圓' },
-  { code: 'CNY', name: '人民幣' },
-  { code: 'HKD', name: '港幣' },
-  { code: 'GBP', name: '英鎊' },
-  { code: 'AUD', name: '澳幣' },
-  { code: 'CAD', name: '加幣' },
-  { code: 'SGD', name: '新加坡幣' }
+  { code: "TWD", name: "新台幣" },
+  { code: "USD", name: "美元" },
+  { code: "EUR", name: "歐元" },
+  { code: "JPY", name: "日圓" },
+  { code: "CNY", name: "人民幣" },
+  { code: "HKD", name: "港幣" },
+  { code: "GBP", name: "英鎊" },
+  { code: "AUD", name: "澳幣" },
+  { code: "CAD", name: "加幣" },
+  { code: "SGD", name: "新加坡幣" },
 ];
 
 // 模擬匯率資料（實際應用中應該從API獲取）
 const mockRates: ExchangeRates = {
   TWD: 1,
   USD: 0.033,
-  EUR: 0.030,
+  EUR: 0.03,
   JPY: 3.7,
   CNY: 0.23,
   HKD: 0.26,
   GBP: 0.026,
   AUD: 0.048,
   CAD: 0.044,
-  SGD: 0.044
+  SGD: 0.044,
 };
 
 export default function CurrencyConverter() {
-  const [amount, setAmount] = useState('1000');
-  const [fromCurrency, setFromCurrency] = useState('TWD');
-  const [toCurrency, setToCurrency] = useState('USD');
+  const [amount, setAmount] = useState("1000");
+  const [fromCurrency, setFromCurrency] = useState("TWD");
+  const [toCurrency, setToCurrency] = useState("USD");
   const [rates, setRates] = useState<ExchangeRates>(mockRates);
   const [result, setResult] = useState<number | null>(null);
 
@@ -51,7 +51,7 @@ export default function CurrencyConverter() {
     // 先轉換成TWD，再轉換成目標貨幣
     const inTWD = inputAmount / rates[fromCurrency];
     const converted = inTWD * rates[toCurrency];
-    
+
     setResult(converted);
   };
 
@@ -142,24 +142,26 @@ export default function CurrencyConverter() {
                 <p className="text-xl font-medium text-gray-900">
                   {parseFloat(amount).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })} {fromCurrency}
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  {fromCurrency}
                 </p>
               </div>
               <div>
-                <p className="text-base text-gray-500">
-                  轉換結果
-                </p>
+                <p className="text-base text-gray-500">轉換結果</p>
                 <p className="text-xl font-medium text-gray-900">
                   {result.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })} {toCurrency}
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  {toCurrency}
                 </p>
               </div>
             </div>
             <div className="text-base text-gray-500">
-              匯率：1 {fromCurrency} = {(rates[toCurrency] / rates[fromCurrency]).toFixed(4)} {toCurrency}
+              匯率：1 {fromCurrency} ={" "}
+              {(rates[toCurrency] / rates[fromCurrency]).toFixed(4)}{" "}
+              {toCurrency}
             </div>
           </div>
         )}

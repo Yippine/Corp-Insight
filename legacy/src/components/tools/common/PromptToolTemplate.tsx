@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import Instructions from '../Instructions';
-import { Loader2 } from 'lucide-react';
-import { streamGenerateContent } from '../../../lib/gemini';
-import type { PromptToolConfig } from '../../../config/promptTools';
+import { useState } from "react";
+import Instructions from "../Instructions";
+import { Loader2 } from "lucide-react";
+import { streamGenerateContent } from "../../../lib/gemini";
+import type { PromptToolConfig } from "../../../config/promptTools";
 
 interface GenerationResult {
   content: string;
@@ -13,16 +13,18 @@ interface PromptToolTemplateProps {
   config: PromptToolConfig;
 }
 
-export default function PromptToolTemplate({ config }: PromptToolTemplateProps) {
-  const [prompt, setPrompt] = useState('');
+export default function PromptToolTemplate({
+  config,
+}: PromptToolTemplateProps) {
+  const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
 
   const generatePrompt = (isOptimizing: boolean) => {
-    if (isOptimizing && !result?.content) return '';
+    if (isOptimizing && !result?.content) return "";
 
     const basePrompt = `${config.promptTemplate.prefix}
-${isOptimizing ? '請基於以下現有指令進行優化：\n' + result?.content + '\n\n以及參考以下資訊：\n' : ''}
+${isOptimizing ? "請基於以下現有指令進行優化：\n" + result?.content + "\n\n以及參考以下資訊：\n" : ""}
 使用者的輸入：
 """${prompt}"""
 
@@ -31,7 +33,7 @@ ${config.promptTemplate.suffix}
 ### CRITICAL WARNING ###
 The total output must not exceed 400 Tokens to ensure the content remains engaging and easy to understand. Please adhere to the professional standards within this constraint. Thank you for your attention.
 
-${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。' : ''}`;
+${config.id !== "english-writer" ? "請以下列語言輸出：\n請以台灣地區的繁體中文進行回覆，並且適用於台灣道地的字詞和語法。" : ""}`;
 
     console.log(`basePrompt: ${basePrompt}`);
 
@@ -45,21 +47,21 @@ ${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地
     if (result) {
       setResult({
         ...result,
-        isOptimizing: true
+        isOptimizing: true,
       });
     }
 
     try {
       const promptText = generatePrompt(isOptimizing);
-      
+
       await streamGenerateContent(promptText, (text) => {
         setResult({
           content: text,
-          isOptimizing: false
+          isOptimizing: false,
         });
       });
     } catch (error) {
-      console.error('Generation failed:', error);
+      console.error("Generation failed:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -101,7 +103,7 @@ ${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地
                 生成中...
               </span>
             ) : (
-              '開始新對話'
+              "開始新對話"
             )}
           </button>
 
@@ -110,8 +112,8 @@ ${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地
             disabled={isGenerating || !result || !prompt.trim()}
             className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
               result
-                ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
-                : 'border-gray-300 text-gray-400'
+                ? "border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500"
+                : "border-gray-300 text-gray-400"
             }`}
           >
             {result?.isOptimizing ? (
@@ -120,7 +122,7 @@ ${config.id !== 'english-writer' ? '請以下列語言輸出：\n請以台灣地
                 優化中...
               </span>
             ) : (
-              '延續對話並優化'
+              "延續對話並優化"
             )}
           </button>
         </div>

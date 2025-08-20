@@ -1,18 +1,18 @@
-import { useEffect, useRef } from 'react';
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import Layout from './components/Layout';
-import CompanySearchPage from './pages/CompanySearchPage';
-import CompanyDetail from './components/company/CompanyDetail';
-import TenderSearchPage from './pages/TenderSearchPage';
-import TenderDetail from './components/tender/TenderDetail';
-import ToolSearch from './components/tools/ToolSearch';
-import ToolDetail from './components/tools/ToolDetail';
-import FAQPage from './pages/FAQPage';
-import PrivacyPage from './pages/PrivacyPage';
-import FeedbackPage from './pages/FeedbackPage';
-import { useGoogleAnalytics } from './hooks/useGoogleAnalytics';
-import { siteConfig } from './config/site';
+import { useEffect, useRef } from "react";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import Layout from "./components/Layout";
+import CompanySearchPage from "./pages/CompanySearchPage";
+import CompanyDetail from "./components/company/CompanyDetail";
+import TenderSearchPage from "./pages/TenderSearchPage";
+import TenderDetail from "./components/tender/TenderDetail";
+import ToolSearch from "./components/tools/ToolSearch";
+import ToolDetail from "./components/tools/ToolDetail";
+import FAQPage from "./pages/FAQPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import FeedbackPage from "./pages/FeedbackPage";
+import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
+import { siteConfig } from "./config/site";
 
 function App() {
   const location = useLocation();
@@ -27,7 +27,7 @@ function App() {
   }, [location.pathname, trackPageView]);
 
   const getPageTitle = () => {
-    const matchedPath = Object.entries(siteConfig.titles).find(([path]) => 
+    const matchedPath = Object.entries(siteConfig.titles).find(([path]) =>
       location.pathname.startsWith(path)
     );
     return `${siteConfig.title} - ${matchedPath?.[1] || siteConfig.defaultTitle}`;
@@ -37,9 +37,9 @@ function App() {
     useEffect(() => {
       trackUrlError(location.pathname);
     }, [location.pathname]);
-  
+
     return <Navigate to="/company/search" replace />;
-  }
+  };
 
   return (
     <>
@@ -52,7 +52,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           {/* 主頁路由 */}
           <Route index element={<Navigate to="/company/search" replace />} />
-          
+
           {/* 企業查詢路由 */}
           <Route path="company">
             <Route index element={<Navigate to="search" replace />} />

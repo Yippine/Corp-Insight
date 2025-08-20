@@ -2,17 +2,17 @@
 /**
  * BMAD Method Flattener Script
  * 產生扁平化的程式碼結構檔案，用於 AI 分析
- * 
+ *
  * 使用方法：
  * # 基本使用：在專案根目錄產生 flattened-codebase.xml
  * npm run flatten
- * 
+ *
  * # 自訂輸入路徑
  * npm run flatten -- --input=./src
- * 
+ *
  * # 自訂輸出檔案
  * npm run flatten -- --output=./custom-output.xml
- * 
+ *
  * # 同時自訂輸入和輸出
  * npm run flatten -- --input=./src --output=./src-only.xml
  */

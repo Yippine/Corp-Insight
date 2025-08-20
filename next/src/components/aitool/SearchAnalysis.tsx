@@ -17,7 +17,13 @@ interface SearchAnalysisProps {
 }
 
 // 在字串中高亮關鍵字的輔助函式
-const HighlightedText = ({ text, highlight }: { text: string; highlight: string }) => {
+const HighlightedText = ({
+  text,
+  highlight,
+}: {
+  text: string;
+  highlight: string;
+}) => {
   if (!highlight.trim()) {
     return <span>{text}</span>;
   }
@@ -26,7 +32,11 @@ const HighlightedText = ({ text, highlight }: { text: string; highlight: string 
     <span>
       {parts.map((part, i) =>
         part.toLowerCase() === highlight.toLowerCase() ? (
-          <span key={i} className="font-bold" style={{ boxShadow: 'inset 0 -0.5em 0 0 rgba(255, 215, 0, 0.4)' }}>
+          <span
+            key={i}
+            className="font-bold"
+            style={{ boxShadow: 'inset 0 -0.5em 0 0 rgba(255, 215, 0, 0.4)' }}
+          >
             {part}
           </span>
         ) : (
@@ -37,23 +47,32 @@ const HighlightedText = ({ text, highlight }: { text: string; highlight: string 
   );
 };
 
-const ScoreDetailItem: React.FC<{ detail: MatchDetail; isExpanded: boolean; onClick: () => void }> = ({ detail, isExpanded, onClick }) => {
+const ScoreDetailItem: React.FC<{
+  detail: MatchDetail;
+  isExpanded: boolean;
+  onClick: () => void;
+}> = ({ detail, isExpanded, onClick }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <button onClick={onClick} className="w-full text-left p-3 cursor-pointer hover:bg-gray-50 transition-colors duration-200">
+    <div className="overflow-hidden rounded-lg bg-white shadow-sm">
+      <button
+        onClick={onClick}
+        className="w-full cursor-pointer p-3 text-left transition-colors duration-200 hover:bg-gray-50"
+      >
         <div className="flex items-start justify-between">
           <div className="flex items-start">
-            <span className="text-green-500 mr-3 mt-0.5">✔️</span>
+            <span className="mr-3 mt-0.5 text-green-500">✔️</span>
             <div>
-              <span className="font-semibold text-gray-700">{detail.field}</span>
-              <p className="font-mono bg-gray-100 p-1.5 mt-1 rounded text-xs text-gray-800 break-words">
+              <span className="font-semibold text-gray-700">
+                {detail.field}
+              </span>
+              <p className="mt-1 break-words rounded bg-gray-100 p-1.5 font-mono text-xs text-gray-800">
                 "{detail.keyword}"
               </p>
             </div>
           </div>
 
-          <div className="flex items-center pl-2 flex-shrink-0">
-            <span className="text-blue-500 font-semibold">
+          <div className="flex flex-shrink-0 items-center pl-2">
+            <span className="font-semibold text-blue-500">
               + {detail.score} 分
             </span>
             <motion.div
@@ -74,10 +93,13 @@ const ScoreDetailItem: React.FC<{ detail: MatchDetail; isExpanded: boolean; onCl
             exit={{ opacity: 0, height: 0 }}
             className="px-3 pb-3"
           >
-            <div className="ml-7 pl-3 border-l-2 border-yellow-400 bg-gray-50 p-2 rounded-r-md">
-                <p className="text-gray-700 text-sm break-all">
-                <HighlightedText text={detail.content} highlight={detail.keyword} />
-                </p>
+            <div className="ml-7 rounded-r-md border-l-2 border-yellow-400 bg-gray-50 p-2 pl-3">
+              <p className="break-all text-sm text-gray-700">
+                <HighlightedText
+                  text={detail.content}
+                  highlight={detail.keyword}
+                />
+              </p>
             </div>
           </motion.div>
         )}
@@ -102,7 +124,9 @@ const SearchAnalysis: React.FC<SearchAnalysisProps> = ({ tool, keywords }) => {
     score: finalScore = 0,
   } = tool;
 
-  const perfectMatchBonus = tool.matchDetails.find((d: any) => d.field === '完美匹配');
+  const perfectMatchBonus = tool.matchDetails.find(
+    (d: any) => d.field === '完美匹配'
+  );
 
   const handleToggle = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
@@ -110,22 +134,24 @@ const SearchAnalysis: React.FC<SearchAnalysisProps> = ({ tool, keywords }) => {
 
   return (
     <motion.div
-      onClick={(e) => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="mt-4 p-4 border border-yellow-300 bg-yellow-50 rounded-lg text-sm"
+      className="mt-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-sm"
     >
-      <h3 className="text-lg font-bold text-gray-800 mb-3 border-b pb-2">
+      <h3 className="mb-3 border-b pb-2 text-lg font-bold text-gray-800">
         <span className="text-yellow-600">📊</span> 計分儀表板
       </h3>
-      
+
       {/* 第一部分：基礎分數計算 */}
       <div className="mb-4">
-        <h4 className="font-semibold text-gray-700 mb-2">1. 基礎分累加（Base Score）</h4>
+        <h4 className="mb-2 font-semibold text-gray-700">
+          1. 基礎分累加（Base Score）
+        </h4>
         <div className="space-y-2">
           {matchDetails.map((detail: any, index: number) => (
-            <ScoreDetailItem 
+            <ScoreDetailItem
               key={index}
               detail={detail}
               isExpanded={expandedIndex === index}
@@ -133,19 +159,26 @@ const SearchAnalysis: React.FC<SearchAnalysisProps> = ({ tool, keywords }) => {
             />
           ))}
         </div>
-        <div className="text-right mt-2 font-bold text-lg text-gray-700">
+        <div className="mt-2 text-right text-lg font-bold text-gray-700">
           基礎分: {baseScore}
         </div>
       </div>
 
       {/* 第二部分：關鍵字覆蓋率加權 */}
       <div className="mb-4">
-        <h4 className="font-semibold text-gray-700 mb-2">2. 關鍵字覆蓋率加權（Keyword Coverage Multiplier）</h4>
-        <div className="bg-white p-3 rounded-md shadow-sm text-center">
+        <h4 className="mb-2 font-semibold text-gray-700">
+          2. 關鍵字覆蓋率加權（Keyword Coverage Multiplier）
+        </h4>
+        <div className="rounded-md bg-white p-3 text-center shadow-sm">
           <p className="text-gray-600">
-            成功匹配 <span className="font-bold text-blue-600">{matchedKeywordCount}</span> 個獨立關鍵字（共 <span className="font-bold">{totalKeywords}</span> 個）
+            成功匹配{' '}
+            <span className="font-bold text-blue-600">
+              {matchedKeywordCount}
+            </span>{' '}
+            個獨立關鍵字（共 <span className="font-bold">{totalKeywords}</span>{' '}
+            個）
           </p>
-          <p className="text-2xl font-bold text-purple-600 my-1">
+          <p className="my-1 text-2xl font-bold text-purple-600">
             x {multiplier.toFixed(1)}
           </p>
           <p className="text-xs text-gray-500">（匹配越多，加權倍率越高）</p>
@@ -154,23 +187,25 @@ const SearchAnalysis: React.FC<SearchAnalysisProps> = ({ tool, keywords }) => {
 
       {/* 第三部分：最終總分計算 */}
       <div>
-        <h4 className="font-semibold text-gray-700 mb-2">3. 最終總分（Final Score）</h4>
-        <div className="bg-gradient-to-r from-yellow-100 to-amber-200 p-4 rounded-lg text-center shadow-inner">
-           <p className="text-gray-600 font-mono text-base">
-            （基礎分 <span className="font-bold">{baseScore}</span> x 加權倍率 <span className="font-bold">{multiplier.toFixed(1)}</span>）
+        <h4 className="mb-2 font-semibold text-gray-700">
+          3. 最終總分（Final Score）
+        </h4>
+        <div className="rounded-lg bg-gradient-to-r from-yellow-100 to-amber-200 p-4 text-center shadow-inner">
+          <p className="font-mono text-base text-gray-600">
+            （基礎分 <span className="font-bold">{baseScore}</span> x 加權倍率{' '}
+            <span className="font-bold">{multiplier.toFixed(1)}</span>）
             {perfectMatchBonus ? ` + 完美匹配 ${perfectMatchBonus.score}` : ''}
           </p>
-          <p className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-red-500 mt-1">
+          <p className="mt-1 bg-gradient-to-r from-amber-500 to-red-500 bg-clip-text text-4xl font-extrabold text-transparent">
             = {Math.round(finalScore)}
           </p>
-          <div className="flex justify-center items-center mt-2 text-yellow-600">
+          <div className="mt-2 flex items-center justify-center text-yellow-600">
             <span className="text-2xl">⭐</span>
-            <span className="text-3xl mx-2">⭐</span>
+            <span className="mx-2 text-3xl">⭐</span>
             <span className="text-2xl">⭐</span>
           </div>
         </div>
       </div>
-
     </motion.div>
   );
 };

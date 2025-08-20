@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import Instructions from '../Instructions';
-import { productCategories, reviewTypes } from '../../../config/gemini';
-import { streamGenerateContent } from '../../../lib/gemini';
-import { ButtonLoading } from '../../common/loading';
+import { useState } from "react";
+import Instructions from "../Instructions";
+import { productCategories, reviewTypes } from "../../../config/gemini";
+import { streamGenerateContent } from "../../../lib/gemini";
+import { ButtonLoading } from "../../common/loading";
 
 interface GenerationResult {
   content: string;
@@ -10,22 +10,24 @@ interface GenerationResult {
 }
 
 export default function ReviewGenerator() {
-  const [productName, setProductName] = useState('');
-  const [features, setFeatures] = useState('');
-  const [usageScenario, setUsageScenario] = useState('');
+  const [productName, setProductName] = useState("");
+  const [features, setFeatures] = useState("");
+  const [usageScenario, setUsageScenario] = useState("");
   const [category, setCategory] = useState<string>(productCategories[0].id);
   const [reviewType, setReviewType] = useState<string>(reviewTypes[0].id);
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
 
   const generatePrompt = (isOptimizing: boolean) => {
-    if (isOptimizing && !result?.content) return '';
+    if (isOptimizing && !result?.content) return "";
 
-    const selectedCategory = productCategories.find(c => c.id === category)?.name;
-    const selectedType = reviewTypes.find(t => t.id === reviewType)?.name;
+    const selectedCategory = productCategories.find(
+      (c) => c.id === category
+    )?.name;
+    const selectedType = reviewTypes.find((t) => t.id === reviewType)?.name;
 
     const basePrompt = `你是一位專業的產品評價撰寫專家。
-${isOptimizing ? '請基於以下現有評價進行優化：\n' + result?.content + '\n\n以及參考以下資訊：\n' : ''}
+${isOptimizing ? "請基於以下現有評價進行優化：\n" + result?.content + "\n\n以及參考以下資訊：\n" : ""}
 請根據以下輸入：
 產品名稱：${productName}
 產品特點：${features}
@@ -64,21 +66,21 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
     if (result) {
       setResult({
         ...result,
-        isOptimizing: true
+        isOptimizing: true,
       });
     }
 
     try {
       const prompt = generatePrompt(isOptimizing);
-      
+
       await streamGenerateContent(prompt, (text) => {
         setResult({
           content: text,
-          isOptimizing: false
+          isOptimizing: false,
         });
       });
     } catch (error) {
-      console.error('Generation failed:', error);
+      console.error("Generation failed:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -179,23 +181,25 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
             {isGenerating && !result?.isOptimizing ? (
               <ButtonLoading text="生成中..." />
             ) : (
-              '開始新對話'
+              "開始新對話"
             )}
           </button>
 
           <button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !result || !productName.trim() || !features.trim()}
+            disabled={
+              isGenerating || !result || !productName.trim() || !features.trim()
+            }
             className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
               result
-                ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
-                : 'border-gray-300 text-gray-400'
+                ? "border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500"
+                : "border-gray-300 text-gray-400"
             }`}
           >
             {result?.isOptimizing ? (
               <ButtonLoading text="優化中..." />
             ) : (
-              '延續對話並優化'
+              "延續對話並優化"
             )}
           </button>
         </div>

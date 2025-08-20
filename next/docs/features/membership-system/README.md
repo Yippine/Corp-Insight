@@ -6,8 +6,9 @@
 **[../../BROWNFIELD-DEVELOPMENT-CONSTRAINTS.md](../../BROWNFIELD-DEVELOPMENT-CONSTRAINTS.md)**
 
 **快速約束摘要：**
+
 - ❌ 絕不修改任何既有程式碼、API、資料庫
-- ❌ 絕不刪除任何既有檔案或功能  
+- ❌ 絕不刪除任何既有檔案或功能
 - ✅ 僅允許新增會員功能相關的內容
 - ✅ 必須遵循既有架構與風格
 
@@ -62,17 +63,20 @@ membership-system/
 ## 主要功能模組
 
 ### 認證模組
+
 - Google OAuth 第三方登入
 - Email/密碼本地註冊
 - Email 驗證機制
 - 忘記密碼功能
 
 ### 會員管理模組
+
 - 使用者個人資料管理
 - 權限角色系統 (User/Admin/Root)
 - 會員狀態管理
 
 ### 後台管理模組
+
 - Admin 儀表板
 - 會員管理介面
 - 系統監控整合
@@ -88,6 +92,6 @@ membership-system/
 ## 成功指標
 
 - Google 第三方登入功能正確率 ≥ 98%
-- Email 驗證完成率 ≥ 95%  
+- Email 驗證完成率 ≥ 95%
 - Admin 後台完整會員管理功能
 - 與現有系統無縫整合

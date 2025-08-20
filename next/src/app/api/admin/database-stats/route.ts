@@ -16,8 +16,10 @@ async function getLatestBackupInfo() {
     }
 
     const files = await fs.readdir(backupDir);
-    const backupFiles = files.filter(f => f.endsWith('.tar.gz') && f.startsWith('db-backup-'));
-    
+    const backupFiles = files.filter(
+      f => f.endsWith('.tar.gz') && f.startsWith('db-backup-')
+    );
+
     if (backupFiles.length === 0) {
       return { latestBackupDate: null, backupCount: 0 };
     }
@@ -31,7 +33,7 @@ async function getLatestBackupInfo() {
     );
 
     fileStats.sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
-    
+
     const latestFile = fileStats[0];
 
     return {
@@ -53,7 +55,7 @@ export async function GET(request: Request) {
   try {
     const mongoose = await connectToDatabase();
     const db = mongoose.connection.db;
-    
+
     if (!db) {
       throw new Error('Database connection not found.');
     }
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
     const backupInfo = await getLatestBackupInfo();
 
     const collectionDetails = await Promise.all(
-      collections.map(async (col) => {
+      collections.map(async col => {
         const collectionStats = await db.command({ collStats: col.name });
         return {
           name: col.name,
@@ -87,13 +89,16 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Database stats error:', error);
     const backupInfo = await getLatestBackupInfo();
-    return NextResponse.json({
-      connection: false,
-      collections: 0,
-      objects: 0,
-      dataSize: 0,
-      ...backupInfo,
-      collectionDetails: [],
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        connection: false,
+        collections: 0,
+        objects: 0,
+        dataSize: 0,
+        ...backupInfo,
+        collectionDetails: [],
+      },
+      { status: 500 }
+    );
   }
 }

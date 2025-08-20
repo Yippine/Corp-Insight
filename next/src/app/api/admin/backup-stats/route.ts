@@ -31,37 +31,41 @@ async function analyzeBackupFile(filePath: string): Promise<BackupAnalysis> {
       fileStream.on('error', reject);
 
       const tarStream = tar.t({
-        onentry: (entry) => {
+        onentry: entry => {
           if (entry.type === 'File' && entry.path.endsWith('.json')) {
-            const entryPromise = new Promise<void>((resolveEntry, rejectEntry) => {
-              const content: Buffer[] = [];
-              entry.on('data', (chunk) => content.push(chunk));
-              entry.on('error', rejectEntry);
-              entry.on('end', () => {
-                try {
-                  const collectionName = path.basename(entry.path, '.json');
-                  const fileContent = Buffer.concat(content).toString('utf8');
-                  let recordCount = 0;
-                  
-                  if (fileContent.trim()) {
-                    try {
-                      const data = JSON.parse(fileContent);
-                      if (Array.isArray(data)) {
-                        recordCount = data.length;
-                      }
-                    } catch (e) {
-                      recordCount = fileContent.split('\n').filter(line => line.trim().startsWith('{')).length;
-                    }
-                  }
+            const entryPromise = new Promise<void>(
+              (resolveEntry, rejectEntry) => {
+                const content: Buffer[] = [];
+                entry.on('data', chunk => content.push(chunk));
+                entry.on('error', rejectEntry);
+                entry.on('end', () => {
+                  try {
+                    const collectionName = path.basename(entry.path, '.json');
+                    const fileContent = Buffer.concat(content).toString('utf8');
+                    let recordCount = 0;
 
-                  collections[collectionName] = recordCount;
-                  totalRecords += recordCount;
-                  resolveEntry();
-                } catch (parseError) {
-                  rejectEntry(parseError);
-                }
-              });
-            });
+                    if (fileContent.trim()) {
+                      try {
+                        const data = JSON.parse(fileContent);
+                        if (Array.isArray(data)) {
+                          recordCount = data.length;
+                        }
+                      } catch (e) {
+                        recordCount = fileContent
+                          .split('\n')
+                          .filter(line => line.trim().startsWith('{')).length;
+                      }
+                    }
+
+                    collections[collectionName] = recordCount;
+                    totalRecords += recordCount;
+                    resolveEntry();
+                  } catch (parseError) {
+                    rejectEntry(parseError);
+                  }
+                });
+              }
+            );
             entryPromises.push(entryPromise);
           }
         },
@@ -136,7 +140,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(analyses);
   } catch (error: any) {
     return new NextResponse(
-      JSON.stringify({ error: 'Failed to analyze backup files', details: error.message }),
+      JSON.stringify({
+        error: 'Failed to analyze backup files',
+        details: error.message,
+      }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },

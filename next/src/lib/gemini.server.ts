@@ -492,16 +492,16 @@ export async function generateOptimizedPrompt(
     // type === 'suffix'
     templateId = 'suffix_optimizer';
   }
-  
+
   const db = await getDb();
   const templateDoc = await db
     .collection('prompt_templates')
     .findOne({ _id: templateId as any });
-  
+
   if (!templateDoc) {
     throw new Error(`找不到提示詞範本: ${templateId}`);
   }
-  
+
   const metaPromptTemplate = templateDoc.template;
 
   // 2. 查詢資料庫
@@ -545,11 +545,11 @@ export async function generateOptimizedPrompt(
     'tool.instructions.what': tool.instructions?.what || '',
     'tool.instructions.why': tool.instructions?.why || '',
     'tool.instructions.how': tool.instructions?.how || '',
-    'current_prompt': current_prompt,
-    'chosen_philosophy': philosophy,
-    'chosen_framework': framework,
-    'variables': variables,
-    'target': target,
+    current_prompt: current_prompt,
+    chosen_philosophy: philosophy,
+    chosen_framework: framework,
+    variables: variables,
+    target: target,
   };
 
   const finalPrompt = replacePlaceholders(metaPromptTemplate, replacements);

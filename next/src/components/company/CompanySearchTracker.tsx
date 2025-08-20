@@ -9,10 +9,10 @@ interface CompanySearchTrackerProps {
   hasError?: boolean;
 }
 
-export default function CompanySearchTracker({ 
-  query, 
-  totalResults, 
-  hasError = false 
+export default function CompanySearchTracker({
+  query,
+  totalResults,
+  hasError = false,
 }: CompanySearchTrackerProps) {
   useEffect(() => {
     // 只有當查詢存在且沒有錯誤時才追蹤

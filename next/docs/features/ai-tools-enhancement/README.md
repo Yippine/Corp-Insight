@@ -21,20 +21,23 @@
 ## 功能模組
 
 ### 客製化模板系統
+
 - 模板編輯器
 - 模板分享機制
 - 版本控制
 - 使用統計
 
 ### 工具類 AI 整合
+
 - 文字處理工具
 - 資料分析工具
 - 格式轉換工具
 - 實用計算工具
 
 ### Web 類展示平台
+
 - ChatGPT Artifacts
-- Claude Artifacts  
+- Claude Artifacts
 - Gemini Apps
 - 其他 LLM 網頁工具
 

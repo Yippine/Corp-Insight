@@ -25,7 +25,7 @@ export default function FeedbackSuccessPage() {
   }, []);
 
   // 決定首頁 URL
-  const homeUrl = currentHost.includes('aitools') 
+  const homeUrl = currentHost.includes('aitools')
     ? generateUrl('aitools', '/search', currentHost)
     : generateUrl('company', '/company/search', currentHost);
 

@@ -21,19 +21,22 @@ export default function GoogleAnalytics() {
     // 如果沒有 GA_TRACKING_ID 或 gtag 未定義，則不執行
     if (!GA_TRACKING_ID || typeof window.gtag === 'undefined') {
       if (!GA_TRACKING_ID) {
-        console.warn('GA_TRACKING_ID is not set. Google Analytics is disabled.');
+        console.warn(
+          'GA_TRACKING_ID is not set. Google Analytics is disabled.'
+        );
       }
       return;
     }
-    
-    const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
-    
+
+    const url =
+      pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
+
     // 追蹤頁面瀏覽
     window.gtag('config', GA_TRACKING_ID, {
       page_path: url,
       custom_map: {
-        custom_parameter_1: 'business_magnifier_platform'
-      }
+        custom_parameter_1: 'business_magnifier_platform',
+      },
     });
 
     console.log('🔍 GA 頁面追蹤:', url);
@@ -150,14 +153,22 @@ export const trackBusinessEvents = {
 
   // 搜尋查詢改進追蹤
   trackSearchRefinement: (originalQuery: string, refinedQuery: string) => {
-    trackEvent('search_refinement', 'search', `${originalQuery} -> ${refinedQuery}`);
+    trackEvent(
+      'search_refinement',
+      'search',
+      `${originalQuery} -> ${refinedQuery}`
+    );
   },
 
   // API 效能追蹤
-  trackApiPerformance: (endpoint: string, responseTime: number, success: boolean) => {
+  trackApiPerformance: (
+    endpoint: string,
+    responseTime: number,
+    success: boolean
+  ) => {
     trackEvent('api_performance', 'technical', endpoint, responseTime);
     if (!success) {
       trackEvent('api_error', 'technical', endpoint);
     }
-  }
+  },
 };

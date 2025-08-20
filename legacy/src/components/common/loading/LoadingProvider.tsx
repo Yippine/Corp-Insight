@@ -1,4 +1,10 @@
-import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useCallback,
+} from "react";
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -12,7 +18,7 @@ const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 export function useLoading() {
   const context = useContext(LoadingContext);
   if (!context) {
-    throw new Error('useLoading must be used within a LoadingProvider');
+    throw new Error("useLoading must be used within a LoadingProvider");
   }
   return context;
 }
@@ -22,7 +28,10 @@ interface LoadingProviderProps {
   defaultState?: boolean;
 }
 
-export function LoadingProvider({ children, defaultState = false }: LoadingProviderProps) {
+export function LoadingProvider({
+  children,
+  defaultState = false,
+}: LoadingProviderProps) {
   const [isLoading, setIsLoading] = useState(defaultState);
 
   const setLoading = useCallback((state: boolean) => {
@@ -38,12 +47,14 @@ export function LoadingProvider({ children, defaultState = false }: LoadingProvi
   }, []);
 
   return (
-    <LoadingContext.Provider value={{ 
-      isLoading, 
-      setLoading,
-      showLoading,
-      hideLoading
-    }}>
+    <LoadingContext.Provider
+      value={{
+        isLoading,
+        setLoading,
+        showLoading,
+        hideLoading,
+      }}
+    >
       {children}
     </LoadingContext.Provider>
   );

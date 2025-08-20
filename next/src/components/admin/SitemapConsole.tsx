@@ -9,11 +9,31 @@ import TerminalViewer from './TerminalViewer';
 import { PlayCircle, Loader2 } from 'lucide-react';
 
 const SCRIPT_COMMANDS = [
-    { name: 'sitemap:test', title: '測試所有 Sitemap', description: '對所有 Sitemap 執行健康檢查並更新狀態。' },
-    { name: 'sitemap:monitor', title: '啟動自動監控', description: '啟動 PM2 程序，定期檢查 Sitemap 狀態。' },
-    { name: 'sitemap:stop', title: '停止自動監控', description: '停止 PM2 程序，關閉自動監控。' },
-    { name: 'sitemap:status', title: '查看監控狀態', description: '顯示 PM2 監控程序的當前運行狀態。' },
-    { name: 'sitemap:clear', title: '清除所有緩存', description: '刪除 sitemap 相關的本地和服務器端緩存。' },
+  {
+    name: 'sitemap:test',
+    title: '測試所有 Sitemap',
+    description: '對所有 Sitemap 執行健康檢查並更新狀態。',
+  },
+  {
+    name: 'sitemap:monitor',
+    title: '啟動自動監控',
+    description: '啟動 PM2 程序，定期檢查 Sitemap 狀態。',
+  },
+  {
+    name: 'sitemap:stop',
+    title: '停止自動監控',
+    description: '停止 PM2 程序，關閉自動監控。',
+  },
+  {
+    name: 'sitemap:status',
+    title: '查看監控狀態',
+    description: '顯示 PM2 監控程序的當前運行狀態。',
+  },
+  {
+    name: 'sitemap:clear',
+    title: '清除所有緩存',
+    description: '刪除 sitemap 相關的本地和服務器端緩存。',
+  },
 ];
 
 export default function SitemapConsole() {
@@ -36,57 +56,70 @@ export default function SitemapConsole() {
   const [isTerminalRunning, setIsTerminalRunning] = useState(false);
   const [isTerminalVisible, setIsTerminalVisible] = useState(false);
 
-  const handleExecuteScript = useCallback(async (scriptName: string, title: string) => {
-    setTerminalTitle(title);
-    setTerminalOutput('');
-    setIsTerminalRunning(true);
-    setIsTerminalVisible(true);
+  const handleExecuteScript = useCallback(
+    async (scriptName: string, title: string) => {
+      setTerminalTitle(title);
+      setTerminalOutput('');
+      setIsTerminalRunning(true);
+      setIsTerminalVisible(true);
 
-    const response = await fetch('/api/admin/run-script', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_SECRET_TOKEN}` },
-      body: JSON.stringify({ scriptName }),
-    });
-    
-    if (!response.body) return;
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value);
-      setTerminalOutput(prev => prev + chunk);
-    }
-    
-    setIsTerminalRunning(false);
-  }, []);
+      const response = await fetch('/api/admin/run-script', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_SECRET_TOKEN}`,
+        },
+        body: JSON.stringify({ scriptName }),
+      });
 
-  const handleViewDetails = useCallback(async (url: string) => {
-    if (selectedSitemapUrl === url) {
-      document.getElementById('sitemap-content')?.scrollIntoView({ behavior: 'smooth' });
-      return;
-    }
+      if (!response.body) return;
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
 
-    setIsLoadingContent(true);
-    setSitemapContent('');
-    setSelectedSitemapUrl(url);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        setTerminalOutput(prev => prev + chunk);
+      }
 
-    try {
-      const fetchUrl = new URL(url, window.location.origin).href;
-      const response = await fetch(fetchUrl);
-      const data = await response.text();
-      setSitemapContent(data);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : '未知錯誤';
-      setSitemapContent('載入失敗：' + message);
-    } finally {
-      setIsLoadingContent(false);
-      setTimeout(() => {
-        document.getElementById('sitemap-content')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  }, [selectedSitemapUrl]);
+      setIsTerminalRunning(false);
+    },
+    []
+  );
+
+  const handleViewDetails = useCallback(
+    async (url: string) => {
+      if (selectedSitemapUrl === url) {
+        document
+          .getElementById('sitemap-content')
+          ?.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
+      setIsLoadingContent(true);
+      setSitemapContent('');
+      setSelectedSitemapUrl(url);
+
+      try {
+        const fetchUrl = new URL(url, window.location.origin).href;
+        const response = await fetch(fetchUrl);
+        const data = await response.text();
+        setSitemapContent(data);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '未知錯誤';
+        setSitemapContent('載入失敗：' + message);
+      } finally {
+        setIsLoadingContent(false);
+        setTimeout(() => {
+          document
+            .getElementById('sitemap-content')
+            ?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    },
+    [selectedSitemapUrl]
+  );
 
   const handleCloseViewer = useCallback(() => {
     setSelectedSitemapUrl('');
@@ -109,10 +142,15 @@ export default function SitemapConsole() {
           const urls = xmlDoc.getElementsByTagName('url');
           const sitemaps = xmlDoc.getElementsByTagName('sitemap');
           const totalItems = urls.length + sitemaps.length;
-          alert(`✅ XML 格式正確！\n\n包含 ${totalItems} 個項目\n- URL: ${urls.length}\n- Sitemap: ${sitemaps.length}`);
+          alert(
+            `✅ XML 格式正確！\n\n包含 ${totalItems} 個項目\n- URL: ${urls.length}\n- Sitemap: ${sitemaps.length}`
+          );
         }
       } catch (error) {
-        alert('❌ 驗證失敗\n\n' + (error instanceof Error ? error.message : '未知錯誤'));
+        alert(
+          '❌ 驗證失敗\n\n' +
+            (error instanceof Error ? error.message : '未知錯誤')
+        );
       }
     }
   }, [sitemapContent, selectedSitemapUrl]);
@@ -133,9 +171,11 @@ export default function SitemapConsole() {
         onReset={resetStatus}
       />
 
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">📋 詳細狀態監控</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <h2 className="mb-6 text-2xl font-bold text-gray-900">
+          📋 詳細狀態監控
+        </h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {statusList.map((item: SitemapStatusItem) => (
             <SitemapStatusCard
               key={item.id}
@@ -146,7 +186,7 @@ export default function SitemapConsole() {
           ))}
         </div>
       </div>
-      
+
       <SitemapContentViewer
         url={selectedSitemapUrl}
         content={sitemapContent}
@@ -156,32 +196,42 @@ export default function SitemapConsole() {
         onOpenNewWindow={handleOpenNewWindow}
       />
 
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">🤖 自動化管理與命令列工具</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <h2 className="mb-8 text-2xl font-bold text-gray-900">
+          🤖 自動化管理與命令列工具
+        </h2>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div className="space-y-4">
-            {SCRIPT_COMMANDS.map((cmd) => (
-              <div key={cmd.name} className="bg-gray-50 p-4 rounded-lg border hover:shadow-md transition-shadow">
+            {SCRIPT_COMMANDS.map(cmd => (
+              <div
+                key={cmd.name}
+                className="rounded-lg border bg-gray-50 p-4 transition-shadow hover:shadow-md"
+              >
                 <div className="flex items-center justify-between space-x-4">
                   <div className="flex-grow">
-                    <h3 className="font-semibold text-gray-800 break-words">{cmd.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1 break-words">{cmd.description}</p>
+                    <h3 className="break-words font-semibold text-gray-800">
+                      {cmd.title}
+                    </h3>
+                    <p className="mt-1 break-words text-sm text-gray-600">
+                      {cmd.description}
+                    </p>
                   </div>
                   <button
                     onClick={() => handleExecuteScript(cmd.name, cmd.title)}
                     disabled={isTerminalRunning || !isInitialized}
                     className={`
-                      flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors flex-shrink-0
-                      ${isTerminalRunning || !isInitialized
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                      flex flex-shrink-0 items-center justify-center space-x-2 rounded-lg px-4 py-2 transition-colors
+                      ${
+                        isTerminalRunning || !isInitialized
+                          ? 'cursor-not-allowed bg-gray-300 text-gray-500'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
                       }
                     `}
                   >
-                    <span className="whitespace-nowrap flex items-center">
+                    <span className="flex items-center whitespace-nowrap">
                       {!isInitialized ? (
                         <>
-                          <Loader2 size={18} className="animate-spin mr-2" />
+                          <Loader2 size={18} className="mr-2 animate-spin" />
                           <span>初始化中</span>
                         </>
                       ) : isTerminalRunning ? (

@@ -21,11 +21,11 @@ export default function FeatureGenerator() {
   const [category, setCategory] = useState<string>(productCategories[0].id);
   const [audience, setAudience] = useState<string>(targetAudiences[0].id);
   const [result, setResult] = useState<GenerationResult | null>(null);
-  const { 
-    isLoading: isGenerating, 
-    error: generationError, 
-    result: generationResult, 
-    generate 
+  const {
+    isLoading: isGenerating,
+    error: generationError,
+    result: generationResult,
+    generate,
   } = useGeminiStream();
 
   useEffect(() => {
@@ -34,7 +34,10 @@ export default function FeatureGenerator() {
       setResult({ content: generationResult, isOptimizing: false });
     }
     if (generationError) {
-        setResult({ content: `生成失敗：${generationError}`, isOptimizing: false });
+      setResult({
+        content: `生成失敗：${generationError}`,
+        isOptimizing: false,
+      });
     }
   }, [generationResult, generationError]);
 

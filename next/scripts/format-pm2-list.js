@@ -10,7 +10,7 @@ const { exec } = require('child_process');
  * @param {number} bytes - 記憶體大小 (bytes)
  * @returns {string} - 格式化後的記憶體字串
  */
-const formatMemory = (bytes) => {
+const formatMemory = bytes => {
   if (bytes === 0) return '0 B';
   const megabytes = bytes / (1024 * 1024);
   return `${megabytes.toFixed(1)}mb`;
@@ -23,9 +23,7 @@ const formatMemory = (bytes) => {
  * @returns {string} - 格式化後的單列字串
  */
 const createRow = (columns, widths) => {
-  return columns
-    .map((col, i) => String(col).padEnd(widths[i]))
-    .join('  ');
+  return columns.map((col, i) => String(col).padEnd(widths[i])).join('  ');
 };
 
 // 執行 `pm2 jlist` 來取得原始 JSON 數據
@@ -56,7 +54,7 @@ exec('pm2 jlist', (error, stdout, stderr) => {
     }));
 
     const headers = ['id', 'name', 'mode', 'status', 'cpu', 'memory'];
-    
+
     // 計算每個欄位的最大寬度，以便進行對齊
     const widths = headers.map(h => h.length);
     data.forEach(row => {
@@ -71,12 +69,16 @@ exec('pm2 jlist', (error, stdout, stderr) => {
     // 輸出 ASCII 表格
     console.log(`✅ 成功取得 pm2 程序列表：`);
     console.log(createRow(headers, widths));
-    console.log(createRow(headers.map((h, i) => '-'.repeat(widths[i])), widths)); // 分隔線
+    console.log(
+      createRow(
+        headers.map((h, i) => '-'.repeat(widths[i])),
+        widths
+      )
+    ); // 分隔線
     data.forEach(row => {
       const rowValues = headers.map(h => row[h]);
       console.log(createRow(rowValues, widths));
     });
-
   } catch (parseError) {
     console.error('🔴 解析 pm2 的 JSON 輸出失敗。', parseError);
     console.log('--- pm2 jlist 的原始輸出 ---');

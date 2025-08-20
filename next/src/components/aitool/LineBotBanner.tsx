@@ -21,14 +21,14 @@ const LineBotBanner = () => {
         <div className="flex-1 text-center md:text-left">
           <div className="mb-2 flex items-center justify-center md:justify-start">
             <MessageCircle className="mr-2 h-6 w-6" />
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl [text-shadow:0_1px_3px_rgba(0,0,0,0.4)]">
+            <h2 className="text-2xl font-bold tracking-tight [text-shadow:0_1px_3px_rgba(0,0,0,0.4)] md:text-3xl">
               AI 保險法規即時問
             </h2>
           </div>
-          <p className="mb-4 text-green-100 md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
+          <p className="mb-4 text-green-100 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] md:text-lg">
             您的 24 小時隨身法規顧問，由 Claude 3.5 Sonnet 強力驅動。
           </p>
-          <ul className="mb-6 list-inside list-disc space-y-1 text-left text-base text-green-100 sm:mx-auto sm:w-fit md:mx-0 md:w-auto [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
+          <ul className="mb-6 list-inside list-disc space-y-1 text-left text-base text-green-100 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] sm:mx-auto sm:w-fit md:mx-0 md:w-auto">
             <li>RAG 技術整合，資訊最新最準確</li>
             <li>無需註冊，打開 LINE 立即可用</li>
             <li>24/7 全天候服務，隨時解答您的疑問</li>
@@ -49,9 +49,9 @@ const LineBotBanner = () => {
         {/* 右側：QR Code */}
         <div className="flex-shrink-0 text-center">
           <div className="rounded-lg bg-white p-3 shadow-md">
-            <img 
-              src={qrCodeImageUrl} 
-              alt="保險法規諮詢 Line Bot QR Code" 
+            <img
+              src={qrCodeImageUrl}
+              alt="保險法規諮詢 Line Bot QR Code"
               className="h-36 w-36 md:h-40 md:w-40"
             />
           </div>

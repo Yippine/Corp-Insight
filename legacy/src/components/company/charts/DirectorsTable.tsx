@@ -7,7 +7,7 @@ interface Director {
 
 interface DirectorsTableProps {
   directors: Director[];
-  onViewChange: (view: 'chart' | 'table') => void;
+  onViewChange: (view: "chart" | "table") => void;
 }
 
 export default function DirectorsTable({ directors }: DirectorsTableProps) {
@@ -24,23 +24,35 @@ export default function DirectorsTable({ directors }: DirectorsTableProps) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider"
+                >
                   職稱
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider"
+                >
                   姓名
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider"
+                >
                   持有股份
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider"
+                >
                   代表法人
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {directors.map((director, index) => (
-                <tr 
+                <tr
                   key={index}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
@@ -58,12 +70,14 @@ export default function DirectorsTable({ directors }: DirectorsTableProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-base text-gray-900">
-                      {director.shares || '0'}
+                      {director.shares || "0"}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-base text-gray-900">
-                      {Array.isArray(director.representative) ? director.representative[1] : director.representative || '-'}
+                      {Array.isArray(director.representative)
+                        ? director.representative[1]
+                        : director.representative || "-"}
                     </div>
                   </td>
                 </tr>

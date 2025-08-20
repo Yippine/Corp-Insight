@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import Instructions from '../Instructions';
+import { useState } from "react";
+import Instructions from "../Instructions";
 
 interface Complexity {
   id: string;
@@ -10,27 +10,27 @@ interface Complexity {
 }
 
 const complexityLevels: Complexity[] = [
-  { 
-    id: 'low',
-    name: '低（基本網站、簡單API）',
+  {
+    id: "low",
+    name: "低（基本網站、簡單API）",
     cpuMultiplier: 1,
     memoryMultiplier: 1.3,
-    storageMultiplier: 1.5
+    storageMultiplier: 1.5,
   },
   {
-    id: 'medium',
-    name: '中（一般應用、數據處理）',
+    id: "medium",
+    name: "中（一般應用、數據處理）",
     cpuMultiplier: 1.5,
     memoryMultiplier: 1.95,
-    storageMultiplier: 2.25
+    storageMultiplier: 2.25,
   },
   {
-    id: 'high',
-    name: '高（AI運算、即時處理）',
+    id: "high",
+    name: "高（AI運算、即時處理）",
     cpuMultiplier: 2,
     memoryMultiplier: 2.6,
-    storageMultiplier: 3
-  }
+    storageMultiplier: 3,
+  },
 ];
 
 interface CalculationResult {
@@ -40,24 +40,32 @@ interface CalculationResult {
 }
 
 export default function ServerSpecCalculator() {
-  const [users, setUsers] = useState('100');
-  const [dataSize, setDataSize] = useState('50');
+  const [users, setUsers] = useState("100");
+  const [dataSize, setDataSize] = useState("50");
   const [complexity, setComplexity] = useState(complexityLevels[0].id);
   const [result, setResult] = useState<CalculationResult | null>(null);
 
   const calculateSpecs = () => {
     const concurrentUsers = parseInt(users);
     const data = parseInt(dataSize);
-    const selectedComplexity = complexityLevels.find(c => c.id === complexity)!;
+    const selectedComplexity = complexityLevels.find(
+      (c) => c.id === complexity
+    )!;
 
     // CPU: 每50位使用者配置1核心為基準，乘以複雜度係數
-    const cpuCores = Math.ceil((concurrentUsers / 50) * selectedComplexity.cpuMultiplier);
+    const cpuCores = Math.ceil(
+      (concurrentUsers / 50) * selectedComplexity.cpuMultiplier
+    );
 
     // 內存: 基於使用者數量和數據量，乘以複雜度係數
-    const memory = Math.ceil((concurrentUsers * 0.3 + data * 1) * selectedComplexity.memoryMultiplier);
+    const memory = Math.ceil(
+      (concurrentUsers * 0.3 + data * 1) * selectedComplexity.memoryMultiplier
+    );
 
     // 存儲空間: 基於數據量，含備份空間，乘以複雜度係數
-    const storage = Math.ceil(data * 1.5 * selectedComplexity.storageMultiplier);
+    const storage = Math.ceil(
+      data * 1.5 * selectedComplexity.storageMultiplier
+    );
 
     setResult({ cpuCores, memory, storage });
   };

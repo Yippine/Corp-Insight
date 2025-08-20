@@ -1,73 +1,78 @@
-import { useEffect, useCallback, useState } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { tools } from '../../config/tools'
-import { sortToolsByTags } from '../../utils/toolSorter'
-import { ListFilter, Search } from 'lucide-react'
-import { categoryThemes, fullTagThemes } from '../../config/theme'
-import { useToolNavigation } from '../../hooks/useToolNavigation'
-import FeatureSection from '../FeatureSection'
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
-import LineBotBanner from './LineBotBanner'
+import { useEffect, useCallback, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { tools } from "../../config/tools";
+import { sortToolsByTags } from "../../utils/toolSorter";
+import { ListFilter, Search } from "lucide-react";
+import { categoryThemes, fullTagThemes } from "../../config/theme";
+import { useToolNavigation } from "../../hooks/useToolNavigation";
+import FeatureSection from "../FeatureSection";
+import { useGoogleAnalytics } from "../../hooks/useGoogleAnalytics";
+import LineBotBanner from "./LineBotBanner";
 
 export default function ToolSearch() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const { trackEvent } = useGoogleAnalytics()
-  const [searchQuery, setSearchQuery] = useState(decodeURIComponent(searchParams.get('q') || ''))
-  const [selectedTag, setSelectedTag] = useState(decodeURIComponent(searchParams.get('tag') || ''))
-  const [hoveredTool, setHoveredTool] = useState<string | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { trackEvent } = useGoogleAnalytics();
+  const [searchQuery, setSearchQuery] = useState(
+    decodeURIComponent(searchParams.get("q") || "")
+  );
+  const [selectedTag, setSelectedTag] = useState(
+    decodeURIComponent(searchParams.get("tag") || "")
+  );
+  const [hoveredTool, setHoveredTool] = useState<string | null>(null);
 
-  useToolNavigation()
+  useToolNavigation();
 
   // 強化參數同步邏輯
   useEffect(() => {
-    const params = new URLSearchParams()
-    if (searchQuery) params.set('q', encodeURIComponent(searchQuery))
-    if (selectedTag) params.set('tag', encodeURIComponent(selectedTag))
-    
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", encodeURIComponent(searchQuery));
+    if (selectedTag) params.set("tag", encodeURIComponent(selectedTag));
+
     // 避免無限循環的關鍵判斷
     if (params.toString() !== searchParams.toString()) {
-      setSearchParams(params, { replace: true })
+      setSearchParams(params, { replace: true });
     }
-  }, [searchQuery, selectedTag, searchParams, setSearchParams])
+  }, [searchQuery, selectedTag, searchParams, setSearchParams]);
 
   // 效能優化過濾邏輯
   const filteredTools = useCallback(() => {
-    let filtered = [...tools]
-    const query = searchQuery.toLowerCase()
-    const tag = selectedTag
+    let filtered = [...tools];
+    const query = searchQuery.toLowerCase();
+    const tag = selectedTag;
 
     if (query) {
-      filtered = filtered.filter(t => 
-        t.name.toLowerCase().includes(query) || 
-        t.description.toLowerCase().includes(query)
-      )
+      filtered = filtered.filter(
+        (t) =>
+          t.name.toLowerCase().includes(query) ||
+          t.description.toLowerCase().includes(query)
+      );
     }
 
-    if (tag && tag !== '全部') {
-      filtered = filtered.filter(t => t.tags.includes(tag))
+    if (tag && tag !== "全部") {
+      filtered = filtered.filter((t) => t.tags.includes(tag));
     }
 
-    return sortToolsByTags(filtered)
-  }, [searchQuery, selectedTag])
+    return sortToolsByTags(filtered);
+  }, [searchQuery, selectedTag]);
 
   // 強化標籤切換邏輯
   const handleTagSelect = (tag: string) => {
-    setSelectedTag(prevTag => tag === '全部' || prevTag === tag ? '' : tag)
-  }
+    setSelectedTag((prevTag) => (tag === "全部" || prevTag === tag ? "" : tag));
+  };
 
   // 強化導航邏輯
   const handleToolClick = (toolId: string) => {
-    sessionStorage.setItem('toolSearchParams', searchParams.toString())
-    sessionStorage.setItem('toolSearchScroll', window.scrollY.toString())
+    sessionStorage.setItem("toolSearchParams", searchParams.toString());
+    sessionStorage.setItem("toolSearchScroll", window.scrollY.toString());
 
-    trackEvent('tool_detail_click', {
-      tool_id: toolId
-    })
+    trackEvent("tool_detail_click", {
+      tool_id: toolId,
+    });
 
-    navigate(`/aitool/detail/${toolId}`)
-  }
+    navigate(`/aitool/detail/${toolId}`);
+  };
 
   return (
     <div className="space-y-8">
@@ -102,8 +107,8 @@ export default function ToolSearch() {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleTagSelect(tag)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                selectedTag === tag || (!selectedTag && tag === '全部') 
-                  ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}` 
+                selectedTag === tag || (!selectedTag && tag === "全部")
+                  ? `bg-gradient-to-r ${theme.gradient.from} ${theme.gradient.to} text-white ${theme.shadow}`
                   : `${theme.secondary} ${theme.text} ${theme.hover}`
               }`}
             >
@@ -116,9 +121,9 @@ export default function ToolSearch() {
           <AnimatePresence mode="wait">
             {filteredTools().map((tool, index) => {
               const toolThemes = tool.tags
-                .map(t => fullTagThemes[t] || fullTagThemes.ai)
-                .filter(Boolean)
-              const primaryTheme = toolThemes[0] || fullTagThemes.ai
+                .map((t) => fullTagThemes[t] || fullTagThemes.ai)
+                .filter(Boolean);
+              const primaryTheme = toolThemes[0] || fullTagThemes.ai;
 
               return (
                 <motion.div
@@ -133,50 +138,66 @@ export default function ToolSearch() {
                   <button
                     onClick={() => handleToolClick(tool.id)}
                     className={`relative w-full bg-white p-6 rounded-xl text-left ${
-                      hoveredTool === tool.id 
-                        ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}` 
-                        : 'shadow border border-gray-100'
+                      hoveredTool === tool.id
+                        ? `shadow-lg ${primaryTheme.shadow} border-2 ${primaryTheme.text}`
+                        : "shadow border border-gray-100"
                     }`}
                   >
                     <div className="flex items-center mb-4">
-                      <div className={`p-3 rounded-lg ${
-                        hoveredTool === tool.id ? primaryTheme.primary : primaryTheme.secondary
-                      }`}>
-                        <tool.icon className={`h-6 w-6 ${
-                          hoveredTool === tool.id ? 'text-white' : primaryTheme.icon
-                        }`} />
+                      <div
+                        className={`p-3 rounded-lg ${
+                          hoveredTool === tool.id
+                            ? primaryTheme.primary
+                            : primaryTheme.secondary
+                        }`}
+                      >
+                        <tool.icon
+                          className={`h-6 w-6 ${
+                            hoveredTool === tool.id
+                              ? "text-white"
+                              : primaryTheme.icon
+                          }`}
+                        />
                       </div>
-                      <h3 className={`text-xl font-semibold ml-4 ${
-                        hoveredTool === tool.id ? primaryTheme.text : 'text-gray-900'
-                      }`}>
+                      <h3
+                        className={`text-xl font-semibold ml-4 ${
+                          hoveredTool === tool.id
+                            ? primaryTheme.text
+                            : "text-gray-900"
+                        }`}
+                      >
                         {tool.name}
                       </h3>
                     </div>
-                    <p className={`${
-                      hoveredTool === tool.id ? primaryTheme.text : 'text-gray-600'
-                    }`}>
+                    <p
+                      className={`${
+                        hoveredTool === tool.id
+                          ? primaryTheme.text
+                          : "text-gray-600"
+                      }`}
+                    >
                       {tool.description}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {tool.tags.map((tag, idx) => {
-                        const tagTheme = toolThemes[idx] || fullTagThemes.ai
+                        const tagTheme = toolThemes[idx] || fullTagThemes.ai;
                         return (
                           <span
                             key={tag}
                             className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                              hoveredTool === tool.id 
-                                ? `${tagTheme.primary} text-white` 
+                              hoveredTool === tool.id
+                                ? `${tagTheme.primary} text-white`
                                 : `${tagTheme.secondary} ${tagTheme.text}`
                             }`}
                           >
                             {tagTheme.name}
                           </span>
-                        )
+                        );
                       })}
                     </div>
                   </button>
                 </motion.div>
-              )
+              );
             })}
           </AnimatePresence>
         </div>
@@ -202,5 +223,5 @@ export default function ToolSearch() {
 
       <FeatureSection />
     </div>
-  )
+  );
 }

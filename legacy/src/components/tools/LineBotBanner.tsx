@@ -1,13 +1,13 @@
-import { ArrowRight, MessageCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowRight, MessageCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 // 提醒：請將 line-qr-code.png 圖片檔放在對應專案的 public 目錄下
 // Next.js: /public/images/line-qr-code.png
 // Legacy:  /public/line-qr-code.png
 
 const LineBotBanner = () => {
-  const lineBotUrl = 'https://line.me/R/ti/p/@818hpqgh';
-  const qrCodeImageUrl = 'https://qr-official.line.me/gs/M_818hpqgh_GW.png';
+  const lineBotUrl = "https://line.me/R/ti/p/@818hpqgh";
+  const qrCodeImageUrl = "https://qr-official.line.me/gs/M_818hpqgh_GW.png";
 
   return (
     <motion.div
@@ -49,9 +49,9 @@ const LineBotBanner = () => {
         {/* 右側：QR Code */}
         <div className="flex-shrink-0 text-center">
           <div className="rounded-lg bg-white p-3 shadow-md">
-            <img 
-              src={qrCodeImageUrl} 
-              alt="保險法規諮詢 Line Bot QR Code" 
+            <img
+              src={qrCodeImageUrl}
+              alt="保險法規諮詢 Line Bot QR Code"
               className="h-36 w-36 md:h-40 md:w-40"
             />
           </div>

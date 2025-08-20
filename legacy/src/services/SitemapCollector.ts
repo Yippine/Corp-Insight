@@ -1,22 +1,22 @@
-import { IndexedDB } from '../utils/db'
+import { IndexedDB } from "../utils/db";
 
 interface PageVisit {
   url: string;
   lastmod: string;
-  changefreq: 'daily' | 'weekly' | 'monthly';
+  changefreq: "daily" | "weekly" | "monthly";
   priority: number;
 }
 
 export class SitemapCollector {
   private static async saveVisit(path: string) {
-    const store = await IndexedDB.getStore('readwrite');
+    const store = await IndexedDB.getStore("readwrite");
     const visit: PageVisit = {
       url: path,
       lastmod: new Date().toISOString(),
-      changefreq: 'daily',
-      priority: 0.8
+      changefreq: "daily",
+      priority: 0.8,
     };
-    
+
     return new Promise<void>((resolve, reject) => {
       const request = store.put(visit);
       request.onerror = () => reject(request.error);
@@ -46,7 +46,7 @@ export class SitemapCollector {
   }
 
   static async cleanOldRecords(days: number = 30) {
-    const store = await IndexedDB.getStore('readwrite');
+    const store = await IndexedDB.getStore("readwrite");
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
 

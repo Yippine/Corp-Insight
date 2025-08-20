@@ -12,6 +12,7 @@
 ## 🎯 功能概述
 
 ### 核心管理功能
+
 1. **會員管理**：查看、搜尋、管理所有會員帳號
 2. **權限管理**：管理 Root、Admin、User 角色與權限
 3. **統計儀表板**：會員註冊、活躍度、安全統計
@@ -19,6 +20,7 @@
 5. **系統整合**：與現有 Sitemap、Database 管理整合
 
 ### 技術整合原則
+
 - **沿用既有架構**：遵循現有 `/admin` 路由與元件結構
 - **權限驗證機制**：使用現有 `ADMIN_SECRET_TOKEN` 模式
 - **UI/UX 一致性**：採用現有 Admin 介面設計風格
@@ -29,6 +31,7 @@
 ### 與現有 Admin 系統整合
 
 #### 目錄結構整合
+
 ```
 src/app/admin/
 ├── layout.tsx              # 既有：Admin 佈局（不修改）
@@ -48,6 +51,7 @@ src/app/admin/
 ```
 
 #### 元件結構整合
+
 ```
 src/components/admin/
 ├── TerminalViewer.tsx         # 既有：終端檢視器（不修改）
@@ -66,6 +70,7 @@ src/components/admin/
 ```
 
 #### API 端點整合
+
 ```
 src/app/api/admin/
 ├── run-script/route.ts        # 既有：腳本執行（不修改）
@@ -84,6 +89,7 @@ src/app/api/admin/
 ### 會員列表管理
 
 #### 列表顯示功能
+
 ```typescript
 interface UserListItem {
   id: string;
@@ -100,6 +106,7 @@ interface UserListItem {
 ```
 
 #### 搜尋與篩選功能
+
 1. **文字搜尋**
    - Email 地址搜尋（支援模糊匹配）
    - 顯示名稱搜尋
@@ -117,11 +124,12 @@ interface UserListItem {
    - 自訂時間區間
 
 #### 批量操作功能
+
 ```typescript
 interface BatchOperation {
   action: 'suspend' | 'activate' | 'delete' | 'export';
   userIds: string[];
-  reason?: string;      // 操作原因（用於審計）
+  reason?: string; // 操作原因（用於審計）
   confirmationCode?: string; // 危險操作確認碼
 }
 ```
@@ -129,6 +137,7 @@ interface BatchOperation {
 ### 會員詳細資料管理
 
 #### 基本資訊顯示
+
 ```typescript
 interface UserDetailView {
   // 基本資料
@@ -142,7 +151,7 @@ interface UserDetailView {
     createdAt: Date;
     updatedAt: Date;
   };
-  
+
   // 認證資訊
   authInfo: {
     emailVerified: boolean;
@@ -151,7 +160,7 @@ interface UserDetailView {
     twoFactorEnabled: boolean;
     linkedAccounts: LinkedAccount[];
   };
-  
+
   // 活動統計
   activityStats: {
     loginCount: number;
@@ -160,7 +169,7 @@ interface UserDetailView {
     sessionCount: number;
     failedLoginCount: number;
   };
-  
+
   // 個人資料
   profile: {
     firstName?: string;
@@ -174,6 +183,7 @@ interface UserDetailView {
 ```
 
 #### 管理操作功能
+
 1. **狀態管理**
    - 啟用/停用帳號
    - 強制 Email 重新驗證
@@ -194,18 +204,20 @@ interface UserDetailView {
 ### 會員狀態管理
 
 #### 狀態變更流程
+
 ```typescript
 interface StatusChangeRequest {
   userId: string;
   newStatus: 'active' | 'suspended' | 'pending_verification';
-  reason: string;          // 必填：變更原因
-  adminNotes?: string;     // 選填：管理員備註
-  notifyUser: boolean;     // 是否通知使用者
-  duration?: number;       // 停用期限（小時）
+  reason: string; // 必填：變更原因
+  adminNotes?: string; // 選填：管理員備註
+  notifyUser: boolean; // 是否通知使用者
+  duration?: number; // 停用期限（小時）
 }
 ```
 
 #### 批量狀態管理
+
 - **安全確認機制**：危險操作需要二次確認
 - **原因記錄**：所有狀態變更都要記錄原因
 - **通知機制**：可選擇是否通知受影響使用者
@@ -216,6 +228,7 @@ interface StatusChangeRequest {
 ### 核心統計指標
 
 #### 會員統計數據
+
 ```typescript
 interface UserStatistics {
   // 基本統計
@@ -223,19 +236,19 @@ interface UserStatistics {
   activeUsers: number;
   suspendedUsers: number;
   pendingUsers: number;
-  
+
   // 增長統計
   newUsersToday: number;
   newUsersThisWeek: number;
   newUsersThisMonth: number;
   userGrowthRate: number;
-  
+
   // 活躍度統計
   dailyActiveUsers: number;
   weeklyActiveUsers: number;
   monthlyActiveUsers: number;
   avgSessionDuration: number;
-  
+
   // 認證統計
   emailVerificationRate: number;
   passwordUsers: number;
@@ -245,6 +258,7 @@ interface UserStatistics {
 ```
 
 #### 登入統計數據
+
 ```typescript
 interface LoginStatistics {
   // 成功登入
@@ -252,7 +266,7 @@ interface LoginStatistics {
   successfulLogins: number;
   failedLogins: number;
   loginSuccessRate: number;
-  
+
   // 登入方式分佈
   methodDistribution: {
     password: number;
@@ -260,13 +274,13 @@ interface LoginStatistics {
     facebook: number;
     line: number;
   };
-  
+
   // 時間趨勢
-  hourlyLoginTrend: Array<{hour: number, count: number}>;
-  dailyLoginTrend: Array<{date: string, count: number}>;
-  
+  hourlyLoginTrend: Array<{ hour: number; count: number }>;
+  dailyLoginTrend: Array<{ date: string; count: number }>;
+
   // 地理分佈
-  topLoginLocations: Array<{country: string, count: number}>;
+  topLoginLocations: Array<{ country: string; count: number }>;
   suspiciousLoginAttempts: number;
 }
 ```
@@ -274,6 +288,7 @@ interface LoginStatistics {
 ### 圖表與視覺化
 
 #### 註冊趨勢圖表
+
 ```typescript
 interface RegistrationTrendChart {
   type: 'line' | 'bar';
@@ -287,6 +302,7 @@ interface RegistrationTrendChart {
 ```
 
 #### 活躍度分析圖表
+
 ```typescript
 interface ActivityAnalysisChart {
   // 使用者活躍度熱圖
@@ -295,7 +311,7 @@ interface ActivityAnalysisChart {
     day: number;
     activity: number;
   }>;
-  
+
   // 留存率分析
   retentionAnalysis: {
     day1: number;
@@ -308,6 +324,7 @@ interface ActivityAnalysisChart {
 ### 即時監控面板
 
 #### 警報與通知
+
 ```typescript
 interface AdminAlert {
   id: string;
@@ -317,7 +334,7 @@ interface AdminAlert {
   description: string;
   timestamp: Date;
   status: 'active' | 'acknowledged' | 'resolved';
-  
+
   // 安全警報特定欄位
   affectedUsers?: string[];
   threatLevel?: string;
@@ -326,6 +343,7 @@ interface AdminAlert {
 ```
 
 #### 即時活動監控
+
 - **目前線上使用者**：即時顯示當前活躍會員數
 - **登入活動流**：最近登入/登出事件的即時串流
 - **系統健康狀態**：認證系統的健康度指標
@@ -336,28 +354,29 @@ interface AdminAlert {
 ### 操作記錄追蹤
 
 #### 管理員操作記錄
+
 ```typescript
 interface AdminOperationLog {
   id: string;
   adminUserId: string;
   adminEmail: string;
-  operation: string;           // 操作類型
+  operation: string; // 操作類型
   targetType: 'user' | 'system' | 'settings';
-  targetId?: string;          // 目標資源 ID
-  
+  targetId?: string; // 目標資源 ID
+
   // 操作詳細
   operationDetails: {
-    before?: any;             // 變更前狀態
-    after?: any;              // 變更後狀態
-    reason?: string;          // 操作原因
-    notes?: string;           // 管理員備註
+    before?: any; // 變更前狀態
+    after?: any; // 變更後狀態
+    reason?: string; // 操作原因
+    notes?: string; // 管理員備註
   };
-  
+
   // 請求資訊
   ipAddress: string;
   userAgent: string;
   sessionId: string;
-  
+
   // 系統資訊
   timestamp: Date;
   success: boolean;
@@ -366,32 +385,38 @@ interface AdminOperationLog {
 ```
 
 #### 使用者行為記錄
+
 ```typescript
 interface UserActivityLog {
   id: string;
   userId: string;
   userEmail: string;
-  
+
   // 活動資訊
-  activity: 'login' | 'logout' | 'password_change' | 'profile_update' | 'account_link';
+  activity:
+    | 'login'
+    | 'logout'
+    | 'password_change'
+    | 'profile_update'
+    | 'account_link';
   details: {
-    method?: string;          // 登入方式
-    provider?: string;        // OAuth 提供者
-    changes?: string[];       // 變更欄位列表
-    oldValues?: any;          // 舊值（敏感資料遮罩）
-    newValues?: any;          // 新值（敏感資料遮罩）
+    method?: string; // 登入方式
+    provider?: string; // OAuth 提供者
+    changes?: string[]; // 變更欄位列表
+    oldValues?: any; // 舊值（敏感資料遮罩）
+    newValues?: any; // 新值（敏感資料遮罩）
   };
-  
+
   // 環境資訊
   ipAddress: string;
   userAgent: string;
   location?: string;
   deviceFingerprint?: string;
-  
+
   // 安全分析
-  riskScore: number;          // 0-100 風險評分
-  flags: string[];           // 安全標記
-  
+  riskScore: number; // 0-100 風險評分
+  flags: string[]; // 安全標記
+
   timestamp: Date;
 }
 ```
@@ -399,28 +424,29 @@ interface UserActivityLog {
 ### 審計查詢與分析
 
 #### 查詢篩選功能
+
 ```typescript
 interface AuditLogFilter {
   // 時間範圍
   startDate?: Date;
   endDate?: Date;
-  
+
   // 操作類型
   operations?: string[];
-  
+
   // 使用者篩選
   adminIds?: string[];
   userIds?: string[];
-  
+
   // 風險等級
   minRiskScore?: number;
-  
+
   // 成功狀態
   success?: boolean;
-  
+
   // 關鍵字搜尋
   searchText?: string;
-  
+
   // 分頁
   page: number;
   limit: number;
@@ -428,6 +454,7 @@ interface AuditLogFilter {
 ```
 
 #### 分析報告功能
+
 1. **操作頻率分析**：統計各類操作的執行頻率
 2. **風險趨勢分析**：識別安全風險的變化趨勢
 3. **使用者行為分析**：異常行為模式識別
@@ -438,6 +465,7 @@ interface AuditLogFilter {
 ### 角色權限體系
 
 #### 權限矩陣設計
+
 ```typescript
 interface Permission {
   id: string;
@@ -456,7 +484,7 @@ interface RolePermissionMatrix {
     canViewAuditLogs: true;
     canSystemSettings: true;
   };
-  
+
   admin: {
     // 會員管理權限
     canViewUsers: boolean;
@@ -464,13 +492,13 @@ interface RolePermissionMatrix {
     canSuspendUsers: boolean;
     canDeleteUsers: boolean;
     canExportUserData: boolean;
-    
+
     // 系統管理權限
     canViewDashboard: boolean;
     canRunBackup: boolean;
     canRestoreDatabase: boolean;
     canViewSystemLogs: boolean;
-    
+
     // 安全管理權限
     canViewSecurityLogs: boolean;
     canManageSessions: boolean;
@@ -480,30 +508,31 @@ interface RolePermissionMatrix {
 ```
 
 #### 權限檢查機制
+
 ```typescript
 // 權限檢查中介軟體
 async function checkPermission(
-  adminUserId: string, 
+  adminUserId: string,
   requiredPermission: string,
   targetResourceId?: string
 ): Promise<boolean> {
   const admin = await getAdminUser(adminUserId);
-  
+
   if (admin.role === 'root') {
     return true; // Root 擁有所有權限
   }
-  
+
   // 檢查特定權限
   if (!admin.permissions[requiredPermission]) {
     await logUnauthorizedAccess(adminUserId, requiredPermission);
     return false;
   }
-  
+
   // 資源特定權限檢查
   if (targetResourceId) {
     return await checkResourcePermission(adminUserId, targetResourceId);
   }
-  
+
   return true;
 }
 ```
@@ -511,12 +540,14 @@ async function checkPermission(
 ### 權限管理介面
 
 #### 權限編輯功能
+
 1. **角色權限檢視**：清楚顯示各角色的權限範圍
 2. **權限批量調整**：支援批量開啟/關閉特定權限
 3. **權限變更記錄**：完整記錄所有權限變更歷史
 4. **權限衝突檢測**：自動檢測並提示權限設定衝突
 
 #### 權限申請流程
+
 ```typescript
 interface PermissionRequest {
   requesterId: string;
@@ -536,62 +567,64 @@ interface PermissionRequest {
 ### 與現有功能整合
 
 #### 導航選單整合
+
 ```typescript
 // 擴充現有 Admin 導航
 interface AdminNavigation {
   existing: [
-    { path: '/admin/sitemap', title: 'Sitemap 管理', icon: 'Map' },
-    { path: '/admin/database', title: 'Database 管理', icon: 'Database' }
+    { path: '/admin/sitemap'; title: 'Sitemap 管理'; icon: 'Map' },
+    { path: '/admin/database'; title: 'Database 管理'; icon: 'Database' },
   ];
-  
+
   new: [
-    { 
-      path: '/admin/users', 
-      title: '會員管理', 
-      icon: 'Users',
-      permissions: ['canViewUsers']
+    {
+      path: '/admin/users';
+      title: '會員管理';
+      icon: 'Users';
+      permissions: ['canViewUsers'];
     },
-    { 
-      path: '/admin/users/dashboard', 
-      title: '會員統計', 
-      icon: 'BarChart',
-      permissions: ['canViewDashboard']
-    }
+    {
+      path: '/admin/users/dashboard';
+      title: '會員統計';
+      icon: 'BarChart';
+      permissions: ['canViewDashboard'];
+    },
   ];
 }
 ```
 
 #### 權限驗證整合
+
 ```typescript
 // 沿用現有的 ADMIN_SECRET_TOKEN 驗證
 async function verifyAdminToken(request: NextRequest): Promise<boolean> {
   const authToken = request.headers.get('Authorization')?.split(' ')[1];
   const adminSecretToken = process.env.ADMIN_SECRET_TOKEN;
-  
+
   if (!adminSecretToken || authToken !== adminSecretToken) {
     return false;
   }
-  
+
   return true;
 }
 
 // 新增：基於角色的權限檢查
 async function verifyAdminPermission(
-  request: NextRequest, 
+  request: NextRequest,
   requiredPermission: string
 ): Promise<{ authorized: boolean; adminUser?: AdminUser }> {
   const isValidToken = await verifyAdminToken(request);
   if (!isValidToken) {
     return { authorized: false };
   }
-  
+
   // 從 token 或 session 取得 admin 使用者資訊
   const adminUser = await getAdminFromRequest(request);
   const hasPermission = await checkPermission(adminUser.id, requiredPermission);
-  
-  return { 
-    authorized: hasPermission, 
-    adminUser: hasPermission ? adminUser : undefined 
+
+  return {
+    authorized: hasPermission,
+    adminUser: hasPermission ? adminUser : undefined,
   };
 }
 ```
@@ -599,24 +632,26 @@ async function verifyAdminPermission(
 ### UI/UX 一致性要求
 
 #### 設計風格整合
+
 ```typescript
 // 沿用現有 Admin 介面元件風格
 interface AdminUIComponents {
   // 使用現有元件
-  terminalViewer: 'TerminalViewer';    // 用於顯示批量操作結果
-  loadingStates: 'InlineLoading';      // 統一載入狀態
-  
+  terminalViewer: 'TerminalViewer'; // 用於顯示批量操作結果
+  loadingStates: 'InlineLoading'; // 統一載入狀態
+
   // 新增會員管理專用元件（遵循現有風格）
   userManagement: {
-    listTable: 'UserListTable';        // 會員列表表格
-    detailCard: 'UserDetailCard';      // 會員詳細資訊卡片
-    statusBadge: 'UserStatusBadge';    // 狀態標籤
-    permissionChip: 'PermissionChip';  // 權限標籤
+    listTable: 'UserListTable'; // 會員列表表格
+    detailCard: 'UserDetailCard'; // 會員詳細資訊卡片
+    statusBadge: 'UserStatusBadge'; // 狀態標籤
+    permissionChip: 'PermissionChip'; // 權限標籤
   };
 }
 ```
 
 #### 響應式設計要求
+
 - **桌面優先**：主要針對桌面環境優化（1920x1080+）
 - **平板適配**：支援平板環境使用（768px+）
 - **一致性佈局**：與現有 admin 頁面保持佈局一致性
@@ -626,12 +661,14 @@ interface AdminUIComponents {
 ### 操作效率優化
 
 #### 快速操作功能
+
 1. **鍵盤快捷鍵**：支援常用操作的鍵盤快捷鍵
 2. **批量選擇**：支援 Shift+Click 連續選擇
 3. **快速篩選**：預設篩選條件快速切換
 4. **歷史操作**：記住管理員的常用操作和篩選條件
 
 #### 資料載入優化
+
 1. **分頁載入**：大量資料分頁顯示（預設 20 筆/頁）
 2. **虛擬滾動**：大列表採用虛擬滾動技術
 3. **快取機制**：合理快取查詢結果
@@ -640,6 +677,7 @@ interface AdminUIComponents {
 ### 錯誤處理與回饋
 
 #### 操作確認機制
+
 ```typescript
 interface OperationConfirmation {
   // 一般操作：簡單確認
@@ -648,12 +686,12 @@ interface OperationConfirmation {
     confirmButton: string;
     cancelButton: string;
   };
-  
+
   // 危險操作：多重確認
   critical: {
     message: string;
     warningText: string;
-    confirmationText: string;    // 使用者需要輸入的確認文字
+    confirmationText: string; // 使用者需要輸入的確認文字
     confirmButton: string;
     cancelButton: string;
   };
@@ -661,6 +699,7 @@ interface OperationConfirmation {
 ```
 
 #### 操作結果回饋
+
 1. **成功通知**：操作成功的明確提示
 2. **錯誤處理**：詳細的錯誤資訊與建議解決方案
 3. **進度指示**：長時間操作的進度顯示
@@ -669,6 +708,7 @@ interface OperationConfirmation {
 ---
 
 **相關文件：**
+
 - [API 設計規格](./api-specifications.md)
 - [使用者角色定義](./user-roles.md)
 - [安全合規規格](./security-compliance.md)

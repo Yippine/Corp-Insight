@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import Instructions from '../Instructions';
+import { useState } from "react";
+import Instructions from "../Instructions";
 
 interface CalculationResult {
   finalAmount: number;
@@ -12,10 +12,10 @@ interface CalculationResult {
 }
 
 export default function CompoundInterestCalculator() {
-  const [principal, setPrincipal] = useState('100000');
-  const [rate, setRate] = useState('3');
-  const [years, setYears] = useState('5');
-  const [frequency, setFrequency] = useState('12');
+  const [principal, setPrincipal] = useState("100000");
+  const [rate, setRate] = useState("3");
+  const [years, setYears] = useState("5");
+  const [frequency, setFrequency] = useState("12");
   const [result, setResult] = useState<CalculationResult | null>(null);
 
   const calculateCompoundInterest = () => {
@@ -28,15 +28,15 @@ export default function CompoundInterestCalculator() {
     let previousAmount = p;
 
     for (let year = 1; year <= t; year++) {
-      const amount = p * Math.pow(1 + r/n, n * year);
+      const amount = p * Math.pow(1 + r / n, n * year);
       const yearlyInterest = amount - previousAmount;
-      
+
       yearlyBreakdown.push({
         year,
         amount,
-        interest: yearlyInterest
+        interest: yearlyInterest,
       });
-      
+
       previousAmount = amount;
     }
 
@@ -46,7 +46,7 @@ export default function CompoundInterestCalculator() {
     setResult({
       finalAmount,
       totalInterest,
-      yearlyBreakdown
+      yearlyBreakdown,
     });
   };
 
@@ -128,28 +128,42 @@ export default function CompoundInterestCalculator() {
               <div>
                 <p className="text-base text-gray-500">最終金額</p>
                 <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.finalAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  NT${" "}
+                  {result.finalAmount.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </p>
               </div>
               <div>
                 <p className="text-base text-gray-500">總利息收入</p>
                 <p className="text-xl font-medium text-gray-900">
-                  NT$ {result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  NT${" "}
+                  {result.totalInterest.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </p>
               </div>
             </div>
 
             <div>
-              <h4 className="text-base font-medium text-gray-700 mb-3">年度明細</h4>
+              <h4 className="text-base font-medium text-gray-700 mb-3">
+                年度明細
+              </h4>
               <div className="space-y-2">
                 {result.yearlyBreakdown.map((year) => (
                   <div key={year.year} className="grid grid-cols-3 text-base">
                     <div>第 {year.year} 年</div>
                     <div className="text-right">
-                      NT$ {year.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      NT${" "}
+                      {year.amount.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </div>
                     <div className="text-right text-green-600">
-                      +{year.interest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      +
+                      {year.interest.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </div>
                   </div>
                 ))}

@@ -1,15 +1,27 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Send, AlertCircle, Loader2 } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
-import UnderDevelopment from '../components/common/UnderDevelopment';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Send, AlertCircle, Loader2 } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import UnderDevelopment from "../components/common/UnderDevelopment";
 
 const feedbackTypes = [
-  { id: 'data_correction', name: '資料勘誤', description: '回報資料錯誤或不準確的情況' },
-  { id: 'business_cooperation', name: '業務合作', description: '討論商業合作機會' },
-  { id: 'bug_report', name: '系統問題', description: '回報系統錯誤或異常' },
-  { id: 'feature_request', name: '功能建議', description: '提供新功能或改進建議' },
-  { id: 'other', name: '其他', description: '其他意見或建議' }
+  {
+    id: "data_correction",
+    name: "資料勘誤",
+    description: "回報資料錯誤或不準確的情況",
+  },
+  {
+    id: "business_cooperation",
+    name: "業務合作",
+    description: "討論商業合作機會",
+  },
+  { id: "bug_report", name: "系統問題", description: "回報系統錯誤或異常" },
+  {
+    id: "feature_request",
+    name: "功能建議",
+    description: "提供新功能或改進建議",
+  },
+  { id: "other", name: "其他", description: "其他意見或建議" },
 ];
 
 const validateEmail = (email: string): boolean => {
@@ -18,11 +30,11 @@ const validateEmail = (email: string): boolean => {
 };
 
 export default function FeedbackPage() {
-  const [type, setType] = useState('');
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [email, setEmail] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
+  const [type, setType] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [email, setEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -35,12 +47,12 @@ export default function FeedbackPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const typeFromUrl = params.get('type');
-    
+    const typeFromUrl = params.get("type");
+
     if (typeFromUrl) {
       setType(decodeURIComponent(typeFromUrl));
     } else {
-      setType('');
+      setType("");
     }
   }, [location.search]);
 
@@ -56,12 +68,12 @@ export default function FeedbackPage() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setError('檔案大小不能超過 5MB。');
+        setError("檔案大小不能超過 5MB。");
         return;
       }
-      
-      if (!file.type.startsWith('image/')) {
-        setError('只能上傳圖片檔案。');
+
+      if (!file.type.startsWith("image/")) {
+        setError("只能上傳圖片檔案。");
         return;
       }
 
@@ -73,12 +85,12 @@ export default function FeedbackPage() {
 
   const handleSendVerificationCode = async () => {
     if (!email) {
-      setError('請輸入電子郵件地址。');
+      setError("請輸入電子郵件地址。");
       return;
     }
 
     if (!validateEmail(email)) {
-      setError('請輸入有效的電子郵件地址。');
+      setError("請輸入有效的電子郵件地址。");
       return;
     }
 
@@ -87,10 +99,10 @@ export default function FeedbackPage() {
 
     try {
       // 這裡應該調用後端 API 發送驗證碼
-      await new Promise(resolve => setTimeout(resolve, 1500)); // 模擬 API 調用
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // 模擬 API 調用
       setIsCodeSent(true);
     } catch (err) {
-      setError('驗證碼發送失敗，請稍後再試。');
+      setError("驗證碼發送失敗，請稍後再試。");
     } finally {
       setIsSending(false);
     }
@@ -98,7 +110,7 @@ export default function FeedbackPage() {
 
   const handleVerifyCode = async () => {
     if (!verificationCode) {
-      setError('請輸入驗證碼。');
+      setError("請輸入驗證碼。");
       return;
     }
 
@@ -106,10 +118,10 @@ export default function FeedbackPage() {
 
     try {
       // 這裡應該調用後端 API 驗證驗證碼
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 模擬 API 調用
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 模擬 API 調用
       setIsVerified(true);
     } catch (err) {
-      setError('驗證碼錯誤，請重新輸入。');
+      setError("驗證碼錯誤，請重新輸入。");
     }
   };
 
@@ -117,7 +129,7 @@ export default function FeedbackPage() {
     e.preventDefault();
 
     if (!type || !title || !content || !email || !isVerified) {
-      setError('請填寫所有必填欄位並完成郵箱驗證！');
+      setError("請填寫所有必填欄位並完成郵箱驗證！");
       return;
     }
 
@@ -126,21 +138,21 @@ export default function FeedbackPage() {
 
     try {
       // 這裡應該調用後端 API 提交反饋
-      await new Promise(resolve => setTimeout(resolve, 2000)); // 模擬 API 調用
-      
-      setType('');
-      setTitle('');
-      setContent('');
-      setEmail('');
-      setVerificationCode('');
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // 模擬 API 調用
+
+      setType("");
+      setTitle("");
+      setContent("");
+      setEmail("");
+      setVerificationCode("");
       setIsCodeSent(false);
       setIsVerified(false);
       setFile(null);
       setPreviewUrl(null);
-      
-      alert('感謝您的反饋！我們會盡快處理。');
+
+      alert("感謝您的反饋！我們會盡快處理。");
     } catch (err) {
-      setError('提交失敗，請稍後再試。');
+      setError("提交失敗，請稍後再試。");
     } finally {
       setIsSubmitting(false);
     }
@@ -148,8 +160,8 @@ export default function FeedbackPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-[4rem]">
-      <UnderDevelopment 
-        message="意見回饋功能開發中，後端服務尚未啟用。目前表單提交僅為演示用途。" 
+      <UnderDevelopment
+        message="意見回饋功能開發中，後端服務尚未啟用。目前表單提交僅為演示用途。"
         year="2024"
       />
       <motion.div
@@ -158,11 +170,11 @@ export default function FeedbackPage() {
         className="bg-white/50 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-white/20"
       >
         <div className="px-8 py-6 bg-gradient-to-r from-blue-600/90 to-blue-700/90 backdrop-blur-md">
-          <motion.h1 
+          <motion.h1
             className="text-3xl font-bold text-white tracking-tighter"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200 }}
+            transition={{ type: "spring", stiffness: 200 }}
           >
             意見回饋
           </motion.h1>
@@ -182,7 +194,7 @@ export default function FeedbackPage() {
               className="block w-full rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 py-3 px-4 text-gray-700 bg-white/95"
             >
               <option value="">請選擇反饋類型</option>
-              {feedbackTypes.map(type => (
+              {feedbackTypes.map((type) => (
                 <option key={type.id} value={type.id}>
                   {type.name} - {type.description}
                 </option>
@@ -253,13 +265,11 @@ export default function FeedbackPage() {
                   </label>
                   <p className="pl-1">或拖放檔案</p>
                 </div>
-                <p className="text-sm text-gray-500">
-                  PNG, JPG, GIF 最大 5MB
-                </p>
+                <p className="text-sm text-gray-500">PNG, JPG, GIF 最大 5MB</p>
               </div>
             </div>
             {previewUrl && (
-              <motion.div 
+              <motion.div
                 className="mt-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -304,52 +314,56 @@ export default function FeedbackPage() {
             </div>
           </div>
 
-          {isCodeSent && (<div className="space-y-4">
-            <motion.div 
-              className="space-y-2"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <label className="block text-lg font-semibold text-gray-700 tracking-tight">
-                驗證碼 <span className="text-red-500">*</span>
-              </label>
-              <div className="flex space-x-4">
-                <input
-                  type="text"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  className="block w-32 rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
-                  placeholder="000000"
-                  disabled={isVerified}
-                />
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleVerifyCode}
-                  disabled={!verificationCode || isVerified}
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl shadow-sm text-white bg-blue-600/90 hover:bg-blue-700/90 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="tracking-tight">驗證</span>
-                </motion.button>
-              </div>
-            </motion.div>
-          </div>)}
+          {isCodeSent && (
+            <div className="space-y-4">
+              <motion.div
+                className="space-y-2"
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <label className="block text-lg font-semibold text-gray-700 tracking-tight">
+                  驗證碼 <span className="text-red-500">*</span>
+                </label>
+                <div className="flex space-x-4">
+                  <input
+                    type="text"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    className="block w-32 rounded-xl border-gray-200/80 shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 py-3 px-4 placeholder-gray-400/80"
+                    placeholder="000000"
+                    disabled={isVerified}
+                  />
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleVerifyCode}
+                    disabled={!verificationCode || isVerified}
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl shadow-sm text-white bg-blue-600/90 hover:bg-blue-700/90 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="tracking-tight">驗證</span>
+                  </motion.button>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
           {error && (
-            <motion.div 
+            <motion.div
               className="rounded-xl bg-red-50/90 p-4 border border-red-100"
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex items-center">
                 <AlertCircle className="h-5 w-5 text-red-400/90 shrink-0" />
-                <p className="ml-3 text-base text-red-700/90 font-medium tracking-tight">{error}</p>
+                <p className="ml-3 text-base text-red-700/90 font-medium tracking-tight">
+                  {error}
+                </p>
               </div>
             </motion.div>
           )}
 
-          <motion.div 
+          <motion.div
             className="pt-6"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -374,8 +388,8 @@ export default function FeedbackPage() {
           </motion.div>
         </form>
       </motion.div>
-      <UnderDevelopment 
-        message="意見回饋功能開發中，後端服務尚未啟用。目前表單提交僅為演示用途。" 
+      <UnderDevelopment
+        message="意見回饋功能開發中，後端服務尚未啟用。目前表單提交僅為演示用途。"
         year="2024"
       />
     </div>

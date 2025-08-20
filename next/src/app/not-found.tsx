@@ -9,7 +9,7 @@ import { isAiToolsDomain } from '@/config/site';
 
 export default function NotFound() {
   const [homeUrl, setHomeUrl] = useState('/');
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const currentHost = window.location.host;
@@ -37,7 +37,7 @@ export default function NotFound() {
           aria-hidden="true"
           className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 blur-3xl"
         ></div>
-        <h1 className="relative bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-[7rem] font-extrabold tracking-tighter text-transparent leading-none">
+        <h1 className="relative bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-[7rem] font-extrabold leading-none tracking-tighter text-transparent">
           404
         </h1>
       </motion.div>

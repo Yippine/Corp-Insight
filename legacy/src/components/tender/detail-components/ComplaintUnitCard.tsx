@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { Badge } from '../../../components/common/Badge';
+import { motion } from "framer-motion";
+import { Badge } from "../../../components/common/Badge";
 
 // 解析檢舉受理單位函數
 export function parseComplaintUnits(complaintText: string) {
@@ -7,25 +7,28 @@ export function parseComplaintUnits(complaintText: string) {
 
   // 使用正則表達式拆分各單位，支援全形和半形括號
   const unitRegex = /([^（）()]+)(?:[(（]([^）)]*)[）)])?/g;
-  const units: Array<{name: string; details: Record<string, string[]>}> = [];
-  
+  const units: Array<{ name: string; details: Record<string, string[]> }> = [];
+
   let match;
   while ((match = unitRegex.exec(complaintText)) !== null) {
     const [_, unitName, detailsStr] = match;
     const details: Record<string, string[]> = {};
 
     // 拆分詳細資料並處理特殊分隔符號
-    detailsStr.split('、').forEach(detail => {
+    detailsStr.split("、").forEach((detail) => {
       const [key, ...values] = detail.split(/：|:/);
       if (key && values.length > 0) {
-        const processedValues = values.join(':').split(/;|；/).map(v => v.trim());
+        const processedValues = values
+          .join(":")
+          .split(/;|；/)
+          .map((v) => v.trim());
         details[key.trim()] = processedValues;
       }
     });
 
     units.push({
       name: unitName.trim(),
-      details
+      details,
     });
   }
 
@@ -34,14 +37,14 @@ export function parseComplaintUnits(complaintText: string) {
 
 interface ComplaintUnitCardProps {
   unit: {
-    name: string; 
-    details: Record<string, string[]>
+    name: string;
+    details: Record<string, string[]>;
   };
 }
 
 export default function ComplaintUnitCard({ unit }: ComplaintUnitCardProps) {
   return (
-    <motion.div 
+    <motion.div
       key={unit.name}
       className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6 hover:shadow-xl transition-all duration-300"
       initial={{ opacity: 0, y: 10 }}
@@ -69,9 +72,13 @@ export default function ComplaintUnitCard({ unit }: ComplaintUnitCardProps) {
                   key={idx}
                   variant="solid"
                   colorScheme={
-                    key.includes('地址') ? 'blue' :
-                    key.includes('電話') ? 'green' :
-                    key.includes('傳真') ? 'purple' : 'gray'
+                    key.includes("地址")
+                      ? "blue"
+                      : key.includes("電話")
+                        ? "green"
+                        : key.includes("傳真")
+                          ? "purple"
+                          : "gray"
                   }
                   className="text-sm font-medium tracking-wide"
                 >

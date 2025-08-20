@@ -18,54 +18,63 @@ async function testFailoverStrategy() {
   const realBackupKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP;
 
   if (!realBackupKey) {
-    console.error('❌ 測試失敗：找不到備用金鑰 (NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP)，無法進行測試。');
+    console.error(
+      '❌ 測試失敗：找不到備用金鑰 (NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP)，無法進行測試。'
+    );
     return;
   }
-  
+
   console.log('1. 模擬主 Key 失效，預期會自動切換至備用 Key...');
-  
+
   let output = '';
   try {
-    await streamGenerateContent(TEST_PROMPT, (text) => {
+    await streamGenerateContent(TEST_PROMPT, text => {
       // 在 stream 過程中僅更新變數，不印出日誌
       output = text;
     });
     console.log('\n[完整回應]', output);
     console.log('✅ 測試成功：Failover 機制成功切換到備用金鑰並生成內容。');
   } catch (error) {
-    console.error('\n❌ 測試失敗：即使有備用金鑰，Failover 策略依然執行失敗。', error);
+    console.error(
+      '\n❌ 測試失敗：即使有備用金鑰，Failover 策略依然執行失敗。',
+      error
+    );
   }
 }
 
 async function testRoundRobinStrategy() {
   console.log('--- 🧪 開始測試 Round-Robin 策略 ---');
-  
+
   const key1 = process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_PRIMARY;
   const key2 = process.env.NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP;
 
   if (!key1 || !key2) {
-    console.error('❌ 測試失敗：需要設定 NEXT_PUBLIC_GEMINI_API_KEY_DEV_PRIMARY 和 NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP 才能進行輪詢測試。');
+    console.error(
+      '❌ 測試失敗：需要設定 NEXT_PUBLIC_GEMINI_API_KEY_DEV_PRIMARY 和 NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP 才能進行輪詢測試。'
+    );
     return;
   }
 
   console.log('1. 連續發起 4 次請求，預期金鑰會輪流使用 (0 -> 1 -> 0 -> 1)...');
-  
+
   for (let i = 0; i < 4; i++) {
     console.log(`\n--- 第 ${i + 1} 次請求 ---`);
     let output = '';
     try {
-      await streamGenerateContent(TEST_PROMPT, (text) => {
+      await streamGenerateContent(TEST_PROMPT, text => {
         // 在 stream 過程中僅更新變數，不印出日誌
         output = text;
       });
-       console.log('[完整回應]', output);
-       console.log(`✅ 第 ${i+1} 次請求成功。`);
+      console.log('[完整回應]', output);
+      console.log(`✅ 第 ${i + 1} 次請求成功。`);
     } catch (error) {
-      console.error(`\n❌ 第 ${i+1} 次請求失敗。`, error);
+      console.error(`\n❌ 第 ${i + 1} 次請求失敗。`, error);
       break; // 如果有一次請求失敗，就停止測試
     }
   }
-  console.log('\n✅ 測試完成：請檢查上方日誌，確認 "正在嘗試使用金鑰" 的標示符是否在 [DEV_RR_0] 和 [DEV_RR_1] 之間輪換。');
+  console.log(
+    '\n✅ 測試完成：請檢查上方日誌，確認 "正在嘗試使用金鑰" 的標示符是否在 [DEV_RR_0] 和 [DEV_RR_1] 之間輪換。'
+  );
 }
 
 async function main() {

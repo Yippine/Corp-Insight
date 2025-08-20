@@ -5,12 +5,14 @@
 ### 必要的前置作業
 
 ☑️ **環境設定確認**
+
 - [ ] 確認 Node.js 21 安裝
 - [ ] 確認 Docker 和 docker-compose 可用
 - [ ] 確認 MongoDB 7 容器正常運行
 - [ ] 確認現有 Next.js 應用可正常啟動
 
 ☑️ **現有代碼分析完成**
+
 - [ ] 完成 flattened-codebase.xml 分析
 - [ ] 識別現有 /feedback 發信機制
 - [ ] 識別現有 /admin/sitemap 交互細節
@@ -20,12 +22,14 @@
 ### 核心技術決策再確認
 
 ✅ **必須使用技術**
+
 - **NextAuth.js**: 認證層主要框架
 - **Payload CMS**: 後台管理介面和資料管理
 - **MongoDB**: 使用現有 Docker 容器，設定 replica set
 - **MIT/Apache-2.0**: 所有新套件必須遵守授權限制
 
 ⚠️ **嚴格禁止**
+
 - 不可更改現有發信工具或 env keys
 - 不可使用非 OSS 或付費 SaaS 服務
 - 不可破壞現有 /admin/sitemap 和 /admin/database 交互
@@ -38,6 +42,7 @@
 **目標**: 確保開發環境就緒，所有前置條件滿足
 
 **任務清單**:
+
 - [ ] **環境變數調查** (優先級: 最高)
   - 從 flattened-codebase.xml 提取 /feedback 使用的 env keys
   - 確認 SMTP 相關設定: SMTP_HOST, SMTP_PORT, MAIL_FROM, MAIL_USER, MAIL_PASS
@@ -67,6 +72,7 @@
   - 實現首次登入強制變更密碼流程
 
 **驗收標準**:
+
 - MongoDB replica set 正常運作且支援 transactions
 - Payload CMS admin 介面可正常訪問
 - NextAuth.js 路徑回應正常
@@ -77,6 +83,7 @@
 **目標**: 實現完整的 Google OAuth 登入流程及 Email 註冊驗證
 
 **核心任務**:
+
 - [ ] **Google OAuth 整合** (優先級: 最高)
   - 實現 Authorization Code Flow with PKCE
   - 處理 OAuth callback 和 profile 擷取
@@ -101,6 +108,7 @@
   - 實現使用者友善的錯誤訊息
 
 **驗收標準**:
+
 - Google OAuth 成功率 ≥ 98%
 - Email 驗證郵件正常發送
 - 新帳號註冊流程完整
@@ -111,6 +119,7 @@
 **目標**: 完成 token 管理機制和基本 Admin 介面
 
 **核心任務**:
+
 - [ ] **Refresh Token 永久化** (優先級: 最高)
   - 建立 refresh_tokens collection
   - 實現 token rotation 機制
@@ -136,6 +145,7 @@
   - 實現禁用/啟用帳號功能
 
 **驗收標準**:
+
 - Token refresh 機制正常運作
 - Payload CMS admin 介面可登入使用
 - 會員列表可正常瀏覽和操作
@@ -146,6 +156,7 @@
 **目標**: 實現備份/還原、Sitemap 管理及忘記密碼功能
 
 **核心任務**:
+
 - [ ] **備份/還原介面** (優先級: 最高)
   - 整合現有 /admin/database 介面
   - 實現 POST /api/admin/backups 建立備份
@@ -172,6 +183,7 @@
   - 設定日誌輪替策略
 
 **驗收標準**:
+
 - 備份建立和還原功能正常
 - 現有 Sitemap 功能不受影響
 - 忘記密碼流程完整
@@ -182,6 +194,7 @@
 **目標**: 全面測試、安全檢查和效能優化
 
 **核心任務**:
+
 - [ ] **整合測試** (優先級: 最高)
   - E2E 測試: Google OAuth 完整流程
   - E2E 測試: Email 註冊驗證流程
@@ -208,6 +221,7 @@
   - 建立監控和預警設定
 
 **驗收標準**:
+
 - 所有功能通過 E2E 測試
 - 安全掃描無重大風險
 - 效能指標達成 (< 300ms, 99.5% 可用性)
@@ -246,24 +260,28 @@
 ## 技術整合檢查清單
 
 ### Payload CMS 整合確認
+
 - [ ] Payload 設定檔正確配置 MongoDB 連線
 - [ ] 權限 schema 與 NextAuth.js 角色相容
 - [ ] Admin 介面可正常訪問和操作
 - [ ] users collection 支援必要欄位和索引
 
 ### NextAuth.js 整合確認
+
 - [ ] Google OAuth provider 正確設定
 - [ ] JWT 策略支援自定欄位
 - [ ] Session 策略與 database adapter 正確設定
 - [ ] Callback 函數正確處理 provider profile
 
 ### MongoDB 設定確認
+
 - [ ] Replica set 正常初始化且支援 transactions
 - [ ] 所有必要 collections 建立和索引正確
 - [ ] 備份目錄 /app/db/backups 可寫入
 - [ ] 資料庫連線集配置正確
 
 ### 發信機制確認
+
 - [ ] 現有 SMTP 設定 env 變數全部復用
 - [ ] Email 驗證和密碼重置郵件正常發送
 - [ ] 郵件樣板與現有風格一致
@@ -273,13 +291,14 @@
 
 ## 緊急聯絡資訊
 
-**技術支援**: 出現技術問題時請先檢查本文件和相關 PRD  
-**架構問題**: 需要架構決策時請參考[技術整合設計](./technical-integration.md)  
-**安全問題**: 安全相關問題請參考[安全合規設計](./security-compliance.md)  
+**技術支援**: 出現技術問題時請先檢查本文件和相關 PRD
+**架構問題**: 需要架構決策時請參考[技術整合設計](./technical-integration.md)
+**安全問題**: 安全相關問題請參考[安全合規設計](./security-compliance.md)
 
 ---
 
 **相關文件:**
+
 - [核心元件與責任](./core-components-responsibilities.md)
 - [部署與運維指引](./deployment-operations.md)
 - [風險緩解策略](./risk-mitigation.md)

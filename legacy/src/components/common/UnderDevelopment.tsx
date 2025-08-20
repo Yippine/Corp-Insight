@@ -1,13 +1,13 @@
-import { Clock, AlertCircle } from 'lucide-react';
+import { Clock, AlertCircle } from "lucide-react";
 
 interface UnderDevelopmentProps {
   message?: string;
   year?: string;
 }
 
-export default function UnderDevelopment({ 
-  message = '精彩功能即將推出，我們將為您帶來更豐富的資訊體驗。',
-  year = '2025'
+export default function UnderDevelopment({
+  message = "精彩功能即將推出，我們將為您帶來更豐富的資訊體驗。",
+  year = "2025",
 }: UnderDevelopmentProps) {
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg p-12">
@@ -32,4 +32,4 @@ export default function UnderDevelopment({
       </div>
     </div>
   );
-} 
+}

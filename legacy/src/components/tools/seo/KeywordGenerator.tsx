@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import Instructions from '../Instructions';
-import { Loader2 } from 'lucide-react';
-import { searchIntents, competitionLevels } from '../../../config/gemini';
-import { streamGenerateContent } from '../../../lib/gemini';
+import { useState } from "react";
+import Instructions from "../Instructions";
+import { Loader2 } from "lucide-react";
+import { searchIntents, competitionLevels } from "../../../config/gemini";
+import { streamGenerateContent } from "../../../lib/gemini";
 
 interface GenerationResult {
   content: string;
@@ -10,21 +10,27 @@ interface GenerationResult {
 }
 
 export default function KeywordGenerator() {
-  const [mainKeyword, setMainKeyword] = useState('');
-  const [industry, setIndustry] = useState('');
+  const [mainKeyword, setMainKeyword] = useState("");
+  const [industry, setIndustry] = useState("");
   const [searchIntent, setSearchIntent] = useState<string>(searchIntents[0].id);
-  const [competition, setCompetition] = useState<string>(competitionLevels[0].id);
+  const [competition, setCompetition] = useState<string>(
+    competitionLevels[0].id
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
 
   const generatePrompt = (isOptimizing: boolean) => {
-    if (isOptimizing && !result?.content) return '';
+    if (isOptimizing && !result?.content) return "";
 
-    const selectedIntent = searchIntents.find(i => i.id === searchIntent)?.name;
-    const selectedCompetition = competitionLevels.find(c => c.id === competition)?.name;
+    const selectedIntent = searchIntents.find(
+      (i) => i.id === searchIntent
+    )?.name;
+    const selectedCompetition = competitionLevels.find(
+      (c) => c.id === competition
+    )?.name;
 
     const basePrompt = `你是一位專業的SEO關鍵字研究專家。
-${isOptimizing ? '請基於以下現有關鍵字進行優化：\n' + result?.content + '\n\n以及參考以下資訊：\n' : ''}
+${isOptimizing ? "請基於以下現有關鍵字進行優化：\n" + result?.content + "\n\n以及參考以下資訊：\n" : ""}
 請根據以下輸入：
 主要關鍵字：${mainKeyword}
 產業領域：${industry}
@@ -62,21 +68,21 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
     if (result) {
       setResult({
         ...result,
-        isOptimizing: true
+        isOptimizing: true,
       });
     }
 
     try {
       const prompt = generatePrompt(isOptimizing);
-      
+
       await streamGenerateContent(prompt, (text) => {
         setResult({
           content: text,
-          isOptimizing: false
+          isOptimizing: false,
         });
       });
     } catch (error) {
-      console.error('Generation failed:', error);
+      console.error("Generation failed:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -167,17 +173,19 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
                 生成中...
               </span>
             ) : (
-              '開始新對話'
+              "開始新對話"
             )}
           </button>
 
           <button
             onClick={() => handleGenerate(true)}
-            disabled={isGenerating || !result || !mainKeyword.trim() || !industry.trim()}
+            disabled={
+              isGenerating || !result || !mainKeyword.trim() || !industry.trim()
+            }
             className={`flex-1 border py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
               result
-                ? 'border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
-                : 'border-gray-300 text-gray-400'
+                ? "border-blue-500 text-blue-600 hover:bg-blue-50 focus:ring-blue-500"
+                : "border-gray-300 text-gray-400"
             }`}
           >
             {result?.isOptimizing ? (
@@ -186,7 +194,7 @@ The total output must not exceed 400 Tokens to ensure the content remains engagi
                 優化中...
               </span>
             ) : (
-              '延續對話並優化'
+              "延續對話並優化"
             )}
           </button>
         </div>

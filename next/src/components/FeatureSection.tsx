@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 export default function FeatureSection() {
   const [currentHost, setCurrentHost] = useState<string>('');
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setCurrentHost(window.location.host);

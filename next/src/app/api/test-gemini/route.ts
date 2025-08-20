@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
     // 我們需要一種方法從 streamGenerateContent 中獲取最終使用的 keyIdentifier。
     // 這裡我們建立一個 Promise，並將其 resolver 傳遞給一個自定義的 onStream 處理器。
-    const keyCapturePromise = new Promise<void>((resolve) => {
+    const keyCapturePromise = new Promise<void>(resolve => {
       const onStream = (text: string) => {
         // 我們將 keyIdentifier 作為串流的第一個特殊訊息來傳遞
         if (text.startsWith('KEY_USED:')) {
@@ -40,9 +40,9 @@ export async function POST(request: Request) {
       streamGenerateContent(prompt, onStream, false)
         .then(() => resolve())
         .catch(e => {
-            streamError = e;
-            console.error("Test API - streamGenerateContent Error:", e);
-            resolve(); // 即使串流過程出錯，也要 resolve promise 以繼續流程
+          streamError = e;
+          console.error('Test API - streamGenerateContent Error:', e);
+          resolve(); // 即使串流過程出錯，也要 resolve promise 以繼續流程
         });
     });
 
@@ -51,20 +51,27 @@ export async function POST(request: Request) {
 
     if (streamError) {
       return NextResponse.json(
-        { success: false, error: `Stream execution failed: ${streamError.message}` },
+        {
+          success: false,
+          error: `Stream execution failed: ${streamError.message}`,
+        },
         { status: 500 }
       );
     }
-    
+
     if (!usedKeyIdentifier) {
       return NextResponse.json(
-        { success: false, error: 'Failed to determine used key. The stream may have failed before a key was selected.', fullResponse },
+        {
+          success: false,
+          error:
+            'Failed to determine used key. The stream may have failed before a key was selected.',
+          fullResponse,
+        },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ success: true, usedKey: usedKeyIdentifier });
-
   } catch (error: any) {
     console.error('[API_TEST_GEMINI_ERROR]', error);
     return NextResponse.json(

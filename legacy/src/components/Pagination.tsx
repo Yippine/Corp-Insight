@@ -1,5 +1,10 @@
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -7,7 +12,11 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: PaginationProps) {
   const [inputPage, setInputPage] = useState(currentPage.toString());
 
   const handlePageSubmit = (e: React.FormEvent) => {
@@ -23,16 +32,17 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
   const handleFirstPage = () => onPageChange(1);
   const handleLastPage = () => onPageChange(totalPages);
   const handlePrevPage = () => currentPage > 1 && onPageChange(currentPage - 1);
-  const handleNextPage = () => currentPage < totalPages && onPageChange(currentPage + 1);
+  const handleNextPage = () =>
+    currentPage < totalPages && onPageChange(currentPage + 1);
 
   if (totalPages <= 1) return null;
-  
+
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-lg sm:px-6">
       <div className="flex items-center">
         <p className="text-base text-gray-700">
-          第 <span className="font-medium">{currentPage}</span> 頁，
-          共 <span className="font-medium">{totalPages}</span> 頁
+          第 <span className="font-medium">{currentPage}</span> 頁， 共{" "}
+          <span className="font-medium">{totalPages}</span> 頁
         </p>
       </div>
       <div className="flex items-center space-x-2">
@@ -53,7 +63,10 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
           <ChevronLeft className="h-6 w-6" />
         </button>
 
-        <form onSubmit={handlePageSubmit} className="flex items-center space-x-2">
+        <form
+          onSubmit={handlePageSubmit}
+          className="flex items-center space-x-2"
+        >
           <input
             type="number"
             min="1"

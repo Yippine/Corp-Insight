@@ -37,8 +37,9 @@ docs/features/{功能名稱}/
 **[../../BROWNFIELD-DEVELOPMENT-CONSTRAINTS.md](../../BROWNFIELD-DEVELOPMENT-CONSTRAINTS.md)**
 
 **快速約束摘要：**
+
 - ❌ 絕不修改任何既有程式碼、API、資料庫
-- ❌ 絕不刪除任何既有檔案或功能  
+- ❌ 絕不刪除任何既有檔案或功能
 - ✅ 僅允許新增 {功能名稱} 相關的內容
 - ✅ 必須遵循既有架構與風格
 
@@ -89,6 +90,7 @@ docs/features/{功能名稱}/
 ## 🔧 自動化建立新功能目錄
 
 ### 建立指令範例
+
 ```bash
 # 建立新功能目錄結構
 mkdir -p docs/features/{功能名稱}/{prd,architecture,epics,stories,testing}
@@ -105,6 +107,7 @@ touch docs/features/{功能名稱}/architecture/index.md
 ## 📋 新功能檢查清單
 
 ### 建立新功能目錄時必須檢查：
+
 - [ ] 目錄結構符合標準範本
 - [ ] README.md 包含 Brownfield 約束提醒
 - [ ] 功能名稱不與既有功能衝突
@@ -112,6 +115,7 @@ touch docs/features/{功能名稱}/architecture/index.md
 - [ ] 技術規格符合既有架構模式
 
 ### 開發過程中必須檢查：
+
 - [ ] 所有新增的 API 端點都在功能命名空間內
 - [ ] 所有新增的資料模型都不影響既有結構
 - [ ] 所有整合都是非破壞性的
