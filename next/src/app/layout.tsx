@@ -3,11 +3,11 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { LoadingProvider } from '@/components/common/loading/LoadingProvider';
-import Script from 'next/script';
 import { staticTitles } from '@/config/pageTitles';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import GoogleAnalyticsDebug from '@/components/GoogleAnalyticsDebug';
 import WebVitalsTracker from '@/components/WebVitalsTracker';
+import SessionProvider from '@/components/auth/SessionProvider';
 import dynamic from 'next/dynamic';
 
 // 動態導入 ChatbotWrapper 組件，避免在服務器端渲染
@@ -54,18 +54,20 @@ export default function RootLayout({
         <GoogleAnalytics />
         <GoogleAnalyticsDebug />
         <WebVitalsTracker />
-        <div className="flex min-h-screen flex-col bg-gray-50">
-          <LoadingProvider>
-            <Header />
-            <main className="flex flex-1 items-center">
-              <section className="mx-auto w-full max-w-7xl overflow-y-auto px-4 py-8 sm:px-6 lg:px-8">
-                {children}
-              </section>
-            </main>
-            <Footer />
-            <ChatbotWrapper />
-          </LoadingProvider>
-        </div>
+        <SessionProvider>
+          <div className="flex min-h-screen flex-col bg-gray-50">
+            <LoadingProvider>
+              <Header />
+              <main className="flex flex-1 items-center">
+                <section className="mx-auto w-full max-w-7xl overflow-y-auto px-4 py-8 sm:px-6 lg:px-8">
+                  {children}
+                </section>
+              </main>
+              <Footer />
+              <ChatbotWrapper />
+            </LoadingProvider>
+          </div>
+        </SessionProvider>
       </body>
     </html>
   );
