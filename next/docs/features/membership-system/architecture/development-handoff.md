@@ -287,6 +287,17 @@
 - [ ] 郵件樣板與現有風格一致
 - [ ] 發信錯誤處理正確
 
+### UI/UX 設計系統確認
+
+- [ ] [UI/UX 設計規範](./ui-ux-design-specifications.md) 完全實現
+- [ ] [前端元件架構](./frontend-component-architecture.md) 正確遵循
+- [ ] [響應式設計策略](./responsive-design-strategy.md) 在所有設備測試通過
+- [ ] [無障礙設計架構](./accessibility-architecture.md) 符合 WCAG 2.1 AA 標準
+- [ ] 設計系統與既有專案視覺風格 100% 一致
+- [ ] 所有元件都有適當的 loading 狀態和錯誤處理
+- [ ] 動畫和過場效果符合設計規範
+- [ ] 色彩對比度和可讀性測試通過
+
 ---
 
 ## 緊急聯絡資訊
