@@ -9,7 +9,7 @@ module.exports = {
       interpreter: "/home/ec2-user/.nvm/versions/node/v20.19.2/bin/node",
 
       // 傳遞給 serve 的參數
-      args: "-s dist -l 4173",
+      args: "-s dist --listen 0.0.0.0:4173",
 
       // 確保執行目錄正確
       cwd: "/home/ec2-user/Corp-Insight/legacy",
