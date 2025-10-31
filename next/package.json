@@ -241,7 +241,7 @@
     "mongoose": "^8.0.3",
     "next": "^14.1.0",
     "next-auth": "^4.24.11",
-    "nodemailer": "^6.9.15",
+    "nodemailer": "^7.0.10",
     "opencc-js": "^1.0.5",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.3.0",

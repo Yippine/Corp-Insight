@@ -576,7 +576,7 @@ export async function generateOptimizedPrompt(
     );
     const aiInstance = getGenAIInstance(apiKey);
     const model = aiInstance.getGenerativeModel({
-      model: 'gemini-1.5-flash-latest',
+      model: 'gemini-2.5-flash-latest',
     });
     const result = await model.generateContent(finalPrompt);
     const response = await result.response;
