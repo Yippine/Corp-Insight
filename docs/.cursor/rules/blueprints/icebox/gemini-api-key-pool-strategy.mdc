@@ -1,0 +1,187 @@
+
+### 🎯 核心目標 (Core Objective)
+
+為了解決不同環境（開發、生產、批次處理）下 Gemini API 的用量隔離與風險管理問題，我們將實施一個**「三層式混合策略金鑰池」**架構。此架構旨在：
+1.  **確保環境隔離**：防止開發測試或批次任務耗盡生產環境的 API 配額。
+2.  **最大化安全性與靈活性**：在最敏感的**生產環境**強制使用最安全的**「容錯移轉 (Failover)」**策略；在**開發與批次處理環境**提供可選的**「輪詢 (Round-Robin)」**策略以提升開發效率。
+3.  **提升服務穩定性**：透過主/備金鑰的自動化切換機制，確保服務在配額超限等可恢復錯誤發生時仍可正常運行。
+4.  **支援自動化**：為 Cursor Agent 驅動的自動化提示詞優化流程，提供專用的、可監控的 API 資源池。
+
+### 📝 專案與環境變數命名共識
+
+| 層級 | 角色 | Google Cloud 專案名稱 | 環境變數名稱 |
+| :--- | :--- | :--- | :--- |
+| **開發** | **主要** | `bmag-dev-primary` | `NEXT_PUBLIC_GEMINI_API_KEY_DEV_PRIMARY` |
+| **開發** | **備用** | `bmag-dev-backup` | `NEXT_PUBLIC_GEMINI_API_KEY_DEV_BACKUP` |
+| **生產** | **主要** | `bmag-prod-primary` | `NEXT_PUBLIC_GEMINI_API_KEY_PROD_PRIMARY` |
+| **生產** | **備用** | `bmag-prod-backup` | `NEXT_PUBLIC_GEMINI_API_KEY_PROD_BACKUP` |
+| **批次** | **主要** | `bmag-batch-primary` | `NEXT_PUBLIC_GEMINI_API_KEY_BATCH_PRIMARY` |
+| **批次** | **備用** | `bmag-batch-backup` | `NEXT_PUBLIC_GEMINI_API_KEY_BATCH_BACKUP` |
+
+#### **策略控制環境變數**
+
+| 環境變數 | 說明 | 可選值 | 預設行為 |
+| :--- | :--- | :--- | :--- |
+| `NEXT_PUBLIC_GEMINI_KEY_STRATEGY` | 控制金鑰池的使用策略。 | `failover`, `round-robin` | `failover` |
+
+### 💡 核心策略詳解
+
+#### **1. 為什麼「環境隔離」是安全的？**
+Google 的反濫用機制旨在打擊**意圖規避計費的欺騙性行為**（例如，使用大量匿名帳號輪換 Key）。我們的做法完全相反：
+*   **單一可信身份**：所有專案均在**同一個、信譽良好的 Google 主帳號**下建立。
+*   **清晰的專業意圖**：建立多專案的理由是為了**「隔離不同環境的風險與用量」**（開發 vs. 生產 vs. 批次），這是 Google 官方推薦的專業資源管理實踐。
+
+因此，此架構不僅安全，更是向 Google 展現我們專業性的證明。
+
+#### **2. 混合策略：安全與效率的平衡**
+*   **生產環境 (Production)**：**強制 `failover`**。此環境的唯一目標是穩定可靠。當主 Key 發生問題，應視為升級計費方案的警訊，而非透過輪詢來延長免費額度。
+*   **開發/批次環境 (Development/Batch)**：**可選 `round-robin`**。允許開發者和自動化腳本更有效地利用金鑰池的總配額，加速開發和測試循環，且風險極低。
+
+### 🤖 AI 互動式開發與驗收流程
+
+本專案將分為以下幾個可獨立驗收的階段性任務：
+
+---
+
+#### **Phase 1: 環境建置與策略定義 (P1)**
+*   **🎯 任務描述:** 建立並更新環境變數設定檔，加入三層式金鑰池以及策略選擇變數。
+*   **🧑‍💻 開發者實作:**
+    1.  更新 `next/.env.example` 檔案，包含所有 6 個金鑰變數以及 `NEXT_PUBLIC_GEMINI_KEY_STRATEGY` 變數。
+    2.  提示使用者在 Google Cloud 上建立對應專案，並將金鑰填入 `next/.env.local`。
+*   **✅ 驗收標準 (使用者):**
+    1.  `next/.env.example` 檔案已更新，包含清晰的註解。
+    2.  使用者確認已理解如何在 `next/.env.local` 中配置金鑰與策略。
+
+---
+
+#### **Phase 2: 混合策略核心邏輯實作 (P2)**
+*   **🎯 任務描述:** 升級 `next/src/lib/gemini.server.ts`，實現可根據策略動態切換的「容錯移轉 (Failover)」與「輪詢 (Round-Robin)」機制。
+*   **🧑‍💻 開發者實作:**
+    1.  重構 `getApiKeyPool()` 與 `getApiKeyStrategy()` 函式，使其能根據 `NODE_ENV` 和環境變數，正確判斷金鑰池與策略。
+    2.  在 `streamGenerateContent` 中，使用 `if/else` 或 `switch` 語句，根據讀取到的策略，分別執行不同的金鑰處理邏輯。
+        *   **Failover 邏輯**: 保持現有的 `for` 迴圈嘗試機制。
+        *   **Round-Robin 邏輯**: 建立一個簡單的記憶體計數器，每次呼叫時依序選擇下一個有效的 Key。
+    3.  優化錯誤判斷邏輯 `isRetriableError`，使其能準確識別所有值得重試的錯誤類型（如配額、認證、網路問題）。
+*   **✅ 驗收標準 (可自動化):**
+    1.  提供一個統一的測試腳本 `scripts/test-gemini-key-strategies.ts`。
+    2.  **測試案例 A (Failover):** 執行 `npm run test:gemini`，傳入偽造的主 Key。腳本應能驗證系統是否成功容錯移轉至備用 Key。
+    3.  **測試案例 B (Round-Robin):** 執行 `npm run test:gemini -- --strategy=round-robin`。腳本應在迴圈中多次呼叫 API，並驗證日誌中顯示的金鑰是否在池中正確輪換。
+
+---
+
+#### **Phase 3: 有狀態斷路器實作 (for Failover)**
+*   **🎯 任務描述:** 針對 `Failover` 策略，引入「有狀態」的斷路器模式，以提升系統在面對持續性金鑰故障時的反應效率與韌性。此階段將利用現有的 MongoDB 實例，避免引入新的基礎設施。
+*   **💡 核心思想:**
+    *   **金鑰安全**: API 金鑰本身**永遠不會**被儲存在資料庫中。它們只存在於應用程式執行時的**環境變數** (`process.env`) 裡。
+    *   **狀態追蹤**: 我們在資料庫中追蹤的是金鑰的「狀態」，其身份由它在環境設定檔 (如開發時的 `.env.local` 或生產時的 `.env.production`) 中定義的**變數名** (例如 `NEXT_PUBLIC_GEMINI_API_KEY_PROD_PRIMARY`) 來唯一識別。
+    *   **非阻塞更新**: 所有對資料庫的狀態更新都將採用「Fire-and-Forget」模式在背景執行，確保不阻塞主 API 請求的回應。
+*   **🧑‍💻 開發者實作 (5 個子步驟):**
+    1.  **建立 Mongoose 模型 (`ApiKeyStatus`)**:
+        *   在 `next/src/lib/database/models/` 下建立 `ApiKeyStatus.ts`。
+        *   **Schema 設計**:
+            *   `keyIdentifier` (String, unique): 金鑰的環境變數名，作為唯一識別。
+            *   `status` (String, enum: `['HEALTHY', 'UNHEALTHY']`): 當前健康狀態。
+            *   `failureCount` (Number): 連續失敗次數。
+            *   `lastCheckedAt` (Date): 最後一次被檢查的時間。
+            *   `retryAt` (Date): 當狀態為 `UNHEALTHY` 時，下次可以重試的時間點。
+            *   `recentErrors` (Array): 一個固定大小的陣列 (例如，只儲存最近 3 次錯誤)，用於嵌入錯誤日誌，包含 `errorType`, `errorMessage`, `timestamp`。
+    2.  **新增 `getKeyIdentifier` 輔助函式**:
+        *   在 `gemini.ts` 中建立一個函式，可以根據傳入的金鑰值（`string`），反向從 `process.env` 中找出其對應的變數名（`string | undefined`）。這對於後續查詢資料庫至關重要。
+    3.  **新增 `checkKeyState` 函式**:
+        *   在 `gemini.ts` 的 `attemptApiCall` 之前，新增此函式。
+        *   它會根據金鑰的 `keyIdentifier` 查詢 `ApiKeyStatus` 集合。
+        *   **邏輯**: `if (status === 'UNHEALTHY' && Date.now() < retryAt)`，則直接拋出一個特定的「跳過」錯誤，避免無效的 API 呼叫。
+    4.  **新增 `updateKeyState` 函式**:
+        *   在 `gemini.ts` 的 `catch` 區塊中呼叫此函式。
+        *   **可重試錯誤**:
+            *   `failureCount` 加 1，更新 `lastCheckedAt`。
+            *   將錯誤資訊推入 `recentErrors` 陣列 (並維持陣列大小)。
+            *   如果 `failureCount` 超過閾值 (例如 3 次)，則將 `status` 設為 `UNHEALTHY`，並設定 `retryAt` 為 5 分鐘後。
+        *   **不可重試錯誤**: 不更新任何狀態，因為這不是金鑰的問題。
+        *   **呼叫成功**: 將 `status` 重設為 `HEALTHY`，`failureCount` 歸零。
+    5.  **修改 `gemini.ts` 的核心呼叫流程**:
+        *   將上述 `checkKeyState` 和 `updateKeyState` 整合到 `Failover` 策略的 `for` 迴圈中。
+*   **✅ 驗收標準 (可自動化):**
+    1.  **建立 `test-circuit-breaker.ts` 測試腳本**。
+    2.  **測試案例 A (熔斷)**: 腳本應模擬主 Key 連續失敗 3 次以上。驗證第 4 次請求的日誌中，是否出現「偵測到金鑰狀態不健康，直接跳過」的訊息，且 API 呼叫**立即**使用了備用 Key，沒有延遲。
+    3.  **測試案例 B (被動恢復)**: 在手動將 `retryAt` 時間調整為過去時間後，再次呼叫 API，驗證先前被熔斷的主 Key 是否被重新嘗試。
+
+---
+
+#### **Phase 4: 不健康節點排除 (for Round-Robin)**
+*   **🎯 任務描述:** 針對 `Round-Robin` 策略，實作一個輕量級的「不健康節點排除」機制，以提高輪詢池的整體可用性並解決無狀態輪詢的效能問題。
+*   **💡 核心思想:** 當一個金鑰失敗時，系統應「記住」其不健康的狀態，並在一段冷凍期內避免再次使用它。此機制的核心是透過集中式狀態管理（資料庫）結合穩健的輪詢算法，在不犧牲輪詢公平性的前提下，動態調整當前可用的金鑰池。
+*   **⚠️ 關鍵挑戰與設計陷阱:** 一個常見的實作陷阱是：先從完整金鑰池中過濾掉不健康的金鑰，然後在剩餘的「健康池」上使用全域輪詢索引。這會導致**索引錯位**：如果一個不健康的金鑰被移除，會改變池的長度，使得原來的索引指向錯誤的金鑰，從而跳過某些健康的金鑰，破壞輪詢的公平性。
+*   **🧑‍💻 開發者實作 (穩健輪詢邏輯):**
+    1.  **擴充 `ApiKeyStatus` 模型**: 無需變更 Schema，可直接複用 Phase 3 建立的 `ApiKeyStatus` 模型及其 `consecutiveFailures` 欄位。
+    2.  **重構 `Round-Robin` 邏輯**:
+        *   在 `streamGenerateContent` 的 `round-robin` 區塊開始處，先從資料庫中一次性撈取所有**開發環境**金鑰的狀態 (`ApiKeyStatus.find({ keyIdentifier: /_DEV_/ })`)。
+        *   建立一個**當前的「健康金鑰 Set (healthyKeysSet)」**以便快速查找，其中只包含狀態為 `HEALTHY` 或雖為 `UNHEALTHY` 但已到達 `retryAt` 時間的金鑰。
+        *   **輪詢的核心算法**:
+            *   保留原始、完整的 `apiKeyPool` 陣列。輪詢索引 `currentIndex` **始終在此完整陣列上移動**。
+            *   進入一個迴圈（最多執行 `apiKeyPool.length` 次，以防全部金鑰失效）。
+            *   在迴圈中，根據 `currentIndex` 從**完整** `apiKeyPool` 中取得一個`candidateKey`。
+            *   檢查 `healthyKeysSet.has(candidateKey)` 是否為真。
+            *   如果為真，則**這就是我們要使用的金鑰**。執行 API 呼叫，然後將 `currentIndex` 更新為 `(currentIndex + 1) % apiKeyPool.length`，並跳出迴圈。
+            *   如果為假，則僅遞增 `currentIndex`，繼續下一輪迴圈，直到找到一個健康金鑰。
+        *   如果迴圈結束後仍未找到健康金鑰，則拋出最終錯誤。
+    3.  **狀態更新**: `updateKeyState` 函式的邏輯將由新的 `Phase 5` 智慧冷凍期策略定義。
+
+*   **✅ 驗收標準 (可自動化):**
+    1.  擴充 `test-circuit-breaker.ts` 腳本，或建立新的 `test-node-ejection.ts`。
+    2.  **測試案例 1 (節點排除)**: 模擬將池中的一個金鑰 (`DEV_PRIMARY`) 狀態手動設為 `UNHEALTHY`。執行 `round-robin` 測試，驗證後續的所有請求是否都**只**使用了另一個健康的金鑰 (`DEV_BACKUP`)，完全跳過了不健康的金鑰。
+    3.  **測試案例 2 (輪詢公平性)**: 假設有 `["A", "B", "C"]` 三個金鑰，將 `B` 設為 `UNHEALTHY`。從 `A` 開始輪詢，驗證下一次請求使用的是 `C`（而不是跳過 `C` 去到 `A`），再下一次是 `A`，確保索引不會錯位。
+    4.  **測試案例 3 (節點恢復)**: 將 `B` 的 `retryAt` 設為過去的時間。執行輪詢，驗證 `B` 會被重新嘗試使用。
+
+#### **Phase 5: 智慧冷凍期 (指數退避策略)**
+*   **🎯 任務描述:** 設計並實作一個智慧型的金鑰冷凍期策略，以取代固定的冷卻時間。此策略能根據連續失敗的次數，動態調整冷凍期，從而更優雅地處理不同類型的 API 錯誤（如短期的 RPM 限制與長期的 RPD 限制）。
+*   **💡 核心思想:** 失敗次數少的，很可能是臨時性問題，給予較短的冷凍期以便快速恢復；連續失敗次數多的，則可能是永久性或長期問題（如金鑰失效、RPD 耗盡），給予極長的冷凍期，避免對其進行無效的輪詢。
+*   **🧑‍💻 開發者實作:**
+    1.  **定位目標函式**: 此邏輯的核心將被實作在 `updateKeyState` 函式中，因為 `Failover` 和 `Round-Robin` 兩種策略在金鑰失敗時都會呼叫此函式，從而實現邏輯複用。
+    2.  **使用現有欄位**: `ApiKeyStatus` 模型中已存在 `consecutiveFailures` 欄位，可直接利用此欄位進行計算。
+    3.  **實作指數退避演算法**:
+        *   當金鑰呼叫**成功**時，將其 `consecutiveFailures` 重設為 `0`。
+        *   當金鑰呼叫**失敗**時，先將 `consecutiveFailures` 加 `1`，然後根據以下邏輯計算新的 `retryAt` 時間：
+
+        ```javascript
+        // 偽代碼，在 updateKeyState 函式內實現
+        const MAX_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 最大冷凍時間：24 小時
+        const ONE_MINUTE_MS = 60 * 1000;
+
+        let cooldownMs;
+        const failures = keyStatus.consecutiveFailures; // 已 +1 的失敗次數
+
+        if (failures === 1) {
+            // 首次失敗，給予一個較短的基礎冷凍期
+            cooldownMs = ONE_MINUTE_MS;
+        } else {
+            // 從第二次失敗開始，指數增長
+            // 基礎週期為 2 分鐘，乘以 2 的 (n-2) 次方
+            const basePeriodMs = 2 * ONE_MINUTE_MS;
+            const growthFactor = Math.pow(2, failures - 2);
+            cooldownMs = basePeriodMs * growthFactor;
+        }
+
+        // 為避免驚群效應，可加入少量隨機抖動 (可選，但為最佳實踐)
+        const jitter = Math.random() * 0.1 * cooldownMs; // 最多 10% 的抖動
+        const finalCooldownMs = Math.min(cooldownMs + jitter, MAX_COOLDOWN_MS);
+
+        const newRetryAt = new Date(Date.now() + finalCooldownMs);
+        // ...更新資料庫...
+        ```
+*   **✅ 驗收標準:**
+    1.  建立或修改測試腳本，驗證 `updateKeyState` 的行為。
+    2.  **測試案例 1 (首次失敗)**: 模擬一個金鑰首次失敗，驗證其 `retryAt` 是否被設定為大約 1 分鐘後。
+    3.  **測試案例 2 (連續失敗)**: 模擬同一個金鑰連續失敗 3 次，驗證其 `retryAt` 是否被設定為大約 4 分鐘後 (`2 * 2^(3-2) = 4`)。
+    4.  **測試案例 3 (成功後重設)**: 模擬一個已失敗多次的金鑰成功呼叫一次後，其 `consecutiveFailures` 是否被重設為 `0`。
+
+#### **Phase 6: 自動化提示詞優化腳本框架**
+*   **🎯 任務描述:** 開發一個 Node.js 腳本，用於自動評估和優化儲存在 `src/config/promptTools.ts` 中的提示詞 (Prompts)。
+*   **🧑‍💻 開發者實作:**
+    1.  建立 `next/scripts/batch-optimize-prompts.js` 檔案。
+    2.  此腳本應能讀取一個指定的 AI 工具設定檔。
+    3.  執行時，透過 `process.env.GEMINI_ENV_TYPE = 'batch'` 和 `process.env.NEXT_PUBLIC_GEMINI_KEY_STRATEGY = 'round-robin'` 來確保使用的是批次環境的輪詢策略。
+    4.  包含一個「評分」函式（初期可為偽代碼）和「儲存」函式，能將優化後的提示詞寫回對應的設定檔。
+*   **✅ 驗收標準 (使用者):**
+    1.  在終端機中執行 `node next/scripts/batch-optimize-prompts.js --toolId=a-b-test-generator`。
+    2.  腳本應能成功執行，並在 console 中印出「正在使用 Batch 金鑰池」、「對 [工具名稱] 進行測試」、「生成結果...」、「評分...」等日誌，完成一次完整的測試迴圈。

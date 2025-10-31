@@ -1,0 +1,103 @@
+---
+description: 域名遷移計畫與實施指南。當需要規劃、執行或回顧 insight.leopilot.com 至 corpinsight.leopilot.com 的域名遷移進度時應調用此規則。本規則為此次遷移的唯一真實來源 (Single Source of Truth)，涵蓋從程式碼、基礎設施到 SEO 的完整行動方案，旨在實現零停機與零 SEO 損失的無縫轉換。
+globs: 
+alwaysApply: false
+---
+# 🎯 專案代號：域名遷移計畫
+
+## 1. 背景與動機 (Background & Motivation)
+
+### 1.1. 待解決問題
+根據主管要求，需將 next 專案的線上服務域名從 `insight.leopilot.com` 統一變更為 `corpinsight.leopilot.com`。這項變更涉及程式碼層、基礎設施層與 SEO 層，需要一個系統性的計畫來確保遷移過程平順，避免影響現有服務與 SEO 排名。
+
+### 1.2. 專案目標
+本專案旨在以**零停機、零 SEO 權重損失**為目標，完成域名的無縫遷移。核心任務包含：
+- **程式碼重構**: 移除所有寫死的舊域名，改用集中化的環境變數進行管理。
+- **基礎設施更新**: 正確設定 Docker 與 Nginx，使其能服務新域名，並將舊域名的流量與權重永久轉移到新域名。
+- **SEO 遷移**: 透過 Google Search Console 等工具，明確告知搜尋引擎此次的網址變更，確保排名的平穩過渡。
+
+## 2. 遷移流程總覽 (Migration Flow Overview)
+
+```mermaid
+graph TD
+    subgraph "階段一: 應用程式重構"
+        A[盤點寫死域名] --> B[建立集中化設定<br/>/src/config/site.ts];
+        B --> C[更新所有程式碼<br/>(Components, API, Sitemaps)];
+        C --> D[健檢與重構環境變數<br/>(.env.local)];
+        D --> E[優化部署腳本<br/>/scripts/deploy-prod.sh];
+    end
+
+    subgraph "階段二: 基礎設施設定"
+        F[更新 Docker Compose<br/>docker-compose.yml] --> G[部署至 EC2];
+        G -- "服務運行於 http://localhost:3000" --> H[設定 Nginx];
+    end
+    
+    subgraph "階段三: SEO 遷移"
+       I[設定 301 永久重導向<br/>(Nginx 端)] --> J[在 GSC 新增並驗證新域名];
+       J --> K[使用 GSC 網址變更工具];
+       K --> L[提交新 Sitemap 並持續監控];
+    end
+
+    E --> F;
+    H --> I;
+```
+
+---
+
+## 3. 任務清單與狀態追蹤 (Checklist & Status)
+
+### Phase 1: 應用程式層重構 (Application Layer Refactoring)
+- **[x] 1.1: 建立集中化域名管理**
+    - **細節**: 建立 `next/src/config/site.ts`，並定義 `BASE_URL` 從 `NEXT_PUBLIC_SITE_URL` 環境變數讀取。
+- **[x] 1.2: 盤點並更新所有 Next.js 專案程式碼**
+    - **細節**: 將所有寫死的 `insight.leopilot.com` 替換為 `BASE_URL` 或對應變數。
+    - **影響範圍**: `security.txt`, `page.tsx`, `middleware.ts`, `*SEO.tsx`, `robots.txt/route.ts`, `sitemap-*.xml/route.ts` 等。
+- **[x] 1.3: 環境變數健檢與重構**
+    - **細節**: 全面盤點 `process.env` 使用情況，釐清 `JWT_SECRET`, `EMAIL_*` 等變數用途，並修正 `gemini.ts` 的 null 檢查錯誤。
+- **[x] 1.4: 建立環境變數模板**
+    - **細節**: 建立 `next/.env.example` 檔案，並提供中文註解作為團隊參考。
+- **[x] 1.5: 優化並整合部署腳本**
+    - **細節**: 將載入 `.env.production` 的功能整合至現有的 `next/scripts/deploy-prod.sh` 腳本中。
+
+### Phase 2: 基礎設施層設定 (Infrastructure Layer Setup)
+- **[x] 2.1: 更新 Docker Compose 設定 (`docker-compose.yml`)**
+    - **狀態**: `已完成`
+    - **任務**: 修改 `app-prod` 服務，移除 `env_file` 的依賴，改為在 `environment` 區塊明確列出所有從 Shell 傳入的生產環境變數，以提升安全性與配置清晰度。
+- **[x] 2.2: 設定 Nginx 伺服器**
+    - **狀態**: `已完成`
+    - **任務**:
+        1.  為新域名 `corpinsight.leopilot.com` 申請新的 SSL 憑證 (e.g., Let's Encrypt)。
+        2.  設定 Nginx，將所有來自 `insight.leopilot.com` 的 HTTP/HTTPS 流量，以 **301 永久重導向** 至 `https://corpinsight.leopilot.com`。
+        3.  設定 Nginx，使用新憑證來服務 `corpinsight.leopilot.com` 的流量，並將請求反向代理至 Next.js 的 Docker 容器 (e.g., `http://localhost:3000`)。
+
+### Phase 3: SEO 與分析層遷移 (SEO & Analytics Layer Migration)
+- **[x] 3.1: 執行 Google Search Console (GSC) 遷移**
+    - **狀態**: `已跳過 (測試環境不適用)`
+    - **理由**: 測試環境無需轉移舊域名的 SEO 權重，將 `corpinsight.leopilot.com` 視為全新網站處理。
+- **[x] 3.2: 更新 Google Analytics (GA)**
+    - **狀態**: `已跳過 (測試環境不適用)`
+    - **理由**: 將為新域名建立全新的 GA 資源或資料串流，而非更新舊有設定。
+- **[x] 3.3: 更新外部連結**
+    - **狀態**: `已跳過 (測試環境不適用)`
+    - **理由**: 測試環境無對外宣傳，不存在需要更新的外部反向連結。
+
+---
+## 4. 當前進度與後續步驟 (Current Status & Next Steps)
+
+- **當前進度**: 我們已經完成了**階段一 (應用程式層重構)** 的所有任務。所有相關程式碼都已修改完畢，並已暫存。
+- **後續步驟**:
+    1.  **修改 `docker-compose.yml`**: 我們需要執行 `Phase 2.1` 的任務。
+    2.  **部署與伺服器設定**: 您需要在 EC2 上部署更新後的程式碼，並完成 `Phase 2.2` 的 Nginx 設定。
+    3.  **SEO 遷移**: 在伺服器設定生效後，您需要執行 `Phase 3` 的所有 SEO 相關操作。
+
+---
+## 5. 開發進度追蹤 (Development Log)
+
+*(每次有重大進展時，請在此處新增一筆日誌)*
+
+- **2024-06-21**: `AI/Yippine` - 完成階段一「應用程式層重構」所有任務，包含程式碼更新、環境變數健檢、部署腳本優化，並建立此開發藍圖。
+- **2024-06-21**: `AI/Yippine` - 根據測試環境的實際情況，將 `Phase 3` 的 SEO 相關任務標記為不適用，簡化遷移流程。
+- **2024-06-21**: `AI/Yippine` - 完成 Nginx 設定與 GSC Sitemap 提交，正式結束域名遷移任務。
+
+
+- `YYYY-MM-DD`: `[Your Name/AI]` - `[Description of work done]`

@@ -1,0 +1,158 @@
+---
+description: 當需要開發或回顧「提示詞工作室 (Prompt Studio)」功能時應調用此規則。本規則為此功能的唯一真實來源 (Single Source of Truth)，涵蓋從後端 API、前端 UI 到互動邏輯的完整設計與開發任務清單，旨在為開發者提供一個即時、高效、無縫的 AI 工具提示詞優化環境。
+alwaysApply: false
+---
+
+## 1. 🎯 專案目標與核心原則
+
+### 1.1. 最終願景 (The Vision)
+
+在開發模式下，為所有使用 `PromptToolTemplate.tsx` 的 AI 工具頁面 (`/aitool/detail/[tool_id]`) 打造一個整合式的「提示詞工作室 (Prompt Studio)」。此工作室允許開發者即時編輯、並行測試、對比結果並一鍵保存提示詞，整個過程無需重新載入頁面，藉此大幅提升 74 個 AI 工具的提示詞工程效率。
+
+### 1.2. 指導原則 (Guiding Principles)
+
+- **最小功能異動原則**: 所有變更僅限於實現工作室功能，嚴禁改動、刪除任何與此功能無關的既有程式碼或樣式。
+- **開發模式限定**: 所有新功能 UI 與 API 必須由 `process.env.NODE_ENV === 'development'` 進行保護，確保正式環境的程式碼純淨與安全。
+- **無縫使用者體驗**: 所有互動（生成、儲存、重置）皆不可造成頁面刷新。焦點管理、非同步載入等細節必須以使用者心流不被打斷為最高優先。
+- **單一事實來源 (Single Source of Truth)**: 嚴格遵守本文件定義的架構與任務，避免偏離設計。共享的系統範本在資料庫中僅儲存一份。
+
+## 2. 🏛️ 整體架構設計 (High-Level Architecture)
+
+### 2.1. 前端架構 (`PromptToolTemplate.tsx`)
+
+- **狀態管理**: 新增 `originalConfig`, `editedConfig`, `isDirty`, `comparisonResult`, `isAwaitingFirstDualToken` 等狀態。
+- **元件**:
+  - `PromptStudio.tsx`: 可收合的編輯器區塊，僅在開發模式渲染。
+  - **UI 劃分**: `PromptStudio` 內部分為「個性化提示」和「通用系統範本」兩區，各自擁有獨立的儲存按鈕和 API 呼叫。
+- **渲染邏輯**:
+  - **雙欄對比**: 當 `isDirty` 為 `true` 時，觸發雙欄對比模式。
+  - **等待首字元**: 從舊結果切換至新結果（單欄 -> 雙欄，或 雙欄 -> 雙欄）的渲染時機，必須在任一新串流收到首個 token 後才觸發，以實現無縫轉換。
+  - **焦點管理**: `handleReset` 函式在完成所有重置操作後，必須自動將使用者焦點移回提示詞輸入框。
+
+### 2.2. 後端架構 (API & Database)
+
+- **資料庫**:
+  - `ai_tools` Collection: 用於儲存各工具的 `prefix` 和 `suffix`。
+  - `prompt_templates` Collection (新建): 用於儲存唯一的、共享的系統提示詞範本，文檔 `_id` 為 `template_prompt`。
+- **API 端點**:
+  - `POST /api/aitool/update-prompt`: (新建) 負責更新特定工具的 `prefix` 和 `suffix`。
+  - `POST /api/settings/update-system-prompt`: (新建) 負責更新 `prompt_templates` 中的共享系統範本。
+  - 兩個 API 都必須有 `NODE_ENV` 環境檢查，防止在正式環境被呼叫。
+
+### 2.3. 範本引擎邏輯 (`generatePromptText` 函式)
+
+- **範本語法**: 正式採納 `${}` 作為唯一的變數佔位符語法 (e.g., `${userInput}`), 以避免與常規 `{}` 語法衝突。
+- **佔位符**:
+  - `${userInput}`: 使用者輸入。
+  - `${prefix}`: 工具專屬 prefix。
+  - `${suffix}`: 工具專屬 suffix。
+  - `${followUpContext}`: 智慧型佔位符，僅在追問模式下展開。
+  - `${languageConstraint}`: 智慧型佔位符，根據工具 ID 判斷是否加入繁體中文限制。
+- **處理時機**: 每次點擊生成時，在前端即時處理範本取代。此操作性能損耗極低，無需引入額外的複雜機制。
+
+## 3. 🚀 迭代開發與驗收流程 (Interactive Development & Verification Flow)
+
+---
+
+### **Phase 1: 後端基礎建設 (Backend Foundation)**
+
+> **目標**: 建立穩固的資料儲存與 API 端點，為前端功能提供支援。
+
+- [ ] **Task 1.1: 資料庫初始化**
+
+  - **開發**:
+    1.  在 MongoDB 中建立新的 Collection: `prompt_templates`。
+    2.  編寫一個一次性的初始化腳本 (`scripts/init-global-settings.js` 或類似名稱)。
+    3.  此腳本將目前硬編碼在 `PromptToolTemplate.tsx` 的系統提示詞，作為預設值，建立一筆 `_id` 為 `template_prompt` 的文件並存入 `prompt_templates` Collection。
+  - **驗收**: 確認 `prompt_templates` Collection 與其初始文件已成功建立。
+
+- [ ] **Task 1.2: 建立 API 端點 - `update-system-prompt`**
+
+  - **開發**:
+    1.  建立 `app/api/settings/update-system-prompt/route.ts`。
+    2.  實現 `POST` 方法，接收 `template` 字串。
+    3.  加入 `process.env.NODE_ENV !== 'development'` 的檢查，非開發環境則回傳 403。
+    4.  實現更新 `prompt_templates` 中對應文檔的 `template` 欄位的邏輯。
+  - **驗收**: 透過 API 測試工具，確認此端點能正確更新資料庫，且環境保護有效。
+
+- [ ] **Task 1.3: 建立 API 端點 - `update-prompt`**
+  - **開發**:
+    1.  建立 `app/api/aitool/update-prompt/route.ts`。
+    2.  實現 `POST` 方法，接收 `toolId`, `prefix`, `suffix`。
+    3.  同樣加入 `NODE_ENV` 環境檢查。
+    4.  實現更新 `ai_tools` Collection 中對應 `toolId` 文件的 `promptTemplate.prefix` 和 `promptTemplate.suffix` 的邏輯。
+  - **驗收**: 透過 API 測試工具，確認此端點能正確更新指定工具的提示詞，且環境保護有效。
+
+---
+
+### **Phase 2: 智慧型範本引擎 (Client-side Templating Engine)**
+
+> **目標**: 讓 `PromptToolTemplate.tsx` 不再使用硬編碼提示詞，而是動態生成。
+
+- [ ] **Task 2.1: 改造 `generatePromptText` 函式**
+  - **開發**:
+    1.  修改 `getToolConfig` 或相關頁面載入邏輯，使其能從後端同時獲取 `ai_tool` 的設定與 `prompt_templates` 中的共享系統範本。
+    2.  重構 `generatePromptText` 函式，使其不再是硬編碼結構。
+    3.  新的邏輯將以共享系統範本為基礎，並使用 `String.prototype.replace()` 依序替換 `${...}` 佔位符。
+    4.  實現對 `${followUpContext}` 和 `${languageConstraint}` 等智慧型佔位符的邏輯判斷。
+  - **驗收**: 在 `generatePromptText` 函式末端加入 `console.log`，手動在 `dev` 環境中觸發生成，驗證輸出到 console 的最終提示詞字串，在各種情況（新對話、追問、英文作家工具）下都符合預期。
+
+---
+
+### **Phase 3: 「Prompt Studio」UI 與核心狀態 (UI Shell & State Management)**
+
+> **目標**: 建立工作室的視覺骨架，並將其與前端狀態連結。
+
+- [ ] **Task 3.1: 建立 `PromptStudio` 元件與狀態**
+  - **開發**:
+    1.  建立 `src/components/tools/common/PromptStudio.tsx`。
+    2.  在 `PromptToolTemplate.tsx` 中引入並在 `dev` 模式下條件渲染它。
+    3.  在 `PromptToolTemplate.tsx` 中新增 `originalConfig`, `editedConfig`, `isDirty`, `comparisonResult` 等 state。
+    4.  在 `PromptStudio` 中建立 UI 骨架，包含兩個區塊（工具專屬、通用系統）、各自的 `textarea` 與「儲存」按鈕。
+- [ ] **Task 3.2: 連結 UI 與狀態**
+  - **開發**:
+    1.  將 `editedConfig` 和共享系統範本的 state 綁定到對應的 `textarea`。
+    2.  實作 `isDirty` 的邏輯，當 `editedConfig` 或共享範本與 `originalConfig` 不符時，`isDirty` 為 `true`。
+    3.  根據 `isDirty` 的狀態來啟用/禁用對應的「儲存」按鈕。
+    4.  為「儲存」按鈕添加 `onClick` 事件，使其能呼叫 Phase 1 建立的對應 API。
+  - **驗收**:
+    1.  確認在開發模式下，`PromptStudio` 正常顯示。
+    2.  確認在 `textarea` 中輸入內容會觸發 `isDirty` 狀態，並啟用儲存按鈕。
+    3.  確認點擊儲存按鈕後，網路請求已發出，且資料庫內容被更新。
+
+---
+
+### **Phase 4: 雙欄對比與無縫渲染 (Comparison View & Seamless Rendering)**
+
+> **目標**: 實現核心的 A/B Test 功能與極致的渲染體驗。
+
+- [ ] **Task 4.1: 實現雙欄生成邏輯**
+  - **開發**:
+    1.  重構 `useGeminiStream` hook 或在 `PromptToolTemplate` 中建立它的兩個實例，以支援並行串流。
+    2.  修改 `handleGenerate`，當 `isDirty` 為 `true` 時，使用兩組不同提示詞並行發起生成請求，並將結果分別寫入 `comparisonResult.original` 和 `comparisonResult.modified`。
+    3.  設計並實現渲染 `comparisonResult` 的雙欄 JSX 結構。
+- [ ] **Task 4.2: 實現「等待首字元」渲染**
+  - **開發**:
+    1.  引入 `isAwaitingFirstDualToken` 狀態。
+    2.  在 `handleGenerate` 發起請求前將其設為 `true`。
+    3.  在監聽串流結果的 `useEffect` 中，加入判斷邏輯：只有在收到任一串流的首個 token 且 `isAwaitingFirstDualToken` 為 `true` 時，才將 `isAwaitingFirstDualToken` 設為 `false` 並將 UI 切換至新的結果顯示區塊。
+  - **驗收**:
+    1.  進行一次普通生成。
+    2.  修改提示詞，再次生成。
+    3.  **仔細觀察**：舊的單欄結果應保持顯示，直到新的雙欄結果開始串流輸出第一個字時，畫面才瞬間、無縫地切換。
+
+---
+
+### **Phase 5: 體驗優化與最終打磨 (UX Polish & Final Touches)**
+
+> **目標**: 完善所有互動細節，確保功能完美交付。
+
+- [ ] **Task 5.1: 實現焦點管理**
+  - **開發**: 在 `handleReset` 函式（即「開啟全新對話」的處理邏輯）的末尾，添加 `promptInputRef.current?.focus()`。
+  - **驗收**: 點擊「開啟全新對話」按鈕後，確認游標自動聚焦於「需求描述」輸入框。
+- [ ] **Task 5.2: 視覺與風格一致性檢查**
+  - **開發**: 審視所有新加入的 UI 元素（按鈕、輸入框、區塊、標籤），確保其風格（顏色、邊距、陰影、圓角等）與 `ui-ux-aesthetic-guide.mdc` 及專案現有風格完全一致。
+  - **驗收**: 肉眼檢視，確保新介面與舊介面在視覺上是和諧統一的。
+- [ ] **Task 5.3: 端到端全流程測試**
+  - **開發**: 作為開發者，完整地模擬一次使用情境：進入頁面 -> 普通生成 -> 修改工具提示詞 -> 生成對比 -> 修改系統範本 -> 再次生成對比 -> 儲存工具提示詞 -> 再次生成（變回單欄） -> 儲存系統範本 -> 重置對話。
+  - **驗收**: 完成上述測試流程，確保所有功能、狀態轉換、UI 變化均符合本藍圖的設計，無任何 bug 或非預期行為。
