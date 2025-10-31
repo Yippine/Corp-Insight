@@ -2,7 +2,7 @@
 
 使用方式（給使用者的指令語句）：
 
-- 「請參照 `/projects/Corp-Insight/next/prompts/PROCESS.md`，為我填寫 NNNN（0001–0023）的 AI 工具定義」
+- 「請參照 `/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/PROCESS.md`，為我填寫 NNNN（0001–0023）的 AI 工具定義」
   - 其中 NNNN 為 4 位數的批次代碼（前補零）。
 
 ## 填寫規則

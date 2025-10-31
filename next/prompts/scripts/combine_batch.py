@@ -15,7 +15,7 @@ def combine_batch_files(batch_number):
     batch_str = str(batch_number).zfill(4)
 
     # 設定路徑
-    base_dir = Path('/projects/Corp-Insight/next/prompts/batches')
+    base_dir = Path('/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches')
     batch_dir = base_dir / batch_str
     output_file = batch_dir / 'combined-content.json'
 
@@ -80,7 +80,7 @@ def combine_batch_files(batch_number):
 
 def combine_all_batches():
     """合併所有批次"""
-    base_dir = Path('/projects/Corp-Insight/next/prompts/batches')
+    base_dir = Path('/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches')
     batch_dirs = sorted([d for d in base_dir.iterdir() if d.is_dir()])
 
     success_count = 0

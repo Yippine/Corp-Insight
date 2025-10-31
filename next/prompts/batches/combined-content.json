@@ -1,11 +1,11 @@
 {
   "batch": "0000",
-  "batch_directory": "/projects/Corp-Insight/next/prompts/batches/0000",
+  "batch_directory": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000",
   "total_files": 25,
   "files": [
     {
       "filename": "主題介紹.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/主題介紹.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/主題介紹.json",
       "content": {
         "_id": {
           "$oid": "2802e6781e4edf36bf31355f"
@@ -36,7 +36,7 @@
     },
     {
       "filename": "五位 AI 學生.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/五位 AI 學生.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/五位 AI 學生.json",
       "content": {
         "_id": {
           "$oid": "6e3f9ceb66e052dcfe11b3d2"
@@ -67,7 +67,7 @@
     },
     {
       "filename": "修正語句.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/修正語句.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/修正語句.json",
       "content": {
         "_id": {
           "$oid": "2be3a5e20fb25377b70f1c36"
@@ -98,7 +98,7 @@
     },
     {
       "filename": "個人學習計畫設計師.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/個人學習計畫設計師.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/個人學習計畫設計師.json",
       "content": {
         "_id": {
           "$oid": "c70aebdb1fadefab1f4d0bd0"
@@ -129,7 +129,7 @@
     },
     {
       "filename": "個人教育 AI 助理.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/個人教育 AI 助理.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/個人教育 AI 助理.json",
       "content": {
         "_id": {
           "$oid": "6aafc336e6827b34dccb8191"
@@ -160,7 +160,7 @@
     },
     {
       "filename": "口說英語老師與改進者.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/口說英語老師與改進者.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/口說英語老師與改進者.json",
       "content": {
         "_id": {
           "$oid": "2ddad6d4516235b6774071aa"
@@ -191,7 +191,7 @@
     },
     {
       "filename": "四重結構的資訊老師.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/四重結構的資訊老師.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/四重結構的資訊老師.json",
       "content": {
         "_id": {
           "$oid": "3963985fcc950abb0b91b2bf"
@@ -222,7 +222,7 @@
     },
     {
       "filename": "學校演算法教師.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/學校演算法教師.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/學校演算法教師.json",
       "content": {
         "_id": {
           "$oid": "45a5bcd7eb6365025228f4a6"
@@ -253,7 +253,7 @@
     },
     {
       "filename": "教育內容創作者語言.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/教育內容創作者語言.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/教育內容創作者語言.json",
       "content": {
         "_id": {
           "$oid": "d8b521c3ff7822c47fffebab"
@@ -284,7 +284,7 @@
     },
     {
       "filename": "數學教師.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/數學教師.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/數學教師.json",
       "content": {
         "_id": {
           "$oid": "8246b9fa417eb7d4685d8de0"
@@ -315,7 +315,7 @@
     },
     {
       "filename": "數學老師.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/數學老師.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/數學老師.json",
       "content": {
         "_id": {
           "$oid": "c126743ff7ba2c07f5f35bb0"
@@ -346,7 +346,7 @@
     },
     {
       "filename": "歷史學家.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/歷史學家.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/歷史學家.json",
       "content": {
         "_id": {
           "$oid": "508f5dc6450e1479b14d309e"
@@ -377,7 +377,7 @@
     },
     {
       "filename": "知識導師.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/知識導師.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/知識導師.json",
       "content": {
         "_id": {
           "$oid": "4deec3b57b5718577446b45e"
@@ -408,7 +408,7 @@
     },
     {
       "filename": "知識文字世界的導覽.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/知識文字世界的導覽.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/知識文字世界的導覽.json",
       "content": {
         "_id": {
           "$oid": "5eaffb5aca52ca4fb8cfc471"
@@ -439,7 +439,7 @@
     },
     {
       "filename": "知識評估助手.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/知識評估助手.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/知識評估助手.json",
       "content": {
         "_id": {
           "$oid": "dba4908a150fcfa2d2fef7e2"
@@ -470,7 +470,7 @@
     },
     {
       "filename": "統計學家.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/統計學家.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/統計學家.json",
       "content": {
         "_id": {
           "$oid": "bca0b2213ff701860241654f"
@@ -501,7 +501,7 @@
     },
     {
       "filename": "育兒專家.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/育兒專家.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/育兒專家.json",
       "content": {
         "_id": {
           "$oid": "325c81378c3db896e2ee7f95"
@@ -532,7 +532,7 @@
     },
     {
       "filename": "英語口說教師.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/英語口說教師.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/英語口說教師.json",
       "content": {
         "_id": {
           "$oid": "f06a3725f32040e824ad81f2"
@@ -563,7 +563,7 @@
     },
     {
       "filename": "英語夥伴.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/英語夥伴.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/英語夥伴.json",
       "content": {
         "_id": {
           "$oid": "26c1d572f49375554b33e17e"
@@ -594,7 +594,7 @@
     },
     {
       "filename": "英語改善助手.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/英語改善助手.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/英語改善助手.json",
       "content": {
         "_id": {
           "$oid": "9092c48926cc94f3f14cf815"
@@ -625,7 +625,7 @@
     },
     {
       "filename": "英語教授.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/英語教授.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/英語教授.json",
       "content": {
         "_id": {
           "$oid": "31bf230f7cc3305242d29a95"
@@ -656,7 +656,7 @@
     },
     {
       "filename": "視覺轉換 AI.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/視覺轉換 AI.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/視覺轉換 AI.json",
       "content": {
         "_id": {
           "$oid": "24db85a6a05242bf78598b7d"
@@ -687,7 +687,7 @@
     },
     {
       "filename": "記憶大師.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/記憶大師.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/記憶大師.json",
       "content": {
         "_id": {
           "$oid": "a2896e6c8f31e65469c00137"
@@ -718,7 +718,7 @@
     },
     {
       "filename": "語源學家.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/語源學家.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/語源學家.json",
       "content": {
         "_id": {
           "$oid": "7e34445aca899cdcab9715df"
@@ -749,7 +749,7 @@
     },
     {
       "filename": "頂尖研究員和專家.json",
-      "filepath": "/projects/Corp-Insight/next/prompts/batches/0000/頂尖研究員和專家.json",
+      "filepath": "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/next/prompts/batches/0000/頂尖研究員和專家.json",
       "content": {
         "_id": {
           "$oid": "de30cc9fcf40b723b28a4d56"
