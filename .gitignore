@@ -137,12 +137,6 @@ dist
 **/.sitemap-monitor.pid
 **/.sitemap-monitor.lock
 
-# BMad Method installation package
-.bmad-*/
-.claude/
-.cursor/
-web-bundles/
-
 # Exception for docs/
 !docs/.cursor/
 !docs/.claude/
@@ -155,3 +149,7 @@ Corp-Insight.code-workspace
 
 # Claude specific files
 **/CLAUDE.md
+
+# Formula-Contract work files
+.claude/
+FORMULA.md
