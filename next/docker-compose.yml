@@ -14,7 +14,6 @@ services:
       MONGO_INITDB_DATABASE: corp-insight
     volumes:
       - mongodb_data:/data/db
-      - ./docker/mongodb/init:/docker-entrypoint-initdb.d:ro
       - ./db:/data/db-mount
     networks:
       - corp-insight-network
