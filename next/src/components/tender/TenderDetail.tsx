@@ -8,7 +8,6 @@ import BackButton from '../common/BackButton';
 import TenderDetailTracker from './TenderDetailTracker';
 import TenderHeader from './detail/TenderHeader';
 import TenderTabNavigation from './detail/TenderTabNavigation';
-import YesNoSection from './detail/YesNoSection';
 import TenderBasicInfo from './detail/TenderBasicInfo';
 import TenderSpecialInfo from './detail/TenderSpecialInfo';
 import { InlineLoading } from '@/components/common/loading/LoadingTypes';
@@ -74,23 +73,10 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
     );
   }
 
-  // 修改區塊渲染邏輯
+  // 修改區塊渲染邏輯 - 完全比照 Legacy 設計
   const renderSection = (section: (typeof sections)[0]) => {
     if (section.title === '最有利標' || section.title === '其他') {
-      return <TenderSpecialInfo section={section} />;
-    }
-
-    // 檢查是否包含是/否欄位
-    const hasYesNoFields = section.fields.some(field => {
-      if (typeof field.value === 'string') {
-        const value = field.value.trim().toLowerCase();
-        return value === '是' || value === '否';
-      }
-      return false;
-    });
-
-    if (hasYesNoFields) {
-      return <YesNoSection section={section} />;
+      return <TenderSpecialInfo section={section} targetRecord={targetRecord} />;
     }
 
     return (
@@ -138,29 +124,26 @@ export default function TenderDetail({ tenderId }: TenderDetailProps) {
           )
       )}
 
-      <div className="rounded-lg bg-white p-4 shadow-sm">
-        <h4 className="mb-2 text-sm font-medium text-gray-500">資料來源</h4>
-        <div className="space-y-1">
-          <div className="flex items-center text-sm text-gray-600">
-            <a
-              href="https://web.pcc.gov.tw/pis/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              政府電子採購網
-            </a>
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <a
-              href="https://pcc-api.openfun.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              標案瀏覽
-            </a>
-          </div>
+      <div className="text-sm text-gray-500 text-center mt-4 space-y-1">
+        <div className="flex justify-center">
+          <span className="text-gray-500">資料來源：</span>
+          <a
+            href="https://web.pcc.gov.tw/pis/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            政府電子採購網
+          </a>
+          <span className="text-gray-300 px-2">|</span>
+          <a
+            href="https://pcc-api.openfun.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            標案瀏覽
+          </a>
         </div>
       </div>
     </div>

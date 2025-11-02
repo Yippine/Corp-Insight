@@ -1,52 +1,167 @@
 'use client';
 
-import { UserRound, Briefcase, GraduationCap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Badge } from '../../common/Badge';
 
-interface CommitteeMember {
-  name: string;
-  expertise: boolean;
-  field: string;
-  experience: string;
+// 解析專業經驗函數
+function parseExperience(experienceText: string) {
+  if (!experienceText) return [];
+
+  // 拆分多個經歷
+  const experiences = experienceText
+    .split(/經歷\d+：/)
+    .filter(exp => exp.trim().length > 0);
+
+  return experiences.map(exp => {
+    const parts: Record<string, string> = {};
+
+    // 嘗試提取三個標準字段
+    const fields = [
+      {
+        key: '服務機關(構)名稱',
+        pattern: /服務機關\(構\)名稱：([^職]+)職稱：/,
+      },
+      { key: '職稱', pattern: /職稱：([^所]+)所任工作：/ },
+      { key: '所任工作', pattern: /所任工作：(.+)$/ },
+    ];
+
+    fields.forEach(({ key, pattern }) => {
+      const match = exp.match(pattern);
+      parts[key] = match ? match[1].trim() : '';
+    });
+
+    return parts;
+  });
 }
 
 interface CommitteeCardProps {
-  member: CommitteeMember;
+  committee: any;
 }
 
-export default function CommitteeCard({ member }: CommitteeCardProps) {
+export default function CommitteeCard({ committee }: CommitteeCardProps) {
+  const isAttended = committee.出席會議 === '是';
+  const attendanceLabel = isAttended ? '已出席' : '未出席';
+  const experiences = parseExperience(committee.與採購案相關之學經歷);
+
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      <div className="mb-3 flex items-center">
-        <div
-          className={`mr-3 rounded-full p-2 ${member.expertise ? 'bg-green-100' : 'bg-blue-100'}`}
+    <motion.div
+      key={committee.姓名}
+      className="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      whileHover={{ y: -2 }}
+    >
+      <div className="mb-4 flex items-start justify-between">
+        <div className="space-y-2">
+          <h4 className="flex items-center text-lg font-semibold text-gray-900">
+            <span className="mr-3 h-2.5 w-2.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-600"></span>
+            {committee.姓名 || '評選委員姓名未提供'}
+          </h4>
+        </div>
+        <Badge
+          variant="outline"
+          colorScheme={isAttended ? 'green' : 'red'}
+          className="text-sm font-medium tracking-wide"
         >
-          <UserRound
-            className={`h-5 w-5 ${member.expertise ? 'text-green-600' : 'text-blue-600'}`}
-          />
-        </div>
-        <div>
-          <h4 className="font-medium text-gray-800">{member.name}</h4>
-          <span
-            className={`rounded px-2 py-0.5 text-xs ${member.expertise ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}
-          >
-            {member.expertise ? '專家學者' : '一般委員'}
-          </span>
-        </div>
+          {attendanceLabel}
+        </Badge>
       </div>
 
-      {member.field && (
-        <div className="my-2 flex items-center text-gray-600">
-          <Briefcase className="mr-2 h-4 w-4 text-gray-400" />
-          <span className="text-sm">{member.field}</span>
+      <dl className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="col-span-1">
+          <dt className="mb-3 text-sm font-medium text-gray-500">現任職務</dt>
+          <dd>
+            {committee.職業 && (
+              <div className="flex flex-wrap gap-2">
+                {committee.職業.split('；').map((field: string, idx: number) => (
+                  <Badge
+                    key={idx}
+                    variant="outline"
+                    colorScheme="purple"
+                    className="cursor-pointer text-sm font-medium tracking-wide transition-transform duration-200 hover:scale-105"
+                    title="點擊查看相關標案"
+                  >
+                    {field.trim()}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </dd>
         </div>
-      )}
 
-      {member.expertise && member.experience && (
-        <div className="my-2 flex items-start text-gray-600">
-          <GraduationCap className="mr-2 mt-1 h-4 w-4 flex-shrink-0 text-gray-400" />
-          <span className="text-sm">{member.experience}</span>
+        <div className="col-span-2">
+          <dt className="mb-3 text-sm font-medium text-gray-500">
+            專業領域與相關經歷
+          </dt>
+          {experiences.length > 0 ? (
+            <div className="space-y-4">
+              {experiences.map((exp, expIndex) => (
+                <motion.div
+                  key={expIndex}
+                  className="rounded-xl border border-gray-100 bg-gradient-to-br from-gray-50 to-white p-4 shadow-sm"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: expIndex * 0.1 }}
+                >
+                  <h5 className="mb-3 flex items-center text-base font-semibold text-gray-800">
+                    <span className="mr-2 h-4 w-1.5 rounded-full bg-blue-500 opacity-75"></span>
+                    專業經歷 {expIndex + 1}
+                  </h5>
+                  <div className="space-y-4">
+                    {Object.entries(exp).map(([key, value], idx) => (
+                      <div key={idx} className="space-y-2">
+                        <div className="flex items-center text-sm font-medium text-gray-600">
+                          <span className="mr-2 h-1 w-1 rounded-full bg-gray-400"></span>
+                          {key === '服務機關(構)名稱'
+                            ? '服務單位'
+                            : key === '職稱'
+                              ? '擔任職務'
+                              : '專業技能'}
+                        </div>
+                        <div className="flex flex-wrap gap-2 pl-3">
+                          {value
+                            .split(/、|，|;|；/)
+                            .filter(item => item.trim())
+                            .map((item, itemIdx) => (
+                              <Badge
+                                key={itemIdx}
+                                variant="solid"
+                                colorScheme={
+                                  key === '服務機關(構)名稱'
+                                    ? 'blue'
+                                    : key === '職稱'
+                                      ? 'purple'
+                                      : 'green'
+                                }
+                                className="text-sm font-medium tracking-wide transition-transform duration-200 hover:scale-105"
+                              >
+                                {item.trim()}
+                              </Badge>
+                            ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 text-sm italic text-gray-500">
+              無相關專業經歷記錄
+            </div>
+          )}
         </div>
-      )}
-    </div>
+
+        {committee.備註 && (
+          <div className="col-span-2 mt-4">
+            <dt className="mb-2 text-sm font-medium text-gray-500">評選備註</dt>
+            <dd className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-base text-gray-700">
+              {committee.備註}
+            </dd>
+          </div>
+        )}
+      </dl>
+    </motion.div>
   );
 }

@@ -1,133 +1,205 @@
 'use client';
 
-import { Section, FieldValue } from '../../../hooks/useTenderDetail';
+import { motion } from 'framer-motion';
+import { Users } from 'lucide-react';
+import { Badge } from '../../common/Badge';
+import { Section } from '../../../hooks/useTenderDetail';
+import TenderBasicInfo from './TenderBasicInfo';
+import { TenderRecord } from '../../../hooks/useTenderDetail';
 import CommitteeCard from '../detail-components/CommitteeCard';
-import ComplaintUnitCard from '../detail-components/ComplaintUnitCard';
+import ComplaintUnitCard, {
+  parseComplaintUnits,
+} from '../detail-components/ComplaintUnitCard';
 
 interface TenderSpecialInfoProps {
   section: Section;
+  targetRecord: TenderRecord | null;
 }
 
-export default function TenderSpecialInfo({ section }: TenderSpecialInfoProps) {
-  // 處理評選委員資料
-  const findCommitteeMembers = (): any[] => {
-    const committeeField = section.fields.find(f => f.label === '評選委員');
-    if (!committeeField || !committeeField.children) return [];
+export default function TenderSpecialInfo({
+  section,
+  targetRecord,
+}: TenderSpecialInfoProps) {
+  // 根據部分類型選擇渲染邏輯
+  if (section.title === '最有利標') {
+    return renderMostAdvantageousSection(section, targetRecord);
+  } else if (section.title === '其他') {
+    return renderOtherInfoSection(section, targetRecord);
+  }
 
-    return committeeField.children.map(child => {
-      const name = child.children?.find(f => f.label === '姓名')?.value || '';
-      const expertise =
-        child.children?.find(f => f.label === '專家學者')?.value === '是';
-      const field = child.children?.find(f => f.label === '職業')?.value || '';
-      const experience =
-        child.children?.find(f => f.label === '專家學者專長')?.value || '';
+  // 預設情況
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      <TenderBasicInfo section={section} />
+    </motion.div>
+  );
+}
 
-      return { name, expertise, field, experience };
-    });
-  };
+// 渲染最有利標部分
+function renderMostAdvantageousSection(
+  section: Section,
+  targetRecord: TenderRecord | null
+) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      <motion.div className="overflow-hidden rounded-xl bg-white shadow-lg">
+        <div className="bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4">
+          <h3 className="flex items-center text-xl font-semibold text-gray-800">
+            <span className="mr-3 h-6 w-2 rounded-full bg-blue-500"></span>
+            評選委員組成
+          </h3>
+        </div>
 
-  // 處理檢舉受理單位資料
-  const findComplaintUnits = (): any[] => {
-    const complaintField = section.fields.find(f => f.label === '檢舉受理單位');
-    if (!complaintField || !complaintField.children) return [];
-
-    return complaintField.children.map(child => {
-      const name = child.children?.find(f => f.label === '名稱')?.value || '';
-      const phone = child.children?.find(f => f.label === '電話')?.value || '';
-      const address =
-        child.children?.find(f => f.label === '地址')?.value || '';
-      const fax = child.children?.find(f => f.label === '傳真')?.value || '';
-
-      return { name, phone, address, fax };
-    });
-  };
-
-  // 通用欄位渲染
-  const renderGeneralFields = () => {
-    const generalFields = section.fields.filter(
-      f => f.label !== '評選委員' && f.label !== '檢舉受理單位'
-    );
-
-    return (
-      <div className="space-y-4">
-        {generalFields.map(field => {
-          if (!field.value && (!field.children || field.children.length === 0))
-            return null;
-
-          return (
-            <div key={field.label} className="border-b border-gray-200 pb-4">
-              <h3 className="mb-2 text-lg font-medium text-gray-800">
-                {field.label}
-              </h3>
-
-              {field.value && (
-                <div className="text-gray-600">{field.value}</div>
-              )}
-
-              {field.children && field.children.length > 0 && (
-                <div className="mt-2 grid grid-cols-1 gap-4 lg:grid-cols-2">
-                  {field.children.map(child => renderChildField(child))}
+        <div className="space-y-6 px-6 py-5">
+          {targetRecord?.detail['最有利標:評選委員']?.map(
+            (group: any[], index: number) => (
+              <motion.div
+                key={index}
+                className="space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {group.map(committee => (
+                    <CommitteeCard key={committee.姓名} committee={committee} />
+                  ))}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
+              </motion.div>
+            )
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// 渲染其他資訊部分
+function renderOtherInfoSection(
+  section: Section,
+  targetRecord: TenderRecord | null
+) {
+  const queryUnitData =
+    targetRecord?.detail[
+      '其他:疑義、異議、申訴及檢舉受理單位:疑義、異議受理單位'
+    ];
+  const appealData =
+    targetRecord?.detail['其他:疑義、異議、申訴及檢舉受理單位:申訴受理單位'];
+  const complaintData =
+    targetRecord?.detail['其他:疑義、異議、申訴及檢舉受理單位:檢舉受理單位'];
+  const filteredFields = section.fields.filter(
+    field => !field.label.includes('疑義、異議、申訴及檢舉受理單位')
+  );
+
+  // 創建一個臨時的 section 物件僅包含過濾後的欄位
+  const otherInfoSection = {
+    ...section,
+    title: '補充說明資訊',
+    fields: filteredFields,
   };
-
-  // 子欄位渲染
-  const renderChildField = (field: FieldValue) => {
-    if (!field.value && (!field.children || field.children.length === 0))
-      return null;
-
-    return (
-      <div key={field.label} className="border-b border-gray-100 pb-2">
-        <div className="text-sm font-medium text-gray-700">{field.label}</div>
-        {field.value && <div className="text-gray-600">{field.value}</div>}
-
-        {field.children && field.children.length > 0 && (
-          <div className="ml-4 mt-1">
-            {field.children.map(child => renderChildField(child))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const committeeMembers = findCommitteeMembers();
-  const complaintUnits = findComplaintUnits();
 
   return (
-    <div className="rounded-lg bg-white p-6 shadow-sm">
-      {/* 評選委員 */}
-      {committeeMembers.length > 0 && (
-        <div className="mb-8">
-          <h3 className="mb-4 text-lg font-medium text-gray-800">評選委員</h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {committeeMembers.map((member, index) => (
-              <CommitteeCard key={index} member={member} />
-            ))}
-          </div>
-        </div>
-      )}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      {/* 使用 TenderBasicInfo 來渲染其他區塊 */}
+      <TenderBasicInfo section={otherInfoSection} />
 
-      {/* 檢舉受理單位 */}
-      {complaintUnits.length > 0 && (
-        <div className="mb-8">
-          <h3 className="mb-4 text-lg font-medium text-gray-800">
-            檢舉受理單位
-          </h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {complaintUnits.map((unit, index) => (
-              <ComplaintUnitCard key={index} unit={unit} />
-            ))}
+      {/* 整合後的受理單位專區 */}
+      {(queryUnitData || complaintData || appealData) && (
+        <motion.div
+          className="overflow-hidden rounded-xl bg-white shadow-lg"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4">
+            <h3 className="flex items-center text-xl font-semibold text-gray-800">
+              <span className="mr-3 h-6 w-2 rounded-full bg-blue-500"></span>
+              採購案件聯絡與申訴管道
+            </h3>
           </div>
-        </div>
-      )}
 
-      {/* 一般資訊 */}
-      {renderGeneralFields()}
-    </div>
+          <div className="space-y-8 px-6 py-5">
+            {/* 疑義/異議受理單位 */}
+            {queryUnitData && (
+              <motion.div
+                className="rounded-2xl border border-gray-200 bg-gray-50 p-6"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                <div className="mb-4 flex items-center justify-between">
+                  <h4 className="flex items-center text-lg font-semibold text-gray-900">
+                    <span className="mr-3 h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+                    採購案件諮詢窗口
+                  </h4>
+                  <Users className="h-6 w-6 text-blue-500" />
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-600">
+                      主辦機關單位
+                    </div>
+                    <Badge
+                      variant="solid"
+                      colorScheme="blue"
+                      className="text-base font-medium"
+                    >
+                      {queryUnitData}
+                    </Badge>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* 新增申訴受理單位區塊 */}
+            {appealData && (
+              <motion.div
+                className="space-y-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <h4 className="flex items-center border-b pb-3 text-lg font-semibold text-gray-900">
+                  <span className="mr-3 h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+                  政府採購申訴管道
+                </h4>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {parseComplaintUnits(appealData).map(unit => (
+                    <ComplaintUnitCard key={unit.name} unit={unit} />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* 檢舉受理單位列表 */}
+            {complaintData && (
+              <motion.div
+                className="space-y-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <h4 className="flex items-center border-b pb-3 text-lg font-semibold text-gray-900">
+                  <span className="mr-3 h-2.5 w-2.5 rounded-full bg-red-500"></span>
+                  政府採購監督管道
+                </h4>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {parseComplaintUnits(complaintData).map(unit => (
+                    <ComplaintUnitCard key={unit.name} unit={unit} />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </motion.div>
   );
 }
