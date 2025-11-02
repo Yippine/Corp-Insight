@@ -37,7 +37,7 @@ services:
     env_file:
       - .env.local
     ports:
-      - "3000:3000"
+      - "3001:3000"
     restart: unless-stopped
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/corp-insight?authSource=admin
@@ -70,7 +70,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3002:3000"
     restart: unless-stopped
     env_file:
       - ./.env.production
