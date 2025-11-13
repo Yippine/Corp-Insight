@@ -2,19 +2,25 @@ module.exports = {
   apps: [
     {
       name: "corp-insight-legacy",
-      // 使用 npx 來執行 serve
-      script: "npx",
-      args: "serve -s . -l tcp://127.0.0.1:4173",
+      // 直接指向 node_modules 中 serve 的執行檔
+      script: "./node_modules/serve/build/main.js",
+
+      // 指定 Node.js interpreter 路徑
+      interpreter: "/home/ec2-user/.nvm/versions/node/v20.19.2/bin/node",
+
+      // 傳遞給 serve 的參數
+      args: "-s . -l tcp://127.0.0.1:4173",
 
       // 執行目錄設置為 legacy
-      cwd: "/mnt/c/Users/user/Documents/Yippine/Program/Corp-Insight/legacy",
+      cwd: "/home/ec2-user/Corp-Insight/legacy",
 
-      // 基本配置
+      // exec_mode 設為 'fork'
+      // 這是管理單實例、非 Node.js 原生 cluster 應用的標準模式
       exec_mode: "fork",
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: "500M",
+      max_memory_restart: "1G",
 
       // 環境變量
       env: {
