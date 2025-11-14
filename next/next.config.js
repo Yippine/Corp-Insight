@@ -113,6 +113,16 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,POST,PUT,DELETE,OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value:
+              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, rsc, next-router-state-tree, next-url, next-router-prefetch',
+          },
           // 添加緩存控制以提高性能
           { key: 'Cache-Control', value: 'public, max-age=3600' }, // 1小時緩存
           // 添加安全頭
