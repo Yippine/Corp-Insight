@@ -108,7 +108,7 @@ function setCorsHeaders(response: NextResponse, request: NextRequest) {
   );
   response.headers.set(
     'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, X-Requested-With, X-CSRF-Token, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version'
+    'Content-Type, Authorization, X-Requested-With, X-CSRF-Token, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version, rsc, next-router-state-tree, next-url, next-router-prefetch'
   );
   response.headers.set('Access-Control-Max-Age', '86400'); // 24 小時
 }
