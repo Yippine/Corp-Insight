@@ -6,13 +6,13 @@ module.exports = {
       script: "./node_modules/serve/build/main.js",
 
       // 指定 Node.js interpreter 路徑
-      interpreter: "/home/ec2-user/.nvm/versions/node/v20.19.2/bin/node",
+      interpreter: "/home/leowu/.nvm/versions/node/v20.19.4/bin/node",
 
       // 傳遞給 serve 的參數
       args: "-s . -l tcp://127.0.0.1:4173",
 
       // 執行目錄設置為 legacy
-      cwd: "/home/ec2-user/Corp-Insight/legacy",
+      cwd: "/home/leowu/Yippine/Corp-Insight/legacy",
 
       // exec_mode 設為 'fork'
       // 這是管理單實例、非 Node.js 原生 cluster 應用的標準模式
